@@ -18,7 +18,8 @@
 #  $ u ... does update, same as v u
 #  $ v u ... does update
 #  $ v s ... does status
-#  $ v i -m fixx ... does commit
+#  $ v i -m fixx ... does commit AND push
+#  $ v il -m fixx ... does commit local (same as above is no such notion)
 #  $ v ii ... resolve conflict
 #  $ v d ... does diff
 #  $ v dd ... does diff ignoring whitespace
@@ -74,6 +75,7 @@ esac
 #################### passing spaces is HARD XXX
 cvs_u='up -Pd'
 cvs_i='ci'
+cvs_il='ci'
 cvs_ii='ci'
 cvs_d='diff -bw'
 cvs_dd=$cvs_d
@@ -86,6 +88,7 @@ cvs_v='up -C'
 
 svn_u='update'
 svn_i='ci'
+svn_il='ci'
 svn_ii='resolved'    #after conflct, before commit + needs another commit
 svn_d='diff'
 svn_dd='diff --diff-cmd diff -x -btwU3'
@@ -101,6 +104,7 @@ svn_u_pipe="| grep -viE '(external |^$)'"
 
 bzr_u='update'
 bzr_i='commit'
+bzr_il='commit --local'
 bzr_ii='resolve'    #after conflct, before commit + needs another commit
 bzr_d='diff'
 bzr_dd='diff --diff-options=-btwU3'
@@ -141,9 +145,9 @@ git_s='status -s'
 git_d='diff'
 git_dd='diff -b'
 git_u='pull'
-git_i='commit'  #local
-git_ip='commit'
-git_ip_pipe='; git push'
+git_i='commit'
+git_i_pipe='; git push'
+git_il='commit'  #local
 git_ii='add'
 git_a='add'
 git_l='log'
