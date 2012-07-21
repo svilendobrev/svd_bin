@@ -1,0 +1,41 @@
+#!/bin/sh
+
+set -e
+
+date >> /tmp/hdparm.log
+[ -n "$DEVNAME" ] || exit 1
+
+date >> /tmp/hdparm.log
+. /lib/hdparm/hdparm-functions
+
+if [ -e /proc/cmdline ]; then #linux only - future proofing against BSD and Hurd :)
+	if grep -wq nohdparm /proc/cmdline ; then
+		exit 0
+	fi
+fi
+
+date >> /tmp/hdparm.log
+raidstat=OK
+if [ -e /proc/mdstat ]; then
+	if egrep -iq "resync|repair|recover|check" /proc/mdstat; then
+		raidstat=RESYNC
+	fi
+elif [ -e /proc/rd/status ]; then
+	raidstat=`cat /proc/rd/status`
+fi
+
+if ! [ "$raidstat" = 'OK' ]; then
+	exit 1
+fi
+
+date >> /tmp/hdparm.log
+OPTIONS=$(hdparm_options $DEVNAME)
+if [ -n "$OPTIONS" ]; then
+	echo $DEVNAME: $OPTIONS  >> /tmp/hdparm.log
+	/sbin/hdparm $OPTIONS $DEVNAME 2>&1 | cat >> /tmp/hdparm.log
+	# | cat ..  -> to avoid  set -e  above stopping it all
+	#2>&1
+	#>/dev/null
+fi
+echo ==========>>/tmp/hdparm.log
+exit 0

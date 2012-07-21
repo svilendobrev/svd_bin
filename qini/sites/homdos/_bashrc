@@ -1,0 +1,7 @@
+# .bashrc for dosbash
+
+# [ -f /etc/bashrc ] && . /etc/bashrc # Source global definitions
+
+export _INIs=/me/sys/
+_SITEs=__homdos
+. ${_INIs}_bashrc

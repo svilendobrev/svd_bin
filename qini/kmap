@@ -1,0 +1,86 @@
+#normals: [x, shifts: ]x, controls: {x
+
+# these more or less match usual term setups
+_kesc UP    '[A'
+_kesc DN    '[B'
+_kesc RIGHT '[C'
+_kesc LEFT  '[D'
+_kesc DEL   '[3~'
+_kesc INS   '[2~'
+_kesc HOME  '[1~'
+_kesc END   '[4~'
+_kesc PGUP  '[5~'
+_kesc PGDN  '[6~'
+
+# these via xrdb/xmodmap/loadkeys/dumpkeys
+_kesc sTAB   "]t"
+_kesc cTAB   "{t"
+
+_kesc cUP    "{a"
+_kesc cDN    "{b"
+_kesc cRIGHT "{c"
+_kesc cLEFT  "{d"
+_kesc cHOME  "{h"
+_kesc cEND   "{e"
+_kesc cPGUP  "{p"
+_kesc cPGDN  "{n"
+
+_kesc sUP    "]a"
+_kesc sDN    "]b"
+_kesc sLEFT  "]d"
+_kesc sRIGHT "]c"
+_kesc sHOME  "]h"
+_kesc sEND   "]e"
+#_kesc sPGUP "]p"
+#_kesc sPGDN "]n"
+
+#_kesc cINS  "{i"
+#_kesc cDEL  "{k"
+#_kesc sINS  "]i"
+#_kesc sDEL  "]k"
+
+# f1-f10 may match usual term setups
+#_kesc F1    "[[A"
+#_kesc F2    "[[B"
+#_kesc F3    "[[C"
+#_kesc F4    "[[D"
+#_kesc F5    "[[E"
+_kesc F1    "OP"
+_kesc F2    "OQ"
+_kesc F3    "OR"
+_kesc F4    "OS"
+_kesc F5    "[15~"
+_kesc F6    "[17~"
+_kesc F7    "[18~"
+_kesc F8    "[19~"
+_kesc F9    "[20~"
+_kesc F10   "[21~"
+_kesc F11   "[23~"
+_kesc F12   "[24~"
+
+_kesc cF1   "{F1"
+_kesc cF2   "{F2"
+_kesc cF3   "{F3"
+_kesc cF4   "{F4"
+_kesc cF5   "{F5"
+_kesc cF6   "{F6"
+_kesc cF7   "{F7"
+_kesc cF8   "{F8"
+_kesc cF9   "{F9"
+_kesc cF10  "{F10"
+_kesc cF11  "{F11"
+_kesc cF12  "{F12"
+
+_kesc sF1   "]F1"
+_kesc sF2   "]F2"
+_kesc sF3   "]F3"
+_kesc sF4   "]F4"
+_kesc sF5   "]F5"
+_kesc sF6   "]F6"
+_kesc sF7   "]F7"
+_kesc sF8   "]F8"
+_kesc sF9   "]F9"
+_kesc sF10  "]F10"
+_kesc sF11  "]F11"
+_kesc sF12  "]F12"
+

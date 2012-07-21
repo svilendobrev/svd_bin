@@ -1,0 +1,37 @@
+#srate=44100
+ao=alsa
+ac=mp3,
+cache=15000
+#subcp=cp1251
+subcp=enca:bg:cp1251
+font=/usr/share/fonts/truetype/msttcorefonts/Verdana.ttf
+#font=/home/az/.mplayer/font/windows-1251-a.raw
+#subfont-encoding=cp1251
+subfont-text-scale=3.5
+#subalign=2
+#subpos=100
+#order!
+#vf=scale
+#vf=expand=0:-100:0:0:1
+
+####vf=expand=:::::4/3,screenshot	##XXX BREAKS ffh264vdpau
+
+#unicode=0
+#utf8=1
+
+#izbegni predi karmic
+stop-xscreensaver=1
+
+#aout-of-sync-xvid/mp3?
+#mc=0
+vo=vdpau,
+vc=ffmpeg12vdpau,ffh264vdpau,
+#vc=ffh264vdpau,
+
+use-filedir-conf=1
+
+#modern?
+#demuxer=lavf
+
+slang=bul,rus,eng
+alang=bul,rus,eng

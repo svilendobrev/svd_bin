@@ -1,0 +1,53 @@
+style "xfdesktop-icon-view" {
+    XfdesktopIconView::label-alpha = 10
+
+    base[NORMAL] = "#000000"
+#    base[NORMAL] = "#00ff00"
+#    base[SELECTED] = "#5050ff"
+#    base[ACTIVE] = "#0000ff"
+
+    fg[NORMAL]   = "#aaaaaa"
+    fg[SELECTED] = "#eeccee"
+    fg[ACTIVE]   = "#eedddd"
+}
+widget_class "*XfdesktopIconView*" style "xfdesktop-icon-view"
+
+style "mydefault" = "default" {
+    base[NORMAL]      = "#d4d0cc"	#text-bg + redove
+    base[INSENSITIVE] = "#e0c0c0" 	#text-bg2
+#    base[ACTIVE]      = "#b0b0d6" 	#
+#   base[PRELIGHT]      = "#80b0d6" 	#
+#   base[SELECTED]      = "#90b0d6" 	#selected line-bg
+#    bg[NORMAL]        = "#70b0d6" 	#fon menu/dialog-bg
+#    fg[SELECTED] = { 0.5, 1.000, 1.000 }
+
+    text[SELECTED]    = "#ffeeee"	#selected line-fg
+
+#    bg[ACTIVE]        = "#b0b0d6" 	#menu/dialog-bg
+#    bg[INSENSITIVE]   = "#b0b0d6" 	#menu/dialog-bg
+#    bg[PRELIGHT]      = "#b0b0d6" 	#menu/dialog-bg
+#    bg[SELECTED]      = "#b0b0d6" 	#menu/dialog-bg
+}
+widget_class "*" style "mydefault"
+
+######test?
+style "rox" = "default"
+{
+  bg[NORMAL] = "#ccddee"
+  bg[ACTIVE] = "#ddeecc"
+}
+widget_class "*Collection" style "rox"
+
+
+######test?
+#binding "vte-ctrls"
+#{
+#  bind "<ctrl>Tab"  { "insert-at-cursor" ("{t") }
+#  bind "<ctrl>Home" { "insert-at-cursor" ("{h") }
+#  bind "<ctrl>End"  { "insert-at-cursor" ("{e") }
+#}
+#
+#class  "*Terminal*" 	binding "vte-ctrls"
+#widget "*Terminal*" 	binding "vte-ctrls"
+#widget_class "*Terminal*" 	binding "vte-ctrls"
+##widget "*" 				binding "vte-ctrls"

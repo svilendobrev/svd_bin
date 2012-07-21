@@ -1,0 +1,30 @@
+#!/bin/bash
+#s.dobrev 2004 - sick of  guessing the archive type - it's computer's job anyway
+
+#name==xx : extract; else (vv): list
+#i.e. make two links to this - as xx and as vv
+
+if [ `basename $0` == xx ]; then A=x T=x Z= D=-x Z7=x; else A=v T=t Z=-v D=-c Z7=l; fi
+#echo "A=$A T=$T Z=$Z"
+lowcase=`echo $1 | LANG=C tr '[:upper:]' '[:lower:]'`
+case "x$lowcase" in
+ x*.tar )                   tar  ${T}vf "$@" ;;#$A   tar  $Tvf
+ x*.tbz*|x*.tar.bz* )  		tar j${T}vf "$@" ;;#bz$A tar j$Tvf
+ x*.tgz|x*.tar.gz )         tar z${T}vf "$@" ;;#gz$A tar z$Tvf
+ x*.tar.z|x*.tar.Z )        tar Z${T}vf "$@" ;;#z$A  tar Z$Tvf
+ x*.zip|x*.egg|x*.jar|x*.apk|x*.odt )     unzip $Z    "$@" ;;#$A   unzip $Z  
+ x*.rar )            		unrar $A    "$@" ;;
+ x*.ace )            		unace $A    "$@" ;;
+ x*.7z )            		7z    $Z7   "$@" ;;
+ x*.lzh|x*.lha )         	lha   $A    "$@" ;;
+ x*.arj )         			arj   $A    "$@" ;;
+ x*.deb )         			dpkg  $D    "$@" ;;
+ x*.rpm )   
+ 	if [ $A == x ]; then 
+		rpm2cpio  "$@" | cpio -dimv 	#extract-only
+	else 
+		rpm -q -l -p "$@"
+	fi
+	;;
+ x* ) echo "unknown filetype: $1" ;;
+esac

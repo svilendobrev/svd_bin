@@ -1,0 +1,32 @@
+menu "Editors" folder {
+	prog "Nano" - xterm -e nano
+	prog "Vim" - xterm -e vim
+	prog "Image Viewer" - gpicview
+}
+menu "Network" folder {
+	prog "FireFox" - firefox
+	prog "Mail" - claws-mail
+	prog "Opera" - opera
+}
+menu "Office" folder {
+	prog "writer" - lowriter
+	prog "calc" - localc
+	prog "draw" - lodraw
+	prog "office" - ooffice
+}
+menu "Shells" folder {
+	prog "Terminal" - Terminal
+	prog "File Manager" - pcmanfm
+	prog "LXTerminal" - lxterminal
+	prog "Xterm" - xterm
+	prog "XTerm (Unicode)" - uxterm
+}
+menu "System" folder {
+	prog "lx-Monitor Settings" - lxrandr
+	prog "lx-Task Manager" - lxtask
+	prog "lx-Customize Look and Feel" - lxappearance
+	prog "Preferred Applications" - libfm-pref-apps
+	prog "Avahi Zeroconf Browser" - avahi-discover
+	prog "Avahi SSH Server Browser" - bssh
+	prog "Avahi VNC Server Browser" - bvnc
+}

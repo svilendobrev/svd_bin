@@ -1,0 +1,9 @@
+share/applnk-redhat/System/konsole.desktop:Exec=/home/_sys/kon.sh
+Autostart/kbdcyr:Exec=/home/_sys/setxkb.sh
+total 20
+-rw-------    1      158 дек  9 15:39 linux.desktop
+-rw-rw-r--    1     1392 дек  3 13:38 Linux.schema
+-rw-------    1      161 дек  9 15:40 screen.desktop
+-rw-------    1      146 дек  9 15:39 shell.desktop
+-rw-------    1      155 дек  9 14:26 su.desktop
+lrwxrwxrwx    1       32 дек 17 09:19 xkonsole-linux.keytab -> /home/_sys/xkonsole-linux.keytab

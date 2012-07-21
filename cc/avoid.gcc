@@ -1,0 +1,10 @@
+warning: suggest parentheses around assignment used as truth value
+warning: comparison between signed and unsigned
+warning: multi-character character constant
+warning: comma at end of enumerator list
+warning: malformed `#pragma pack'
+warning: assuming & on
+warning: unused parameter
+warning: aggregate has a partly bracketed initializer
+warning: .* has virtual functions but non-virtual destructor
+warning: enumeral and non-enumeral type in conditional expression

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+mkdir -p new
+for a in home*wal*.jpg; do 
+ echo $a
+ djpeg $a > i.pnm
+ pnmcomp -alpha=h-graymask.pgm h-oneready.ppm i.pnm $a.pnm
+# ppmdim 0.85 $a.pnm 
+ pnmgamma 0.85 < $a.pnm | cjpeg -q 90 > new/$a
+done
+$E rm i.pnm *.jpg.pnm

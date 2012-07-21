@@ -1,0 +1,9 @@
+scard:	pcscd/opensc
+video:	nvidia-GL ( glxgears) ; skype
+debian-transmission: transmission-daemon ; umask 002 in /etc/init.d/transmission-daemon
+vboxusers:	virtualbox
+www-data:	apache
+nogroup:	nfs
+#adm dialout cdrom floppy audio dip plugdev lpadmin scanner admin fuse sambashare shutdown usbfs
+powerdev: shutdown hibernate ..
+src: /usr/src/.

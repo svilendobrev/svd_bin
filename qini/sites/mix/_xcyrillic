@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# A script to setup your language in X Window
+
+#PATH=/usr/local/bin/../bin/../bin:${PATH}
+export PATH
+# Setup the locale
+unset LC_ALL
+LANG=bg_BG
+LANGUAGE=bg,mk
+export LANG LANGUAGE
+
+if which xcyr >/dev/null 2>&1; then
+# Setup fonts and keyboard
+    xcyr -e cp1251 bg phonetic_enhanced grp:alt_shift_toggle lv3:lwin_switch
+fi
+
+# NLS for old motif applications
+test -d /usr/X11R6/lib/X11/nls &&
+    { XNLSPATH=/usr/X11R6/lib/X11/nls; export XNLSPATH; }
+
+# Read the user resources database
+test -f ~/.Xresources &&
+    xrdb -merge ~/.Xresources
+

@@ -1,0 +1,2 @@
+#!/bin/sh
+for a in "$@"; do echo $a; lsdvd "$a" 2>&1 | grep -Ev "( 00:00:|^$|Couldn.t read enough bytes for title)"; done  

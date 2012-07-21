@@ -1,0 +1,6 @@
+#cupsys
+portmap
+nfs-common
+#samba
+ssh
+networking

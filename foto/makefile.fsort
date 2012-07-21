@@ -1,0 +1,19 @@
+MAKEFLAGS=j1
+nok: 6
+ok: 1 2 3 4 5  7 8
+1:
+	./fsorter.py --sravni /nsnimki/18/1-19/ --prevod='g_=g0' --prevod='W_=W0'
+2:
+	./fsorter.py --sravni /nsnimki/18/2x/ 	--prevod='g_=g0' --prevod='W_=W0'
+3:
+	./fsorter.py --sravni /nsnimki/18/3x/ 	--prevod='g_=g0' --prevod='W_=W0'
+4:
+	./fsorter.py --sravni /nsnimki/18/4x/ 	--prevod='g_8=g08' --prevod='g_9=g09' --prevod='g_0=g10' --prevod='g_1=g11'
+5:
+	./fsorter.py --sravni /nsnimki/18/5x/ 	--prevod='g_0=gc0' --prevod='g_=g1'
+6: #--prevod='_img=-img'
+	./fsorter.py --sravni /nsnimki/18/6x/ 	--prevod='g_0=gc0'  --prevod='g_13=g013' --prevod='g_([5-9])=g0\1'   --prevod='g_=g1'
+7:
+	./fsorter.py --sravni /nsnimki/18/7x/ 	 --prevod='g_=g1'
+8:
+	./fsorter.py --sravni /nsnimki/18/8x/ 	 --prevod='g_2=gd2'  --prevod='g_=g1'

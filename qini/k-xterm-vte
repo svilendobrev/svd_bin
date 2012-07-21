@@ -1,0 +1,92 @@
+#echo ---xterm-vte
+export PROMPT_COMMAND='echo -ne "\033]2;$LOGNAME@$HOSTNAME:$PWD\007\033]1;$LOGNAME@$HOSTNAME\007"'
+
+#use TERM!=xterm to come here
+#save it
+##senv MY_TERM $TERM
+#get back xterm, so everyone else is happy
+senv TERM xterm
+
+so $_INIs/kmap
+#_set _ESC         #esc, meta, ctl depends on shell
+_set _TAB=$_CTL"I"
+_set _ENTER=$_CTL"J"
+_set k_clrscr=$_CTL"@"
+
+xset -b                 #no beeps pleaze ( -b  or  b 0)
+ #let both alt's be the same; warning: xmodmap/xkb conflict
+#xmodmap -e "add mod1 = Alt_L Alt_R"
+#may use .Xresources, .Xmodmap, .Xkbmap
+
+##############
+#vte doesnot use / ignores Xresources etc, so... harcode it here
+#shift-UP/DN,home/end,pgup/pgdn will not work === scroling 
+#  may change *some* termcap keys here:   /usr/share/vte/termcap/xterm
+# BE CAREFUL - it is not parsed properly, commented entries also go IN;
+# keys which are not non-termcap can be read from terminfo/infocmp -L
+
+keyarrows() {
+ _kesc $1UP$3    "$2"A
+ _kesc $1DN$3    "$2"B
+ _kesc $1LEFT$3  "$2"D
+ _kesc $1RIGHT$3 "$2"C
+}
+
+#mode1
+if (ls -lF /usr/lib/libvte.so.9 | grep 9.1.6 > /dev/null); then	#old 9.1.6.hack
+ _OLDHACK=1
+ keyarrows c "[5"		#ctrl
+else
+ keyarrows c "[1;5"		#ctrl
+fi
+keyarrows s "[1;2"		#shift
+#keyarrows c "[1;6"	#ctrl+shift
+
+#mode2: vim-etc ??
+keyarrows c "O1;5" 2 	#ctrl
+keyarrows s "O1;2" 2	#shift
+#keyarrows c "O1;6" 2 	#ctrl+shift
+
+#_kesc cTAB ????	#non-termcap
+_kesc sTAB "[Z"
+_kesc HOME "OH"
+_kesc END  "OF"
+#_kesc cHOME		#non-termcap
+#_kesc cEND 		#n-t
+_kesc cPGUP "[5;5~"	#n-t
+_kesc cPGDN "[6;5~"	#n-t
+_kesc cDEL  "[3;5~"	#n-t
+
+keyfuncs() { 
+ _kesc $1F1  "O$3$2P"
+ _kesc $1F2  "O$3$2Q"
+ _kesc $1F3  "O$3$2R"
+ x=$2
+ test -z "$2" || x=";$2"
+ _kesc $1F4  "O$3$2S"
+ _kesc $1F5  "[15$x~"
+ _kesc $1F6  "[17$x~"
+ _kesc $1F7  "[18$x~"
+ _kesc $1F8  "[19$x~"
+ _kesc $1F9  "[20$x~"
+ _kesc $1F10 "[21$x~"
+ _kesc $1F11 "[23$x~"
+ _kesc $1F12 "[24$x~"
+}
+
+keyfuncs 
+if test -n "$_OLDHACK"; then
+ keyfuncs c "5" 
+ keyfuncs s "2" 
+else
+ keyfuncs c "5" "1;"
+ keyfuncs s "2" "1;"
+fi
+
+# this may be used to remap shift-Fx into redundant-mapped Fxx's
+#xmodmap -e "keysym F1 = F1 F13" -e "keysym F2 = F2 F14" -e "keysym F3 = F3 F15" -e "keysym F4 = F4 F16" -e "keysym F5 = F5 F17" -e "keysym F6 = F6 F18"
+#xmodmap -e "keysym F7 = F7 F19" -e "keysym F8 = F8 F20" -e "keysym F9 = F9 F21" -e "keysym F10 = F10 F22" -e "keysym F11 = F11 F23" -e "keysym F12 = F12 F24"
+
+#echo keysym Caps_Lock = Shift_L | xmodmap - #Caps_Lock
+
+# vim:ts=4:sw=4:expandtab:ft=sh

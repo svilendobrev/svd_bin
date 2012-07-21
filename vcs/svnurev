@@ -1,0 +1,120 @@
+#!/bin/env python
+#$Id$
+'''attempt to workaround 'svn update' not propagating given -r revision to the
+free "internal" externals, i.e. those not pinned-rev and living in same repository as root.
+svilen.dobrev'2008
+'''
+
+import sys, subprocess, os
+args = sys.argv[1:]
+
+dbg = 0
+try: args.remove('-dbg'); dbg=1
+except: pass
+fake = 0
+try: args.remove('-fake'); fake=1
+except: pass
+
+def Popen( *a,**k):
+    if dbg: print ' popen', a #, k
+    if k.pop( 'fake', None) and fake: return
+    return subprocess.Popen( *a,**k)
+def shell( *a):
+    p = Popen( a, fake=1)   #shell=True, 
+    return p and os.waitpid( p.pid, 0 )
+
+def output( *args):
+    return Popen( args, stdout=subprocess.PIPE).communicate()[0].split('\n')
+def getvar( prefix, line):
+	if line.startswith( prefix):
+		return line[ len(prefix): ]
+	return None
+
+#myurl=`svn info | perl -ne 'print if s/Repository Root: *//'`
+def geturl( *paths):
+	for a in output( 'svn', 'info', *paths[:1] ):
+		m = getvar( 'Repository Root: ', a)
+		if m: return m
+	assert 0
+myurl = geturl()
+if dbg: print ':myurl', myurl
+
+#for a in `svn stat | perl -ne 'print if s/^X +//' `; do
+exts = [ a[6:].strip() for a in output( 'svn', 'stat' ) if a and a[0] == 'X' ]
+if dbg: print ':exts', exts 
+
+#classify by path/to/ext
+extpaths = {}
+for p in exts:
+	extpaths.setdefault( os.path.dirname(p), []).append( p)
+
+#propgets = dict( ( epath, output( 'svn', 'propget', 'svn:externals', epath)) for epath in extpaths )
+
+nonpinned_mines = []
+for epath in extpaths:
+    #propget per extpath
+    for pline in output( 'svn', 'propget', 'svn:externals', epath):
+        pp = pline.split()
+        if (pp and 
+            pp[-1].startswith( myurl)   #mine
+            and len(pp)==2              #not pinned
+        ):
+            nonpinned_mines.append( os.path.join( epath, pp[0] ))
+
+if dbg: print ':nonpinned_mines', nonpinned_mines
+#get all, non-ext ok, get external-exts ok, pinned exts ok - just mine nonpinned not ok
+shell( 'u', *args)
+
+if args:
+    #get all non-pinned internal-exts 
+    shell( 'u', *(args + nonpinned_mines) )
+
+#the other way is:
+# u --ignore-externals $@
+# for each ext:pinned_rev -> u ext -r pinned_rev
+# u [ all exts:nonpinned nonmine ]
+# u [ all exts:mine/nonpinned] $@
+#which is too many requests
+
+
+if 0:   #svn-info parse
+    mines = []
+    curp = ''
+    assert myurl
+    for a in output( 'svn', 'info', *extpaths.keys() ):
+        p = getvar( 'Path: ', a)
+        if p: curp = p
+        else:
+            r = getvar( 'Repository Root: ', a)
+            if r and r.startswith( myurl):
+                assert curp
+                mines.append( curp)
+
+
+#initial version:
+'''
+#!/bin/sh
+myurl=`svn info | perl -ne 'print if s/Repository Root: *//'`
+u --ignore-externals $@
+
+#slower - one by one
+#for a in `svn stat | perl -ne 'print if s/^X +//' `; do
+#	url=`svn info $a | perl -ne 'print if s/Repository Root: *//'`
+#	test "$url" = "$myurl" && rev="$@" || rev="" 
+#	echo :$a
+#	$E u $a $rev
+#done
+
+#faster - all mine then all other
+mine=''
+other=''
+for a in `svn stat | perl -ne 'print if s/^X +//' `; do
+	url=`svn info $a | perl -ne 'print if s/Repository Root: *//'`
+	if [ "$url" = "$myurl" ] ; then mine="$mine $a" ; else other="$other $a" ; fi
+done
+$E u $@ $mine
+$E u $other	
+#XXX this ignores pinned-rev exts...
+'''
+
+# vim:ts=4:sw=4:expandtab

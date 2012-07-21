@@ -1,0 +1,25 @@
+#!/bin/bash
+cd `dirname $0`
+mkdir -p plan in
+exec &>>radioschedule.log
+date 
+./radioschedule.py --oenc=utf-8 --days=2 \
+	--cron="`pwd`/radiorec --retry_delay_seconds=25 --retry_n=12" \
+	--cron-fname-notime \
+	--cron-earlier-minutes=9 \
+	--cron-later-minutes=8 \
+	--save-plan=plan/p \
+	--save-input=in/i \
+	--force=hb-6:50-7:00 \
+ 	--force=hb-18:22-18:35 \
+	--channel=hristobotev \
+	--channel=varna \
+	--channel=horizont \
+		>radiorec-crontab && crontab -u svilen radiorec-crontab
+
+
+#	--channel=sofia 
+#събуди ме с приказка
+#	--force=hb-6:50-7:00 
+#време за приказка
+#	--force=hb-18:20-18:30 

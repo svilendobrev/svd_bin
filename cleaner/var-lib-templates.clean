@@ -1,0 +1,7 @@
+#!/bin/bash
+DIR=/var/lib/dpkg/info/
+ARGS="${1:-$DIR/*.templates}"
+echo "$ARGS"
+du -k --total $ARGS |tail -1
+$E ~/bin/chall.pl 's/\n([Dd]escription|[Ee]xtended_description|[Cc]hoices)-[ac-zAC-Z]\w+\..*\n( .*\n)*/\n/g' $ARGS
+du -k --total $ARGS |tail -1

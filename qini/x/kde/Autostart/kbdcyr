@@ -1,0 +1,20 @@
+[Desktop Entry]
+Comment=
+Comment[en_US]=
+Encoding=UTF-8
+Exec=/home/qini/x/setxkb-bgphonetic.sh
+GenericName=
+GenericName[en_US]=
+Icon=
+MimeType=
+Name=kbdfast
+Name[en_US]=kbdcyr
+Path=
+ServiceTypes=
+SwallowExec=
+SwallowTitle=
+Terminal=false
+TerminalOptions=
+Type=Application
+X-KDE-SubstituteUID=false
+X-KDE-Username=

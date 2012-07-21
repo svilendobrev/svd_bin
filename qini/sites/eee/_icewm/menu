@@ -1,0 +1,117 @@
+## /usr/share/menu/ 
+## .AsusLauncher/simpleui.rc
+## /etc/xdg/menus/
+#
+# This is an example for IceWM's menu definition file.
+#
+# Place your variants in /etc/X11/icewm or in $HOME/.icewm
+# since modifications to this file will be discarded when you
+# (re)install icewm.
+#
+prog Terminal xterm x-terminal-emulator -ls
+prog Editor leafpad leafpad
+#prog xterm xterm xterm -ls
+#prog rxvt xterm rxvt -ls -bg black -cr green -fg white -C -fn 9x15 -sl 500
+#prog rxvt xterm rxvt -rv -C -fn 9x15 -sl 500
+prog Firefox /usr/share/pixmaps/firefox.png firefox
+prog Opera   /usr/share/pixmaps/opera.xpm opera
+prog FileMan /usr/share/apps/XandrosFileManager/icons/hicolor/16x16/apps/XandrosFileManager.png     XandrosFileManager 
+separator
+menu Editors folder {
+    prog vim vim gvim 
+    prog leafpad leafpad leafpad
+    prog dia dia dia
+    separator
+    prog oowriter   /usr/share/icons/gnome/32x32/apps/openofficeorg-20-writer.xpm   oowriter
+    prog oocalc     /usr/share/icons/gnome/32x32/apps/openofficeorg-20-calc.png     oocalc
+    prog oodraw     /usr/share/icons/gnome/32x32/apps/openofficeorg-20-draw.png     oodraw
+    prog ooimpress  /usr/share/icons/gnome/32x32/apps/openofficeorg-20-impress.png  ooimpress
+    prog oomath     /usr/share/icons/gnome/32x32/apps/openofficeorg-20-math.png     oomath
+    separator
+    prog kPrinter   /usr/share/pixmaps/kdeprint.xpm     kprinter
+    prog kPrintFax  /usr/share/pixmaps/kdeprintfax.xpm  kdeprintfax
+    prog kPrintJobs /usr/share/pixmaps/kjobviewer.xpm   kjobviewer
+}
+menu "WWW" folder {
+    prog Mail   /usr/share/pixmaps/kmail.xpm kmail
+    prog Skype  /usr/share/pixmaps/skype.png skype
+    prog Firefox /usr/share/pixmaps/firefox.png firefox
+    prog Opera   /usr/share/pixmaps/opera.xpm opera
+    #prog Galeon galeon galeon
+    #prog w3m lynx x-terminal-emulator -e w3m
+    #prog Links lynx x-terminal-emulator -e links
+    prog gFTP   /usr/share/pixmaps/gftp.png gftp
+}
+menu Color-Sound folder {
+    prog player         smplayer smplayer
+    separator
+    prog gwenview /usr/share/pixmaps/gwenview.xpm gwenview /snimki
+    prog Gimp /usr/share/gimp/2.0/images/wilber-icon.png gimp
+    prog XV xv xv
+    separator
+    prog sound-record   krecord   krecord
+    prog video-kamera   ucview    ucview
+    prog video-manager  XandrosVideoManager XandrosFileManager /filmi
+}
+menu Development folder {
+    prog ddd ddd ddd
+}
+menu Viewers folder {
+    prog "PDF"   /usr/share/pixmaps/evince.xpm pdf
+    prog "eBook" /usr/share/pixmaps/FBReader/bookinfo.png FBReader
+    prog "DVI"   xdvi xdvi
+    prog "Ghostview" ghostview gv
+}
+
+menu Games folder {
+    prog "penguin racer"    /usr/share/pixmaps/ppracer.xpm    /usr/games/ppracer
+    prog "potato guy"       /usr/share/pixmaps/ktuberling.xpm /usr/games/ktuberling
+    prog "frozen bubble"    /usr/share/pixmaps/frozen-bubble-icon-64x64.png /usr/games/frozen-bubble
+    separator
+    prog "tux paint"        /usr/share/pixmaps/tuxpaint.png     /usr/bin/tuxpaint
+    prog mtpaint            mtpaint mtpaint
+    prog kolourpaint        /usr/share/pixmaps/kolourpaint.xpm  kolourpaint
+    prog "tux type"         /usr/share/tuxtype/tuxtype.xpm      /usr/games/tuxtype
+    prog "tux math"         /usr/share/tuxmath/images/icon.png  /usr/games/tuxmath
+}
+menu System folder {
+    prog synaptic synaptic sudo synaptic
+    prog xload xload xload
+    prog xosview xosview xosview
+    menu "Window Managers" folder {
+        restart icewm - icewm
+        restart wmaker - wmaker
+        restart enlightenment - enlightenment
+        restart blackbox - blackbox
+        restart sawfish - sawfish
+        restart sawfish2 - sawfish2
+        restart metacity - metacity
+        restart fvwm2 - fvwm2
+        restart fvwm - fvwm
+    }
+    menu Utilities folder {
+        menu Multimedia folder {
+            prog XPlayCD xplaycd xplaycd
+            prog XMixer xmixer xmixer
+        }
+        prog xCalculator xcalc xcalc
+        separator
+        prog "Font Selector" xfontsel xfontsel
+        prog Clock xclock xclock
+        prog Magnify xmag xmag
+        prog Colormap xcolormap xcmap
+        prog Clipboard xclip xclipboard
+        prog xkill bomb xkill
+        #prog "Screen Saver" xlock xlock -nolock
+        #prog "Screen Lock" xlock xlock
+    }
+}
+menu Tools folder {
+    prog calculator /usr/share/pixmaps/kcalc.xpm kcalc
+    prog find       /usr/share/pixmaps/kfind.xpm kfind
+    prog hexEdit    /usr/share/pixmaps/khexedit.xpm khexedit
+}
+#menufile Toolbar folder toolbar
+#separator
+#menuprog "Gnome" folder icewm-menu-gnome2 --list /usr/share/gnome/vfolders
+#menuprog KDE folder icewm-menu-gnome2 --list /usr/share/applnk

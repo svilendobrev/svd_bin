@@ -1,0 +1,37 @@
+
+xterm*foreground:	gray
+!50
+
+*VT100*colorMode: on
+!*VT100*dynamicColors: on
+!
+!! Uncomment this use color for underline attribute
+!*VT100*colorULMode: on
+!*VT100*underLine: on
+!*VT100*colorUL: yellow
+!
+!! Uncomment this to use color for the bold attribute
+!*VT100*colorBDMode: on
+!! BD for cursor prompt text
+!*VT100*colorBD: white
+!
+!!! red0=red; ... red5=~black
+*VT100*color0: black
+*VT100*color1: red1
+*VT100*color2: green1
+*VT100*color3: orange1
+*VT100*color4: #7070d0
+*VT100*color5: magenta
+*VT100*color6: #409090
+*VT100*color7: gray60
+
+*VT100*color8: gray30
+*VT100*color9: red
+*VT100*color10: green
+*VT100*color11: yellow1
+*VT100*color12: #9090ff
+*VT100*color13: violet
+!magenta2
+*VT100*color14: cyan1
+*VT100*color15: gray90
+!X11 colornames: see PIL/ImageColor.py

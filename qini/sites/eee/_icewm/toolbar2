@@ -1,0 +1,6 @@
+# This is a default toolbar definition file for IceWM
+#
+# Place your personal variant in $HOME/.icewm directory.
+#prog "SOS" taskmanager ksysguard --showprocesses
+#prog "Eee PC Tips" eeepctips firefox file:///opt/xandros/share/eeetips/index.html
+prog "Shutdown" shutdown /opt/xandros/bin/shutdown_dialog shutdown

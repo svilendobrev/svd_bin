@@ -1,0 +1,5 @@
+#!/bin/sh
+sudo ifup -v ath0
+ping -c 2 adsl
+echo "-------"
+ping -c 2 www.google.com

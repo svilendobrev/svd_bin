@@ -1,0 +1,1 @@
+xmbmon -method A -probe it87 -g 100x50 -tmin 35 -tmax 80 -vmin 1 -vmax 1.5 -tick 1  -cmtcs NOTEMP -cmtmb '' -count 20 -wsec 2000 &

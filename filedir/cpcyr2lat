@@ -1,0 +1,1 @@
+for a in r*/*; do X=`echo $a | cyr2lat.pl`; cp -v "$a" /media/t/zvuk/rok/ru/akvarium/"$X" ; done

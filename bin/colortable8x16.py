@@ -1,0 +1,1 @@
+../misc/colortable8x16.py

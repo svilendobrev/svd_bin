@@ -1,0 +1,2 @@
+#!/bin/sh
+chmod -R g+rw /bzr/

@@ -1,0 +1,17 @@
+#echo ---konsole
+
+#set window title at each prompt - not inside PS1 as it yields wrong prompt-line-size
+PROMPT_COMMAND='echo -ne "\033]0;$HOSTNAME:$PWD\07"'
+
+_set _TAB=$_CTL"I"
+_set _ENTER=$_CTL"J"
+_set k_clrscr=$_CTL"@"
+
+so $_INIs/kmap
+
+#??X
+#xset -b                 #no beeps pleaze ( -b  or  b 0)
+ #let both alt's be the same
+xmodmap -e "add mod1 = Alt_L Alt_R" -e "add shift = Shift_L Shift_R Caps_Lock"
+
+# vim:ts=4:sw=4:expandtab:ft=sh

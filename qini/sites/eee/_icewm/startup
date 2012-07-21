@@ -1,0 +1,5 @@
+#!/bin/sh
+/home/qini/x/setxkb-bgphonetic.sh
+#/home/user/bin/radio > /tmp/radio
+iw.py -c --essid Clarence
+#/usr/bin/skype &

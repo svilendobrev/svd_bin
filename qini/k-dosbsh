@@ -1,0 +1,89 @@
+#echo ---msdos-bash
+
+_set _TAB=$_CTL"I"
+_set _ENTER=$_CTL"J"
+
+_set k_clrscr=$_CTL'2'
+
+case x$BASH_VERSION in
+ x1*) ## bash1147
+   _set _ESC0=$_ESC'[0'
+   _set _UP=$_ESC0'A'
+   _set _DN=$_ESC0'D'
+   _set _LEFT=$_ESC0'B'
+   _set _RIGHT=$_ESC0'C'
+  #_set _cUP=$_ESC"[2A"
+  #_set _cDN=$_ESC"[2D"
+   _set _cLEFT=$_ESC"[2B"
+   _set _cRIGHT=$_ESC"[2C"
+  ;;
+ x2*) ## bash2x
+   _set _ESC0=$_ESC'['
+   _set _UP=$_ESC0'A'
+   _set _DN=$_ESC0'B'
+   _set _LEFT=$_ESC0'D'
+   _set _RIGHT=$_ESC0'C'
+  #_set _cUP=$_ESC"[2A"
+  #_set _cDN=$_ESC"[2B"
+   _set _cLEFT=$_ESC"[2D"
+   _set _cRIGHT=$_ESC"[2C"
+  ;;
+esac
+
+_set _PGUP=$_ESC0"I"
+_set _PGDN=$_ESC0"J"
+senv _HOME=$_ESC0"G"
+senv _DEL=$_ESC0"F"
+_set _INS=$_ESC0"E"
+_set _END=$_ESC0"H"
+
+_set _sTAB=$_ESC"[t"        #?how
+_set _cTAB=$_ESC"[T"        #?how
+#_set _cINS=$_ESC"[2E"
+#_set _cDEL=$_ESC"[2F"
+_set _cHOME=$_ESC"[2G"
+_set _cEND=$_ESC"[2H"
+_set _cPGUP=$_ESC"[2I"
+_set _cPGDN=$_ESC"[2J"
+
+_set _F1=$_ESC0"XA"
+_set _F2=$_ESC0"XB"
+_set _F3=$_ESC0"XC"
+_set _F4=$_ESC0"XD"
+_set _F5=$_ESC0"XE"
+_set _F6=$_ESC0"XF"
+_set _F7=$_ESC0"XG"
+_set _F8=$_ESC0"XH"
+_set _F9=$_ESC0"XI"
+_set _F10=$_ESC0"XJ"
+_set _F11=$_ESC0"XK"
+_set _F12=$_ESC0"XL"
+
+unset _ESC0
+
+#
+# Prefixes: bash1.147                           bash 2.x
+#  \e[0  press without shifts                   \e[
+#  \e[1  press with SHIFT key                   ..same
+#  \e[2  press with CTRL key
+#  \e[3  press with ALT key
+#
+# Suffixes:
+#  A  Up        G  Home                         A  Up           ..same
+#  B  Left      H  End                          B  Down
+#  C  Right     I  Page Up                      C  Right
+#  D  Down      J  Page Down                    D  Left
+#  E  Ins       X  (function keys)
+#  F  Del
+#
+#  XA  F1
+#  XB  F2
+#  ......
+#  XL  F12
+#
+# (e.g.)
+#   F1 key          ->  \e[0XA                  F1 key          ->  \e[XA
+#   CTRL + F10 key  ->  \e[2XJ                  CTRL + F10 key  ->  \e[2XJ
+#   Up arrow key    ->  \e[0A                   Up arrow key    ->  \e[A
+###
+# vim:ts=4:sw=4:expandtab:ft=sh

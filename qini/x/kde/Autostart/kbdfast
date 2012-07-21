@@ -1,0 +1,20 @@
+[Desktop Entry]
+Comment=
+Comment[en_US]=
+Encoding=UTF-8
+Exec=kbdrate -r 30
+GenericName=
+GenericName[en_US]=
+Icon=
+MimeType=
+Name=kbdfast
+Name[en_US]=kbdfast
+Path=
+ServiceTypes=
+SwallowExec=
+SwallowTitle=
+Terminal=false
+TerminalOptions=
+Type=Application
+X-KDE-SubstituteUID=false
+X-KDE-Username=

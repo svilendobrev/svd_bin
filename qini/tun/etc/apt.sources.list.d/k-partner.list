@@ -1,0 +1,6 @@
+deb http://archive.canonical.com/ubuntu/ karmic partner
+deb http://archive.canonical.com/ubuntu/ karmic-updates partner
+deb http://archive.canonical.com/ubuntu/ karmic-backports partner
+deb http://archive.canonical.com/ubuntu/ karmic-security partner
+
+

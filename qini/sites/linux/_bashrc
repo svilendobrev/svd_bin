@@ -1,0 +1,41 @@
+# .bashrc @ svilo
+[ -f /etc/bashrc ] && . /etc/bashrc	# Source global definitions
+[ -f ~/empty_bashrc ] && return
+
+export _INIs=/home/qini/
+
+unset LC_ALL
+#export LANG=bg_BG.UTf-8
+#export LANG=bg_BG.CP1251
+#export LANG=bg_BG
+export LC_COLLATE=C
+
+#no echo's if non-interactive, e.g. scp
+_noECho()	{ :; }
+if [ -z "$PS1" ]; then 
+	shopt -s expand_aliases
+	alias echo=_noECho
+fi
+#echo "--$PS1--"
+
+#_SITEs=__sis
+[ -f ${_INIs}_bashrc ] && . ${_INIs}_bashrc
+senv CVSEDITOR vim
+senv CVS_RSH ssh
+#senv VIMINIT "set runtimepath+=$_INIs/_vim,$_INIs/_vim/after | so $_INIs/_vimrc"
+
+#if [ -f ${_INIs}_bashrc ]; then 
+# _STARTWD=$PWD
+# pushd $_INIs
+# . _bashrc
+# cd $_STARTWD; unset _STARTWD
+# popd
+#fi
+
+if [ -z "$PS1" ]; then 
+ 	unalias echo
+else
+ 	test -f .todo && cat .todo
+	test -f ~/_myalias && . ~/_myalias
+fi
+

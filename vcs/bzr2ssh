@@ -1,0 +1,4 @@
+#!/bin/sh
+ADR=`bzr info | perl -ne 'print if s/\s*checkout.*sftp://'`
+echo $ADR
+$E bzr switch bzr+ssh:$ADR

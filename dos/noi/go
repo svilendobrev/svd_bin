@@ -1,0 +1,16 @@
+#!/bin/sh
+mkdir -p aa
+devilspie &
+#dosbox -forcescaler normal2x
+dosbox -forcescaler hq2x
+# none,
+# normal2x,normal3x,
+# advmame2x,advmame3x,
+# advinterp2x,advinterp3x,
+# hq2x,hq3x
+# 2xsai
+# super2xsai
+# tv2x,tv3x,
+# rgb2x,rgb3x,
+# scan2x,scan3x.
+killall devilspie

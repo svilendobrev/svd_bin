@@ -1,0 +1,27 @@
+--- old/src/keymap.c	2011-03-17 18:51:49 +0200
++++ new/src/keymap.c	2011-03-17 19:00:23 +0200
+@@ -193,6 +193,8 @@
+ 	/* Alt+Tab = Esc+Tab */
+ 	{cursor_all, keypad_all, fkey_all,
+ 	 VTE_META_MASK, _VTE_CAP_ESC "\t", -1, X_NULL},
++	//ctrl-tab
++	{cursor_all, keypad_all, fkey_all,  GDK_CONTROL_MASK, _VTE_CAP_ESC "{t", -1, X_NULL},
+ 	/* Regular tab. */
+ 	{cursor_all, keypad_all, fkey_all,
+ 	 0, X_NULL, 0, "ta"},
+@@ -282,6 +284,7 @@
+ /* Home and End are strange cases because their sequences vary wildly from
+  * system to system, or mine's just broken.  But anyway. */
+ static const struct _vte_keymap_entry _vte_keymap_GDK_Home[] = {
++	{cursor_all, keypad_all, fkey_all,  GDK_CONTROL_MASK, _VTE_CAP_ESC "{h", -1, X_NULL},
+ 	{cursor_all, keypad_all, fkey_all, 0, X_NULL, 0, "kh"},
+ 	{cursor_all, keypad_all, fkey_vt220, 0, _VTE_CAP_CSI "1~", -1, X_NULL},
+ 	{cursor_all, keypad_all, fkey_hp, 0, _VTE_CAP_ESC "h", -1, X_NULL},
+@@ -290,6 +293,7 @@
+ };
+ 
+ static const struct _vte_keymap_entry _vte_keymap_GDK_End[] = {
++	{cursor_all, keypad_all, fkey_all,  GDK_CONTROL_MASK, _VTE_CAP_ESC "{e", -1, X_NULL},
+ 	{cursor_all, keypad_all, fkey_all, 0, X_NULL, 0, "@7"},
+ 	{cursor_all, keypad_all, fkey_vt220, 0, _VTE_CAP_CSI "4~", -1, X_NULL},
+ 	{cursor_all, keypad_all, fkey_notvt220, 0, X_NULL, 0, "@7"},

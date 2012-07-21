@@ -1,0 +1,103 @@
+!!!!!!!!!!!!!!!!!!!!
+!! general XTerm
+
+!XTerm*scrollBar:   True
+!XTerm*background:  burlywood
+!XTerm*foreground:  black
+XTerm*cursorColor:  rgb:e000/a000/5000
+!XTerm.geometry:     132x50-0+0
+!!XTerm*pointerColor:   blue
+!XTerm*background:  rgb:5000/4a00/4000
+XTerm*background:   black
+!XTerm*foreground:   gray50
+XTerm*saveLines:    99999
+
+XTerm*font: terminus-bold-20
+! terminus-bold-20
+! terminus-cp1251-bold-20
+!XTerm*font: -xos4-terminus-bold-*-*-*-20-*-*-*-*-*-*-cp1251
+!XTerm*font: -*-dejavu sans mono-medium-r-normal-*-*-*-*-*-m-*-iso10646-*
+
+XTerm*boldMode: false
+!XTerm*scrollKey: true
+!XTerm*scrollTtyOutput: false
+XTerm*eightBitInput: false
+
+!! vim ------------
+! gray=c000/c000/c000; lightgray is lighter; or rgb:b800/b800/b800
+Vim*background: black
+Vim.geometry:   80x39-0+0
+
+!! terminfo/curses: shell vs prog mode... shit
+!! <Key>Home:         string("\033[1~")  \n\
+!! <Key>End:          string("\033[4~")  \n\
+
+!! VT100 term emulation (order IS important)
+XTerm*translations: #override          \n\\
+ Ctrl<Key>Tab:      string("\033{t")   \n\\
+ Shift<Key>Tab:     string("\033]t")   \n\\
+ Ctrl<Key>Up:       string("\033{a")   \n\\
+ Ctrl<Key>Down:     string("\033{b")   \n\\
+ Ctrl<Key>Left:     string("\033{d")   \n\\
+ Ctrl<Key>Right:    string("\033{c")   \n\\
+ Ctrl<Key>Home:     string("\033{h")   \n\\
+ Ctrl<Key>End:      string("\033{e")   \n\\
+ Ctrl<Key>Prior:    string("\033{p")   \n\\
+ Ctrl<Key>Next:     string("\033{n")   \n\\
+ Shift<Key>Up:      string("\033]a")   \n\\
+ Shift<Key>Down:    string("\033]b")   \n\\
+ Shift<Key>Left:    string("\033]d")   \n\\
+ Shift<Key>Right:   string("\033]c")   \n\\
+ Shift<Key>Home:    string("\033]h")   \n\\
+ Shift<Key>End:     string("\033]e")   \n\\
+ <Key>BackSpace:    string("\010")     \n\\
+ <Key>Delete:       string("\033[3~")  \n\\
+ Ctrl<Key>F1:       string("\033{F1")  \n\\
+ Ctrl<Key>F2:       string("\033{F2")  \n\\
+ Ctrl<Key>F3:       string("\033{F3")  \n\\
+ Ctrl<Key>F4:       string("\033{F4")  \n\\
+ Ctrl<Key>F5:       string("\033{F5")  \n\\
+ Ctrl<Key>F6:       string("\033{F6")  \n\\
+ Ctrl<Key>F7:       string("\033{F7")  \n\\
+ Ctrl<Key>F8:       string("\033{F8")  \n\\
+ Ctrl<Key>F9:       string("\033{F9")  \n\\
+ Ctrl<Key>F10:      string("\033{F10") \n\\
+ Ctrl<Key>F11:      string("\033{F11") \n\\
+ Ctrl<Key>F12:      string("\033{F12") \n\\
+ Shift<Key>F1:      string("\033]F1")  \n\\
+ Shift<Key>F2:      string("\033]F2")  \n\\
+ Shift<Key>F3:      string("\033]F3")  \n\\
+ Shift<Key>F4:      string("\033]F4")  \n\\
+ Shift<Key>F5:      string("\033]F5")  \n\\
+ Shift<Key>F6:      string("\033]F6")  \n\\
+ Shift<Key>F7:      string("\033]F7")  \n\\
+ Shift<Key>F8:      string("\033]F8")  \n\\
+ Shift<Key>F9:      string("\033]F9")  \n\\
+ Shift<Key>F10:     string("\033]F10") \n\\
+ Shift<Key>F11:     string("\033]F11") \n\\
+ Shift<Key>F12:     string("\033]F12") \n\\
+ <Key>F5:           string("\033[15~") \n\\
+ <Key>F6:           string("\033[17~") \n\\
+ <Key>F7:           string("\033[18~") \n\\
+ <Key>F8:           string("\033[19~") \n\\
+ <Key>F9:           string("\033[20~") \n\\
+ <Key>F10:          string("\033[21~") \n\\
+ <Key>F11:          string("\033[23~") \n\\
+ <Key>F12:          string("\033[24~") \n\\
+ <Key>KP_Add:       string("+")        \n\\
+ <Key>KP_Subtract:  string("-")        \n\\
+ <Key>KP_Multiply:  string("*")        \n\\
+ <Key>KP_Divide:    string("/")        \n\\
+ <Key>KP_Enter:     string("\015")
+
+
+!! f1-4: ESC O P-Q-R-S, or:
+!! <Key>F1:           string("\033[[A")  
+!! <Key>F2:           string("\033[[B")  
+!! <Key>F3:           string("\033[[C")  
+!! <Key>F4:           string("\033[[D")  
+!! put backspace before del, Ctrl-xx before xx -- order does matter !?
+!! <Key>BackSpace:  string(0x7F)
+
+#include "/home/qini/x/vtcolors.xrdb"
+

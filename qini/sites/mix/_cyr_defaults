@@ -1,0 +1,7 @@
+# ---- bulgarian-env DON'T MODIFY THIS LINE!
+style dos
+size 16
+layout bg_phon
+options alt_shift_toggle
+encoding cp1251
+# ---- bulgarian-env end DON'T MODIFY THIS LINE!

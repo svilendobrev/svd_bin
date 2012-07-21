@@ -1,0 +1,1 @@
+../text/cyr2lat.pl

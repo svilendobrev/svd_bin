@@ -1,0 +1,9 @@
+#!/bin/bash
+cd `dirname $0`
+mkdir -p log
+exec &>>log/rec.`date +%m%d-%H%M`.$$
+date 
+./radiorec.py --quiet-mplayer --seconds-extra 200 \
+	--exec 'flac --silent {}' \
+	--exec 'lame --nohist -h -v -V 6 {}' \
+	"$@" 

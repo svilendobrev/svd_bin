@@ -1,0 +1,173 @@
+~~~~~example file ~~~~~~
+
+WATCOM Linker Version 10.6
+Copyright by WATCOM International Corp. 1985, 1996. All rights reserved.
+Executable Image: g.exe
+creating a DOS/4G executable
+
+                        +------------+
+                        |   Groups   |
+                        +------------+
+
+Group                           Address              Size
+=====                           =======              ====
+
+DGROUP                          0002:00000000        00019830
+
+
+
+                        +--------------+
+                        |   Segments   |
+                        +--------------+
+
+Segment                Class          Group          Address         Size
+=======                =====          =====          =======         ====
+
+BEGTEXT                CODE                          0001:00000000   00000010
+_TEXT                  CODE                          0001:00000010   0004d5b3
+CODE32                 CODE                          0001:0004d5c4   00000573
+_NULL                  BEGDATA        DGROUP         0002:00000000   00000004
+_AFTERNULL             BEGDATA        DGROUP         0002:00000004   00000000
+CONST                  DATA           DGROUP         0002:00000004   00004a2c
+CONST2                 DATA           DGROUP         0002:00004a30   00003b38
+_DATA                  DATA           DGROUP         0002:00008568   00009d4c
+XIB                    DATA           DGROUP         0002:000122b4   00000000
+XI                     DATA           DGROUP         0002:000122b4   00000150
+XIE                    DATA           DGROUP         0002:00012404   00000000
+YIB                    DATA           DGROUP         0002:00012404   00000000
+YI                     DATA           DGROUP         0002:00012404   00000018
+YIE                    DATA           DGROUP         0002:0001241c   00000000
+TIB                    DATA           DGROUP         0002:0001241c   00000000
+TI                     DATA           DGROUP         0002:0001241c   00000000
+TIE                    DATA           DGROUP         0002:0001241c   00000000
+DATA                   DATA           DGROUP         0002:0001241c   00000000
+DATA32                 DATA           DGROUP         0002:0001241c   00000160
+CONST32                CONST          DGROUP         0002:0001257c   00000000
+_BSS                   BSS            DGROUP         0002:0001257c   000062b4
+BSS32                  BSS            DGROUP         0002:00018830   00000000
+STACK                  STACK          DGROUP         0002:00018830   00001000
+
+
+                        +----------------+
+                        |   Memory Map   |
+                        +----------------+
+
+* = unreferenced symbol
++ = symbol only referenced locally
+
+Address        Symbol
+=======        ======
+
+0000:00000000  _fltused_
+0000:00001234  __DOSseg__
+0001:00000003* ___begtext
+0001:000068a8  __wcpp_2_dtor_array_store__
+0001:000068d0  void near operator delete( void near * )
+0001:000068d9  time_
+0001:0000693b+ _asctime_
+0001:00006a28* _ctime_
+0001:00006a41  ctime_
+0001:00006a46* asctime_
+0001:00006ad6  clock_
+0001:000430bc  __EnterWVIDEO_
+0001:00043133+ __FreeDPMIBlocks_
+0001:0004318f* __ReAllocDPMIBlock_
+0001:00043302+ __LastFree_
+0001:000434d3  __ExpandDGROUP_
+0001:0004369c  __nmemneed_
+0001:0004369f  isatty_
+0001:000436de* __set_EINVAL_
+0001:00043873  _DoINTR_
+0001:00043c0f* _bios_printer_
+0001:00043c1f* _bios_serialcom_
+0001:00043c28  __prtf_
+0001:00044806  stackavail_
+0001:00044818  __CHK
+0001:00044828* __GRO
+0001:0004482b* __STK
+0001:00044849  __STKOVERFLOW_
+0001:00044bc7  tolower_
+0001:00044bc7* _tolower_
+0001:00044d14  fseek_
+0001:00045011  fgetc_
+0001:0004509a+ __filbuf_
+0001:000452b0  memset_
+0001:000452c8* __ModF
+0001:00045358  __ZBuf2F
+0001:000490c4  __wcpp_2_base_register__
+0001:000490dd* __wcpp_2_base_deregister__
+0001:000490ea  __InitFiles_
+0001:00049161  __full_io_exit_
+0001:0004916d* fcloseall_
+0001:000491ca* _heapenable_
+0001:000491da* sbrk_
+0001:000492a2  __brk_
+0001:00049951+ flushall_
+0001:00049956  __flushall_
+0001:0004a600  __STOSB
+0001:0004a637* __STOSD
+0001:0004a6f8  __CmpBigInt
+0001:0004a732  __Rnd2Int
+0001:0004a79d  __Bin2String
+0001:0004b694+ __sigabort_
+0001:0004b69e  __sigfpe_handler_
+0001:0004b6d3* signal_
+0001:0004b788  raise_
+0001:0004b84a  _chain_intr_
+0001:0004b863  _dos_getvect_
+0001:0004b896  __FDFS
+0001:0004b8e2  __Nan_Inf_
+0002:00000000* __nullarea
+0002:00007e3c  __IsTable
+0002:00008490  ___diyr
+0002:0000918c* ___argc
+0002:0000918c  __argc
+0002:00009190  __argv
+0002:00009190* ___argv
+0002:0000ef98  ___nheapbeg
+0002:0000ef9c  ___MiniHeapRover
+0002:0000efd8  __STACKLOW
+0002:0000efd8* __x386_stacklow
+0002:0000eff4  __no87
+0002:0000eff6  __Extender
+0002:0000eff7  __ExtenderSubtype
+0002:0000eff8  __X32VM
+0002:0000eff9  __Envptr
+0002:000122a8+ __RWD_matherr
+0002:000122ac  ___FPE_int
+0002:000122ad  ___IRQ_num
+0002:000122de* rt_init __based("XI") __wcpp_2_data_stab_init_mod_
+0002:000123ce+ ___wcpp_2_data_init_longjmp_
+0002:000123d4* rt_init __based("XI") __wcpp_2_data_stab_init_arr_
+0002:000123fe* ___DPMI_real_mode_init
+0002:00012404  ___wcpp_2_data_module_dtor_ref_
+0002:00012416* ___DPMI_real_mode_fini
+0002:00018304  ___nheap_clean
+0002:00018305* ___fheap_clean
+0002:0001832c  ___OpenStreams
+0002:00018330  ____Argc
+0002:00018334  ____Argv
+0002:00018338  ___historical_splitparms
+0002:00018358  _errno
+0002:0001835c+ __doserrno
+0002:00018424  ___minreal
+0002:0001882c  __ExtenderRealModeSelector
+
+
+                        +----------------------+
+                        |   Imported Symbols   |
+                        +----------------------+
+
+Symbol                              Module
+======                              ======
+
+
+
+                        +-----------------------+
+                        |   Linker Statistics   |
+                        +-----------------------+
+
+Stack size:  1000 (4096.)
+Memory size:  00067367 (422759.)
+Entry point address: 0001:00009f5c
+Link time: 00:05.85

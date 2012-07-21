@@ -1,0 +1,82 @@
+auto lo
+auto wlan0
+
+iface lo inet loopback
+
+iface eth0 inet dhcp
+
+iface wlan0 inet static
+    address 192.168.100.5
+    dns-nameservers 192.168.100.1
+    gateway 192.168.100.1
+    netmask 255.255.255.0
+    up wpa_supplicant -B -Dwext -iwlan0 -c /etc/wpa_supplicant.conf
+    up wpa_cli reassociate
+    wireless-essid oradio
+#? 	ignore mount errors	
+#    post-up sleep 1 && mount -v /media/udomata || true
+#    down umount -l /media/udomata
+
+iface ath0 inet static
+    address 192.168.100.5
+    dns-nameservers 192.168.100.1
+    gateway 192.168.100.1
+    netmask 255.255.255.0
+    up wpa_supplicant -B -Dwext -iath0 -c /etc/wpa_supplicant.conf
+    up wpa_cli reassociate
+    wireless-essid oradio
+# 	ignore mount errors	
+    post-up sleep 1 && mount -v /media/udomata || true
+    down umount -l /media/udomata
+
+iface ath0-raadio inet static
+    address 192.168.10.3
+    dns-nameservers 192.168.10.1
+    down umount -l /media/udomata
+    gateway 192.168.10.1
+    netmask 255.255.255.0
+# 	ignore mount errors	
+    up mount -v /media/udomata || true
+    wireless-channel 6
+    wireless-essid raadio
+    wireless-key off
+    wireless-keymode open
+    wireless-mode auto
+    wireless-rate auto
+
+iface ath0-sg1 inet manual
+    down dhclient3 -r -pf /var/run/dhclient.$IFACE.pid -lf /var/run/dhclient.$IFACE.leases $IFACE
+    down ifconfig $IFACE down
+    up ifconfig $IFACE up
+    up dhclient3 -cf /etc/dhcp3/dhclient.$LOGICAL.conf -pf /var/run/dhclient.$IFACE.pid -lf /var/run/dhclient.$IFACE.leases $IFACE
+    wireless-channel 6
+    wireless-essid linksys
+
+iface ath0-sg2 inet manual
+    down dhclient3 -r -pf /var/run/dhclient.$IFACE.pid -lf /var/run/dhclient.$IFACE.leases $IFACE
+    down ifconfig $IFACE down
+    up ifconfig $IFACE up
+    up dhclient3 -cf /etc/dhcp3/dhclient.$LOGICAL.conf -pf /var/run/dhclient.$IFACE.pid -lf /var/run/dhclient.$IFACE.leases $IFACE
+    wireless-channel 6
+    wireless-essid WIRELESS@LASALLE
+
+iface ath0-sg3 inet manual
+    down dhclient3 -r -pf /var/run/dhclient.$IFACE.pid -lf /var/run/dhclient.$IFACE.leases $IFACE
+    down ifconfig $IFACE down
+    up ifconfig $IFACE up
+    up dhclient3 -cf /etc/dhcp3/dhclient.$LOGICAL.conf -pf /var/run/dhclient.$IFACE.pid -lf /var/run/dhclient.$IFACE.leases $IFACE
+    wireless-channel 3
+    wireless-essid Wireless@SG
+
+iface lan20 inet static
+    address 192.168.20.5
+    dns-nameservers 192.168.1.1
+    gateway 192.168.20.1
+    netmask 255.255.255.0
+
+iface lan30 inet static
+    address 192.168.30.5
+    dns-nameservers 192.168.0.254
+    gateway 192.168.30.1
+    netmask 255.255.0.0
+

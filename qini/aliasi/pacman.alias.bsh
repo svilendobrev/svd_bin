@@ -1,0 +1,25 @@
+### pacman
+#al()  { alias  $1="$2"; }  #no parameters allowed!
+al pac1line "perl -e 'undef $/; while(<>) { s/\n  /\t/g; print; }'"
+
+al a-install 'sudo pacman -S'
+#al a-installre 'a-install --reinstall'
+al a-update 'sudo pacman -Syy'
+#al a-source 'cd /usr/src/; apt-get source'  #install source
+al a-remove 'sudo pacman --remove'
+al a-delete a-remove
+#al a-purge  dpkg-purge
+al a-autoremove 'sudo pacman -S --clean'
+al a-autoclean a-autoremove
+#al a-autoclean2 'sudo apt-get autoclean; sudo apt-get autoremove'
+a-search() { pacman -S --search "$@" | pac1line; } 
+al a-show    'pacman -S --info'
+al a-file0   'pacman -Q --owns'
+al a-list    'pacman -Q --list'
+a-all()         { pacman -S --list "$@" | pac1line; }   #??
+a-all-inst()    { pacman -Qs "$@" | pac1line; } 
+al a-file    a-file0 
+#al a-repository 'sudo add-apt-repository'
+#al a-ppa a-repository
+
+# vim:ts=4:sw=4:expandtab

@@ -1,0 +1,12 @@
+sudo mount cardump /media/t -o loop,users
+#d. /media/t/
+#d. /media/t/dcim/
+#d. /media/t/dcim/100canon/
+sudo sysctl -w vm.mmap_min_addr=0
+dosemu 
+e .dosemu/drives/
+d .dosemu/drives/
+d. .dosemu/drives/
+cd .dosemu/drives/
+ln -s /media/t h
+dosemu

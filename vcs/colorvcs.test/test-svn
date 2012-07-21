@@ -1,0 +1,11 @@
+ U   lib
+D    test/testbase.py
+A    test/clone.py
+A    test/testlib/filters.py
+U    test/testlib/fixtures.py
+U    test/zblog/tests.py
+U    VERSION
+A    examples/vertical/dictlike.py
+A    examples/vertical/dictlike-polymorphic.py
+ U   .
+Updated to revision 4203.

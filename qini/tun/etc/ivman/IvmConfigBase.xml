@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivm:BaseConfig version="0.2" xmlns:ivm="http://www.eikke.com/ivm">
+
+    <!-- Whether or not Ivman should daemonize itself.  Should almost always
+         be true for the system-wide version of Ivman. -->
+    <ivm:Option name="fork" value="true" />
+
+    <!-- Whether or not to give debugging output.  Warning, this is very
+         verbose! -->
+    <ivm:Option name="debug" value="false" />
+
+    <!-- whether or not system-wide ivman should sleep a little while before
+         mounting volumes.  Default: true. -->
+    <ivm:Option name="sleep" value="false" />
+
+    <!-- pidfile to use to ensure that only one instance of Ivman will
+         be running -->
+    <ivm:Option name="pidfile" value="/var/run/ivman/ivman.pid" />
+
+    <!-- user for Ivman to run as.  You can then setup sudo rules for this
+         user. default:ivman -->
+    <ivm:Option name="user" value="az" /> 
+
+    <!-- group for Ivman to run as. Should have permissions to run 'pmount'. -->
+    <ivm:Option name="group" value="plugdev" />
+
+    <!-- mount command.  default is autodetected.  Must be specified with
+         umountcommand. -->
+    <ivm:Option name="mountcommand" value="pmount-hal '$hal.block.device$'" />
+
+    <!-- umount command.  default is autodetected.  Must be specified with
+         mountcommand. -->
+    <ivm:Option name="umountcommand" value="pumount '$hal.block.device$'" />
+
+    <!-- If using pmount, and running as a system-wide instance of Ivman,
+         mount devices with this umask.  Default: 007                    -->
+
+    <ivm:Option name="umask" value="000" />
+
+</ivm:BaseConfig>

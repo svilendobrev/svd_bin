@@ -1,0 +1,16 @@
+#!/bin/sh
+dir1=$1
+dir2=$2
+tot=df.totals.df
+if [ ! -n "$3" ]; then echo "$0 dir1 dir2 wildcard"
+else
+ shift 2
+ :>$tot
+ for a in $@; do 
+  totaldiffs $dir1/$a $dir2/$a >$a.df
+  gawk '/new:/{ NEW+=$2 } /old:/{ OLD+=$3 } /chg:/{ NCH+=$2; OCH+=$3 } END { printf "%-50.50s del %5d add %5d chg %5d>%5d\n", FILENAME, OLD,NEW, OCH, NCH }' $a.df >>$tot
+ done
+ cat $tot
+ gawk '{ OLD+=$3; NEW+=$5; OCH+=$7; NCH+=$8 } END { printf "%-50.50s del %5d add %5d chg %5d>%5d\n", "total:====", OLD,NEW, OCH, NCH }' $tot
+fi
+

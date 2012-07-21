@@ -1,0 +1,7 @@
+#!/bin/sh
+X=${1:-locale}
+echo "$X"
+# !(bg|en)
+sudo rm -rf "$X"/[acdf-z]*/
+sudo rm -rf "$X"/b[a-fh-z]*/
+sudo rm -rf "$X"/e[a-mo-z]*/

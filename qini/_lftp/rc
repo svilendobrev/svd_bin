@@ -1,0 +1,21 @@
+#ftp.ls to list .* files
+set ftp:list-options -a
+
+#avoid inet6
+set dns:order "inet"
+#set dns:order "inet6 inet"
+
+#set ftp:passive-mode on
+set ftp:prefer-epsv on
+
+#wait between retry
+set net:reconnect-interval-base 20
+
+set ftp:nop-interval 10
+
+#?
+set net:idle 1000
+
+#debug 15
+### no auto utf?
+#set ftp:use-feat off

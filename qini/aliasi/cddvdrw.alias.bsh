@@ -1,0 +1,14 @@
+
+### dvd/cd
+al dvdi     'dvd+rw-mediainfo /dev/dvd'
+# lsdvd saves css-keys which readcd uses but cant get by itself
+al readcd   readom
+dvdr-raw()  { lsdvd; readcd dev=/dev/cdrom f="$@"; } #.raw-filename
+
+# dvd-writing in readcd and cdrecord not working
+dvdw-raw()  { growisofs -dvd-compat -Z /dev/dvd="$@"; } #.raw-filename
+
+al dvdw-data    'growisofs -Z /dev/dvd -r -J -f '
+al dvdw-dataadd 'growisofs -M /dev/dvd -r -J -f '
+al dvdw-video   'growisofs -dvd-compat -Z /dev/dvd -dvd-video -f '
+al cdw-audio    'wodim -dao -audio -pad -v speed=8 ' #defpregap=2

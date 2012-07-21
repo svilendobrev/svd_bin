@@ -1,0 +1,16 @@
+#!/bin/sh
+LAST=
+for a in "$@"; do LAST="$a"; done	#args[-1]
+
+if [ ! -d "$LAST/.svn" ]; then 
+	read -p "Last argument must be svn-added directory: $LAST. create?" -n 1 && [ "$REPLY" = "y" ] || exit -1
+	mkdir -p "$LAST" 
+	svn add "$LAST" 
+fi
+
+if [ -d "$LAST/.svn" ]; then 
+  for a in "$@"; do 
+    test "$a" = "$LAST" || svn mv "$a" "$LAST"
+  done
+fi
+

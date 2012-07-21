@@ -1,0 +1,238 @@
+#Id: defalias.tsh,v 1.46 2008-02-18 21:08:24 sdobrev Exp $
+#al so   source
+# the notation below is in tcsh args:
+# \!  means prev event/command (the invocation of the alias actualy)
+# \!# means Current (the alias definition itself - be careful with this)
+# !:* are all args without #0; ! are all args;
+# !:n is n-th, !#:0 is name of command; !:x* means from x to end
+
+#########
+ # use -L to follow a link2dir instead of showing the link itself
+ # ls without .*; -o w/o groups; -g w/o owner
+al d    "ls --color -ogF"
+        ###"\!#:* |cut -c 11-13 --complement"
+al d1   "ls -1"
+al da   "ls -lF"
+ # ls with .*
+al d.   "ls --color -alF"
+ # ls .* only; -d is to avoid recursive ls of directories
+al d..  'd -d .*'
+ # ls executables only
+al dx   'd | g "^[^d]..(x|...x|......x)"'
+ # ls directories only
+al ddir  'd \!#:* | grep ^d'
+al dfile 'd \!#:* | grep -v ^d'
+al dlinkbroken 'find . -type l -exec ls -alF --color {} \; | grep "31;1" '
+al df 'LANG=C df -h'
+ # ls directories; then files - choose which version is faster: 2x ls+grep or 1x ls+perl
+#al d2   'ddir \!#:* ; dfile \!#:*'
+al _d2  "perl -e 'while(<>)"'{if (/^d/||/\/$/) {print} else {push @a,$_}}'" print @a'"
+al d2   "d --color \!#:* | _d2"     #force coloring
+
+#al llm  'nroff -man \!#:* | less'
+
+al eng  'env | g'
+al seg  'set | g -A 5'
+al alg  'alias | g'
+
+al up   "cd .."
+al md   mkdir
+al rd   rmdir
+al nd   "md -p \!:1 ; cd \!:1"
+al mv   'mv -i'
+al _h   "cd ~"          # goto homedir
+al _g   "so .go"
+
+#-i: smart case-nonsensitive search; -S: don't wrap long lines; -X: disable init screen save/restore
+senv    LESS '-i -S -X'
+al l    less
+
+al t    cat
+al g    'grep -E'
+al tm   date
+al qt   date
+al zap  "rm -rf"
+al e    "vim -n"    #no swap - memonly
+al vimdiffexactws    "e -d --cmd 'let diff_ws_exact=1'"
+al m    make
+al em   "e [Mm]akefile"
+al renl "rename.pl y/A-Z/a-z/"  #this works only if  LC_COLLATE=C !!
+al renu "rename.pl y/a-z/A-Z/"
+al top  "top -d 1"
+al sort 'LC_ALL=C sort'
+
+#### obsolete; use xx/vv script
+#al zx   unzip
+#al zv   "zx -v"
+#al xz   zx
+## tar from stdin: tar vt  or  or tar vtf -
+#al tv   "tar vtf"
+#al tx   "tar vxf"
+##if tar --version | grep GNU >/dev/null ; then
+# al tgzv 'tar tzvf'
+# al tgzx 'tar xzvf'
+# al tbzv 'tar tjvf'
+# al tbzx 'tar xjvf'
+# al tzv  'tar tZvf'
+# al tzx  'tar xZvf'
+##else
+## al tgzv 'gzip -dc \!:1 | tv -'
+## al tgzx 'gzip -dc \!:1 | tx -'
+## al tbzv 'bzip2 -dc \!:1 | tv -'
+## al tbzx 'bzip2 -dc \!:1 | tx -'
+## al tzv  'uncompress -dc \!:1 | tv -'
+## al tzx  'uncompress -dc \!:1 | tx -'
+##fi
+
+
+al psu  'ps -u $USER'   # BSD style; override if other layout
+test 0 == `id -u` && al psu  'ps ax'   # BSD style; override if other layout
+al psfu 'psu -f'
+ # my processes, sorted by starttime+PID; or try PPID,PID (3 then 2)
+#al mi   'psfu |sort -k 5,5 -k 2;jobs -l'
+al mi   'psfu ;jobs -l'	# my processes and jobs
+al k9   "kill -9"
+ #kill all processes matching pattern
+al killalll     'Z=`psfu | g \!#:1 | grep -v grep | cut -c10-15` && test -n "$Z" && k9 $Z'
+#al wh   which
+al wh   type
+
+ #reload aliases
+al lo   'cd ${_INIs}; make; so defalias$_EXT; cd -'
+#al lko  'so ${_INIs}keybinds'
+
+al elxtr    'e $_INIs/\!:1'
+
+al el       "elxtr defalias.tsh"
+al elk      "elxtr keybinds"
+al elb      "elxtr _bashrc"
+al elv      "elxtr _vimrc"
+al elbb     "e ~/.bashrc"
+
+##commented: now using the ~/bin/vcs named as 'v'
+#al cu  'cvs up -dP'
+#al cvi 'cvs ci'
+#al cvd 'cvs diff -bw'
+
+############ find, grep, diff, rm
+ #file compare ignoring whitespace
+al fc   "diff -btw"
+ #fc X Y:compare X with X in dir Y
+#al fw   'fc \!:1 \!:2/\!:1'
+ #now dir first
+#al fww  'fc \!:2 \!:1/\!:2'
+
+### filefind from current dir; (give wildcards in quotes)
+ #will invoke an ls . if nothing found
+#al ff  "find . -name \!#:* | xargs -e ls -lF"
+#al ff  "find . -name \!#:* -exec ls -doF \{\} \;"
+
+al ffl  "find . -${II}name \!#:*"
+ #-follow sym-links
+al fff  "find . -follow -${II}name \!#:*"
+al ff   "fff \!#:* -exec ls -doF '{}' ';'"
+
+al ffi   "II=i ff"
+al fffi  "II=i fff"
+al ffli  "II=i ffl"
+# !!! for any other * finds use fff.sh !
+
+##grep what where
+
+ # /dev/null added to force prefixing each line with filename even if one file only
+al ggg  "grep -Ens \!#:* /dev/null"
+
+#al xgg "xargs -e grep -nsE \!#:1 /dev/null" #xargs -e coz otherwise it uses _ as EOFmarker
+#al zgg "find . -type f -name \!#:2* | xgg \!#:1"
+
+senv _SRC  "[cChylg] [ch]pp [ch]xx cc CC asm p[yl] java js xsl rb"
+senv _EXCL "CVS .svn .bzr .hg .repo"
+ #recursive     from current dir grep in source files ONLY
+ ###grep --exclude-dir to ignore whole-dirs
+#al grs  "ggg -r --exclude=\*.svn-\* \!#:* . `echo $_SRC | sed 's/\\\\/--include=/g'` "
+#al grs  "ggg -r --exclude=\*.svn-\* \!#:* . `perl -e '$_=$ENV{"_SRC"}; s/(\S+)/--include=\\*.\1/g; print'` "
+al grs  'set -f; ggg -r \!#:* . `for a in $_SRC; do echo --include="*.$a"; done `; set +f'
+al gr  grs
+al grm  "ggg -r --exclude=\*.svn-\* \!#:* . --include=[mM]akef\* --include=*.mak "
+al grh  "ggg -r \!#:* . --include=\*.html --include=\*.htm --include=\*.css"
+grimport() { gr "(import.*$1|$1.*import)"; }
+
+#see fff.sh for quote troubles
+#diff dirs ignoring these
+senv FCSRC 'CVS* *.pyc *.so *.[oa] *.exe *.proj .snprj *.dep *.req _obj *.gen _*.fsm *.ok *.xx *.result *.tmp _allin1* .#* *.jar *.bin dependencies objects *.class .cvsignore .svn tags .bzr .hg .hgtags'
+al fcsrc  'set -f; fc -r -I "\$Id.*\$" -I "\$Rev.*\$" `for a in $FCSRC; do echo -x "$a"; done ` \!#:*; set +f'
+
+al rmpyc 'find . -follow -name \*.pyc -exec rm {} \;'
+al rmpycl 'find . -name \*.pyc -exec rm {} \;'
+
+### file sizes
+al dm  'du -m --total'
+
+ # remind me who i am (ID's, phones, etc...)
+#al me   "cat ~/bin/me"
+al me   'echo "$USER @ $HOSTNAME/ $PWD"'
+
+#al prn  "lp -d laser2d"
+senv CRLF2LF    'perl -ne "s/\r\n/\n/;print"'
+al cr2lf    'chall.pl -b "s/\r\n/\n/g"'
+al lf2cr    'chall.pl -b "s/\n/\r\n/g"'
+
+al f vfu
+#l calc 'echo "\!#:*" |bc'
+al calc 'echo print "\!#:*" | python '
+al addusergroup 'usermod -G `id -Gn \!:1 | sed "s/ /,/g"`,\!:2 \!:1'
+#this above equivalient to just 'useradd user group' ? waw
+
+##mount
+# see http://www.fuw.edu.pl/~pliszka/hints/dvd.html
+#al mud 'for a in ud1 ud2 usb; do mount /mnt/$a; done'
+#al mud 'for a in a1 a5 a6  b1 b5 b6; do mount /dev/sd$a; done'
+#al mud  'for a in a b; do D=/dev/sd$a; mount "$D"6 && mount "$D"5 && mount "$D"1 && echo $D; done'
+#al umd  'for a in 0 1 2; do umount /mnt/ud$a; done'
+#al pumd 'for a in 0 1 2; do pumount /media/UD$a; done'
+al pm   'pmount --noatime'
+
+al qiv 'XLIB_SKIP_ARGB_VISUALS=1 qiv -l'
+al qiviw 'qiv -s -m -i -f -d 7'
+
+so $_INIs/aliasi/apt.alias.bsh
+
+### filmi
+al mp mplayer
+al mpeq     'mp -af equalizer=10:8:-2:0:0:0:0:0:0:0'
+al mpz      'mp -zoom -fs'	# -vf scale' -> into .conf
+al mpzmad   'mpz -ac mad'    #better audio/v sync/rates - for broken mp3 frames
+al mpsoft   'mp -softvol -softvol-max 2000'
+
+flv2mkv()   { ffmpeg -i "$1" -vcodec copy -acodec copy  "$1".mkv; }
+avi2mkv()   { mkvmerge -o "$1".mkv "$@"; }
+
+### dvd/cd
+al dvdi         'dvd+rw-mediainfo /dev/dvd'
+# lsdvd saves css-keys which readcd uses but cant get by itself
+al readcd readom
+al dvdr-raw     'lsdvd; readcd dev=/dev/cdrom f=\!:*'  #.raw-filename
+# dvd-writing in readcd and cdrecord not working
+al dvdw-raw     'growisofs -dvd-compat -Z /dev/dvd=\!:*' #.raw-filename
+al dvdw-data    'growisofs -Z /dev/dvd -r -J -f '
+al dvdw-dataadd 'growisofs -M /dev/dvd -r -J -f '
+al dvdw-video   'growisofs -dvd-compat -Z /dev/dvd -dvd-video -f '
+al cdw-audio    'wodim -dao -audio -pad -v speed=8 ' #defpregap=2
+
+so $_INIs/aliasi/audio.alias.bsh
+so $_INIs/aliasi/rename.alias.bsh
+
+al bt  'btlaunchmanycurses.bittorrent . --max_rate_period 10 --display_interval 2' #--max_upload_rate 60' # --max_initiate 20 --min_peers 10 --max_uploads 3
+#al mulewait 'strings -n 20 ~/.aMule/Temp/*met | uniq'
+al net 'sudo /etc/init.d/networking restart'
+al tcpstat "netstat -anp | g tcp"
+al wgetrcnp  'wget -r -c -np --restrict-file-names=nocontrol'
+al wgetrcnpx 'wgetrcnp -R.part -X\*[Ss]ample'
+
+al diskstate 'sudo hdparm -C /dev/[hs]d?'
+al ss 'sensors;gpu'
+al sss 'ss;hddtemp /dev/sda /dev/sdb'
+
+cbedic() { `which cbedic` `echo $@ | utf2win ` | win2utf; }
+xxall() { for a in "$@"; do xx "$a"; done }
+

@@ -1,0 +1,139 @@
+## tcsh
+if ( "x$1" != "xkeys" ) then
+## setenv _INIs=path-to-these-files before sourcing this
+
+alias al alias
+al senv setenv          #global set with export
+al unsenv unsetenv
+al _set set             #local set without export
+al so   source
+#al sos	'echo --\!:*; so \!:*'
+al sosi	'echo --${_INIs}\!:*; so ${_INIs}\!:*'
+
+if (! $?_INIs) setenv _INIs ""
+senv _EXT .tsh
+################
+
+#if (! $?_ONCEENV) then
+#echo "$HOME -- $USER"
+if ($?HOME) then
+senv PATH $HOME/bin:$PATH
+else
+if ($?USER) senv PATH /home/$USER/bin:$PATH
+endif
+senv PATH .:$PATH
+#sosi env.rc
+#sosi site.rc         #non-interactive
+
+#senv _ONCEENV 1
+#endif	#once
+endif	#non-keys #####
+
+if ($?tcsh && $?prompt) then    ####### interactive only:
+if ( "x$1" != "xkeys" ) then
+echo ahaaaa-$0
+
+al verbose      "set verbose; set echo"
+al unverbose    "unset verbose echo"
+#al _setcdpath "set cdpath=\!#:1"
+al _kbin         bindkey     # builtin-cmd
+al _kcmd        "bindkey -c" # use as int/ext command; does not remain in history
+al _kstr        "bindkey -s" # use as string; reinterpret... and remains in history
+
+sosi defalias$_EXT	#look inside for tcsh alias arg notation
+echo ioio
+al lko  'so ${_INIs}_tcshrc keys'
+endif	#non-keys
+
+#_set _ESC='^['
+_set _ESC='\e'
+_set _CTL='^'
+_set _delwordB=backward-delete-word
+_set _delwordF=delete-word
+_set _wordF=vi-beginning-of-next-word
+_set _completeF=complete-word-fwd
+_set _completeB=complete-word-back
+_set _completelist=list-choices
+_set _expand=expand-glob
+
+switch ("x$TERM")
+case xlinux:
+case xxterm:
+  sosi k-$TERM
+  _set k_histUP="$_UP"
+  _set k_histDN="$_DN"
+  sosi keybinds
+ breaksw    #load these only if term is sure
+default: echo "what the hell @@@@@"
+endsw
+
+#ctrl-z pop up the suspended editor
+_set EDITOR e
+_kbin $_CTL"Z"	run-fg-editor
+
+if ( "x$1" != "xkeys" ) then
+# tcsh cmd-line editor settings
+## only useful/useless things are mentioned here. man tcsh for more
+####### name completition
+set autolist            #ambiguity completition lists all
+#set addsuffix          #dir completition end on / ; these set by default
+#unset autocorrect      #most of cases this is annoying instead of useful
+#unset complete         #dont ignore case, autocorrect etc be too smart
+#unset correct
+#set fignore=list-of-suffixes-to-be-ignored-by-tab-completion
+#set listmax=100        #ask if list-of-choices is longer
+set listmaxrows=10
+ # a/b/<enter> means cd a/b/; careful with dirs / exes with same name
+set implicitcd		#newer versions only
+
+####### cmd-history; there is also dir-history
+ #=prev: dont add hist entry if same as prev.
+ #=erase: remove old one from WHEREVER and add the new
+set histdup=prev
+set histlit 		#please dont be smart, show what I have typed
+set history=500
+ #actually, this could be useful for inherited shells;
+ #but not for the root one. try remove the histfile at logout/login
+unset savehist
+unset savedirs
+
+####### mix
+set nobeep
+set inputmode=insert    #each line resets in this mode
+set ignoreeof           #ctrl-d do not logout
+set rmstar              #rm * asks
+
+set nonomatch           # if [xy]* has no match, pass it as arg instead of error
+#set backslash_quote    # if set, \\ escapes '',``,"" but it's incompatible with csh
+#set listjobs           # list all jobs on each suspending
+#set nostat=... #dirs/globs-of-dirs that shall not be tried on filename-completitions
+
+####### builtin ls-F
+#set listflags=a        #make it ls-Fa
+#set color              #allow colors
+
+# %m=host; %n=user; %~ or %/=cwd %#=>
+#set prompt="%m: %n: %~%#"
+set prompt="%U%~%u%# "
+#set prompt="%~%B%#%b "
+#al so_flt       '$CRLF2LF \!#:1 >tmp_; so tmp_ \!#:2*; rm -f tmp_'
+
+if ($?_SITEs) then
+ foreach a ($_SITEs) # 1st common a then a.shell-dependent
+#  the only way this if/-f works:
+  if ( -f ${_INIs}$a ) then
+   sosi $a
+  endif
+  if ( -f ${_INIs}$a$_EXT ) then
+   sosi $a$_EXT
+  endif
+ end
+ unset a
+endif	#SITEs
+
+#stty intr ^C    #let del be del and ctrl-c be ctrl-c
+
+endif	#non-keys
+endif   #interactive
+#echo $prompt
+# eof .cshrc

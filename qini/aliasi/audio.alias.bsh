@@ -1,0 +1,185 @@
+al lamev 'lame --nohist -h -v -V 0'
+al lamev6 'lame --nohist -h -v -V 6'
+
+alf()       { eval "$1() { $2 \"\$@\" ;}" ; }   #create a func from alias' syntax
+forall()    { W="$1"; shift; for a in "$@"; do "$W" "$a" ; done; }
+forallif()  { IFS=$'\n'; for a in `fff \*.$1`; do test ! $4 -f "$a.$2" -a ! $4 -f `basename $a $1`$2 && echo "$a" && $3 "$a"; done; unset IFS; }
+
+al show_wav_no_mp3   'forallif wav mp3 echo'
+al show_wav_with_mp3 'forallif wav mp3 echo ! '
+al del_wav_with_mp3  'forallif wav mp3 rm'
+
+mp2wav()        { mplayer -vc null -vo null -ao pcm:fast:file="$1".wav "$@" ; }
+#mpaudio2wav() { mplayer -vc null -vo null -ao pcm:fast:file="$1".wav "$@" ; }
+
+alf wav2mp3     'lamev "$LAMEOPT"'
+alf wav2mp36    'lamev6 "$LAMEOPT"'
+alf mp32wav     'lamev -S --decode'
+
+al wav2mp3if    'forallif wav mp3 wav2mp3'
+al wav2mp36if   'forallif wav mp3 wav2mp36'
+al mp32mp3if    'forallif mp3 mp3 wav2mp3'
+al mp32wavif    'forallif mp3 wav mp32wav'
+
+_stdin2mp3()    { wav2mp3 - "$1.mp3" ; }
+_stdin2flac()   { flac -o "$1.flac" -; }
+
+alf flac2wav    'flac -d'
+alf wav2flac    'flac'
+al wav2flacif   'forallif wav flac wav2flac'
+flac2mp3()      { flac -d "$1" -o -| _stdin2mp3 "$1"; }
+al flac2mp3if   'forallif flac mp3 flac2mp3'
+flac2mp3split() { flac2mp3 "$1"; mp3splt -c "$2" "$1".mp3; }
+
+wv2mp3()        { wvunpack "$1" -o -| _stdin2mp3  "$1" ; }
+wv2flac()       { wvunpack "$1" -o -| _stdin2flac "$1" ; }
+al wv2mp3if     'forallif wv mp3 wv2mp3'
+al wv2flacif    'forallif wv flac wv2flac'
+
+ape2wav()       { mac "$1" "$1".wav -d ; }
+ape2flac()      { mac "$1" - -d | _stdin2flac "$1" ; }
+ape2mp3()       { mac "$1" - -d | _stdin2mp3  "$1" ; }
+ape2mp3split()  { ape2mp3 "$1"; mp3splt -c "$2" "$1".mp3; }
+cuefix()        { grep -v "REM " | cuebreakpoints -i cue ; }
+CUEFILTER="cat"
+any2wavsplit()  { echo "$1"--"$2"; cat "$2" | grep -v "REM " | $CUEFILTER | shnsplit -o ${ext:-wav}  -t '%n. %t'  "$1"; }
+cue-noframes()  { CUEFILTER='perl -ne s/:[0-9][0-9]\s*$/\n/;print' ; }  #wholly shit
+any2flacsplit() { ext=flac any2wavsplit "$@" ; }
+al ape2flacsplit any2flacsplit
+al ape2mp3if    'forallif ape mp3 ape2mp3'
+al ape2flacif   'forallif ape flac ape2flac'
+
+_name2title() {
+    what=$1;
+    shift;
+    for a in "$@"; do
+        n=`echo "$a" | perl -ne 's/^(\d+([-\._] ?| - ?| ))?(.*?)(\.(flac|wav|ape|mp3))+//; print $3'`;
+        echo "$n";
+        $what "$n" "$a";
+    done
+}
+
+_flac2tag() { 
+    metaflac --show-tag=$1  "$2"| tail -1 |sed -s 's/[^=]*=//'
+}   
+
+tag1-flac2name() {
+    t=`_flac2tag Title  "$1"`
+    a=`_flac2tag Artist "$1"`
+    n=`_flac2tag Tracknumber "$1"`
+    l=`_flac2tag Album  "$1"`
+    mv "$1" "`printf %02g $n` - $a - $l - $t".flac
+}
+
+al mp3-name2title   '_name2title mp3-title'
+al mp3-removeall    'mp3info -d'
+al mp3-show         'mp3info -x -r a'
+mp3-album()     { A="$1"; shift; mp3info -l "$A" "$@"; }
+mp3-artist()    { A="$1"; shift; mp3info -a "$A" "$@"; }
+mp3-title()     { A="$1"; shift; mp3info -t "$A" "$@"; }
+mp3-comment()   { A="$1"; shift; mp3info -c "$A" "$@"; }
+
+al flac-name2title  '_name2title flac-title'
+al flac-removeall   'metaflac --remove-all-tags'
+al flac-show        'metaflac --export-tags-to=-'
+flac-album()    { A="$1"; shift; metaflac --remove-tag=Album  --set-tag="Album=$A"  "$@" ;}
+flac-artist()   { A="$1"; shift; metaflac --remove-tag=Artist --set-tag="Artist=$A" "$@" ;}
+flac-title()    { A="$1"; shift; metaflac --remove-tag=Title  --set-tag="Title=$A"  "$@" ;}
+flac-number()   { A="$1"; shift; metaflac --remove-tag=Tracknumber --set-tag="Tracknumber=$A"  "$@" ;}
+
+tag1-flac2mp3() {
+    t=`metaflac --show-tag=Title  "$1"| tail -1 |sed -s 's/[^=]*=//'`; mp3-title "$t"  "$2"
+    t=`metaflac --show-tag=Artist "$1"| tail -1 |sed -s 's/[^=]*=//'`; mp3-artist "$t" "$2"
+    t=`metaflac --show-tag=Album  "$1"| tail -1 |sed -s 's/[^=]*=//'`; mp3-album "$t"  "$2"
+}
+tag1-mp32mp3() {
+    A=`mp3info -p ' -n %n -l \"%l\" -a \"%a\" -t \"%t\" -y "%y" ' "$1"`
+    bash -c "mp3info $A \"$2\""
+    #-g "%g"
+}
+
+tag-flac2mp3()  { for f in "$@"; do tag1-flac2mp3 "$f" "$f".mp3 ; done ;}
+tag-flac2name() { for f in "$@"; do tag1-flac2name "$f" ; done ;}
+
+tag1-mp32flac() {
+    track=`mp3info -p '%n' "$1"`
+    album=`mp3info -p '%l' "$1"`
+    artist=`mp3info -p '%a' "$1"`
+    title=`mp3info -p '%t'  "$1"`
+    metaflac --set-tag="Title=$title" --set-tag="Artist=$artist" --set-tag="Album=$album" --set-tag="Track=$track" "$2"
+}
+tag-mp32flacsplit() {
+    for f in "$@"; do
+        track=`mp3info -p '%n' "$f"`
+        ztrack=`printf %02d $track`
+        mv split-track*$ztrack.flac $ztrack.flac
+        tag1-mp32flac "$f" $ztrack.flac
+        title=`mp3info -p '%t' "$f"`
+        mv $ztrack.flac $ztrack-"$title".flac
+    done
+}
+
+any2split-nowholeflac() {
+    ext=`echo "$1" | perl -ne 's/([^.]+)$//;print $1'`
+    echo :$ext:
+    any2flacsplit "$@"
+    ${ext}2mp3 "$1"
+    mp3splt -c "$2" "$1".mp3
+    rm "$1".mp3
+    md -p 3
+    mv *.mp3 3
+    #tag-mp32flacsplit 3/*.mp3
+}
+
+flac2flac() { ln -f "$1" "$1".flac; }
+any2split() {
+    ext=`echo "$1" | perl -ne 's/([^.]+)$//;print $1'`
+    echo :$ext:
+    O="$1"
+    if [ $ext != flac ] ; then ${ext}2flac "$1" ; O="$1".flac ; fi
+    echo "$O"
+    any2flacsplit "$O" "$2"
+    flac2mp3split "$O" "$2"
+    test $ext=flac || rm -f "$O"*
+    #ren-flac-as-mp3 *.mp3
+    md -p 3
+    mv *.mp3 3
+    #tag-mp32flacsplit 3/*.mp3
+}
+
+ren-flac-as-mp3() {
+  for a in "$@"; do 
+    X=`echo "$a"| perl -ne 's/.*- (\d+) -.*/\1/;print'`
+    #D=`dirname "$a"`
+    $E mv "${D:-.}"/split*$X*flac "$a".flac
+  done 
+}
+
+
+anyinfo() {
+    for a in "$@"; do
+        echo "$a":
+        ext=`echo "$a" | perl -ne 's/([^.]+)$//;print $1'`
+        eval $ext-show '"$a"'
+    done
+}
+
+al mau 'make -f ~/src/bin/audio/makefile'
+
+ffmpeg2wavany() { 
+    ffmpeg -i "$@"  "$1".wav 
+}
+
+# stream 2:  -map 0.2
+ffmpeg2wav() { 
+    ffmpeg2wavany "$@" -ac 2
+}
+
+mkv2audio() {
+    mkvextract tracks "$1" "$2":"$1"."$2".audio
+}
+
+qcut() {
+    qwavcut "$1" -o cut"$1" -B $2 -E $3
+}
+# vim:ts=4:sw=4:expandtab

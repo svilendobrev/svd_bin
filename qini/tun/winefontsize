@@ -1,0 +1,3 @@
+g LogPix /home/az/.wine/system.reg
+"LogPixels"=dword:00000090
+g MS.*Serif system.reg

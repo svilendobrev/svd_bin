@@ -1,0 +1,32 @@
+
+#ren-cyr2lat() 	{ for a in "$@"; do n=`echo "$a"|cyr2lat.pl $ARGS`; mv "$a" "$n" ; done; }
+#ren-cyr2lat() 	{ for a in "$@"; do n=`echo "$a"|lat2cyr.py -c2l $ARGS`; mv "$a" "$n" ; done; }
+#ren-lat2cyr() 	{ for a in "$@"; do n=`echo "$a"|lat2cyr.py $ARGS`; mv "$a" "$n" ; done; }
+al ren-cyr2lat "lat2cyr.py --c2l --utf --rename"
+al ren-lat2cyr "lat2cyr.py --l2c --utf --rename"
+#ren-866to1251() { for a in "$@"; do n=`echo "$a"|encodec.py -cp866 -cp1251`; mv "$a" "$n" ; done; }
+
+_renln_x2y() {
+	x2y="$1 $2"
+	shift; shift
+	mkdir -p 1
+	for a in "$@"; do
+		n=`echo "$a" | encodec.py $x2y`
+		ln -snf ../"$a" 1/"$n"
+	done
+}
+al renln-utf-1251 '_renln_x2y utf8 cp1251'
+al renln-1251-utf '_renln_x2y cp1251 utf8' 
+
+_ren_x2y() {
+	x2y="$1 $2"
+	shift; shift
+	for a in "$@"; do
+		echo "$a"
+		n=`echo "$a" | encodec.py $x2y`
+		mv "$a" "$n"
+	done
+}
+al ren-utf-1251 '_ren_x2y utf8 cp1251'
+al ren-1251-utf '_ren_x2y cp1251 utf8'
+al ren-866-utf  '_ren_x2y cp866 utf8'

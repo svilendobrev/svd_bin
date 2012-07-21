@@ -1,0 +1,18 @@
+@charset "utf-8";
+/*	Page layout inspector - tables.
+	fullsize tables
+	*/
+table.test {
+	width: 100% !important;
+}
+
+*[title~="Naruto"] { display : none }
+*[title~="Bleach"] { display : none }
+*[title~="NFL"] { display : none }
+*[title~="WWE"] { display : none }
+*[title~="Chuno"] { display : none }
+*[title~="Fockers"] { display : none }
+*[title~="Season"] { display : none }
+*[title~="Футбол:"] { display : none }
+*#div1 { display : none }
+/***********/

@@ -1,0 +1,86 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          myhdparm
+# Required-Start:    $local_fs $remote_fs
+# Required-Stop:     
+# Default-Start:     2
+# Default-Stop:      
+# Short-Description: 	Set hdparm & cache filesystems
+### END INIT INFO
+
+. /lib/lsb/init-functions
+
+LOG=/tmp/hdparm.log
+
+hdA() { /sbin/hdparm $@ /dev/sda >>$LOG 2>&1 ; }
+hdB() { /sbin/hdparm $@ /dev/sdb >>$LOG 2>&1 ; }
+hdC() { /sbin/hdparm $@ /dev/sdc >>$LOG 2>&1 ; }
+hdC() {}
+
+doit() {
+echo hdparm >> $LOG
+date >> $LOG
+
+#readahead
+hdA -a 2048
+hdB -a 2048
+hdC -a 2048
+
+#spindown timeout
+#0: off
+#1-240: n*5sec
+#241-251: (n-240)*30min
+#252: 21min
+hdA -S90 
+hdB -S60
+hdC -S60
+
+#acoustic:quiet
+#hdA -M 128
+#hdB -M 128
+
+echo hdparm DONE>> $LOG
+}
+
+crawl() {
+#OUT=/dev/null
+echo crawl $@ >> $LOG
+#OUT=/tmp/crawl/$1
+#mkdir -p $OUT
+#ls -alR $1 > /dev/null &
+ nice find $@ -mount -name niama-ta-kova- >/dev/null
+ #nice ls -laRF $@ >/dev/null 
+ echo crawl $@ DONE >> $LOG
+}
+
+docrawl() {
+echo hdparm:cache >> $LOG
+date >> $LOG
+#disk1
+#crawl / /home &
+#disk2
+crawl /media/na/ &
+#alllll
+#crawl /media/z &
+#crawl /media/na &
+#crawl /etc /usr /lib /var /bin /sbin /boot /home/ 
+}
+
+
+case "$1" in
+ start|restart|force-reload|reload)
+	log_begin_msg "hdparm & cache-dir"
+    doit
+    docrawl
+	log_end_msg 0
+	;;
+
+ stop)
+	;;
+
+ *)
+	log_warning_msg "Usage: $0 {start|stop|restart|reload|force-reload}"
+	;;
+esac
+
+exit 0

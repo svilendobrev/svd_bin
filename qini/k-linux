@@ -1,0 +1,99 @@
+#echo ---linux
+
+# console can change colormap
+#	esc]Pnrrggbb:  color n = rrggbb, all hex
+#	esc[0m reset attr
+# more info:
+#  man console_codes
+#  man terminfo
+#enlighten blue please - when can't make it 16colors
+echo -e "\e]P46090c0"
+
+_set _TAB=$_CTL"I"
+_set _ENTER=$_CTL"J"
+_set k_clrscr=''
+
+so $_INIs/kmap
+
+_kesc F1    "[[A"
+_kesc F2    "[[B"
+_kesc F3    "[[C"
+_kesc F4    "[[D"
+_kesc F5    "[[E"
+
+#_set _UP=$_ESC'[A'
+#_set _DN=$_ESC'[B'
+#_set _LEFT=$_ESC'[D'
+#_set _RIGHT=$_ESC'[C'
+#
+#senv _HOME $_ESC'[1~'
+#senv _DEL  $_ESC'[3~'
+#_set _INS=$_ESC'[2~'
+#_set _END=$_ESC"[4~"
+#_set _PGUP=$_ESC"[5~"
+#_set _PGDN=$_ESC"[6~"
+# # /etc/termcap
+#
+#_set _F1=$_ESC"[[A"
+#_set _F2=$_ESC"[[B"
+#_set _F3=$_ESC"[[C"
+#_set _F4=$_ESC"[[D"
+#_set _F5=$_ESC"[[E"
+#_set _F6=$_ESC"[17~"
+#_set _F7=$_ESC"[18~"
+#_set _F8=$_ESC"[19~"
+#_set _F9=$_ESC"[20~"
+#_set _F10=$_ESC"[21~"
+
+#sed "s/\\$_ESC/"'\\033/' <<endkeymap |echo #  | tee /tmp/kymap | xloadkeys
+#string  F20 = "$_k_cLEFT"
+#control keycode 105 = F20
+#...
+#endkeymap
+
+perl -e '$f=30; while(<>){ 
+	($k,$n)=split/\s+/; next if $k eq""; $s=$ENV{"_K_$k"}; 
+	$p = ($k=~/^s/ ? "shift" : "control");
+	print "$p keycode $n = F$f \n";
+	print "$p altgr keycode $n = F$f \n";	#cyrillic
+	print " string F$f = \"\\033$s\"\n"; $f++ }' <<endkeymap |loadkeys
+sTAB	15
+cTAB	15
+cUP	 	103
+cDN	 	108
+cLEFT  	105
+cRIGHT 	106
+cHOME	102
+cEND	107
+cPGUP	104
+cPGDN	109
+
+cF1 	59
+cF2 	60
+cF3 	61
+cF4 	62
+cF5 	63
+cF6 	64
+cF7 	65
+cF8 	66
+cF9 	67
+cF10	68
+cF11	87
+cF12	88
+
+sF1		59
+sF2		60
+sF3		61
+sF4		62
+sF5		63
+sF6		64
+sF7		65
+sF8		66
+sF9		67
+sF10	68
+sF11	87
+sF12	88
+
+endkeymap
+
+# vim:ts=4:sw=4:expandtab:ft=sh

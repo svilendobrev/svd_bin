@@ -1,0 +1,5 @@
++N  clrvcs/makefile                                                            
++N  clrvcs/test-svn
+RM  clrvcs/clr.py => clrvcs/colorvcs.py
+All changes applied successfully.
+Updated to revision 28.

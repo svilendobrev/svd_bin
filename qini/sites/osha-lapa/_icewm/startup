@@ -1,0 +1,9 @@
+#!/bin/sh
+/home/qini/x/setxkb-bgphonetic.sh &
+xrandr --output VGA1 --mode 1280x1024 --rate 60.0 --output LVDS1 --off &
+#/home/user/bin/radio > /tmp/radio
+#/usr/bin/skype &
+opera &
+claws-mail &
+x-terminal-emulator &
+/home/qini/_devilspie/delayrun.sh &

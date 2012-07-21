@@ -1,0 +1,19 @@
+#!/bin/bash
+WHAT=${1:-/dev/cdrom}
+test -n "$1" && shift
+export HOME=/home/az
+export DISPLAY=:0.0
+#cd $HOME
+echo $WHAT
+#OPTs="-really-quiet"
+echo '===============' >>/tmp/dvd.log 
+lsdvd $WHAT		>>/tmp/dvd.log 2>&1
+#xlsclients 	>>/tmp/dvd.log 2>&1
+#-vo x11 ?
+#whoami >> /tmp/zz2
+#env >> /tmp/zz2
+#ls -lFd ~/.bashrc >> /tmp/zz2
+
+#-vo xv 
+mplayer -fs -zoom dvd://${TITLE:-1} $OPTs -dvd-device $WHAT -alang bg,ru,en -slang bg,ru,en "$@" 
+#>>/tmp/dvd.log 2>&1

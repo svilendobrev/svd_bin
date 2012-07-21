@@ -1,0 +1,16 @@
+#!/bin/bash
+echo "inialiasing in "`pwd`" to [$_INIs]"
+ln -nfs $_INIs/_vim 		.vim
+ln -fs $_INIs/_vimrc 		.vimrc
+ln -fs $_INIs/_gvimrc 		.gvimrc
+#ln -fs $_INIs/_xcyrillic 	.xcyrillic
+#ln -fs $_INIs/_cyr_defaults	.cyr_defaults
+ln -fs $_INIs/_Xresources 	.Xresources
+ln -fs $_INIs/_inputrc 		.inputrc
+ln -fs /home/_bashrc 		.bashrc
+ln -fs /home/_bash_profile 	.bash_profile
+
+#or:
+#reln_users() { for a in $USERS; do ln -fs $1 $a/$2 ; done ; }
+#reln_users /home/_sys/_inputrc .inputrc
+#....

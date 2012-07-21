@@ -1,0 +1,3 @@
+#!/bin/sh
+#dpkg -l | grep ^rc 
+for a in `dpkg -l "$@" | grep ^rc | perl -ne '@a=split(); print $a[1]."\n"'`; do echo $a; sudo dpkg -P $a; done

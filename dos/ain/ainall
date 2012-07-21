@@ -1,0 +1,1 @@
+find . -name ain -a -prune -o -type d -a -exec ~/dirain2tar {} \;

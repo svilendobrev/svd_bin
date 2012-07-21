@@ -1,0 +1,4 @@
+#deb https://edge.launchpad.net/~stebbins/+archive/handbrake-snapshots karmic main
+#deb http://ppa.launchpad.net/stebbins/handbrake-snapshots/ubuntu karmic main
+#deb http://ppa.launchpad.net/stebbins/handbrake-snapshots/ubuntu natty main
+deb http://ppa.launchpad.net/stebbins/handbrake-snapshots/ubuntu precise main

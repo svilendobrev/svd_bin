@@ -1,0 +1,27 @@
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# This is a list of hotpluggable network interfaces.
+# They will be activated automatically by the hotplug subsystem.
+#auto eth0
+#auto eth1
+auto eth2
+
+#eth1 eh2.. udev keeps renaming them XXX ???
+
+#iface eth0 inet dhcp
+
+#iface eth0 inet static
+#     address 192.168.10.2
+#     netmask 255.255.255.0
+#     gateway 192.168.10.1
+# 
+iface eth2 inet static
+    address 192.168.100.2
+    netmask 255.255.255.0
+    gateway 192.168.100.1
+

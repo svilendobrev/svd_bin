@@ -1,0 +1,14 @@
+AddConfigHandler MYHDPARM_Options
+
+MYHDPARM_Resume() {
+    /etc/init.d/myhdparm start
+	return 0
+}
+
+MYHDPARM_Options() {
+	if [ -z "$MYHDPARM_ok" ]; then
+		AddResumeHook 45 MYHDPARM_Resume
+		MYHDPARM_ok=1
+	fi
+}
+

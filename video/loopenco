@@ -1,0 +1,42 @@
+#!/bin/bash
+enco() {
+	a="$1"
+	echo 'xxx' $a $oSIZE
+    test -e "$a" || return
+    if [ -f "$a" ]; then
+		echo "$a" | grep -iE '\.(avi|iso|m2ts|ts|mkv|mp4|mov)$' || return
+	fi
+
+    for TITLE in `test -f "$a".izbor && cat "$a".izbor || echo "z"`; do 
+ 	 echo "============================ $oSIZE $a $TITLE"
+	 test "$TITLE" = 'z' || export TITLE
+	 $E menc2hb "$a"
+	 echo aree
+	 #"$a".mkv
+	done
+	unset TITLE
+ 	#echo "============================ $a"
+	#$E menc2hb "$a" "$a".mkv
+	#test -f "$a".mkv* && 
+	mkdir -p ok/ && mv "$a"* ok/
+}
+
+
+shopt -s nullglob
+
+while true; do
+ for a in todo/w/*/* ; do
+    echo $a
+	W=`echo $a|perl -ne 's,^todo/w/(\d+)/.*,\1,; print'`
+	export oSIZE="-w $W"
+ 	enco "$a"
+ done
+ for a in todo/* ; do
+    test "$a" = "todo/w" && continue
+    echo $a
+	unset oSIZE
+ 	enco "$a"
+ done
+ echo waiting
+ sleep ${SLEEP:-10}
+done

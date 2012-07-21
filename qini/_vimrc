@@ -1,0 +1,680 @@
+"version 4.0        "ver4 wants this
+
+""""""""""""""""""""""" global settings
+
+"set readonly   "don't allow easy write on readonly files
+set hidden      "allow moving out of a changed file (which goes hidden)
+set backspace=2 "allow backspace to remove everywhere+newlines
+set modeline    "allow modeline (>7.1 disabled in debian by default)
+"set fileencodings=ucs-bom,cp1251,utf-8  "allow editing utf in cp1251 env
+set fileencodings=cp1251,ucs-bom,utf-8  "allow editing utf in cp1251 env
+"set fileencodings=ucs-bom,utf-8,cp1251  "allow editing utf in cp1251 env
+set fileencodings=utf-8,cp1251,ucs-bom  "allow editing utf in cp1251 env
+set fileencodings=ucs-bom,utf-8,cp1251
+
+set mouse=a
+set nowrap      "plain Clipping view over the file
+set noautowrite "dont save when switching buffers
+set noerrorbells
+set visualbell t_vb=
+
+set history=200
+set laststatus=2    "show status line always
+set ruler           "show cursor position
+set scrolloff=3     "number of lines around the cursor
+set cmdheight=2     "height of cmd line window
+set helpheight=16
+set viminfo='11,\"12,:40,/50    "marks for 11 files, 12 lines per register, 40 cmdline history, 50 searches
+"set insertmode     "start in insmode - no, some vim's get crazy
+
+set nojoinspaces    "dont use two spaces after '.' when joining a line
+set nostartofline   "dont move cursor horz when pageup/down
+
+"set incsearch      "search-as-you-type
+"set ic         "case insensitive
+set scs         "unless uppercase typed - only if ic is on
+
+"set wildmenu   "tab-completion shows menu on status line
+set suffixes-=.h    "lower priority files
+"set wildignore     "paterns to ignore
+
+"after case start line below the case-value;
+"case is 1 inside from the switch
+"unclosed several line parenthesises go under the open one
+set cino=(0,:1,=5,g1
+set tabstop=4 shiftwidth=4
+"set textwidth=75   "plain text only?
+set autoindent
+
+set hlsearch    "highlight the last used search pattern
+if version >= 600
+    set fillchars="vert:|"
+endif
+
+" include path
+set path+=..
+" tags path
+set tags-=../tags,../../tags,../../../tags,../../../../tags tags+=../tags,../../tags,../../../tags,../../../../tags
+
+" keep outdent/indent
+se formatoptions-=2 formatoptions+=2
+
+autocmd BufWritePre  [mM]akefile*,*.mak,*.p[yl],*.[chyl],*.cpp,*.hpp,*.cxx,*.php,*.sh,*.htm*,*.java,*.js,*.rb ma '|%s/\s\+$//e
+autocmd BufWritePost [mM]akefile*,*.mak,*.p[yl],*.[chyl],*.cpp,*.hpp,*.cxx,*.php,*.sh,*.htm*,*.java,*.js,*.rb ''
+
+autocmd FileType c,cpp          setl cindent ts=4 sw=4 expandtab
+"autocmd BufEnter /usr/*,/tmp/*     setl noexpandtab ts=8 sw=8
+"autocmd FileType c,cpp          setl tags-=/usr/include/tags tags+=/usr/include/tags
+"autocmd FileType c,cpp          setl tags-=$PYinc/tags tags+=$PYinc/tags
+autocmd FileType python         setl tags-=$PYlib/tags tags+=$PYlib/tags
+"autocmd FileType python,c,cpp   setl tags-=$WXinc/wx/tags tags+=$WXinc/wx/tags
+"autocmd FileType python,c,cpp   setl path-=$PYinc path+=$PYinc
+  let python_highlight_builtins = 1
+  let python_highlight_exceptions = 1
+  let python_highlight_numbers = 1
+"autocmd BufEnter *.py set tabstop=4 shiftwidth=4 expandtab tags-=/usr/lib/python2.1/tags,/usr/include/python2.1/tags tags+=/usr/lib/python2.1/tags,/usr/include/python2.1/tags
+autocmd FileType python setl tabstop=4 shiftwidth=4 expandtab
+autocmd FileType python setl errorformat=%\\s%#File\ \"%f\"\\,\ line\ %l%.%#
+autocmd FileType yaml   setl errorformat=%A\ \ in\ \"%f\"\\,\ line\ %l\\,\ column\ %c,%C%m
+
+"autocmd FileType python set errorformat-=%.%#Error:%m
+"autocmd FileType python set errorformat+=%.%#Error:%m
+
+autocmd FileType python setl foldlevel=1 foldnestmax=5 foldtext=
+"autocmd FileType python set foldmethod=indent
+func! Myfoldtxt_indent_by_level()
+ "return substitute( v:folddashes, "-", "    ", "g" ) . foldtext()
+ return repeat( v:foldlevel, "    " ) . foldtext()
+ endfunc
+func! Myfoldtxt_autoindent()    "indent-of-prevline+1
+ return substitute( getline(v:foldstart-1), "[^ ].*", "", "") ."    ".foldtext()
+ endfunc
+"for xml: hide attr.details - just 2 levels, on or off
+func! MyfoldXML()
+ setl foldexpr=getline(v:lnum)=~'^\ *<'?0:2
+ setl foldtext=Myfoldtxt_autoindent()
+ setl foldlevel=1
+ setl foldmethod=expr
+ hi folded ctermbg=0
+ endfunc
+
+autocmd FileType python setl include=^\\s*\\(from\\\|import\\)
+autocmd FileType python setl includeexpr=substitute(v:fname,'\\.','/','g')
+autocmd FileType python setl suffixesadd=.py
+
+autocmd FileType make   setl noexpandtab
+autocmd FileType make   setl errorformat-=%\\s%#File\ \"%f\"\\,\ line\ %l%.%#
+autocmd FileType make   setl errorformat+=%\\s%#File\ \"%f\"\\,\ line\ %l%.%#
+
+autocmd FileType java setl tabstop=4 shiftwidth=4 expandtab
+autocmd FileType xml  setl tabstop=4 shiftwidth=4 expandtab
+autocmd FileType java compiler ant
+autocmd FileType xml  compiler ant
+autocmd FileType java setl makeprg=make
+autocmd FileType xml  setl makeprg=make
+autocmd FileType java let java_allow_cpp_keywords=1
+
+autocmd BufEnter opis*    setl ts=4 sw=4 expandtab
+
+let gr_any0="grep\ -Ens\ --exclude-dir=.svn --exclude-dir=CVS --exclude-dir=.bzr \"$*\""
+let gr_any=gr_any0 . "\ -r\ ."
+let gr_mak="\ --include=[mM]ake\\*"
+let gr_cfg="\ --include=\\*.inc\ --include=\\*.cfg"
+let gr_prg="\ --include=\\*.p[yl]\ --include=\\*.php*\ --include=\\*.rb\ --include=\\*.java\ --include=\\*.js\ --include=\\*.[hcHC]\ --include=\\*.[hcHC][pPxX][pPxX]\ --include=\\*.idl\ --include=\\*.CC\ --include=\\*.cc"
+let gr_noold="\ --exclude=old\\*" . "\ --exclude-dir=old\\*"
+let gr_noalt="\ --exclude-dir=\\*-\\*"
+let gr_prgall=gr_prg . gr_mak
+
+let gr_all=gr_prgall . gr_cfg
+"/dev/null
+let grepprg0=gr_any . gr_all
+let grepprg2=gr_any . gr_all . gr_noalt . gr_noold
+let grepprg1=gr_any0 . gr_all ."\ *"
+let &grepprg=grepprg0
+
+let gr_html="\ --include=\\*.htm\\* "
+let grephtml="grep\ -Ens $* `find . -type f -name \\*.htm\\*`"
+
+"use: let &grepprg=grepprgall
+
+"let diff_ws_exact=1
+if version >= 600
+    if exists("diff_ws_exact")
+        set diffopt=filler,context:3
+    else
+        set diffopt=iwhite,filler,context:3
+    endif
+endif
+
+if version >= 700
+    let loaded_matchparen = 1   "disable completely
+    command! DoMatchParen unlet g:loaded_matchparen | runtime plugin/matchparen.vim | doau CursorMoved
+"   :NoMatchParen
+"   :DoMatchParen
+
+    set completeopt-=menu
+    set pumheight=10
+endif
+
+""""""""""""""""" gui stuff
+"" no menus (m), toolbars (T) and don't try to load them (M)
+"" no scrolbars (l) (r)
+set guioptions=agitM
+"let did_install_default_menus = 1
+
+"if someone maps keys in global gvimrc, put if !exist(dont_remap_Fxx) around it
+" or, if no access, use -U yourgvimrc to avoid it
+"let dont_remap_Fxx = 1
+
+
+"let mysyntaxfile=$_INIs."mysyntax.vim"
+"**** highlight colors - put in $HOME/.vim/after/syntax/syncolor.vim
+
+if &t_Co > 2 || has("gui_running")
+  if version >= 600
+    syntax enable
+  else
+    syntax on
+  endif
+  "if &t_Co > 8
+  " hi comment ctermfg=7
+  " hi constant cterm=bold ctermfg=4
+  " hi search cterm=reverse
+  "endif
+endif
+
+syntax sync fromstart
+"minlines=500
+
+"""""""""""""""""""""""" keyboard mappings
+
+""to bypass alt-tab problem for windoze Xsrvrs,
+"" xmodmap mod1(alt) to something else, e.g. Win_Application key
+"" in Xceed: use the keyboard editor
+
+"set notimeout      " don't timeout on mappings
+"set ttimeout       " do timeout on terminal key codes
+"set ttimeoutlen=10
+
+"use $XX not "$XX" !!!
+
+if &term!="pcterm"
+    if $TERM=="linux"
+     set ttyfast
+    endif
+
+    " ******** key translation *********
+    if $_K_DEL==""  "see file $_INIs/kmap
+     let $_K_DEL   ="[3~"
+     let $_K_HOME  ="[1~"
+     let $_K_END   ="[4~"
+     let $_K_PGUP  ="[5~"
+     let $_K_PGDN  ="[6~"
+     let $_K_sF11  ="]F11"
+     let $_K_cF12  ="{F12"
+     let $_K_cHOME ="{h"
+     let $_K_cEND  ="{e"
+     let $_K_cUP   ="{a"
+     let $_K_cDN   ="{b"
+     let $_K_cLEFT ="{d"
+     let $_K_cRIGHT="{c"
+     let $_K_sTAB  ="]t"
+     let $_K_cTAB  ="{t"
+    "for preprogrammed xterm via .Xresources
+     let $_K_F1    ="[[A"
+     let $_K_F2    ="[[B"
+     let $_K_F3    ="[[C"
+     let $_K_F4    ="[[D"
+     let $_K_F5    ="[[E"
+    endif
+
+    if $TERM =~ 'konsole' || $TERM =~ 'zxterm'
+     set <up>    =[A
+     set <down>  =[B
+     set <left>  =[D
+     set <right> =[C
+     "set t_ti=''
+     "set t_te=''
+     "set t_ks=''
+     "set t_ke=''
+    endif
+
+    function! Execmap( smap,skey,sval)
+     if a:skey != ''    "only if non-empty
+       exec a:smap. ' <esc>'.a:skey.' '.a:sval
+       exec a:smap.'! <esc>'.a:skey.' '.a:sval
+"      exec substitute( a:sexec, ' ', '! ', '')
+     endif
+    endf
+
+    function! Execmap1( skey,sval)
+     call Execmap( 'map', a:skey, a:sval)
+    endf
+
+     "cannot translate \e to <esc>; using <esc>$_K_xxx instead of $_k_xxx
+     "exec "set <Home>=<esc>".$_K_HOME
+    call Execmap( "noremap", $_K_DEL  ,'<Del>' )
+    call Execmap( "noremap", $_K_HOME ,'<Home>' )
+    call Execmap( "noremap", $_K_END  ,'<End>' )
+    "these just in case if mapped to c-B/c-F
+    call Execmap( "noremap", $_K_PGUP ,'<PageUp>' )
+    call Execmap( "noremap", $_K_PGDN ,'<PageDown>' )
+    let n=1 | while n<=12
+     "tricky workaround: cant use expand('$xxx'.n) since it has a problem with {
+     " e.g. echo expand('$_K_cF1') where _K_cF1 has '{' inside
+     "manual example: exec "map <esc>$_K_cF11 <c-F11>"
+     "manual example: exec "map <esc>$_K_sF11 <s-F11>"
+     "manual example: exec "map <esc>$_K_F11 <F11>"
+     let m1='' | let m2='c-' | let m3='s-'
+     let im=1 | while im<=3
+      let m=m{im}   "modifier
+      let bb='$_K_'.strpart(m,0,1).'F'.n
+      exec 'let aa='.bb
+"     call Execmap( 'map <esc>'.aa. ' <'.m.'F'.n.'>' )
+      call Execmap1( aa, '<'.m.'F'.n.'>' )
+      let im=im+1
+     endwhile
+     let n=n+1
+    endwhile
+    "oh these 2-mode term rubbish...
+    call Execmap1( $_K_cHOME  ,'<c-Home>' )
+    call Execmap1( $_K_cEND   ,'<c-End>' )
+    call Execmap1( $_K_cUP    ,'<c-Up>' )
+    call Execmap1( $_K_cDN    ,'<c-Down>' )
+    call Execmap1( $_K_cLEFT  ,'<c-Left>' )
+    call Execmap1( $_K_cRIGHT ,'<c-Right>' )
+    call Execmap1( $_K_cHOME2 ,'<c-Home>' )
+    call Execmap1( $_K_cEND2  ,'<c-End>' )
+    call Execmap1( $_K_cUP2   ,'<c-Up>' )
+    call Execmap1( $_K_cDN2   ,'<c-Down>' )
+    call Execmap1( $_K_cLEFT2 ,'<c-Left>' )
+    call Execmap1( $_K_cRIGHT2,'<c-Right>' )
+    "call Execmap1( $_K_sUP    ,'<PageUp>' )
+    "call Execmap1( $_K_sDN    ,'<PageDown>' )
+    "call Execmap1( $_K_sLEFT  ,'<Home>' )
+    "call Execmap1( $_K_sRIGHT ,'<End>' )
+    call Execmap1( $_K_sUP    ,'<Up>' )
+    call Execmap1( $_K_sDN    ,'<Down>' )
+    call Execmap1( $_K_sLEFT  ,'<Left>' )
+    call Execmap1( $_K_sRIGHT ,'<Right>' )
+
+    "ctrl-Tab=list windname-expansions
+    exec "cmap <esc>".$_K_cTAB." <c-TAB>"
+    "shift-Tab=prev name - s-Tab or c-P
+    exec "cnoremap <esc>".$_K_sTAB." <s-TAB>"
+
+    "gray num kbd in vim/through xterm:
+    inoremap <esc>Oo    /
+    inoremap <esc>Oj    *
+    inoremap <esc>Om    -
+    inoremap <esc>Ok    +
+    map <esc>Oo    /
+    map <esc>Oj    *
+    map <esc>Om    -
+    map <esc>Ok    +
+    "!escOl for xtermclr
+    inoremap <esc>OM    <CR>
+    inoremap <esc>Ox    <Up>
+    inoremap <esc>Oy    <kPageUp>
+    inoremap <esc>Ot    <Left>
+    inoremap <esc>Ou    5
+    inoremap <esc>Ov    <Right>
+    inoremap <esc>Or    <Down>
+    inoremap <esc>Os    <kPageDown>
+    inoremap <esc>Op    <ins>
+
+else    "pcterm
+    unmap  <Insert>
+    unmap! <Insert>
+    unmap  <c-X>
+    "also mapped: ctrl-pageUP/DN = top/bottom of screen
+    "also mapped: ctrl-ins/del in visual = copy/del all mark
+
+    map ОЉ <c-F12>
+    map! ОЉ <c-F12>
+    "map О” <c-TAB>
+    cmap О” <c-TAB>
+
+    set makeprg=mak
+
+endif   "pcterm
+" ******** eo key translation *********
+
+"ctrl-Tab=list windname-expansions
+cnoremap <c-TAB> <c-D>
+
+"undo
+inoremap <c-U> <c-o>u
+noremap  <c-U> u
+
+"block mark
+noremap  <c-B> <c-V>
+inoremap <c-B> <c-o><c-V>
+"char mark - does not work!
+noremap  <c-C> v
+inoremap <c-C> <c-o>v
+
+"line mark
+noremap  <c-L> V
+inoremap <c-L> <c-o>V
+"copy word
+noremap  <c-Y> yw
+inoremap <c-Y> <c-o>yw
+
+"delete Left word: command-line only
+cnoremap <c-L> <c-W>
+
+"backspace in normalmode
+noremap <BS> X
+
+""delete-key: use fixdel, or whats below (DEL=ascii 127, ^? on some terms)
+"fixdel
+
+"ctrl-home  1G / <c-o>1G
+"ctrl-end   G/<c-o>G
+
+"go home
+"inoremap <c-A> <c-o>0
+"noremap  <c-A> 0
+"go end
+"inoremap <c-X> <c-o>$
+"noremap  <c-X> $
+
+"ins prev/next word-match in normal-mode
+map <c-p> i<c-p>
+map <c-n> i<c-n>
+
+"c-arrows go over space- delimited words
+"s-arrows go over non-identifier -delimited words
+
+"prev word
+"noremap  <esc>{d <s-Left>
+"noremap! <esc>{d <s-Left>
+"noremap  <c-Left> B
+"inoremap <c-Left> <c-o>B
+noremap  <c-Left> <s-Left>
+noremap! <c-Left> <s-Left>
+
+"next word
+"noremap   <esc>{c <s-Right>
+"noremap!  <esc>{c <s-Right>
+"noremap  <c-Right> W
+"inoremap <c-Right> <c-o>W
+noremap  <c-Right> <s-Right>
+noremap! <c-Right> <s-Right>
+
+"ctrl-up/dn = up/down
+noremap  <c-Up>   <Up>
+noremap! <c-Up>   <Up>
+noremap  <c-Down> <Down>
+noremap! <c-Down> <Down>
+"noremap  <esc>[a <Up>
+"noremap! <esc>[a <Up>
+"noremap  <esc>[b <Down>
+"noremap! <esc>[b <Down>
+
+"prev search
+noremap  <c-A> N
+inoremap <c-A> <c-o>N
+"next search
+noremap  <c-F> n
+inoremap <c-F> <c-o>n
+
+"join lines
+noremap  <c-J> J
+inoremap <c-J> <c-o>J
+"del curline
+noremap  <F8>       dd
+inoremap <F8>  <c-o>dd
+"copy curline
+noremap  <F7>  yy
+noremap! <F7>  yy
+inoremap <F7>  <c-o>yy
+
+"paste before (anything in buffer - line, char, block)
+noremap  <F5>  P
+inoremap <F5>  <c-o>P
+"paste after
+noremap  <F6>  p
+inoremap <F6>  <c-o>p
+
+"del to eoline
+noremap  <c-E> D
+inoremap <c-E> <c-o>D<Right>
+"del word right
+noremap  <c-D> dw
+inoremap <c-D> <c-o>dw
+
+"next buf (F10 not working in gfrx coz motif grabs it - try shift-F10)
+noremap  <F10>      :bn<CR>
+inoremap <F10> <c-o>:bn<CR>
+noremap  <s-F10>      :bn<CR>
+inoremap <s-F10> <c-o>:bn<CR>
+"prev buf
+noremap  <F9>       :bN<CR>
+inoremap <F9>  <c-o>:bN<CR>
+
+"if version >= 5        "same with !
+noremap  <F10>      :bn!<CR>
+inoremap <F10> <c-o>:bn!<CR>
+noremap  <s-F10>      :bn!<CR>
+inoremap <s-F10> <c-o>:bn!<CR>
+noremap  <F9>       :bN!<CR>
+inoremap <F9>  <c-o>:bN!<CR>
+
+"copy to/from X-clipboard - see [help x11-selection]; to X-selection is "*y
+vnoremap <c-C> "+y
+noremap  <c-Q> "+p
+inoremap <c-Q> <c-o>"+p
+
+"""""""""""""""
+
+
+"let ctrl-s and F2 do a save please
+noremap  <c-S>      :w<CR>
+inoremap <c-S> <c-o>:w<CR>
+noremap  <F2>       :w<CR>
+inoremap <F2>  <c-o>:w<CR>
+
+"release this buffer but don't close window!
+command! BD let x=bufnr('%') | bn | exec 'bd '.x
+noremap  <F3>       :BD<CR>
+inoremap <F3>  <c-o>:BD<CR>
+"save and quit
+noremap  <F4>       :x<CR>
+inoremap <F4>  <c-o>:x<CR>
+
+"save then do make + builtin error-iterator
+map  <F12>  :update\|make<CR>
+imap <F12>  <c-o>:update\|make<CR>
+"save then call make
+"map  <c-F12>  <F2>:!make<CR>
+"imap <c-F12>  <F2><c-o>:!make<CR>
+map  <c-F12>  :update\|e [Mm]akefile<CR>
+imap <c-F12>  <c-o>:update\|e [Mm]akefile<CR>
+
+"next err
+noremap  <F11>      :cn<CR>
+inoremap <F11> <c-o>:cn<CR>
+map  <s-F11>  :cp<CR>
+imap <s-F11>  <c-o>:cp<CR>
+
+"redo
+inoremap <c-R> <c-o><c-R>
+"next window
+inoremap <c-W> <c-o><c-W>
+"show statistix
+inoremap <c-G> <c-o><c-G>
+"suspend
+inoremap <c-Z> <c-o><c-Z>
+
+"goto tag
+imap  <c-]> <c-o><c-]>
+"back tag
+imap  <c-T> <c-o><c-T>
+
+"empty keys: c-2:^@, c-6:^^, c-\:^\, shift-tab, shift-Fxx
+"not-usable: c-5:^] =c-], c-8:^? =bksp
+"vim keys: c-p/prev c-t/tag-back, c-]/tag-find, c-o, c-v, c-x/expand, c-k/digraph
+"   c-h,c-m,c-s/c-q, c-c
+
+"reformat paragraph
+noremap <c-_> gqap
+inoremap <c-_> <c-o>gqap
+
+"search downward word under cursor
+noremap <c-\> *
+inoremap <c-\> <c-o>*
+
+"ALt-w -> next window
+map <esc>w <c-w><c-w>
+imap <esc>w <c-o><c-w><c-w>
+
+""" so functions.vimrc
+
+"C header files framing
+function! HDRC()
+ let str = getline(1)
+ exe setline("1", '#ifndef '.str)
+ exe append("1", '')
+ exe append("1", '#define '.str)
+ exe append( line("$"), '')
+ exe append( line("$"), '#endif   //'.str)
+endf
+command! HDRC call HDRC()
+
+let g:filetype_inc="cfg"
+"|| fnamemodify(@%,":e")=='inc'
+function! HEADsetup()
+ let comment_pfx = (&filetype=='cpp' || &filetype=='c' || &filetype=='cfg' || &filetype=='java') ? '//' : '#'
+ let comment_sfx = ''
+ if &filetype =='xml' || &filetype=='html'
+  let comment_pfx = '<!--'
+  let comment_sfx = ' -->'
+ endif
+
+ if &filetype =='python'
+  "exe append( 1, '# -*- coding: cp1251 -*-' )
+  exe append( 0, '# -*- coding: utf-8 -*-' )
+  exe append( 0, '#!/usr/bin/env python' )
+ endif
+ "exe append( 0, comment_pfx.'$'.'Id$'.comment_sfx )
+endf
+command! HEADsetup call HEADsetup()
+
+function! VIMTAILsetup()
+ let comment_pfx = (&filetype=='cpp' || &filetype=='c' || &filetype=='cfg' || &filetype=='java') ? '//' : '#'
+ if &filetype =='xml' || &filetype=='html'
+  let comment_pfx = '<!--'
+ endif
+
+ let no_exp_tab  = (&filetype=='make') ? 'no' : ''
+ exe append( line("$"), comment_pfx.' vim:ts=4:sw=4:'.no_exp_tab.'expandtab')
+
+ if &filetype =='xml' || &filetype=='html'
+  exe append( line("$"), '-->')
+ endif
+
+endf
+command! VIMTAILsetup call VIMTAILsetup()
+
+command! HEADTAILsetup call HEADsetup()|call VIMTAILsetup()
+
+"opposite of :diffthis
+command! Undiffthis set nodiff|set foldcolumn=0|set noscrollbind
+
+"remove line's trailing whitespace
+command! TRAIL %s/\s\+$//|''
+
+cabbrev E e
+cabbrev Cd cd
+cabbrev Gr gr
+cabbrev undiff Undiffthis
+
+"folding
+noremap + zO
+noremap - zc
+
+"set diffexpr=DiffIgnoreAllWhitespace()
+function! DiffIgnoreAllWhitespace()
+   let opt = ""
+   if &diffopt =~ "icase"
+     let opt = opt . "-i "
+   endif
+   if &diffopt =~ "iwhite"
+     let opt = opt . "-bBw "
+   endif
+   silent execute "!diff " . opt . v:fname_in . " " . v:fname_new . " > " . v:fname_out
+endfunction
+
+command! -bar -range LAT2CYR '<,'>!cyr2lat.pl -lat2cyr|dos2win.pl
+
+scriptencoding utf8 "cp1251
+"cyrilic on cmd-line
+cabbrev е e
+cabbrev Е e
+cabbrev цд cd
+cabbrev Цд cd
+cabbrev гр gr
+cabbrev Гр gr
+"cyrilic in visual mode
+"vnoremap ъ y
+"vnoremap Ъ Y
+"vnoremap ц c
+"vnoremap Ц C
+"vnoremap о o
+"vnoremap О O
+"vnoremap д d
+"vnoremap Д D
+"vnoremap Ч ~
+"vnoremap р r
+"vnoremap Р R
+"vnoremap у u
+"vnoremap У U
+"vnoremap п p
+"vnoremap П P
+"vnoremap й j
+"vnoremap Й J
+"vnoremap а a
+"vnoremap А A
+"vnoremap и i
+"vnoremap И I
+"
+"vnoremap г g
+"vnoremap я q
+"vnoremap в w
+
+inoremap № #
+inoremap – _
+inoremap „ <
+inoremap “ >
+
+"langmap fails on eee? hence unset in plugin/eee.vim
+if $NO_VIM_LANGMAP==""
+set langmap=чЧ№–;`~#_
+set langmap+=явертъуиопшщю;qwertyuiop[]\\\\
+set langmap+=асдфгхйкл;asdfghjkl
+set langmap+=зьцжбнм;zxcvbnm
+set langmap+=ЯВЕРТЪУИОПШЩЮ;QWERTYUIOP{}\|
+set langmap+=АСДФГХЙКЛ;ASDFGHJKL
+set langmap+=ЗЬЦЖБНМ„“;ZXCVBNM<>
+endif
+
+
+"ruski
+" Ы
+" Э
+" ы
+" э
+"начало на дума + spc отзад
+iabbrev ьи ы
+iabbrev ЬИ Ы
+iabbrev ъи ы
+iabbrev ЪИ Ы
+iabbrev ъе э
+iabbrev ЪЕ Э
+iabbrev ье э
+iabbrev ЬЕ Э
+scriptencoding
+
+" vim:ts=4:sw=4:expandtab

@@ -1,0 +1,1 @@
+../text/cmp2.pl

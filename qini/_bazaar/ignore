@@ -1,0 +1,12 @@
+*.a
+*.o
+*.py[co]
+*.so
+*.sw[nop]
+*~
+.#*
+[#]*#
+*.tmp
+tmp
+tags
+__pycache__

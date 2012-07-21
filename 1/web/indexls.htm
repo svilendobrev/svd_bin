@@ -1,0 +1,58 @@
+<HTML>
+<HEAD><TITLE>Index of <?echo $PATH_DIR> </TITLE></HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#b0b0b0" LINK="#0000EE" VLINK="#00FF00" ALINK="#FF0000" BACKGROUND="images/spibleue.jpg">
+
+<CENTER><TABLE COLS=2 WIDTH="90%" >
+<TR><TD><?echo $PATH_DIR></TD>
+<TD><DIV ALIGN=right> <A HREF="
+<? strtok($PATH_DIR,"/"); $rt = strtok("/"); echo "/$rt" >
+/index.htm"> goto root Index  </A></DIV>
+</TD></TR></TABLE>
+
+<TABLE BORDER WIDTH="90%">
+
+<? /* 4dos' descript.ion to index.html converter.PHPv2 SvD 01'99 */
+$h = fopen( "DESCRIPT.ION", "r"); /* fails if not found! */
+if ($h==-1) { echo "sorry"; } else {
+$cnt=0;
+while (!feof($h)) {
+ $line = fgets($h,512);
+
+ $word = strtok($line," ");
+ if ($word != "") {  /*ignore lines if empty or starting with space !*/
+  echo "<TR><TD"; if (!$cnt) { echo " WIDTH=\"20%\""; }
+  $word = strtoupper($word); /*all comes from DOS*/
+  echo "><A HREF=\"$word\"</A> $word </TD>";
+  if (fileType($word) == "dir") {
+     $filesz = "dir";
+   } else {
+     $filesz = fileSize($word);
+   }
+
+  echo "<TD"; if (!$cnt) { echo " WIDTH=\"60%\""; } echo ">\r\n";
+  $type = "";
+  $word = strtok(" ");
+  $i=0;
+  while (!strstr($word,"\n") && $i<99) { /*strtok skips only ONE space!*/
+     if (eregi("/BG",$word)) { $type = "/Bulgarian"; }
+      elseif (eregi("/Rus",$word)) { $type = "/Russian"; }
+       else { echo " $word"; }
+     $word = strtok(" ");
+     $i++;
+  }
+  echo "</TD>\r\n<TD"; if (!$cnt) { echo " WIDTH=\"20%\""; } echo ">\r\n";
+  if ($filesz == "dir") { echo "directory"; }
+   else {
+     if ($filesz<8192) { echo "%d bytes" $filesz; }
+      else { $filesz=($filesz+1023)/1024; echo "%dK" $filesz; }
+   }
+  echo " $type </TD></TR>\r\n";
+  $cnt++;
+ }
+}
+fclose($h);
+}
+>
+<!-- SvD Jan'99 -->
+</TABLE></BODY></HTML>

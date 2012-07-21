@@ -1,0 +1,2 @@
+_XKB_RULES_NAMES_BACKUP(STRING) = "xorg", "pc105", "us,bg", ",phonetic", ""
+_XKB_RULES_NAMES(STRING) = "xfree86", "pc105", "us,bg", ",phonetic", "grp:alt_shift_toggle"

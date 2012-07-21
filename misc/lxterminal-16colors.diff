@@ -1,0 +1,78 @@
+diff -rbtw -U 3 ./src/lxterminal.c ../lxterminal-0.1.9//src/lxterminal.c
+--- ./src/lxterminal.c	2011-03-17 16:08:09.859253834 +0200
++++ ../lxterminal-0.1.9//src/lxterminal.c	2011-03-17 14:03:38.000000000 +0200
+@@ -38,7 +38,7 @@
+ #include "unixsocket.h"
+ 
+ /* Linux color for palette. */
+-const GdkColor linux_color[16] =
++static const GdkColor linux_color[16] =
+ {
+   { 0, 0x0000, 0x0000, 0x0000 },
+   { 0, 0xaaaa, 0x0000, 0x0000 },
+@@ -849,7 +849,7 @@
+         vte_terminal_set_background_transparent(VTE_TERMINAL(term->vte), setting->background_alpha == 65535 ? FALSE : TRUE);
+         vte_terminal_set_background_saturation(VTE_TERMINAL(term->vte), 1 - ((double) setting->background_alpha / 65535));
+     }
+-    vte_terminal_set_colors(VTE_TERMINAL(term->vte), &setting->foreground_color, &setting->background_color, setting->all16_colors, 16);
++    vte_terminal_set_colors(VTE_TERMINAL(term->vte), &setting->foreground_color, &setting->background_color, &linux_color[0], 16);
+ 
+     /* Hide or show scrollbar. */
+     if (setting->hide_scroll_bar)
+diff -rbtw -U 3 ./src/setting.c ../lxterminal-0.1.9//src/setting.c
+--- ./src/setting.c	2011-03-17 16:08:03.915223878 +0200
++++ ../lxterminal-0.1.9//src/setting.c	2011-03-17 14:03:38.000000000 +0200
+@@ -44,16 +44,6 @@
+     if (p != NULL)
+         g_key_file_set_string(setting->keyfile, "general", "fgcolor", p);
+     g_free(p);
+-
+-    int i;
+-    for (i=0; i<16; i++) {
+-        gchar * p = gdk_color_to_string(&setting->all16_colors[i]);
+-        if (p == NULL) continue;
+-        char tmpname[20]; sprintf( tmpname, "color%02d", i);
+-        g_key_file_set_string(setting->keyfile, "general", tmpname, p);
+-        g_free(p);
+-    }
+-
+     g_key_file_set_boolean(setting->keyfile, "general", "disallowbold", setting->disallow_bold);
+     g_key_file_set_boolean(setting->keyfile, "general", "cursorblinks", setting->cursor_blink);
+     g_key_file_set_boolean(setting->keyfile, "general", "cursorunderline", setting->cursor_underline);
+@@ -89,8 +79,6 @@
+     g_free(path);
+ }
+ 
+-extern const GdkColor linux_color[16]; //lxterminal.c
+-
+ /* Load settings from configuration file. */
+ Setting * load_setting_from_file(const char * filename)
+ {
+@@ -115,16 +103,6 @@
+         p = g_key_file_get_string(setting->keyfile, "general", "fgcolor", NULL);
+         if (p != NULL)
+             gdk_color_parse(p, &setting->foreground_color);
+-
+-        memcpy( setting->all16_colors, linux_color, sizeof linux_color );   //defaults
+-        int i;
+-        for (i=0; i<16; i++) {
+-            char tmpname[20]; sprintf( tmpname, "color%02d", i);
+-            p = g_key_file_get_string(setting->keyfile, "general", tmpname, NULL);
+-            if (p == NULL) continue;
+-            gdk_color_parse(p, &setting->all16_colors[i]);
+-        }
+-
+         setting->disallow_bold = g_key_file_get_boolean(setting->keyfile, "general", "disallowbold", NULL);
+         setting->cursor_blink = g_key_file_get_boolean(setting->keyfile, "general", "cursorblinks", NULL);
+         setting->cursor_underline = g_key_file_get_boolean(setting->keyfile, "general", "cursorunderline", NULL);
+diff -rbtw -U 3 ./src/setting.h ../lxterminal-0.1.9//src/setting.h
+--- ./src/setting.h	2011-03-17 16:08:22.043314076 +0200
++++ ../lxterminal-0.1.9//src/setting.h	2010-08-17 03:20:35.000000000 +0300
+@@ -46,7 +46,6 @@
+ 
+     gboolean geometry_change;           /* True if there is a geometry change, until it has been acted on */
+ 
+-    GdkColor all16_colors[16];
+ } Setting;
+ 
+ extern void setting_save(Setting * setting);

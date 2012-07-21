@@ -1,0 +1,7 @@
+#/bin/sh
+/home/az/bin/chall.pl 's/nameserver (212.39.90.4[23]|192.168.1.1)//g' /etc/resolv.conf
+cat<<eoff >> /etc/resolv.conf
+nameserver 212.39.90.42
+nameserver 212.39.90.43
+nameserver 192.168.1.1
+eoff

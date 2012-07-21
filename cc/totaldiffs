@@ -1,0 +1,8 @@
+#!/bin/sh
+## file-by-file only - no dirs
+diff -btw --line-format= --old-group-format="old:%5dN%5dn;" --new-group-format="new:%5dN%5dn;" --changed-group-format="chg:%5dN%5dn;" "$@" | perl -ne 's/;/\n/g;print'
+#old: get column 2
+#new: get column 1
+#changed: column 1 is new, column 2 is old
+#diff -btw --line-format= --old-group-format=old%dn, --new-group-format=new%dn, --changed-group-format=chg%dn, $@ | perl -ne 's/,/\n/g; print'
+

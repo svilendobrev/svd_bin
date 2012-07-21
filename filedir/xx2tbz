@@ -1,0 +1,8 @@
+#!/bin/sh
+mkdir z.z.z
+cd z.z.z
+xx ../"$1"
+tar cjvf ../"$1".tbz .
+cd ..
+ls -lF "$1"*
+rm -rf z.z.z

@@ -1,0 +1,2 @@
+mplayer -vf expand=100:::::4/3 -stop-xscreensaver "$@"
+

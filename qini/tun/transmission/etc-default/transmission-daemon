@@ -1,0 +1,12 @@
+# defaults for transmission-daemon
+# sourced by /etc/init.d/transmission-daemon
+
+# change to 0 to disable daemon
+ENABLE_DAEMON=0
+
+# this directory stores some runtime information, like torrent files and config
+CONFIG_DIR="/var/lib/transmission-daemon/info" 
+
+# default options for daemon, see transmission-daemon(1) for more options
+OPTIONS="--config-dir $CONFIG_DIR  -c /home/get  -w /home/get  --no-auth   --logfile /tmp/transmisd.log"
+_UMASK="--umask 002"

@@ -1,0 +1,4 @@
+deb http://update.eeepc.asus.com/p701 p701 main
+#deb-src http://update.eeepc.asus.com/p701 p701 main
+deb http://update.eeepc.asus.com/p701/en p701 main
+#deb-src http://update.eeepc.asus.com/p701/en p701 main

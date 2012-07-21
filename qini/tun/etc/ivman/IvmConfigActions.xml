@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivm:ActionsConfig version="0.2" xmlns:ivm="http://www.eikke.com/ivm">
+
+    <!-- syntax of this file:
+
+         <ivm:Match name="matchname" value="matchvalue">
+             <ivm:Option name="optionname1" value="optionvalue1" />
+             <ivm:Option name="optionname2" value="optionvalue2" />
+             ...
+         </ivm:Match>
+
+         Matches can be nested.  See the examples.
+
+         If a device matches multiple times and is given conflicting options,
+         then the last options (closest to end of file) take precedence.
+    -->
+
+    <!-- names for Match:
+
+         ivm.mountable (true/false) - a volume which can be mounted by ivman
+         hal.anything (mixed) - the HAL property specified by 'anything'
+         * - always match (use with care!)
+
+         The hal.anything match is very powerful; see the examples in this
+         file for some things which can be done.  Use the output of 'lshal'
+         to come up with properties to match for certain devices.
+    -->
+
+    <!-- names for Option:
+         mount (true/false) - mount the volume
+         exec (string) - execute the given command
+         execdvd (string) - execute the given command if device is a video DVD volume (DEPRECATED)
+         execun (string) - execute the given command when physical device is removed
+                           or when disc is removed from drive.  Note that HAL properties
+                           substituted for execun will be those at the time of the _insertion_
+                           of the device (or at time of mounting if Ivman mounts the device),
+                           since the device no longer exists at time of
+                           execution (therefore we cannot get properties of it).
+
+         For autoplaying of CDs etc, it is recommended to put an entry in the
+         file ~/.ivman/IvmConfigActions.xml and have that user run their
+         own instance of Ivman (e.g. in ~/.kde/Autostart).
+
+         A single device can have multiple exec, execdvd and execun
+         options; for all others, only the option closest to the end of the
+         file will be used.
+    -->
+    <!-- commands can have any HAL properties placed within them by surrounding
+         the property name with $ symbols, for example, $hal.block.device$.
+    -->
+    <!-- don't forget that this is XML, so some characters will need to be escaped.
+         A summary for those who don't know XML/HTML:
+         This           Becomes This
+         &              &amp;
+         <              &lt;
+         >              &gt;
+         '              &apos;
+         "              &quot;
+    -->
+
+
+    <!-- perform these rules on devices already attached when Ivman starts -->
+    <ivm:Option name="checkOnInit" value="true" />
+
+    <!-- try to mount any mountable volume at all -->
+    <ivm:Match name="ivm.mountable" value="true">
+        <ivm:Option name="mount" value="true" />
+    	<ivm:Option name="exec" value="echo 4 $hal.block.device$ // $hal.volume.mount_point$ &gt;&gt; /tmp/mnt.log"  />
+    </ivm:Match>
+    <!--
+    <ivm:Match name="hal.info.category" value="storage">
+       <ivm:Match name="hal.storage.bus" value="usb">
+         <ivm:Option name="mount" value="true" />
+    	 <ivm:Option name="exec" value="echo 14 $hal.block.device$ // $hal.volume.mount_point$ &gt;&gt; /tmp/mnt.log"  />
+       </ivm:Match>
+    </ivm:Match>
+
+    <ivm:Match name="hal.storage.removable.media_available" value="true">
+    <ivm:Match name="hal.storage.removable" value="true">
+        <ivm:Option name="mount" value="true" />
+    	<ivm:Option name="exec" value="echo 5 $hal.block.device$ // $hal.volume.mount_point$ &gt;&gt; /tmp/mnt.log"  />
+    </ivm:Match>
+    </ivm:Match>
+    <ivm:Match name="hal.storage.removable.media_available" value="false">
+    <ivm:Match name="hal.storage.removable" value="true">
+        <ivm:Option name="mount" value="false" />
+    	<ivm:Option name="exec" value="echo 6 $hal.block.device$ // $hal.volume.mount_point$ &gt;&gt; /tmp/mnt.log"  />
+    </ivm:Match>
+    </ivm:Match>
+    -->
+	
+    <!-- example - autoplay CDs with audio tracks and no data tracks -->
+    <!--
+    <ivm:Match name="hal.volume.disc.type" value="cd_rom">
+        <ivm:Match name="hal.volume.disc.has_audio" value="true">
+            <ivm:Match name="hal.volume.disc.has_data" value="false">
+                <ivm:Option name="exec" value="/usr/bin/cdplay -d '$hal.block.device$' -c" />
+            </ivm:Match>
+        </ivm:Match>
+    </ivm:Match>
+			value="pumount '$hal.block.device$' &amp;&amp; /home/az/bin/mpdvd $hal.volume.mount_point$" />
+    	<zivm:Option name="exec" value="sudo -u az lsdvd &gt;&gt; /tmp/dvd.log" />
+    	<zivm:Option name="exec" value="sudo -u az xlsclients &gt;&gt; /tmp/dvd.log 2&>&1" />
+    -->
+
+    <!-- example - autoplay video DVDs -->
+
+    <ivm:Match name="hal.volume.disc.is_videodvd" value="true">
+    	<ivm:Option name="exec" value="echo 1 mpdvd $hal.block.device$ // $hal.volume.mount_point$ &gt;&gt; /tmp/dvd.log"  />
+    	<ivm:Option name="exec" value="sudo -u az /home/az/bin/mpdvd $hal.block.device$" />
+    </ivm:Match>
+    <ivm:Match name="hal.volume.disc.type" value="dvd_rom">
+    	<ivm:Option name="exec" value="echo 2 mpdvd $hal.block.device$ // $hal.volume.mount_point$ &gt;&gt; /tmp/dvd.log"  />
+    	<ivm:Option name="exec" value="sudo -u az /home/az/bin/mpdvd $hal.block.device$" />
+    </ivm:Match>
+
+
+    <!-- dont mount usb-disk ext.partition -->
+    <ivm:Match name="hal.volume.fstype" value="">
+        <ivm:Option name="mount" value="false" />
+        <ivm:Option name="exec"  value="echo ivmanConfigActions:not-mounting $hal.info.udi$" />
+    </ivm:Match>
+
+    <!-- example - don't mount /dev/camera -->
+    <!--
+    <ivm:Match name="hal.block.device" value="/dev/camera">
+        <ivm:Option name="mount" value="false" />
+    </ivm:Match>
+    -->
+
+    <!-- example - log whenever someone attaches or removes a device -->
+    <!--
+    <ivm:Match name="*">
+        <ivm:Option name="exec" value="echo `basename '$hal.info.udi$'` attached at `date` &gt;&gt; /tmp/devices" />
+        <ivm:Option name="execun" value="echo `basename '$hal.info.udi$'` removed at `date` &gt;&gt; /tmp/devices" />
+    </ivm:Match>
+    -->
+
+</ivm:ActionsConfig>

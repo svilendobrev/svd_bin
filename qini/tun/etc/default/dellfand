@@ -1,0 +1,16 @@
+# This is a configuration file for /etc/init.d/dellfand
+
+# Interval (seconds) between polls of the CPU temperature and
+# adjustment of the fan speed accordingly
+SLEEP_TIME="0.7"
+
+# When the fan is on, at what temparature or below to turn it off
+FAN_OFF="44"
+
+# When the fan is off, at what temparature to turn it to the low
+# speed setting
+FAN_LOW="60"
+
+# When the fan is on low, at what temparature to turn it to the
+# higher setting
+FAN_HIGH="70"

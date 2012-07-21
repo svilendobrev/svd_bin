@@ -1,0 +1,12 @@
+CC      = cl/qc
+CFLAGS  = -AC -Zi
+
+wh2.obj: wl.c $I\svd.h
+
+wh1.exe: wh1.obj hyrules.obj
+        link $** /NOI /CO;
+        wh1
+
+wh2.exe: wh2.obj hyrules.obj
+        link $** /NOI ;
+        wh2 x.doc x22.doc

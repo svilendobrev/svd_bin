@@ -1,0 +1,11 @@
+default
+xkb_keymap "/tmp/bgg" {
+        xkb_keycodes        { include "xfree86"                         };
+        xkb_types           { include "default"                         };
+        xkb_compatibility   { include "group_led"                       };
+	xkb_symbols
+{ 
+    include "us(pc102)+bg(phonetic_enhanced)+bg(alt_shift_toggle)+bg(lv3_lwin_switch)"
+};
+        xkb_geometry        { include "pc(pc105)"                    };
+};

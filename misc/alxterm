@@ -1,0 +1,4 @@
+#!/bin/sh
+export MY_TERM=xterm-vte
+lxterminal "$@" &
+#MY_TERM=xterm xterm -font Terminus-cp1251-bold-20 "$@"

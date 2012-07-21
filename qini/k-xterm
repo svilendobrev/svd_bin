@@ -1,0 +1,103 @@
+#echo ---xterm
+#export PROMPT_COMMAND='echo -ne "\033]2;$LOGNAME@$HOSTNAME:$PWD\007\033]1;$LOGNAME@$HOSTNAME\007"'
+
+so $_INIs/kmap
+#_set _ESC         #esc, meta, ctl depends on shell
+_set _TAB=$_CTL"I"
+_set _ENTER=$_CTL"J"
+_set k_clrscr=$_CTL"@"
+
+########## Xstuff - before running xterm
+# if Xservers use ~/.Xauthority (cookies), do once
+#  xhost +srvrname >/dev/null  if srvrname@/home/$USER is NOT same as usual /home/$USER
+
+xset -b                 #no beeps pleaze ( -b  or  b 0)
+ #let both alt's be the same; warning: xmodmap/xkb conflict
+#xmodmap -e "add mod1 = Alt_L Alt_R"
+#may use .Xresources, .Xmodmap, .Xkbmap
+
+#if uname -a | grep eee ; then ##eeepc:
+# echo eeepc
+#  echo keycode 135 = Control_R    | xmodmap - #Menu
+#  echo add control = Control_R    | xmodmap -
+#fi
+
+#echo clear lock | xmodmap -
+#echo keysym Caps_Lock = Shift_L | xmodmap - #Caps_Lock
+
+#??echo add shift = Caps_Lock | xmodmap -
+echo -en "\033]0;$USER@$HOST\007"
+
+#xrdb -merge $_INIs/x/vtcolors.xrdb
+
+#LANG=C xrdb -override - <<endkeymap 
+#!! VT100 term emulation (usual one)
+#xterm*translations: #override \n\
+# <Key>BackSpace:    string("\010")\n\
+# <Key>Delete:       string("\033$_K_DEL")\n\
+# Ctrl<Key>Tab:      string("\033$_K_cTAB")\n\
+# Shift<Key>Tab:     string("\033$_K_sTAB")\n\
+# Ctrl<Key>Up:       string("\033$_K_cUP")\n\
+# Shift<Key>Up:      string("\033$_K_sUP")\n\
+# Ctrl<Key>Down:     string("\033$_K_cDN")\n\
+# Shift<Key>Down:    string("\033$_K_sDN")\n\
+# Ctrl<Key>Left:     string("\033$_K_cLEFT")\n\
+# Shift<Key>Left:    string("\033$_K_sLEFT")\n\
+# Ctrl<Key>Right:    string("\033$_K_cRIGHT")\n\
+# Shift<Key>Right:   string("\033$_K_sRIGHT")\n\
+# Ctrl<Key>Home:     string("\033$_K_cHOME")\n\
+# Shift<Key>Home:    string("\033$_K_sHOME")\n\
+# Ctrl<Key>End:      string("\033$_K_cEND")\n\
+# Shift<Key>End:     string("\033$_K_sEND")\n\
+# <Key>Home:         string("\033$_K_HOME")\n\
+# <Key>End:          string("\033$_K_END")\n\
+# Ctrl<Key>Prior:    string("\033$_K_cPGUP")\n\
+# Ctrl<Key>Next:     string("\033$_K_cPGDN")\n\
+# Ctrl<Key>F1:       string("\033$_K_cF1")\n\
+# Ctrl<Key>F2:       string("\033$_K_cF2")\n\
+# Ctrl<Key>F3:       string("\033$_K_cF3")\n\
+# Ctrl<Key>F4:       string("\033$_K_cF4")\n\
+# Ctrl<Key>F5:       string("\033$_K_cF5")\n\
+# Ctrl<Key>F6:       string("\033$_K_cF6")\n\
+# Ctrl<Key>F7:       string("\033$_K_cF7")\n\
+# Ctrl<Key>F8:       string("\033$_K_cF8")\n\
+# Ctrl<Key>F9:       string("\033$_K_cF9")\n\
+# Ctrl<Key>F10:      string("\033$_K_cF10")\n\
+# Ctrl<Key>F11:      string("\033$_K_cF11")\n\
+# Ctrl<Key>F12:      string("\033$_K_cF12")\n\
+# <Key>F1:           string("\033$_K_F1")\n\
+# <Key>F2:           string("\033$_K_F2")\n\
+# <Key>F3:           string("\033$_K_F3")\n\
+# <Key>F4:           string("\033$_K_F4")\n\
+# <Key>F5:           string("\033$_K_F5")\n\
+# <Key>F6:           string("\033$_K_F6")\n\
+# <Key>F7:           string("\033$_K_F7")\n\
+# <Key>F8:           string("\033$_K_F8")\n\
+# <Key>F9:           string("\033$_K_F9")\n\
+# <Key>F10:          string("\033$_K_F10")\n\
+# <Key>F11:          string("\033$_K_F11")\n\
+# <Key>F12:          string("\033$_K_F12")\n\
+# <Key>KP_Add:       string("+")
+#
+#!! some xterms map F1-5 to other stuff
+#!! put backspace before del -- order does matter !?
+#!! <Key>BackSpace:  string(0x7F)\n\
+#
+#xterm*customization: -color
+#!xterm*font: terminus-cp1251-bold-20
+#!!xterm*font: console8x16
+#xterm*foreground: gray60
+#xterm*savelines: 9999
+#xterm*cursorcolor: orange
+#
+#endkeymap
+
+# this may be used to remap shift-Fx into redundant-mapped Fxx's
+#xmodmap -e "keysym F1 = F1 F13" -e "keysym F2 = F2 F14" -e "keysym F3 = F3 F15" -e "keysym F4 = F4 F16" -e "keysym F5 = F5 F17" -e "keysym F6 = F6 F18"
+#xmodmap -e "keysym F7 = F7 F19" -e "keysym F8 = F8 F20" -e "keysym F9 = F9 F21" -e "keysym F10 = F10 F22" -e "keysym F11 = F11 F23" -e "keysym F12 = F12 F24"
+
+#orange cursor, blue mouse; 9999 lines of screen buffer:
+# xterm -cr orange -ms blue  -sl 9999
+#################
+#
+# vim:ts=4:sw=4:expandtab:ft=sh

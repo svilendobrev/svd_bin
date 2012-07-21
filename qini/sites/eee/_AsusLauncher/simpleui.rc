@@ -1,0 +1,261 @@
+<simpleui>
+
+<backgroundimage
+	barBackground="barbg.png"
+	selTabLeft="selleftbarbg.png"
+	selTabBackground="seltabrbg.png"
+	selTabRight="selrightbarbg.png"
+	tabDivider="tabdividerbg.png"
+	iconBackground="icon_background.png"
+	folderBarBackground="folderbarbg.png"
+	upFolderNorm="go_up_button_norm.png"
+	upFolderHigh="go_up_button_hi.png"
+/>
+
+<simplecat id="Internet" icon="Internet.png" background="internet_wallpaper.jpg">
+ <name lang="en">Internet</name> 
+ <name lang="bg_BG">Мрежата</name> 
+ </simplecat> 
+<simplecat id="Work" icon="work_sel.png" background="work_wallpaper.jpg">
+ <name lang="en">Work</name> 
+ <name lang="bg_BG">Работа</name> 
+ </simplecat> 
+<simplecat id="Play" icon="play_sel.png" background="play_wallpaper.jpg"> 
+ <name lang="en">Play</name> 
+ <name lang="bg_BG">Игра</name>
+ </simplecat> 
+<simplecat id="Media" icon="fav_sel.png" background="internet_wallpaper.jpg"> 
+ <name lang="en">Audio-Video</name> 
+ <name lang="bg_BG">Звук и образ</name> 
+ </simplecat> 
+<simplecat id="Settings" icon="system_sel.png" background="settings_wallpaper.jpg"> 
+ <name lang="en">Settings</name> 
+ <name lang="bg_BG">Настройки</name> 
+ </simplecat> 
+
+<folder simplecat="Work" id="Accessories" icon="dir_accessories_norm.png" selected_icon="dir_accessories_hi.png">
+ <name lang="en">Accessories</name> 
+ <name lang="bg_BG">Инструменти</name> 
+ </folder> 
+
+
+<parcel simplecat="Internet" shortcut="/usr/share/applications/firefox.desktop" icon="web_norm.png" selected_icon="web_hi.png"> 
+ <name lang="en">Web</name>	
+ <name lang="en">www-Мрежата</name>	
+ </parcel> 
+<parcel simplecat="Internet" shortcut="/usr/share/applications/claws-mail.desktop" icon="mail_norm.png" selected_icon="mail_hi.png" > 
+ <name lang="en">Mail</name>
+ <name lang="bg_BG">Пощаджия</name> 
+ </parcel> 
+<parcel simplecat="Internet" shortcut="pidgin.desktop" icon="messenger_norm.png" selected_icon="messenger_hi.png"> 
+ <name lang="en">Messenger</name> </parcel> 
+<parcel simplecat="Internet" shortcut="skype.desktop" icon="skype_norm.png" selected_icon="skype_hi.png" packages="skype asus-usbhandset"> 
+ <name lang="en">Skype</name> </parcel> 
+<parcel simplecat="Internet" extraargs="/usr/bin/sudo -H /usr/bin/xandrosncs-proxy --launch-manage-tool" icon="network_norm.png" selected_icon="network_hi.png" > 
+ <name lang="en">Network</name> </parcel> 
+<parcel simplecat="Internet" extraargs="/usr/bin/sudo /usr/bin/xandrosncs-proxy --launch-wireless-tool" icon="wireless_networks_norm.png" selected_icon="wireless_networks_hi.png"> 
+ <name lang="en">Wireless Networks</name> </parcel>
+<parcel simplecat="Internet" shortcut="asus-eeepc-ebook.desktop" icon="ebook_norm.png" selected_icon="ebook_hi.png">
+ <name lang="en">eBook</name> </parcel> 
+
+
+<folder simplecat="Work" id="WebMail" icon="webmail_norm.png" selected_icon="webmail_hi.png"> 
+ <name lang="en">Web services</name> </folder> 
+<parcel simplecat="Work/WebMail" extraargs="/usr/bin/firefox http://gmail.google.com" icon="gmail_norm.png" selected_icon="gmail_hi.png" > 
+ <name lang="en">Gmail</name> </parcel> 
+<parcel simplecat="Work/WebMail" extraargs="/usr/bin/firefox http://www.hotmail.com" icon="webmail_norm.png" selected_icon="webmail_hi.png" > 
+ <name lang="en">Hotmail</name> </parcel> 
+                   
+
+
+
+
+<parcel simplecat="Work" shortcut="ooo-writer.desktop" icon="documents_norm.png" selected_icon="documents_hi.png"> 
+ <name lang="en">Documents</name> 
+ <name lang="bg_BG">Текст</name> 
+ </parcel> 
+<parcel simplecat="Work" shortcut="ooo-calc.desktop" icon="spreadsheet_norm.png" selected_icon="spreadsheet_hi.png"> 
+ <name lang="en">Spreadsheets</name> 
+ <name lang="bg_BG">Таблица</name> 
+ </parcel> 
+<parcel simplecat="Work" shortcut="ooo-impress.desktop" icon="presentation_norm.png" selected_icon="presentation_hi.png" >
+ <name lang="en">Presentations</name> 
+ <name lang="bg_BG">Представяне</name> 
+ </parcel> 
+<parcel simplecat="Work" shortcut="kde/kcalc.desktop" icon="calculator_norm.png" selected_icon="calculator_hi.png">
+	<name lang="en">Calculator</name>
+	<name lang="bg_BG">Елка</name> 
+	</parcel>
+<parcel simplecat="Work" shortcut="evince.desktop" icon="kpdf_norm.png" selected_icon="kpdf_hi.png" >
+	<name lang="en">PDF Reader</name> </parcel>
+<parcel simplecat="Work" extraargs="/usr/bin/XandrosFileManager -maximized" icon="file_manager_norm.png" selected_icon="file_manager_hi.png" >
+	<name lang="en">File Manager</name> </parcel>
+
+<parcel simplecat="Work/Accessories" shortcut="kde/Kontact.desktop" icon="kontact_norm.png" selected_icon="kontact_hi.png">
+	<name lang="en">PIM/Kontact</name> </parcel>
+<parcel simplecat="Work/Accessories" shortcut="kde/ksnapshot.desktop" icon="ksnapshot_norm.png" selected_icon="ksnapshot_hi.png">
+	<name lang="en">Screen Capture</name> 
+	</parcel> 
+
+
+
+
+<parcel simplecat="Work" shortcut="/usr/share/applications/planner.desktop" icon="planner_norm.png" selected_icon="planner_hi.png" >
+	<name lang="en">Planner</name> </parcel> 
+<parcel simplecat="Work" extraargs="/usr/bin/xlex" icon="dictionary_norm.png" selected_icon="dictionary_hi.png" packages="xlex">
+	<name lang="en">Dictionary</name> 
+	<name lang="bg_BG">Речник</name> 
+	</parcel> 
+<parcel simplecat="Work" shortcut="kde/kivio.desktop" icon="kvisio_norm.png" selected_icon="kvisio_hi.png">
+	<name lang="en">Flow Chart/Kivio</name> </parcel>
+
+<parcel simplecat="Work" shortcut="ooo-writer.desktop" icon="documents_norm.png" selected_icon="documents_hi.png"> 
+ <name lang="en">Writing</name> 
+ <name lang="bg_BG">Писане</name> 
+ </parcel> 
+
+
+
+
+
+<parcel simplecat="Play" shortcut="kde/kpat.desktop" icon="solitaire_norm.png" selected_icon="solitaire_hi.png">
+	<name lang="en">Solitaire</name> </parcel> 
+<parcel simplecat="Play" shortcut="frozen-bubble.desktop" extraargs="--fullscreen" icon="frozen_bubble_norm.png" selected_icon="frozen_bubble_hi.png">
+	<name lang="en">Frozen Bubble</name> 
+	<name lang="bg_BG">Мехурчета</name> 
+	</parcel> 
+<parcel simplecat="Play" shortcut="ppracer.desktop" icon="ppracer_norm.png" selected_icon="ppracer_hi.png">
+	<name lang="en">Penguin Racer</name> 
+	<name lang="bg_BG">Пингвинска пързалка</name> 
+	</parcel> 
+<parcel simplecat="Play" shortcut="kde/ktuberling.desktop" icon="potato_guy_norm.png" selected_icon="potato_guy_hi.png">
+	<name lang="en">Potato Guy</name> 
+	<name lang="bg_BG">Картофчо</name> 
+	</parcel> 
+<parcel simplecat="Play" shortcut="tuxmath.desktop" icon="tux_math_norm.png" selected_icon="tux_math_hi.png">
+	<name lang="en">TuxMath</name>	
+	<name lang="bg_BG">падащи задачи</name> 
+	</parcel> 
+
+<parcel simplecat="Play" shortcut="kde/khangman.desktop" icon="khangman_norm.png" selected_icon="khangman_hi.png">
+	<name lang="en">Hangman Game</name>
+	<name lang="bg_BG">Бесеница</name> 
+	</parcel> 
+<parcel simplecat="Play" shortcut="xdigger.desktop" icon="xdigger.xpm">
+	<name lang="en">Digger</name>
+	<name lang="bg_BG">Копач</name> 
+	</parcel> 
+
+<parcel simplecat="Play" shortcut="kde/kreversi.desktop" icon="kreversi.png" selected_icon="kreversi.xpm">
+	<name lang="en">Reversi</name> 
+	<name lang="bg_BG">Обръщанка</name> 
+	</parcel> 
+
+<parcel simplecat="Play" shortcut="kde/kmahjongg.desktop" icon="kmahjongg.png" selected_icon="kmahjongg.xpm">
+	<name lang="en">Mahjong</name> 
+	<name lang="bg_BG">Маджонг</name> 
+	</parcel> 
+
+<parcel simplecat="Play" shortcut="kde/kmines.desktop" icon="kmines.png" selected_icon="kmines.png">
+	<name lang="en">Mines</name> 
+	<name lang="bg_BG">Мини</name> 
+	</parcel> 
+
+<parcel simplecat="Play" shortcut="kde/ksnake.desktop" icon="ksnake.png" selected_icon="ksnake.png">
+	<name lang="en">Snake</name> 
+	<name lang="bg_BG">Змия</name> 
+	</parcel> 
+
+<parcel simplecat="Play" extraargs="/usr/games/tuxtype" icon="tuxtyping_norm.png" selected_icon="tuxtyping_hi.png">
+	<name lang="en">Typing</name>
+	<name lang="bg_BG">Писане</name> 
+	</parcel> 
+
+<parcel simplecat="Play" shortcut="mtpaint.desktop" icon="mtpaint_norm.png" selected_icon="mtpaint_hi.png">
+	<name lang="en">Paint</name>
+	<name lang="bg_BG">Рисуване</name> 
+	</parcel> 
+
+<parcel simplecat="Play" extraargs="/usr/bin/tuxpaint --fullscreen --800x480" icon="tuxpaint_norm.png" selected_icon="tuxpaint_hi.png">
+	<name lang="en">Tux Paint</name>
+	<name lang="bg_BG">Рисуване-весело</name> 
+	</parcel> 
+
+<!--
+<simplecat id="Learn" icon="learn_sel.png" background="learn_wallpaper.jpg"> 
+ <name lang="en">Learn</name> 
+ <name lang="bg_BG">Учение</name> 
+ </simplecat> 
+<parcel simplecat="Learn" shortcut="kde/kig.desktop" icon="kig_norm.png" selected_icon="kig_hi.png"> 
+	<name lang="en">Geometry</name> </parcel> 
+<parcel simplecat="Learn" shortcut="kde/kmplot.desktop" icon="kmplot_norm.png" selected_icon="kmplot_hi.png">
+	<name lang="en">Function Plotter</name> </parcel> 
+<parcel simplecat="Learn" shortcut="kde/kstars.desktop" icon="kstars_norm.png" selected_icon="kstars_hi.png">
+	<name lang="en">Planetarium/KStars</name> </parcel> 
+<parcel simplecat="Learn" extraargs="/opt/xandros/bin/eeepc-weblearn.sh" icon="skool_norm.png" selected_icon="skool_hi.png">
+	<name lang="en">Web Learn</name>
+</parcel>
+-->
+
+
+<parcel simplecat="Media" extraargs="/usr/bin/smplayer" icon="media_player_norm.png" selected_icon="media_player_hi.png">
+	<name lang="en">Media Player</name>
+	<name lang="bg_BG">Свири всичко</name>
+	</parcel> 
+<parcel simplecat="Media" extraargs="/usr/bin/gwenview /snimki"	icon="photo_manager_norm.png" selected_icon="photo_manager_hi.png">
+	<name lang="en">Photo Manager</name>
+	<name lang="bg_BG">Снимки</name>
+	</parcel> 
+<parcel simplecat="Media" extraargs="/usr/bin/XandrosVideoManager -maximized /filmi" icon="video_manager_norm.png" icon="video_manager_norm.png" selected_icon="video_manager_hi.png">
+	<name lang="en">Video Manager</name>
+	<name lang="bg_BG">Филми</name>
+	</parcel> 
+<parcel simplecat="Media" extraargs="/usr/bin/ucview" icon="camera_norm.png" selected_icon="camera_hi.png" >
+	<name lang="en">Webcam</name> 
+	<name lang="bg_BG">Видео камера</name>
+	</parcel> 
+<parcel simplecat="Media" extraargs="/usr/bin/krecord-hijack" icon="krecord_norm.png" selected_icon="krecord_hi.png">
+	<name lang="en">Sound Recorder</name> 
+	<name lang="bg_BG">Записва звук</name>
+	</parcel>
+
+
+
+<parcel simplecat="Internet" extraargs="/opt/xandros/bin/eeepc-3g.sh" icon="3g_norm.png" selected_icon="3g_hi.png">
+	<name lang="en">3G Install</name> </parcel> 
+
+
+
+<parcel simplecat="Settings" extraargs="/usr/bin/display-settings" icon="desktop_mode_norm.png" selected_icon="desktop_mode_hi.png">
+	<name lang="en">Desktop Mode</name> </parcel> 
+<parcel simplecat="Settings" extraargs="/usr/bin/minimixer" icon="volume_control_norm.png" selected_icon="volume_control_hi.png" >
+	<name lang="en">Volume</name> </parcel> 
+<parcel simplecat="Settings" extraargs="/opt/xandros/bin/shutdown_dialog shutdown" icon="instant_shutdown_norm.png" selected_icon="instant_shutdown_hi.png" >
+	<name lang="en">Instant Shutdown</name> </parcel> 
+<parcel simplecat="Settings" shortcut="kde/xprinters.desktop" icon="xprinters_norm.png" selected_icon="xprinters_hi.png" >
+	<name lang="en">Printers</name> </parcel> 
+<parcel simplecat="Settings" extraargs="/opt/xandros/bin/system_info" icon="sysinfo_norm.png" selected_icon="sysinfo_hi.png" >
+	<name lang="en">System Info</name> </parcel> 
+<parcel simplecat="Settings" extraargs="/usr/bin/kcmshell --lang=`basename $LANG .UTF-8` --caption '%c' clock" icon="date_time_norm.png" selected_icon="date_time_hi.png" >
+	<name lang="en">Date / Time</name> </parcel> 
+<parcel simplecat="Settings" extraargs="/opt/xandros/bin/password_dialog" icon="personalization_norm.png" selected_icon="personalization_hi.png" >
+	<name lang="en">Personalization</name> </parcel> 
+<parcel simplecat="Settings" extraargs="/usr/bin/sudo /opt/xandros/bin/XNLite" icon="add_remove_soft_norm.png" selected_icon="add_remove_soft_hi.png" >
+	<name lang="en">Add/Remove Software</name> </parcel> 
+<parcel simplecat="Settings" shortcut="gpointing-device-settings.desktop" icon="touchpad_norm.png" selected_icon="touchpad_hi.png" packages="gsynaptics">
+	<name lang="en">Touchpad config</name> </parcel> 
+<parcel simplecat="Settings" extraargs="/usr/bin/sudo /usr/bin/diskutil" icon="disk_utility_norm.png" selected_icon="disk_utility_hi.png">
+	<name lang="en">Disk Utility</name> </parcel> 
+<parcel simplecat="Settings" shortcut="asus-userdiag.desktop" icon="diagnostics_norm.png" selected_icon="diagnostics_hi.png">
+	<name lang="en">Diagnostic Tools</name> </parcel> 
+<parcel simplecat="Settings" extraargs="/opt/xandros/bin/AsusCustomizer" icon="add_remove_favorites_norm.png" selected_icon="add_remove_favorites_hi.png">
+	<name lang="en">Favorites+-</name> </parcel> 
+<parcel simplecat="Settings" extraargs="/usr/bin/voiceExecute" icon="voice_recognition_norm.png" selected_icon="voice_recognition_hi.png" packages="voice-command">
+	<name lang="en">VoiceCommand</name> </parcel> 
+<parcel simplecat="Settings" extraargs="/usr/bin/sudo /usr/bin/wizard" icon="wirelessAP.png" selected_icon="wirelessAP_hi.png" packages="wizard">
+	<name lang="en">EeeAP Install</name> </parcel> 
+<parcel simplecat="Settings" updatepack="3" packages="mozilla-mplayer">
+	<name lang="en">Update of Internet Radio</name> </parcel>
+
+
+</simpleui>

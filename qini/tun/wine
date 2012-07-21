@@ -1,0 +1,57 @@
+---------------- colors:
+./user.reg:
+[Control Panel\\Colors] 
+"Window"="210 210 200"
+
+other item names:
+"ActiveBorder"="212 208 200"
+"ActiveTitle"="10 36 106"
+"AppWorkSpace"="128 128 128"
+"Background"="58 110 165"
+"ButtonAlternateFace"="181 181 181"
+"ButtonDkShadow"="64 64 64"
+"ButtonFace"="212 208 200"
+"ButtonHilight"="255 255 255"
+"ButtonLight"="212 208 200"
+"ButtonShadow"="128 128 128"
+"ButtonText"="0 0 0"
+"GradientActiveTitle"="166 202 240"
+"GradientInactiveTitle"="192 192 192"
+"GrayText"="128 128 128"
+"Hilight"="10 36 106"
+"HilightText"="255 255 255"
+"HotTrackingColor"="0 0 128"
+"InactiveBorder"="212 208 200"
+"InactiveTitle"="128 128 128"
+"InactiveTitleText"="212 208 200"
+"InfoText"="0 0 0"
+"InfoWindow"="255 255 225"
+"Menu"="212 208 200"
+"MenuBar"="212 208 200"
+"MenuHilight"="0 0 0"
+"MenuText"="0 0 0"
+"Scrollbar"="212 208 200"
+"TitleText"="255 255 255"
+"Window"="255 255 255"
+"WindowFrame"="0 0 0"
+"WindowText"="0 0 0"
+
+---------------- fonts:
+
+./system.reg:
+dpi:hex
+[System\\CurrentControlSet\\Hardware Profiles\\Current\\Software\\Fonts] 
+"LogPixels"=dword:00000090
+
+fontmappings: (user.reg has another one)
+[Software\\Microsoft\\Windows NT\\CurrentVersion\\Fonts] 1159218981
+"MS Sans Serif"="DejaVuSansCondensed.ttf"
+"MS Serif"="serifet.fon"
+...
+
+[Software\\Microsoft\\Windows\\CurrentVersion\\Fonts] 1159208277
+"Courier"="courer.fon"
+"MS Sans Serif"="sserifer.fon"
+"MS Serif"="serifer.fon"
+"Small Fonts"="smaller.fon"
+

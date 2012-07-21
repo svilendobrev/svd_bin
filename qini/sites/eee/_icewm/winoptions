@@ -1,0 +1,64 @@
+# This is an example for IceWM's window options file.
+#
+# Place your variants in /etc/X11/icewm or in $HOME/.icewm
+# since modifications to this file will be discarded when you
+# (re)install icewm.
+
+xterm.icon: xterm
+rxvt.icon: xterm
+urxvtc.icon: urxvt
+urxvt.icon: urxvt
+nxterm.icon: xterm
+fte.icon: fte
+emacs.Emacs.icon: emacs
+AWTapp.icon: java
+xv.nonICCCMconfigureRequest: 1
+xeyes.ignoreWinList: 0
+xeyes.ignoreTaskBar: 1
+xeyes.allWorkspaces: 1
+xeyes.dTitleBar: 0
+xeyes.dBorder: 0
+xeyes.dSysMenu: 0
+xeyes.dResize: 0
+xeyes.dClose: 0
+xeyes.dMinimize: 0
+xeyes.dMaximize: 0
+xeyes.ignoreNoFocusHint: 1
+
+XClock.ignoreNoFocusHint: 1
+Vim.icon: vim
+
+applix.ignoreNoFocusHint: 1
+XDdts.noFocusOnAppRaise: 1
+Wingz.noFocusOnAppRaise: 1
+WingzPro.noFocusOnAppRaise: 1
+
+gkrellm.Gkrellm.allWorkspaces: 1
+gkrellm.Gkrellm.ignoreTaskBar: 1
+gkrellm.Gkrellm.layer: Below
+#gkrellm.Gkrellm.doNotCover: 1
+
+MainWindow.licq.allWorkspaces: 1
+MainWindow.licq.ignoreQuickSwitch: 1
+MainWindow.licq.ignoreWinList: 1
+MainWindow.licq.layer: Below
+#MainWindow.licq.doNotCover: 1
+
+# Hack to provide icons for some apps
+#AsusLauncher.AsusLauncher.icon:/opt/xandros/share/AsusLauncher/AsusLauncher.png
+AsusCustomizer.AsusCustomizer.icon:/opt/xandros/share/AsusLauncher/add_remove_favorites_norm.png
+shutdown_dialog.Shutdown_dialog.icon:/opt/xandros/share/AsusShutdownDialog/shutdown_dialog.png
+password_dialog.Password_dialog.icon:/usr/share/apps/password_dialog/images/password.png
+system_info.System_info.icon:/usr/share/apps/systeminfo_dialog/images/system_info.png
+locale_dialog.Locale_dialog.icon:/usr/share/apps/locale_dialog/images/locale_dialog.png
+XNLite.XNLite.icon:/opt/xandros/share/XNLite/xnlite.png
+display-settings.Display-settings.icon:/opt/xandros/share/AsusLauncher/display_settings_norm.png
+FBReader.FBReader.icon:FBReader.png
+smplayer.Smplayer.icon:/opt/xandros/share/AsusLauncher/media_player_norm.png
+miro\.real.Miro\.real.icon:/opt/xandros/share/AsusLauncher/iptv_norm.png
+diag.Diag.icon:ap_norm.png
+diskutil.Diskutil.icon:/opt/xandros/share/AsusLauncher/disk_utility_norm.png
+powermonitor.Powermonitor.icon:/usr/share/apps/powermonitor/icons/battery_plug_full_charge.png
+
+# Fix Skype Icon Bug #37409
+skype.icon:/usr/share/icons/skype.png

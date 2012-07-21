@@ -1,0 +1,6 @@
+only hdparm.conf should be required.
+BUT seems it is not used.
+hence manual invoking  lib/udev/hdparm  at start of rc.local; 
+which used to work but stopped too, even as fixed lib-udev-hdparm
+hence manual hdparm-call at end of rc.local
+or the init.d/myhdparm instead

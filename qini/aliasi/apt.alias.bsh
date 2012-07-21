@@ -1,0 +1,23 @@
+### apt
+#al()  { alias  $1="$2"; }  #no parameters allowed!
+al a-install 'sudo apt-get install'
+al a-installre 'a-install --reinstall'
+al a-update 'sudo apt-get update'
+al a-source 'cd /usr/src/; apt-get source'  #install source
+al a-remove 'sudo apt-get remove'
+al a-delete a-remove
+al a-purge  dpkg-purge
+al a-autoremove 'sudo apt-get autoremove'
+al a-autoclean a-autoremove
+al a-autoclean2 'sudo apt-get autoclean; sudo apt-get autoremove'
+a-search()  { apt-cache search "$@" | sort; } 
+al a-show   'apt-cache show'
+al a-file0  'dpkg -S'
+al a-list   'dpkg -L'
+al a-all    'dpkg -l'
+al a-all-inst    'a-all | grep ^ii'
+a-file()    { a-file0 "$@" |perl -ne 's/:.*//;print'; } 
+al a-repository 'sudo add-apt-repository'
+al a-ppa a-repository
+
+# vim:ts=4:sw=4:expandtab

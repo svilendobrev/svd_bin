@@ -1,0 +1,8 @@
+al zx "pkunzip -d"
+al xz zx
+al zip "pkzip -exP"
+
+#before starting bash:
+# set HOME, SYSROOT if u want; insert djgpp/bin on top of the path
+# :you need /bin/sh (ln -s /bin/bash /bin/sh) !!
+# :perl4 with pmodew crashes with csdpmi (bash,make,...)

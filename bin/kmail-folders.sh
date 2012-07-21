@@ -1,0 +1,1 @@
+../cleaner/kmail-folders.sh

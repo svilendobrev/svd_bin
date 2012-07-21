@@ -1,0 +1,150 @@
+#!/bin/bash
+#
+# probedevice
+#
+# Copyright Xandros Corporation 2005
+#
+#
+
+DISKTYPE=/usr/bin/disktype
+options=
+
+# HAVEPART and PART are used to verify that the file XFM wants to lock exists
+# because it requests a lock and the automounter will give it regardless of
+# whether it exists, so we confirm that it is valid.
+HAVEPART="false"
+if echo $1 | egrep -q ".*partition.*"; then
+ PART=`echo $1 | sed 's/.*partition//' | sed 's/\/.*//'`
+else
+ HAVEPART="true"
+fi
+
+if echo $1 | egrep -q "\.directory"; then
+ exit 0
+fi
+
+# The request is only valid if it is for the initial mount
+if echo $1 | egrep -q "/"; then
+ exit 0
+fi
+
+# check for ufsd
+#if /bin/grep -q ufsd /proc/filesystems; then
+ntfsdriver="ufsd"
+#else
+# ntfsdriver="ntfs"
+#fi
+
+function getopts()
+{
+case $1 in
+	*Ext2*)			options="ext2,rw,user,noatime,suid,dev,exec";;
+	*Ext3*)			options="ext3,rw,user,noatime,suid,dev,exec";;
+	*FAT*)			options="vfat,rw,user,flush,noexec,nosuid,nodev,fmask=111,dmask=0,iocharset=utf8,shortname=mixed";;
+	*msdos*)		options="vfat,rw,user,flush,noexec,nosuid,nodev,fmask=111,dmask=0,iocharset=utf8";;
+	*NTFS*)			options="$ntfsdriver,rw,user,noexec,nosuid,nodev,umask=0,iocharset=utf8";;
+	*Minix*)		options="minix,rw,user,suid,dev,exec,sync";;
+
+	*UDF*)			options="udf,ro,sync,nosuid,nodev";;
+	*HFS*)			options="hfs,ro,sync,nosuid,nodev";;
+	*ISO9660*)	options="iso9660,ro,sync,nosuid,nodev,check=relaxed,unhide";;
+
+	*xfs*)			options="xfs,rw,user,suid,dev,exec,sync";;
+	*cramfs*)		options="cramfs,ro,user,nosuid,nodev,noexec,async";;
+	*hpfs*)			options="hpfs,rw,user,suid,dev,exec,sync";;
+	*qnx4*)			options="qnx4,ro,user,nosuid,nodev,noexec,async";;
+	*ReiserFS*)	options="reiserfs,rw,user,suid,dev,exec,sync";;
+	esac
+
+	if [ -n "`echo $options | grep vfat`" ]; then
+		if [ -f /etc/hotplug/user.map ]; then
+			source /etc/hotplug/user.map
+			if [ -n "$USERUID" -a -n "$USERGID" ]; then
+			    options=$options,uid=$USERUID,gid=$USERGID
+			fi
+		fi
+	fi
+}
+
+$DISKTYPE $DEVNAME  2>/dev/null |
+(
+havecdrom=no
+while read line; do
+case "$line" in
+	*HFS*file*system*)
+		continue
+		;;
+	*file*system*)
+		getopts "$line"
+		if [ -n $options ]; then
+			echo "/data -fstype=$options :$DEVNAME"
+			exit 0
+		fi
+		exit 0
+		;;
+	*partition*map*)
+		havefirst=
+		x=0
+		buf[x]=
+		while read line; do
+		if echo $line | egrep -q "Partition [0-9].*:.*"; then
+			partnum=`echo $line | sed 's/Partition //;s/:.*//'`
+			if read line ; then
+				if echo $line | egrep -q ".*\(Extended\).*"; then
+				partnum=""
+				continue
+				fi
+			fi
+		elif echo $line | egrep -q  "file system" && ! [ "$partnum" = "" ] ; then
+			 options=
+			 getopts "$line"
+			 if [ -n "$options" ]; then
+				if [ -n "$havefirst" ]; then
+					buf[x]="\\"
+					x=$((x+1))	
+					buf[x]="\n"
+					x=$((x+1))	
+				fi
+				LABEL=`/lib/udev/vol_id -l $DEVNAME$partnum`
+				if [ -n "$LABEL" ] ; then
+				    buf[x]="/$LABEL -fstype=$options :$DEVNAME$partnum"
+				else
+				    buf[x]="/partition$partnum -fstype=$options :$DEVNAME$partnum"
+				fi
+				x=$((x+1))
+				if [ "$HAVEPART" = "false" ] && [ "$PART" = "$partnum" ] ; then
+					HAVEPART="true"
+				fi
+				partnum=""
+				havefirst="yes"
+			fi
+		fi
+		done
+		if [ "$HAVEPART"  = "true" ] ; then
+			let x=0
+			while test $x -lt ${#buf[*]};
+			do
+   			 echo -ne ${buf[x]} 
+   			 x=$((x+1))
+			done    
+			if [ -n "$havefirst" ]; then
+				 echo ""
+			fi
+		fi
+		exit 0
+		;;
+	*CD-ROM*)
+		havecdrom=yes
+		break
+		;;
+esac
+done
+
+if [ $havecdrom = "yes" ]; then
+	echo "/data -fstype=iso9660,ro,sync,nosuid,nodev,check=relaxed,unhide :$DEVNAME"
+fi
+)
+
+
+exit 0
+

@@ -1,0 +1,53 @@
+#!/bin/csh
+
+setenv EDITOR vi
+set history=100 savehist=100
+set notify
+set cdpath = (.. ~)
+
+# skip remaining setup if not an interactive shell
+if ($?prompt == 0) exit
+
+if ($?tcsh) then
+  bindkey ^L	clear-screen
+  bindkey ^N	down-history
+  bindkey ^P	up-history
+  bindkey ^U	backward-kill-line
+  bindkey ^W	backward-delete-word
+  bindkey ^X^I	overwrite-mode
+  bindkey ^?	backward-delete-char
+  bindkey " "	magic-space
+  bindkey ^[[A	history-search-backward
+  bindkey ^[[B	history-search-forward
+  if ( $ps_osvsn == solaris ) then
+    bindkey -k up	history-search-backward
+    bindkey -k down history-search-forward
+  endif
+  # set correct=all
+  set prompt3 = "Whoops> "
+  set shell = /bin/tsch
+  set nobeep
+endif
+
+# directory commands
+alias .		'echo $cwd'
+alias ..	'set dot=$cwd;cd ..'
+alias ,		'cd $dot '
+set prompt="`echo $cwd`\:\! > "
+alias cd	'cd \!*;set prompt="`echo $cwd`\:\! > "'
+alias l		'ls -lg'
+alias ls	'ls -F'
+
+alias rm saferm
+
+# miscellaneous abbreviations
+alias 	clear
+alias copy cp
+alias cp	'cp'
+alias maek	make
+alias amke	make
+alias amek	make
+alias moe	more
+alias mroe	more
+alias pwd	'echo $cwd'
+

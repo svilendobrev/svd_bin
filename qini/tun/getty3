@@ -1,0 +1,13 @@
+#file: /etc/event.d/getty2
+
+start on startup
+stop on shutdown
+
+respawn /sbin/getty 38400 tty3
+console owner
+#output
+#owner
+#side-effect: default TTY is still tty1 - dont know how to change
+# - sudo asks for passwd at tty1 !!!!
+# - consolechars -f font.. changes tty1; MUST use --tty=`tty`
+

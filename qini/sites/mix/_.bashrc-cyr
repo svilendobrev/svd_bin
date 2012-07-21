@@ -1,0 +1,33 @@
+# .bashrc @ svilo
+[ -f /etc/bashrc ] && . /etc/bashrc	# Source global definitions
+
+# ---- bulgarian-env DON'T MODIFY THIS LINE!
+# Setup the locale
+unset LC_ALL
+export LANG=bg_BG
+export LANGUAGE=bg,mk
+# Setup Cyrillic on console
+case `tty` in
+/dev/tty[0-9]*|/dev/vc/*) 
+    if which cyr >/dev/null 2>&1 ; then
+		cyr
+	fi
+    ;;
+esac
+# ---- bulgarian-env end DON'T MODIFY THIS LINE!
+
+
+export _INIs=/home/_sys/
+_SITEs=__vintux
+[ -f ${_INIs}_bashrc ] && . ${_INIs}_bashrc
+[ -d /home/_bin ] && senv PATH $PATH$_DLM/home/_bin
+
+#if [ -f ${_INIs}_bashrc ]; then 
+# _STARTWD=$PWD
+# pushd $_INIs
+# . _bashrc
+# cd $_STARTWD; unset _STARTWD
+# popd
+#fi
+
+[ -f .todo ] && cat .todo

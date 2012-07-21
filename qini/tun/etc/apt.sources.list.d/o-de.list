@@ -1,0 +1,14 @@
+
+deb http://de.archive.ubuntu.com/ubuntu/ oneiric main restricted universe multiverse
+deb http://de.archive.ubuntu.com/ubuntu/ oneiric-updates main restricted universe multiverse
+deb http://de.archive.ubuntu.com/ubuntu/ oneiric-backports main restricted universe multiverse
+deb http://security.ubuntu.com/ubuntu/ oneiric-security main restricted universe multiverse
+
+deb-src http://de.archive.ubuntu.com/ubuntu/ oneiric main restricted universe multiverse
+deb-src http://de.archive.ubuntu.com/ubuntu/ oneiric-updates main restricted universe multiverse
+deb-src http://de.archive.ubuntu.com/ubuntu/ oneiric-backports main restricted universe multiverse
+deb-src http://security.ubuntu.com/ubuntu/ oneiric-security main restricted universe multiverse
+
+deb http://archive.canonical.com/ubuntu oneiric partner
+deb-src http://archive.canonical.com/ubuntu oneiric partner
+

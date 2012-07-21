@@ -1,0 +1,64 @@
+#!/bin/sh -e
+#
+# rc.local
+#
+# This script is executed at the end of each multiuser runlevel.
+# Make sure that the script will "exit 0" on success or any other
+# value on error.
+#
+# In order to enable or disable this script just change the execution
+# bits.
+#
+# By default this script does nothing.
+date >> /tmp/hdparm.log
+echo rclocal hdparm >> /tmp/hdparm.log
+DEVNAME=/dev/sda /lib/udev/hdparm
+DEVNAME=/dev/sdb /lib/udev/hdparm
+echo rclocal hdparm DONE>> /tmp/hdparm.log
+
+
+#################
+
+#date >> /tmp/crawl.log
+
+crawl() {
+#OUT=/dev/null
+echo crawl $@ >> /tmp/hdparm.log
+#OUT=/tmp/crawl/$1
+#mkdir -p $OUT
+#ls -alR $1 > /dev/null &
+find $@ -mount -name niama-ta-kova- &
+}
+
+#disk1
+crawl / /home
+#disk2
+crawl /media/z/
+
+
+exit 0
+#############################
+
+_HD1=/dev/sda
+_HD2=/dev/sdb
+
+#readahead
+HD1="$HD1 -a 1024" 
+HD2="$HD2 -a 2048" 
+
+#spindown timeout
+#0: off
+#1-240: n*5sec
+#241-251: (n-240)*30min
+#252: 21min
+HD1="$HD1 -S 241"
+HD2="$HD2 -S 65"
+
+#acoustic:quiet
+#HD1="$HD1 -M 128"
+#HD2="$HD2 -M 128"
+
+test -z "$HD1" || /sbin/hdparm $HD1 $_HD1
+test -z "$HD2" || /sbin/hdparm $HD2 $_HD2
+
+exit 0

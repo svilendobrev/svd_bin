@@ -1,0 +1,16 @@
+#vobsubrip:
+#!/bin/sh
+mencoder -vobsubout myvobsub -vobsuboutindex 0 -slang bg -o /dev/null -oac copy -ovc copy -dvd-device "$@"
+
+#!/bin/sh
+mencoder dvd://1 -dvd-device "$1" -nosound -ovc copy -vobsubout "$1".vobsub -slang bg -o /dev/null -quiet
+
+
+#avi2aspect2lang2mkv
+mkvmerge -o emil-ot-loneberga-1.xvid.bg..mkv -A --aspect-ratio 0:1024/576 emil-ot-loneberga-1.xvid.bg.avi --language 0:bul emil-ot-loneberga-1.xvid.bg.avi.flac 
+
+#metadata
+#mkvtoolnix
+avi -vcodec copy -acodec copy -metadata title="Dancing Bear" -metadata comment="Using FFmpeg metadata tag" outputfile.avi
+mencoder -ovc copy -oac copy file,avi -info name="Dancing Bear" -info comment="Using Mencoder Info tag "  -o outputfile.avi
+ogmmerge --title "Dancing  Bear" --comment "Using OgmMerge" file.avi  -o outputfile.ogm

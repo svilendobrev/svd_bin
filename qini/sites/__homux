@@ -1,0 +1,4 @@
+senv CD /mnt/cdrom
+al cdr 	'mount /dev/hdb'
+al cdu 	'umount /dev/hdb'
+al psfu 'ps fu'

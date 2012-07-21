@@ -1,0 +1,38 @@
+
+"don't remember anything
+set viminfo=
+set noautowrite	"dont save when switching buffers
+set visualbell t_vb=
+
+""to bypass alt-tab problem for windoze Xsrvrs, 
+"" xmodmap mod1(alt) to something else, e.g. Win_Application key
+"" in Xceed: use the keyboard editor
+
+"window mngmt using alt - !breaks cyrilic?
+"noremap  <m-w>  	<c-w><c-w>
+"inoremap <m-w> <c-o><c-w><c-w>
+"noremap  <m-s>  	<c-w><c-s>
+"inoremap <m-s> <c-o><c-w><c-s>
+"noremap  <m-c>  	<c-w><c-c>
+"inoremap <m-c> <c-o><c-w><c-c>
+"prev win
+noremap  <m-f10> 	  <f9>
+inoremap <m-f10> <c-o><f9>
+
+"noremap  <m-1> gf
+"inoremap <m-1> <c-o>gf
+
+"**** highlight colors - put in $HOME/.vim/after/syntax/syncolor.vim
+
+"hide winmgr borders
+"command Z winpos -4 -24
+
+"set lines=41
+"set path+=..
+"set tags+=../tags
+
+"koi8x16
+"8x16bold
+"set guifont=console8x16
+"set guifont=terminus-cp1251-bold-20
+set guifont=Terminus\ Bold\ 14

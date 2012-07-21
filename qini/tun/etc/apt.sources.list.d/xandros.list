@@ -1,0 +1,10 @@
+# deb http://xnv4.xandros.com/xs2.0/upkg-srv2 etch main contrib non-free
+# deb http://xnv4.xandros.com/eeepcrepos/ p701 etch main 
+# deb-src http://xnv4.xandros.com/eeepcrepos/ p701 etch main 
+#deb http://xnv4.xandros.com/eeepcrepos/ p701/etch main contrib non-free
+# deb http://dccamirror.xandros.com/dccri/ dccri-3.0 main
+
+# deb http://www.geekconnection.org/ xandros4 main
+# deb http://download.tuxfamily.org/eeepcrepos/ p701 main etch
+ deb http://www.archlug.org/apt/ xandros4 archlug 
+ deb-src http://www.archlug.org/apt/ xandros4 archlug 

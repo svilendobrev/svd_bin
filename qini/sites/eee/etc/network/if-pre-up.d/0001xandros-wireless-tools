@@ -1,0 +1,329 @@
+#!/bin/sh
+# 0001xandros-wireless-tools
+# V.0.20-asus
+# Initialization script for all wireless devices
+
+IWCONFIG=/sbin/iwconfig
+IFCONFIG=/sbin/ifconfig
+IWPRIV=/sbin/iwpriv
+WLANCONFIG=/usr/sbin/wlanconfig
+RMMOD=/sbin/rmmod
+MODPROBE=/sbin/modprobe
+WPASUPPLICANT=/usr/sbin/wpa_supplicant
+WPACLI=/usr/sbin/wpa_cli
+
+wireless_tools()
+{
+	if [ -x $IWCONFIG ]; then
+
+		$IFCONFIG $DEVICE up
+
+		if [ -z "$IF_WIRELESS_ESSID" ]; then
+			IF_WIRELESS_ESSID=Any
+		fi
+		if [ -z "$IF_WIRELESS_MODE" ]; then
+			IF_WIRELESS_MODE=11M
+		fi
+		if [ -z "$IF_WIRELESS_RATE" ]; then
+			IF_WIRELESS_RATE=Auto
+		fi
+
+		#echo $DEVICE $IF_WIRELESS_ESSID $IF_WIRELESS_MODE $IF_WIRELESS_CHANNEL $IF_WIRELESS_RATE $KEY
+
+		if [ $IF_WIRELESS_MODE = Auto ]; then
+			mode="mode managed"
+		else
+			mode="mode $IF_WIRELESS_MODE"
+		fi
+
+		IF_WIRELESS_RATE=`echo "$IF_WIRELESS_RATE" | sed  's/ //g' | sed  's/bps//g'`
+		if [ $IF_WIRELESS_RATE = Auto ]; then
+			rate=""
+		else
+			rate="rate $IF_WIRELESS_RATE"
+		fi
+
+		if [ -z "$IF_WIRELESS_CHANNEL" ]; then
+			CHANNEL=""
+		else
+			CHANNEL="channel $IF_WIRELESS_CHANNEL"
+		fi
+
+		#Remove this once the zd1211rw can be configured in a down state
+		DRIVER=`/bin/readlink /sys/class/net/$DEVICE/device/driver`
+		if [ -n "`echo $DRIVER | grep zd1211rw`" ]; then
+			$IFCONFIG $DEVICE up
+		fi
+
+		#if switch to Ad-Hoc, re-load driver to clean the state if atheros driver
+		ATHEROS=`echo $DEVICE | grep ^ath`
+		if [ -n "$ATHEROS" ]; then
+			if [ $IF_WIRELESS_MODE = Ad-Hoc -o $IF_WIRELESS_MODE = ad-hoc ]; then
+				#Ddestroy interface first
+				$IFCONFIG $DEVICE down
+				sleep 0.5
+				$WLANCONFIG $DEVICE destroy
+				#rmmod and modprobe ath_pci
+				$RMMOD ath_pci
+
+				$MODPROBE ath_pci
+				#Destroy interface again because it would be create automatically
+				$IFCONFIG $DEVICE down
+				sleep 0.5
+				$WLANCONFIG $DEVICE destroy
+				#Create interface as Ad-hoc mode
+				$WLANCONFIG ath0 create wlandev wifi0 wlanmode adhoc
+			fi
+		else
+			#Non-Atheros driver - force the mode
+			$IWCONFIG $DEVICE $mode $CHANNEL $rate 2>/dev/null
+		fi
+
+		if [ -n "$CHANNEL" -o -n "$rate" ]; then
+			$IWCONFIG $DEVICE $CHANNEL $rate 2>/dev/null
+		fi
+
+		if [ -n "$IF_WIRELESS_KEY" ]; then
+			#$IWCONFIG $DEVICE key $IF_WIRELESS_KEY open
+			#$IWCONFIG $DEVICE key $IF_WIRELESS_KEY $IF_WIRELESS_KEYMODE
+			$IWCONFIG $DEVICE key $IF_WIRELESS_KEY
+
+			if [ -n "$IF_WIRELESS_DEFAULTKEY" ]; then
+				$IWCONFIG $DEVICE key [${IF_WIRELESS_DEFAULTKEY}] $IF_WIRELESS_KEY
+				$IWCONFIG $DEVICE key [${IF_WIRELESS_DEFAULTKEY}]
+			fi
+
+			#set authmode (1: open-system, 4: auto-select for WEP)
+			if [ $IF_WIRELESS_KEY = off ]; then
+				$IWPRIV "$IFACE" authmode 1
+			else
+				$IWPRIV "$IFACE" authmode 4
+			fi
+		fi
+
+		if [ -s /etc/dhcphostname.$DEVICE ] ; then
+			NICKNAME=`cat /etc/dhcphostname.$DEVICE`
+		else
+			NICKNAME=`/bin/hostname`
+		fi
+		NICKNAME=`echo $NICKNAME | sed  's/ /_/g'`
+
+		if [ -n "$IF_WIRELESS_ESSID" -o -n "$IF_WIRELESS_MODE" ] ; then
+			$IWCONFIG $DEVICE nick $NICKNAME >/dev/null 2>&1
+		fi
+
+		#if [ ! $ESSIDE=Any ]; then
+		$IWCONFIG $DEVICE essid "$IF_WIRELESS_ESSID"
+		#fi
+	fi
+}
+
+start_wireless()
+{
+	if [ -n "$WPA" ]; then
+		#run the WPA connection logic...
+		DRIVER=`/bin/readlink /sys/class/net/$DEVICE/device/driver`
+
+		if [ -z "$DRIVER" -a -n "`echo $DEVICE | grep ^ath`" ]; then
+			WPADEV=madwifi
+		elif [ -z "$DRIVER" -a -n "`grep hostap /proc/modules`" ]; then
+			WPADEV=hostap
+		elif [ -n "`echo $DRIVER | grep ath_`" ]; then
+			WPADEV=madwifi
+#		elif [ -n "`echo $DRIVER | grep islsm`" ]; then
+#			WPADEV=wext
+		elif [ -n "`echo $DRIVER | grep atmel`" ]; then
+			WPADEV=atmel
+		elif [ -n "`echo $DRIVER | grep prism54`" ]; then
+			WPADEV=prism54
+		elif [ -n "`echo $DRIVER | grep rt25`" ]; then
+			#rt25xx is a special case - configure with iwpriv
+			WPADEV=rt25xx
+#		elif [ -n "`grep ndiswrapper /proc/modules`" ]; then
+#			WPADEV=ndiswrapper
+#		elif [ -n "`echo $DRIVER | grep ipw2`" ]; then
+#			WPADEV=wext
+#		elif [ -n "`echo $DRIVER | grep ipw3`" ]; then
+#			WPADEV=wext
+#		elif [ -n "`echo $DRIVER | grep bcm43xx`" ]; then
+#			WPADEV=wext
+		else
+			WPADEV=wext
+		fi
+
+		if [ "$WPADEV" != "madwifi" ]; then
+			#No necessary to set fake essid if atheros driver
+			$IWCONFIG $DEVICE essid "xandros fake"
+		fi
+
+		#This is Atheros workaround for Hidden access points with WPA 
+		if [ -n "$IF_WIRELESS_CHANNEL" ]; then
+			$IWCONFIG $DEVICE channel $IF_WIRELESS_CHANNEL
+			DELAY=10
+		else
+			$IWCONFIG $DEVICE channel 0
+			DELAY=30
+		fi
+		$IWCONFIG $DEVICE essid "$IF_WIRELESS_ESSID"
+		$IFCONFIG $DEVICE up
+
+		# wait up to 30 seconds for the ESSID to be found
+		while [ $DELAY -gt 0 ]; do
+			sleep 0.5
+			STATUS=`/sbin/iwlist $DEVICE scan 2>/dev/null | grep ESSID: | cut -d ':' -f 2 | cut -d '"' -f 2 | grep "$IF_WIRELESS_ESSID"` 
+			if [ "$STATUS" = "$IF_WIRELESS_ESSID" ]; then
+				break;
+			fi
+			DELAY=$((DELAY - 1))
+		done
+
+		if [ "$WPADEV" = "rt25xx" ]; then
+			$IWCONFIG $DEVICE essid "$IF_WIRELESS_ESSID"
+			$IWCONFIG $DEVICE mode managed
+			$IWPRIV $DEVICE set Channel=$IF_WIRELESS_CHANNEL
+			$IWPRIV $DEVICE set AuthMode=WPAPSK
+			$IWPRIV $DEVICE set EncrypType=TKIP
+			PSK=`cat /etc/wpa_supplicant.conf.$DEVICE | grep psk= | cut -d '=' -f 2`
+			$IWPRIV $DEVICE set WPAPSK=$PSK
+			$IWPRIV $DEVICE set TxRate=0
+		else
+			if [ "$WPADEV" != "madwifi" ]; then
+				#Not necessary to set mode if atheros driver
+				$IWCONFIG $DEVICE mode Managed
+			fi
+
+			$WPASUPPLICANT -Bt -i $DEVICE -c $WPA -D $WPADEV -dd TWICE
+
+			# wait up to 30 seconds if wpa does not report "COMPLETED"
+			DELAY=0
+			while [ $DELAY -lt 3 ]; do
+				sleep 0.5
+				STATUS=`wpa_cli -p /var/tmp/wpa_supplicant -i $DEVICE status | grep wpa_state | cut -d '=' -f 2`
+				#if [ "$STATUS" != "SCANNING" ]; then
+				if [ "$STATUS" = "COMPLETED" ]; then
+					break;
+				fi
+				DELAY=$((DELAY + 1))
+			done
+		fi
+	#non-WPA cases...
+	elif [ -n "`echo $DEVICE | grep ^wlan`" ]; then
+
+		# Find the path where linux-wlan-ng tools are installed
+		for NGPATH in /usr/{bin,sbin} /usr/local/{bin,sbin} /sbin ; do
+			if [ -x $NGPATH/wlanctl ] ; then break ; fi
+		done
+
+		if [ -x $NGPATH/wlanctl ]; then
+
+			$NGPATH/wlanctl $DEVICE lnxreq_ifstate ifstate=enable
+			if [ -n "$IF_WIRELESS_KEY" ]; then
+				KEYWLAN=`echo $IF_WIRELESS_KEY | awk '{
+					printf("%s", substr($0,1,2));
+					for (i=3;i<=length;i=i+2)
+					{printf(":%s", substr($0,i,2));}
+				}'`
+				$NGPATH/wlanctl $DEVICE lnxreq_hostwep decrypt=true encrypt=true
+				$NGPATH/wlanctl $DEVICE dot11req_mibset mibattribute=dot11WEPDefaultKeyID=0
+				$NGPATH/wlanctl $DEVICE dot11req_mibset mibattribute=dot11ExcludeUnencrypted=true
+				$NGPATH/wlanctl $DEVICE dot11req_mibset mibattribute=dot11PrivacyInvoked=true
+				$NGPATH/wlanctl $DEVICE dot11req_mibset mibattribute=dot11WEPDefaultKey0=$KEYWLAN
+			fi
+			$NGPATH/wlanctl $DEVICE lnxreq_autojoin ssid="$IF_WIRELESS_ESSID" authtype=opensystem
+			if [ $? -ne 0 ]; then
+				wireless_tools
+			fi
+		else
+			#not  wlan-ng - back to classic WEP or unencrypted...
+			wireless_tools
+		fi
+	#non WPA -  classic WEP or unencrypted...
+	elif [ -n "`echo $DEVICE | grep ^eth`" ]; then
+		wireless_tools
+	elif [ -n "`echo $DEVICE | grep ^ath`" ]; then
+		wireless_tools
+	elif [ -n "`echo $DEVICE | grep ^ra`" ]; then
+		wireless_tools
+	fi
+}
+
+#echo "--------===============$IFACE up--------">>/root/wireless.log
+#date >>/root/wireless.log
+#set >> /root/wireless.log
+
+if [ -z "$IF_WIRELESS_ESSID" ]; then
+#	echo "Not a wireless interface..." >> /root/wireless.log
+	#echo "Not a wireless interface..."
+	exit 0
+fi
+
+if [ ! -x $IWCONFIG ]; then
+#	echo "Wireless tools package not installed..." >> /root/wireless.log
+	#echo "Wireless tools package not installed..."
+	exit 1
+fi
+
+#Always explicitly bring interface down...
+$IFCONFIG $IFACE down
+
+#on Atheros always reset the channel to allow scan
+if [ -n "`echo $IFACE | grep ^ath`" ]; then
+	$IWCONFIG $IFACE channel 0
+fi
+
+for IWPATH in /usr/{bin,sbin} /usr/local/{bin,sbin} /sbin ; do
+	if [ -x $IWPATH/wpa_supplicant ] ; then
+		WPASUPPLICANT=$IWPATH/wpa_supplicant
+		break
+	fi
+done
+for IWPATH in /usr/{bin,sbin} /usr/local/{bin,sbin} /sbin ; do
+	if [ -x $IWPATH/wpa_cli ] ; then
+		WPACLI=$IWPATH/wpa_cli
+		break
+	fi
+done
+
+# always shut down wpa_supplicant on this device (may be switching wpa->wep)
+if [ -S /var/tmp/wpa_supplicant/$IFACE ]; then
+	if [ -n "$WPACLI" ]; then
+		$WPACLI -p /var/tmp/wpa_supplicant/ -i $IFACE terminate 2>/dev/null
+	fi
+fi
+
+# to handle spaces - make sure that the essid string does not have double-quote chars
+QUOTED=`echo "$IF_WIRELESS_ESSID" | grep "^\".*\"$"`
+if [ -n "$QUOTED" ]; then
+	IF_WIRELESS_ESSID=`echo $QUOTED | tr '\"' '\0'`
+fi
+
+if [ -n "$IF_XNCS_WIRELESS_ENCRYPTION" ]; then
+    if [ "$IF_XNCS_WIRELESS_ENCRYPTION" = "wpa" ]; then
+	echo "Starting WPA wireless connection..."
+
+	WPA=/etc/wpa_supplicant.conf.$IFACE
+
+	# generate the wpa config file on the fly
+	if [ -n `echo $IF_WIRELESS_KEY | grep ^s:` ]; then
+		IF_WIRELESS_KEY=`echo $IF_WIRELESS_KEY | cut -f 2 -d ':'`
+	fi
+
+	#/usr/sbin/xandros-wpa-config wpa_config_file wpa_pass essid
+	/usr/sbin/xandros-wpa-config $WPA $IF_WIRELESS_KEY "$IF_WIRELESS_ESSID"
+	RC=$?
+	if [ $RC -ne 0 ]; then
+		echo "*** ERROR in WPA parameters. Aborting..."
+		exit $RC
+	fi
+    else
+	echo "Starting WEP wireless connection..."
+	WPA=""
+    fi
+else
+	WPA=""
+fi
+
+DEVICE="$IFACE"
+start_wireless
+
+exit 0

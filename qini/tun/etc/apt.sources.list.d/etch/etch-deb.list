@@ -1,0 +1,9 @@
+deb http://ftp.bg.debian.org/debian etch main contrib non-free
+#deb http://ftp.bg.debian.org/debian etch-updates main contrib non-free
+#deb http://backports.org/debian etch-backports main contrib non-free
+#deb http://http.us.debian.org/debian unstable main contrib non-free
+#deb http://ftp.fr.debian.org/debian etch main contrib 
+#deb-src http://ftp.fr.debian.org/debian etch main contrib 
+#deb http://ftp.fr.debian.org/debian oldstable-proposed-updates main contrib 
+#deb-src http://ftp.fr.debian.org/debian oldstable-proposed-updates main contrib 
+#non-free

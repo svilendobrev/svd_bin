@@ -1,0 +1,10 @@
+added:
+  clrvcs/makefile
+  clrvcs/test-bzr
+renamed:
+  clrvcs/clr.py => clrvcs/colorvcs.py
+modified:
+  clrvcs/colorvcs.py
+unknown:
+  codec/
+  clrvcs/colorcvs

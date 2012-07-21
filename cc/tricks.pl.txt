@@ -1,0 +1,129 @@
+general things:
+***** eh, this as u like
+  * dont put much more comments/checks/variables than required/obvious
+
+  * if something can be dome in 5 ways, choose the simplest and most portable
+  one, unless u have some constraints (for speed or size, or whatever)
+  example:
+   q = 0;
+   if (x==y) {
+     q=1;
+   }
+  is same as
+   q = (x==y); #which is much more obvious what it does
+  (but be careful, it is not always so straightforward)
+
+  * try to combine similar/related things in one place,
+  * use as much as possible functions, macroses etc to hide the particularities
+   and avoid changing same thing on 13 places and forgetting the 14th place
+
+Perl things:
+*****
+avoid massive use of system() or `shell commands`, e.g. `ls -l` or `rm -f ...`
+  they are convenient and quick and hacky
+  BUT not portable (nor fast) at all, and u never know what shell it will be
+  or what the ls will be linked to ;-)
+*****
+don't use too much extended syntax, it may be not portable or
+  comprehensible somewhere. example: perl 5 has many extensions, and they are
+  definitely useful, but once u get used to them it's hard to go back;
+  Which does not mean that one should use [0-9][0-9]* instead of \d+, but at
+  least keep an eye. if something has too many of them (especialy
+  lookahead/back), may be it's good to rethink it ?
+
+*****
+use while (<>) { ... } construct
+  will set $_ once per each line of each input file (which name is in $ARGV)
+  put mandatory args at the start, shift() them; then use the above for the rest
+
+*****
+reading whole file at once
+ undef $/;
+ while (<>) { ... }     #loops once per file, whole file in $_
+BUT if you are going to overwrite the input file ($ARGV),
+close it first! (close ARGV). Otherwise it will come Again with Wrong contents!
+
+*****
+  use proper error messages:
+  use die "$! $filename"; or "cant open $filename : $!";
+  instead of "cant open $filename";
+
+*****
+  shorter scripts:
+- perl -n to have while (<>) { .. } around all your script, i.e.
+  write only the body of the loop - if no initialization/finalization required
+- perl -e or perl -ne to write all on the command line!
+  be careful with $ expansions - sometimes is easier to pass $xyz
+  from the shell as argument to perl than to embed it in the commandline -
+  because of shell quotation/$ expansion rules
+
+  very useful especialy if u invent it on the run:
+   e.g. for pseudo greps:   perl -ne 'print if your-strange-expression' files...
+   e.g. check for non-ascii control characters: (DOS)
+    perl -ne "print $ARGV,':',$_ if y/\x00-\x08\x0B\x0C\x0e-\x1F//" *.*
+  but it's sometimes more time-consuming to invent it this way
+  than to write it as a normal file
+*****
+  use associative arrays, they are very useful, even for if not so obvious
+   example: find all lines by condition, and print them once only, sorted
+      in shell this would be: grep someregexpr * | uniq | sort
+      in perl: while (<>) { $x{$_}++ if anyexpr; } $,=$/; print sort keys %x;
+*****
+example:
+ #save and read a hash array
+  %a = (a,1,b,2,AA,34);
+  $F="qqqq"; $DELIMITER = "\n";
+
+ ##save it
+ $Q=">$F"; open(Q) || die $!;
+ $,=$DELIMITER; print Q %a; close Q;
+  print %a,"------\n";
+
+ ##now read it back
+ open(F) || die $!;
+ undef $/;
+ %q=split($DELIMITER,<F>);
+  $,=";"; print %q;
+
+*****
+ often forgotten things/tips:
+  - strings are compared with eq and ne, not == and !=
+  - value of a strings is usualy not zero (even if empty),
+    so if (!$emptystring) might be wrong; convert it to value first -
+    $string+=0 or if (0+$string == 5) ...
+  - $#X is number of elements in @X -1 (empty arrays have -1 as size)
+  - s/// returns number of changes, and sets $1,$2... as per regexp,
+    available till next regexp
+  - m// in array context returns ($1,$2,$3) as per regexp BUT does not set them
+  - print can print arrays; set $, for delimiter
+  - shift does not set $_; and applies by default to arguments arrays
+  - to use complex regexps from variables you need to use eval()
+     e.g. s/$a/$b/ will work if $a,$b use simplest regexps only ([..] and *)
+     while eval( "s/$a/$b/" ) will work for any regexp
+  - if u need to print new line, you may use $/ (if not changed from default)
+    instead if "\n" - most shells can't nest quotes
+  - use \s \S \w \W \d \D - even for strange ;) purposes:
+     example: abc.*$ does not match newline if any, but abc[\w\W]*$ will!
+  - s/// could have function calls in the right part (with /e)
+  - RTFM (read the f*cken manuals), oldest/shorter versions first,
+    pay attention to builtin variables, try to remember what functionality is
+    already there, not how exactly it is done
+
+***** other more or less silly examples
+ some filename/path matching: (dont blame me for deleting your root!)
+  those below may be errorneus ;)
+- /^\.\.?$/ matches . and .. ONLY; /^\.+/ matches everything that start with .
+- s,^([^/]*/*)*,,  will remove all path (/a/b/ccc goes to ccc) from a filename
+  for DOS (drive:\path\file) it will be like s,^([^:]+:)?([^\\]*\\+)*,,
+-get drive, path, filename,name,extension at once: (see m// above)
+   $_ is the input filename, so
+   ($drive,$path,$p1,$nameext,$name,$ext) = m,^([^:]+:)?(([^\\]*\\+)*)((\..*|[^.]*)(\..*)?),;
+  this is a bit too complex, i Never needed it (and actualy just invented it;)
+  but if can replace a page(s) of code, why not?
+   how i tested it:
+   perl -e "while($_=shift){ (@a)= m,^([^:]+:)?(([^\\]*\\+)*)((\..*|[^.]*)(\..*)?),; $,=',';print @a,$/ }"
+       C:\m\d\som.f c:file c:\my\fil. c:my\fil c:\my\file c:\my\.file c:\my\. c:\my\ c:\ c: ""
+-almost DOS like rename: (was in one line, now 3)
+   $x=shift; die "rename  regexp_to_apply_s/a/b/  file[s]" if $x eq '';
+   while ($o=$_=shift) {
+     if (eval($x)) { print "$o -> $_\n"; rename($o,$_); } }

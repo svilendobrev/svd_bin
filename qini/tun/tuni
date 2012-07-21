@@ -1,0 +1,49 @@
+/etc/rc2.d/S60-mplayer-rtc -> ../init.d/S60-mplayer-rtc
+#!/bin/sh
+echo 1024 > /proc/sys/dev/rtc/max-user-freq
+
+
+###################
+#/usr/share/i18n/locales/bg_BG	BGL
+#158:int_curr_symbol           "<U0042><U0047><U004C><U0020>"
+
+
+###################
+/var/lib/locales/supported.d//local
+en_US.UTF-8 UTF-8
+bg_BG.UTF-8 UTF-8
+bg_BG CP1251
+
+
+###################
+getty3 -> /etc/event.d/getty3
+
+###################
+/etc/X11/Xsession.d/20slim_locale
+. /etc/environment
+
+/etc/default/transmission-daemon:
+OPTIONS="--config-dir $CONFIG_DIR  -c /home/get  -w /home/get  --no-auth   "
+
+###################
+mozilla:
+pref.js / about:
+user_pref("intl.locale.matchOS", false);
+
+/etc/init/mountall.conf:
+exec mountall --daemon $MOUNTALLDBG  $force_fsck $fsck_fix 
+/etc/default/rcS:
+#MOUNTALLDBG=--debug
+
+grub: 
+kernel.....
+ nomodeset		#help for intel-video + new kernels
+ rootdelay=10 	#usb boot
+ acpi_enforce_resources=lax		#nvidia
+
+
+/usr/bin/opera:	#maybe add -notrayicon -nomail to args at end:
+export LANGUAGE=en	#start in en plz not bg
+exec "${OPERA_BINARYDIR}opera" "$@"  -notrayicon -nomail
+
+

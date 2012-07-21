@@ -1,0 +1,12 @@
+
+
+	startfrom	TERm 		MYTERM		run->
+	nothing		xterm					xterm->xterm
+	nothing		xterm-vte				xtermvte-> xterm-vte
+	xtermvte	xterm      xterm-vte	xterm -> xterm
+	xtermvte	xterm      xterm-vte	bash  -> xterm-vte
+	xterm   	xterm      ?xterm    	bash  -> xterm
+	xterm   	xterm      ?xterm    	xterm-vte  -> xterm-vte
+
+
+if test -z "$MY_TERM"; then

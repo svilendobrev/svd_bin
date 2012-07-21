@@ -1,0 +1,26 @@
+
+/etc/gdm/PreSession/Default:line 68:
+#	"$XSETROOT" -cursor_name left_ptr -solid ...
+
+
+
+/usr/share/gdm/themes/xubuntu/Xubuntu.xml
+  <!-- background -->
+  <item type="pixmap">
+    <normal file="/usr/share/wallpapers/soft-green.jpg"/>
+
+
+
+/etc/gdm/gdm.conf-custom
+[daemon]
+AutomaticLoginEnable=true
+AutomaticLogin=az
+
+[greeter]
+#BackgroundType/Image etc is not applicable
+BackgroundColor=#000000
+GraphicalThemedColor=#000000
+SoundOnLogin=false
+
+
+/etc/gdm/gdmprefetchlist ??

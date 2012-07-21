@@ -1,0 +1,68 @@
+#!/bin/bash
+#IN=$1
+#OUT="$IN.avi"
+#LOG="$IN.log"
+test -z "$IN"  && IN=dvd://$TITLE
+test -z "$LOG" && LOG="$OUT.log"
+#shift
+
+subrip() {
+ case "$1" in
+   dvd://* ) AUTO="-dvd-device"
+ esac
+ mencoder "$1" -vobsubout `basename "$2"` -vobsuboutindex 0 -slang bg -o /dev/null -nosound -ovc frameno $AUTO "$3" ;
+ #-oac copy -ovc copy
+}
+if test -n "$SUBONLY" ; then subrip "$IN" "$OUT" "$1" ; exit ; fi
+
+
+case "$IN" in
+ dvd://* ) AUTO="-alang bg  -dvd-device"
+esac
+
+#STARTEND="-ss 50 -endpos 95"
+
+#PASS1=":vqscale=2:vpass=1:turbo -o /dev/null"
+#PASS2=":vqscale=5:vpass=2"
+_VRATE=${VRATE:-2000}
+#PASS1=":vbitrate=$_VRATE:vpass=1:turbo -o /dev/null"
+#PASS2=":vbitrate=$_VRATE:vpass=2"
+#QUALITY=":vlelim=-4:vcelim=9"
+#":lumi_mask=0.13:dark_mask=0.16:naq"
+
+#vqscale: 2=max; 5=~ok
+#QUALITY="vbitrate=1200"
+
+#ALANG="-alang bg,ru,en"
+#SLANG="-slang bg,ru,en"
+test -z "$AUDIO" && AUDIO="-oac mp3lame -lameopts preset=extreme"	#standard
+#VIDEO="-ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell=yes:v4mv=1$QUALITY"
+
+case "$PASS1" in
+ 0|no|NO|none|NONE ) PASS1="" ;;
+ *) PASS1="bitrate=$_VRATE:pass=1:turbo -o /dev/null" ;;
+esac
+PASS2="bitrate=$_VRATE:pass=2"
+VIDEO="-ovc xvid -xvidencopts $QUALITY"
+
+#FILTER="-vf crop=688:570:25:0"
+#FILTER="-vf scale"
+
+#export MPLAYER_VERBOSE=0
+#VERBOSE="-msglevel all=5"
+
+#-ofps 23.976
+#VIDEO="-ovc lavc -lavcopts vcodec=mpeg4:mbd=1:v4mv=yes:vbitrate=1200:vpass="
+for a in "$PASS1" "$PASS2" ; do
+	if [ -n "$a" ]; then 
+ALL="$VERBOSE $FILTER $STARTEND $AUDIO $VIDEO$a"
+	 	echo "===== $IN -> $OUT / $LOG"
+	 	echo "===== $ALL"
+	 	echo "===== $@"
+	 	/usr/bin/mencoder "$IN" -o "$OUT" -passlogfile "$LOG" $ALL $AUTO "$@"
+	fi
+done
+ 
+case "$IN" in
+ dvd://* ) subrip "$IN" "$OUT" "$1" 
+esac

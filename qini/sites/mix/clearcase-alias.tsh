@@ -1,0 +1,15 @@
+# clearcase
+senv CVIEW -sd
+al ctv  'ct setview \!#:1''$CVIEW'
+al cti  "ctv indi"
+al qo 	"ct co -nc"
+al ctci "ct ci -nc"
+al qi 	'ct ci -c "on go"'
+al qv 	"ct ls -r -view"
+al ql 	"ct lsco"
+al qd 	"ct ls"
+al ctme "ql -r -me"
+al qe 	'qo \!#:*; gvim \!#:*'
+al qmk 	"ct mkelem -nc"
+al qmd 	"ct mkdir  -nc"
+

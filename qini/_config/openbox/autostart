@@ -1,0 +1,7 @@
+xsetroot -solid black
+/home/qini/x/setxkb-bgphonetic.sh &
+lxpanel & 
+xtermutf &
+/home/qini/_devilspie/delayrun.sh 1 /home/qini/_devilspie/startup-maxfull.ds &
+opera &
+claws-mail &

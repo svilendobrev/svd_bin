@@ -1,0 +1,8 @@
+@xrandr --output VGA1 --mode 1280x1024 --rate 60.0 --output LVDS1 --off
+@lxpanel --profile LXDE
+@pcmanfm --desktop --profile LXDE
+@/home/qini/x/setxkb-bgphonetic.sh
+@opera
+@claws-mail
+@axfce4term
+@/home/qini/_devilspie/delayrun.sh

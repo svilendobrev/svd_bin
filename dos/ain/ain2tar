@@ -1,0 +1,16 @@
+#!/bin/sh
+#$Id$
+
+test -d ain && exit
+
+ln -s ~/bin/dos/ain.exe
+mkdir -p ain
+>a.bat
+for a in $@; do
+ echo ain x $a ain\\$a\\ >> a.bat
+done
+
+dosbox -conf `dirname $0`/dosbox4ain.conf
+
+rm -f a.bat ain.exe
+# vim:ts=4:sw=4:expandtab

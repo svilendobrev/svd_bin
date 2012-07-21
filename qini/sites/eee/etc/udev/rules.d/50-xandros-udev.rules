@@ -1,0 +1,284 @@
+#
+# Xandros-udev rules
+#
+# There are a number of modifiers that are allowed to be used in some
+# of the different fields. They provide the following subsitutions:
+# %n - the "kernel number" of the device.
+#      For example, 'sda3' has a "kernel number" of '3'
+# %k - the kernel name for the device.
+# %K - the kernel name minus the kernel number
+# %M - the kernel major number for the device
+# %m - the kernel minor number for the device
+# %b - the bus id for the device
+# %c - the string returned by the PROGRAM. (Note, this doesn't work within
+#      the PROGRAM field for the obvious reason.)
+# %s{filename} - the content of a sysfs attribute.  
+# %% - the '%' char itself.
+#
+
+# symlink rules
+KERNEL=="sr*|scd*",       PROGRAM="/etc/udev/iscd-dvd %N", SYMLINK+="%c{1+}"
+
+SUBSYSTEM=="net", ENV{INTERFACE}=="eth*", ACTION=="add", RUN+="/usr/sbin/ifplugd -i $env{INTERFACE} -q -f -u0 -d10 -w -I -a"
+SUBSYSTEM=="net", ENV{INTERFACE}=="?*", ACTION=="remove", RUN+="/usr/bin/pkill /usr/sbin/ifplugd -i $env{INTERFACE} -q -f -u0 -d10 -w -I -a"
+KERNEL=="eth*", ACTION=="add", RUN+="/sbin/xandros-startconnection"
+KERNEL=="wifi0", ACTION=="add", RUN+="/usr/sbin/wlanconfig ath0 create wlandev wifi0 wlanmode sta"
+
+#KERNEL=="ath*", ACTION=="add", RUN+="/sbin/xandros-startconnection"
+#DRIVERS=="*asus_acpi*", ACTION=="add", RUN+="/sbin/start-stop-daemon --start --quiet --exec /usr/sbin/acpid -- -f -c /etc/acpi/events -s /var/run/acpid.socket -l /dev/null"
+
+# start respective agents
+#SUBSYSTEM=="usb", RUN+="/etc/hotplug/usb.agent"
+SUBSYSTEM=="usb", SYSFS{modalias}=="?*", RUN+="/sbin/modprobe $sysfs{modalias}"
+SUBSYSTEM=="pci", RUN+="/etc/hotplug/pci.agent"
+SUBSYSTEM=="firmware", RUN+="/etc/hotplug/firmware.agent"
+SUBSYSTEM=="ieee1394", RUN+="/etc/hotplug/ieee1394.agent"
+SUBSYSTEM=="input", RUN+="/etc/hotplug/input.agent"
+
+SUBSYSTEM=="pcmcia_socket",			RUN+="/sbin/modprobe pcmcia"
+SUBSYSTEM=="pcmcia", ENV{MODALIAS}=="?*",	RUN+="/sbin/modprobe $env{MODALIAS}"
+
+# start printer tool
+KERNEL=="*lp*", RUN+="/sbin/startprinter"
+
+#SUBSYSTEM=="net", RUN+="/lib/udev/ifplugd.agent"
+
+# stop automounter
+#SUBSYSTEM=="block", ACTION=="remove", RUN+="/sbin/xandros-mountusb"
+
+####################
+# usb, removable storage
+
+#on hard remove, do umount
+SUBSYSTEM=="block", ACTION=="remove", RUN+="/bin/umount /dev/%k"
+#on umount, remove the mountpoints 
+BUS=="usb", KERNEL=="sd*[0-9]", ACTION=="umount", RUN+="/bin/rmdir /media/%k"
+
+
+#builtin SD-reader
+#BUS=="usb", KERNEL=="sd*", SYSFS{serial}=="146030377350", ACTION="add", NAME="%k", GROUP="floppy", SYMLINK+="disks/Removable/%k", OPTIONS+="last_rule", RUN+="/bin/mount /dev/%k /media/card%n -o defaults,noatime,users,exec,umask=0" #fat,ntfs,etc having umask, error on others
+BUS=="usb", KERNEL=="sd*", SYSFS{serial}=="146030377350", ACTION="add", NAME="%k", GROUP="floppy", SYMLINK+="disks/Removable/%k", OPTIONS+="last_rule", RUN+="/bin/mount /dev/%k /media/card%n -o defaults,noatime,users,exec"	       #if above fails
+
+#extern epraizer-reader ?
+#Product=CS8819A3-116
+#SerialNumber=100
+
+#usb-mem? make mountpoint, then mount
+BUS=="usb", KERNEL=="sd*[0-9]", ACTION="add", NAME="%k", GROUP="floppy", SYMLINK+="disks/Removable/%k", RUN+="/bin/mkdir -p /media/%k"
+BUS=="usb", KERNEL=="sd*[0-9]", ACTION="add", RUN+="/bin/mount /dev/%k /media/%k -o defaults,noatime,users,exec,umask=0"	#fat,ntfs,etc having umask, error on others
+BUS=="usb", KERNEL=="sd*[0-9]", ACTION="add", RUN+="/bin/mount /dev/%k /media/%k -o defaults,noatime,users,exec"		#if above fails
+
+#all else
+BUS=="usb", KERNEL=="sd*", SYSFS{bInterfaceClass}=="08", SYSFS{bInterfaceSubClass}=="04", NAME="%k", SYMLINK+="floppy/%k", MODE="0660", GROUP="floppy", RUN+="/usr/bin/usbstorageapplet floppy %k"
+
+#BUS=="usb", KERNEL=="sd*[!0-9]",NAME="%k", MODE="0660", GROUP="floppy", SYMLINK+="disks/Removable/%k", RUN+="/usr/bin/usbstorageapplet zip %k"
+BUS=="usb", KERNEL=="sd*[0-9]", NAME="%k", MODE="0660", GROUP="floppy"
+BUS=="usb", KERNEL=="sr*",  NAME="%k", MODE="0660", GROUP="cdrom", SYMLINK+="cdroms/%k", RUN+="/usr/bin/usbstorageapplet cdrom %k"
+BUS=="usb", KERNEL=="scd*", NAME="%k", MODE="0660", GROUP="cdrom", SYMLINK+="cdroms/%k", RUN+="/usr/bin/usbstorageapplet cdrom %k"
+
+# ieee1394
+BUS=="ieee1394", KERNEL=="sd*[!0-9]", NAME="%k", SYMLINK+="disks/Removable/%k", MODE="0660", GROUP="floppy", RUN+="/usr/bin/usbstorageapplet floppy %k"
+BUS=="ieee1394", KERNEL=="sr*", NAME="%k", MODE="0660", GROUP="cdrom", SYMLINK+="cdroms/%k", RUN+="/usr/bin/usbstorageapplet cdrom %k"
+BUS=="ieee1394", KERNEL=="scd*", NAME="%k", MODE="0660", GROUP="cdrom", SYMLINK+="cdroms/%k", RUN+="/usr/bin/usbstorageapplet cdrom %k"
+
+# ide cdroms
+KERNEL=="hd*[!0-9]", PROGRAM="/etc/udev/iscd-dvd %N", RESULT="*cdrom*", NAME="%k", MODE="0660", GROUP="cdrom", SYMLINK+="cdroms/%k %c{1+}", RUN+="/usr/bin/usbstorageapplet cdrom %k"
+
+# ide removable disks
+BUS=="pcmcia", KERNEL=="hd*[!0-9]", NAME="%k", MODE="0660", GROUP="floppy", SYMLINK+="disks/Removable/%k", RUN+="/usr/bin/usbstorageapplet floppy %k"
+BUS=="pcmcia", KERNEL=="hd*[0-9]", NAME="%k", MODE="0660", GROUP="floppy"
+KERNEL=="hd*[!0-9]", SYSFS{removable}="1", NAME="%k", MODE="0660", GROUP="floppy", SYMLINK+="disks/Removable/%k", RUN+="/usr/bin/usbstorageapplet floppy %k"
+KERNEL=="hd*[0-9]", SYSFS{removable}="1", NAME="%k", MODE="0660", GROUP="floppy"
+
+# ide disks
+KERNEL=="hd*[!0-9]", NAME="%k", MODE="0660", GROUP="disk", SYMLINK+="disks/ide/%k/%k"
+KERNEL=="hd*[0-9]", NAME="%k", MODE="0660", GROUP="disk", SYMLINK+="disks/ide/%P/%k"
+
+# scsi drives/cdroms
+KERNEL=="sd*[!0-9]", NAME="%k", MODE="0660", GROUP="disk", SYMLINK+="disks/scsi/%k/%k"
+KERNEL=="sd*[0-9]",  NAME="%k", MODE="0660", GROUP="disk", SYMLINK+="disks/scsi/%P/%k"
+KERNEL=="sr*", NAME="%k", MODE="0660", GROUP="cdrom", SYMLINK+="cdroms/%k", RUN+="/usr/bin/usbstorageapplet cdrom %k"
+KERNEL=="scd*", NAME="%k", MODE="0660", GROUP="cdrom", SYMLINK+="cdroms/%k, RUN+="/usr/bin/usbstorageapplet cdrom %k"
+
+#scanner devices type 6 is scsi scanner, type 3 is HP scanners
+BUS=="scsi", KERNEL=="sg[0-9]*", SYSFS{type}=="6", NAME="%k", MODE="0660", GROUP="scanner", SYMLINK+="scanner"
+BUS=="scsi", KERNEL=="sg[0-9]*", SYSFS{type}=="3", NAME="%k", MODE="0660", GROUP="scanner", SYMLINK+="scanner" 
+KERNEL=="scanner", NAME="%k", MODE="0660", GROUP="scanner"
+KERNEL=="usb/scanner*", NAME="%k", MODE="0660", GROUP="scanner"
+
+#generic scsi devices
+BUS=="scsi", KERNEL=="sg[0-9]*", SYSFS{type}=="5", MODE="0660", GROUP="cdrom""
+
+# floppy drives
+BUS=="usb", KERNEL=="fd[0-9]*", NAME="%k", GROUP="floppy", MODE="0660", SYMLINK+="floppy/%n", RUN+="/usr/bin/usbstorageapplet floppy %k"
+KERNEL=="fd[0-9]*", PROGRAM="/sbin/scanfloppy %N", RESULT=="floppy", NAME="%k", GROUP="floppy", MODE="0660", SYMLINK+="floppy/%n", RUN+="/usr/bin/usbstorageapplet floppy %k"
+
+# DRI devices
+KERNEL=="card*", NAME="dri/card%n", GROUP="video", MODE="0660"
+
+# alsa devices
+KERNEL=="controlC[0-9]*", NAME="snd/%k", MODE="0660", GROUP="audio"
+KERNEL=="hw[CD0-9]*",     NAME="snd/%k", MODE="0660", GROUP="audio"
+KERNEL=="pcm[CD0-9cp]*",  NAME="snd/%k", MODE="0660", GROUP="audio"
+KERNEL=="midiC[D0-9]*",   NAME="snd/%k", MODE="0660", GROUP="audio"
+KERNEL=="timer",          NAME="snd/%k", MODE="0660", GROUP="audio"
+KERNEL=="seq",            NAME="snd/%k", MODE="0660", GROUP="audio"
+
+# dm devices (ignore them)
+#KERNEL=="dm-[0-9]*",     NAME=""
+# create a symlink named after the device map name
+# note devmap_name comes with extras/multipath
+#KERNEL="dm-[0-9]*",     PROGRAM="/sbin/devmap_name %M %m", NAME="%k", SYMLINK+="%c"
+KERNEL=="device-mapper", NAME="mapper/control"
+
+# fb devices
+KERNEL=="fb[0-9]*", NAME="fb/%n", SYMLINK+="%k"
+
+# floppy devices
+
+# i2c devices
+KERNEL=="i2c-[0-9]*", NAME="i2c/%n", SYMLINK+="%k"
+
+# input devices
+KERNEL=="mice",		NAME="input/%k", MODE="0644"
+KERNEL=="mouse*",	NAME="input/%k", MODE="0644"
+KERNEL=="event*",	NAME="input/%k", MODE="0644"
+KERNEL=="js*",		NAME="input/%k", MODE="0644"
+KERNEL=="ts*",		NAME="input/%k", MODE="0644"
+
+# loop devices
+KERNEL=="loop[0-9]*", NAME="loop/%n", GROUP="disk", MODE="0660", SYMLINK+="%k"
+
+# md block devices
+KERNEL=="md[0-9]*", NAME="md/%n", SYMLINK+="%k"
+
+# misc devices
+KERNEL=="rtc",     NAME="misc/%k", SYMLINK+="%k", MODE="0666"
+KERNEL=="psaux",   NAME="misc/%k", SYMLINK+="%k"
+KERNEL=="agpgart", NAME="misc/%k", SYMLINK+="%k"
+
+# pty devices
+KERNEL=="pty[p-za-e][0-9a-f]*", NAME="pty/m%n", MODE="0660", GROUP="tty", SYMLINK+="%k"
+KERNEL=="tty[p-za-e][0-9a-f]*", NAME="tty/s%n", MODE="0660", GROUP="tty", SYMLINK+="%k"
+
+# ramdisk devices
+KERNEL=="ram[0-9]*", NAME="rd/%n", SYMLINK+="%k"
+
+
+# sound devices
+KERNEL=="adsp",            NAME="sound/%k", SYMLINK+="%k", MODE="0660", GROUP="audio"
+KERNEL=="adsp[0-9]*",      NAME="sound/%k", SYMLINK+="%k", MODE="0660", GROUP="audio"
+KERNEL=="audio",           NAME="sound/%k", SYMLINK+="%k", MODE="0660", GROUP="audio"
+KERNEL=="audio[0-9]*",     NAME="sound/%k", SYMLINK+="%k", MODE="0660", GROUP="audio"
+KERNEL=="dsp",             NAME="sound/%k", SYMLINK+="%k", MODE="0660", GROUP="audio"
+KERNEL=="dsp[0-9]*",       NAME="sound/%k", SYMLINK+="%k", MODE="0660", GROUP="audio"
+KERNEL=="mixer", ACTION=="add", NAME="sound/%k", SYMLINK+="%k", MODE="0660", GROUP="audio", RUN+="/usr/sbin/alsactl restore"
+KERNEL=="mixer[0-9]*",     NAME="sound/%k", SYMLINK+="%k", MODE="0660", GROUP="audio"
+KERNEL=="sequencer",       NAME="sound/%k", SYMLINK+="%k", MODE="0660", GROUP="audio"
+KERNEL=="sequencer[0-9]*", NAME="sound/%k", SYMLINK+="%k", MODE="0660", GROUP="audio"
+
+# Novatel UMTS / GPRS Cards ( U530, U740 )
+BUS=="usb", SYSFS{idVendor}=="00a4", SYSFS{idProduct}=="1aaf", KERNEL=="ttyUSB[0-9]*", NAME="ttyUSB%n", SYMLINK+="usb/tts/%n", MODE="0664", GROUP="dialout"
+BUS=="usb", SYSFS{idVendor}=="1410", SYSFS{idProduct}=="1400", KERNEL=="ttyUSB[0-9]*", NAME="ttyUSB%n", SYMLINK+="usb/tts/%n", MODE="0664", GROUP="dialout"
+BUS=="usb", SYSFS{idVendor}=="1410", SYSFS{idProduct}=="1430", KERNEL=="ttyUSB[0-9]*", NAME="ttyUSB%n", SYMLINK+="usb/tts/%n", MODE="0664", GROUP="dialout"
+
+# Huewai Cards ( e. g. E220 )
+BUS=="usb", SYSFS{idVendor}=="12d1", SYSFS{idProduct}=="1001", KERNEL=="ttyUSB[0-9]*", NAME="ttyUSB%n", SYMLINK+="usb/tts/%n", MODE="0664", GROUP="dialout"
+
+BUS=="usb", SYSFS{idVendor}=="12d1", SYSFS{idProduct}=="1003", KERNEL=="ttyUSB[0-9]*", NAME="ttyUSB%n", SYMLINK+="usb/tts/%n", MODE="0664", GROUP="dialout", RUN+="/sbin/huaweiAktBbo"
+BUS=="usb", SYSFS{idVendor}=="12d1", SYSFS{idProduct}=="1003", KERNEL=="ttyUSB[0-9]*", NAME="ttyUSB%n", SYMLINK+="usb/tts/%n", MODE="0664", GROUP="dialout", RUN+="/bin/sleep 5"
+BUS=="usb", SYSFS{idVendor}=="12d1", SYSFS{idProduct}=="1003", KERNEL=="ttyUSB[0-9]*", NAME="ttyUSB%n", SYMLINK+="usb/tts/%n", MODE="0664", GROUP="dialout", RUN+="/sbin/modprobe usbserial vendor=0x12d1 product=0x1003"
+
+# Option UMTS / GPRS Cards ( Vodafone 3G, Fusion, Quad )
+BUS=="usb", SYSFS{idVendor}=="0af0", SYSFS{idProduct}=="5000", KERNEL=="ttyUSB[0-9]*", NAME="ttyUSB%n", SYMLINK+="usb/tts/%n", MODE="0664", GROUP="dialout"
+BUS=="usb", SYSFS{idVendor}=="0af0", SYSFS{idProduct}=="6000", KERNEL=="ttyUSB[0-9]*", NAME="ttyUSB%n", SYMLINK+="usb/tts/%n", MODE="0664", GROUP="dialout"
+BUS=="usb", SYSFS{idVendor}=="0af0", SYSFS{idProduct}=="6300", KERNEL=="ttyUSB[0-9]*", NAME="ttyUSB%n", SYMLINK+="usb/tts/%n", MODE="0664", GROUP="dialout"
+
+
+# Novatel UMTS / GPRS Cards ( U530, U740 )
+BUS=="usb", SYSFS{idVendor}=="00a4", SYSFS{idProduct}=="1aaf", KERNEL=="sd*|sr*", RUN:=""
+BUS=="usb", SYSFS{idVendor}=="1410", SYSFS{idProduct}=="1400", KERNEL=="sd*|sr*", RUN:=""
+BUS=="usb", SYSFS{idVendor}=="1410", SYSFS{idProduct}=="1430", KERNEL=="sd*|sr*", RUN:=""
+
+# Huewai Cards ( e. g. E220 )
+BUS=="usb", SYSFS{idVendor}=="12d1", SYSFS{idProduct}=="1001", KERNEL=="sd*|sr*", RUN:="" 
+BUS=="usb", SYSFS{idVendor}=="12d1", SYSFS{idProduct}=="1003", KERNEL=="sd*|sr*", RUN:="" 
+
+# Option UMTS / GPRS Cards ( Vodafone 3G, Fusion, Quad )
+BUS=="usb", SYSFS{idVendor}=="0af0", SYSFS{idProduct}=="5000", KERNEL=="sd*|sr*", RUN:="" 
+BUS=="usb", SYSFS{idVendor}=="0af0", SYSFS{idProduct}=="6000", KERNEL=="sd*|sr*", RUN:="" 
+BUS=="usb", SYSFS{idVendor}=="0af0", SYSFS{idProduct}=="6300", KERNEL=="sd*|sr*", RUN:="" 
+
+# tty devices
+KERNEL=="tty", NAME="%k",  GROUP="tty", MODE="0666"
+#KERNEL=="tty[0-9]*",    NAME="vc/%n",  GROUP="tty", MODE="0660", SYMLINK+="%k"
+KERNEL=="ttyS[0-9]*",   NAME="tts/%n", GROUP="tty", MODE="0666", SYMLINK+="%k"
+KERNEL=="ttyUSB[0-9]*", NAME="tts/USB%n", GROUP="usb", MODE="0666", SYMLINK+="%k"
+KERNEL=="ttyLT[0-9]", NAME="%k", GROUP="dialout", MODE="0660"
+
+# usb modems
+KERNEL=="ttyACM[0-9]", NAME="%k", GROUP="dialout", MODE="0660", SYMLINK+="usb/tts/%k"
+
+# vc devices
+#KERNEL=="vcs",        NAME="vcc/0",   SYMLINK+="%k"
+#KERNEL=="vcs[0-9]*",  NAME="vcc/%n",  SYMLINK+="%k"
+#KERNEL=="vcsa",       NAME="vcc/a0",  SYMLINK+="%k"
+#KERNEL=="vcsa[0-9]*", NAME="vcc/a%n", SYMLINK+="%k"
+
+# v4l devices
+#KERNEL=="video[0-9]*", NAME="v4l/video%n", SYMLINK+="%k", GROUP="video", MODE="0660"
+KERNEL=="video[0-9]*", NAME="%k", GROUP="video", MODE="0660"
+KERNEL=="radio[0-9]*", NAME="v4l/radio%n", SYMLINK+="%k", GROUP="video", MODE="0660"
+KERNEL=="vbi[0-9]*",   NAME="v4l/vbi%n", SYMLINK+="%k", GROUP="video", MODE="0660"
+KERNEL=="vtx[0-9]*",   NAME="v4l/vtx%n", SYMLINK+="%k", GROUP="video", MODE="0660"
+
+# USB devices
+KERNEL=="hiddev*",	NAME="usb/%k"
+KERNEL=="auer*",		NAME="usb/%k"
+KERNEL=="legousbtower*",	NAME="usb/%k"
+KERNEL=="dabusb*",	NAME="usb/%k"
+BUS=="usb", KERNEL=="lp[0-9]*",	NAME="usb/%k", MODE="0660", GROUP="lp"
+
+# netlink devices
+KERNEL=="route",		NAME="netlink/%k"
+KERNEL=="skip",		NAME="netlink/%k"
+KERNEL=="usersock",	NAME="netlink/%k"
+KERNEL=="fwmonitor",	NAME="netlink/%k"
+KERNEL=="tcpdiag",	NAME="netlink/%k"
+KERNEL=="nflog",		NAME="netlink/%k"
+KERNEL=="xfrm",		NAME="netlink/%k"
+KERNEL=="arpd",		NAME="netlink/%k"
+KERNEL=="route6",	NAME="netlink/%k"
+KERNEL=="ip6_fw",	NAME="netlink/%k"
+KERNEL=="dnrtmsg",	NAME="netlink/%k"
+KERNEL=="tap*",		NAME="netlink/%k"
+# The following were moved to the ISDN packages
+# CAPI devices
+#KERNEL=="capi",		NAME="capi20", SYMLINK+="isdn/capi20"
+#KERNEL=="capi*",		NAME="capi/%n"
+
+# USB devices
+SUBSYSTEM=="usb_device", PROGRAM="/bin/sh -c 'K=%k; K=$${K#usbdev}; printf bus/usb/%%03i/%%03i $${K%%%%.*} $${K#*.}'", NAME="%c", GROUP="plugdev", MODE="0664"
+
+# Network devices
+KERNEL=="tun",		NAME="net/%k"
+
+# raw devices
+KERNEL=="raw[0-9]*",     NAME="raw/%k", MODE="0660", GROUP="users", SYMLINK="%k"
+
+# pilot devices
+KERNEL=="pilot*", NAME="%k", MODE="0660", GROUP="uucp"
+
+KERNEL=="console", NAME="%k", MODE="0600", GROUP="tty"
+KERNEL=="full", NAME="%k", MODE="0666"
+KERNEL=="kmem", NAME="%k", MODE="0640", GROUP="kmem"
+KERNEL=="mem", NAME="%k", MODE="0640", GROUP="kmem"
+KERNEL=="nvidia*", NAME="%k", MODE="0660", GROUP="video"
+KERNEL=="port", NAME="%k", MODE="0640", GROUP="kmem"
+KERNEL=="ptmx", NAME="%k", MODE="0666", GROUP="tty"
+KERNEL=="random", NAME="%k", MODE="0666"
+KERNEL=="urandom", NAME="%k", MODE="0444"
+KERNEL=="lp*", NAME="%k", MODE="0660", GROUP="lp"
+KERNEL=="null", NAME="%k", MODE="0666"
+KERNEL=="zero", NAME="%k", MODE="0666"
+KERNEL=="fuse", 	NAME="%k", MODE="0666"

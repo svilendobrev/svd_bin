@@ -1,0 +1,53 @@
+#!/bin/sh
+#http://en.gentoo-wiki.com/wiki/Ripping_DVD_to_Matroska_and_H.264
+#http://www.mplayerhq.hu/DOCS/HTML/en/menc-feat-x264.html
+#E=echo 
+IN="$1"
+OUT="$2"
+test -z "$OUT" && OUT="$1".x264
+echo menc2 "$IN  -->>  $OUT"
+
+oVIDEO=
+if [ -z "$NOCROP" ] ; then
+CROP=`mplayer -noconfig all -vf cropdetect -ss 200 -endpos 1 -vo null "$IN" | perl -ne 'print if s/.*-vf crop=([\d:]+).*/\1/' | tail -1`
+echo $CROP
+oVIDEO="-vf pullup,softskip,crop=$CROP,harddup"
+fi
+
+test -n "$SIZE" && SIZE="-vf scale -zoom -xy $SIZE"
+oVIDEO="$oVIDEO $SIZE"
+
+oAUDIO="-oac copy -alang bg"
+oAUDIO1=$oAUDIO
+oAUDIO2=$oAUDIO
+
+if [ -n "$X264" ] ; then
+if [ -n "$CRF" ] ; then
+Q="crf=${CRF:-21}"
+else
+Q="bitrate=${VRATE:-2500}"
+fi
+oVIDEO="$oVIDEO -ovc x264 -x264encopts $Q:bframes=3:b_pyramid=normal:weight_b:threads=auto"
+oVIDEO1="$oVIDEO:subq=1:frameref=1:turbo=1:pass=1"
+oVIDEO2="$oVIDEO:subq=5:frameref=2:8x8dct:pass=2"
+else
+VRATE=${VRATE:-1500}
+oVIDEO="$oVIDEO -ovc lavc -lavcopts vcodec=mpeg4:mbd=2:v4mv=1:trell=yes:vbitrate=$VRATE:threads=3"
+oVIDEO1="$oVIDEO:turbo:vpass=1"
+oVIDEO2="$oVIDEO:vpass=2"
+fi
+
+if [ -n "$MATROSKA" ] ; then
+oVIDEO2="$oVIDEO2 -of lavf -lavfopts format=matroska"
+fi
+if [ -n "$RAW" ] ; then
+oVIDEO2="$oVIDEO2 -of rawvideo"
+fi
+
+_m2() {
+ echo "$@"
+ $E mencoder "$@"
+}
+
+test -z "$PASS2" && _m2 $oAUDIO1 $oVIDEO1 -o /dev/null -passlogfile "$OUT".log "$IN"
+_m2 $oAUDIO2 $oVIDEO2 -o "$OUT"    -passlogfile "$OUT".log "$IN"

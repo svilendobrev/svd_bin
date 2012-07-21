@@ -1,0 +1,10 @@
+display_type=0
+group_policy=0
+default_group=0
+never_modify_config=true
+model=pc101
+layouts=us,bg
+variants=,phonetic
+toggle_option=grp:sclk_toggle,grp:alt_shift_toggle,grp_led:scroll
+compose_key_position=
+

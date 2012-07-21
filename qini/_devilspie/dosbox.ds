@@ -1,0 +1,8 @@
+(if
+    (contains (window_class) "dosbox")
+    (begin
+		(wintype "normal")
+        (center)
+		(geometry "+0+10")
+    )
+)

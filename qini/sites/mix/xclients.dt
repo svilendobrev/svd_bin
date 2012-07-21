@@ -1,0 +1,30 @@
+
+ACTION Xterm
+{
+        LABEL		Xterm
+        ICON            Dtterm
+        ARG_COUNT	0
+	TYPE		COMMAND
+	WINDOW_TYPE	NO_STDIO
+	EXEC_STRING	/home/clam/bin/xterm -cr orange -ms blue -sl 9999 -tn xtermclr
+	DESCRIPTION	The Xterm action starts an 'xterm' terminal emulator.
+}
+
+
+ACTION XtermRlogin
+{
+        LABEL		Xterm Rlogin
+        ICON            Dtterm
+        ARG_COUNT	0
+        TYPE            COMMAND
+        WINDOW_TYPE     NO_STDIO
+        EXEC_STRING     ksh -c 'export _title="%"Hostname:"%"; \
+            xterm -title "\$_title : Xterm" -e ksh -c \
+            "echo Trying to establish connection to \$_title... Please wait.; \ 
+            rlogin \$_title; sleep 5;";'
+	DESCRIPTION	The Xterm Rlogin action prompts the \
+                        user for the name of a system, opens an 'xterm' \
+                        terminal emulator window, and then performs an \
+                        'rlogin' to that system.
+}
+

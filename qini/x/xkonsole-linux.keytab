@@ -1,0 +1,186 @@
+# [linux.keytab] Konsole Keyboard Table (Linux console keys)
+#put in $HOME/.kde/share/apps/konsole or in /usr/share/apps/konsole/
+# expects konsole* entries in terminfo to have cup-mode/no-cup-mode arrows 
+# (kcuu1/cuu1, etc) made the same = esc[A,B,C,D
+# this might be generated from kmap
+#
+# --------------------------------------------------------------
+
+keyboard "xlinux console"
+
+# --------------------------------------------------------------
+#
+# This configuration table allows to customize the
+# meaning of the keys.
+#
+# The syntax is that each entry has the form :
+#
+#   "key" Keyname { ("+"|"-") Modename } ":" (String|Operation)
+#
+# Keynames are those defined in <qnamespace.h> with the
+# "Qt::Key_" removed. (We'd better insert the list here)
+#
+# Mode names are :
+#
+# - Shift
+# - Alt
+# - Control
+#
+#   The VT100 emulation has two modes that can affect the
+#   sequences emitted by certain keys. These modes are
+#   under control of the client program.
+#
+# - Newline     : effects Return and Enter key.
+# - Application : effects Up and Down key.
+#
+# - Ansi        : effects Up and Down key (This is for VT52, really).
+#
+# Operations are
+#
+# - scrollUpLine
+# - scrollUpPage
+# - scrollDownLine
+# - scrollDownPage
+#
+# - emitSelection
+#
+# If the key is not found here, the text of the
+# key event as provided by QT is emitted, possibly
+# preceeded by ESC if the Alt key is pressed.
+#
+# --------------------------------------------------------------
+
+key Escape : "\E"
+key Tab-Shift-Control    : "\t"
+key Tab+Shift-Control    : "\E]t"
+key Tab-Shift+Control    : "\E{t"
+
+# VT100 can add an extra \n after return.
+# The NewLine mode is set by an escape sequence.
+
+key Return-NewLine : "\r"
+key Return+NewLine : "\r\n"
+
+# Some desperately try to save the ^H.
+
+key Backspace : "\x7f"
+
+# These codes are for the VT52 mode of VT100
+# The Ansi mode (i.e. VT100 mode) is set by
+# an escape sequence
+
+key Up   -Shift-Ansi-Control: "\EA"
+key Down -Shift-Ansi-Control: "\EB"
+key Right-Shift-Ansi-Control: "\EC"
+key Left -Shift-Ansi-Control: "\ED"
+
+# VT100 emits a mode bit together
+# with the arrow keys.The AppCuKeys
+# mode is set by an escape sequence.
+
+#key Up   -Shift+Ansi-Control+AppCuKeys: "\EOA"
+#key Down -Shift+Ansi-Control+AppCuKeys: "\EOB"
+#key Right-Shift+Ansi-Control+AppCuKeys: "\EOC"
+#key Left -Shift+Ansi-Control+AppCuKeys: "\EOD"
+#
+#key Up   -Shift+Ansi-Control-AppCuKeys: "\E[A"
+#key Down -Shift+Ansi-Control-AppCuKeys: "\E[B"
+#key Right-Shift+Ansi-Control-AppCuKeys: "\E[C"
+#key Left -Shift+Ansi-Control-AppCuKeys: "\E[D"
+#
+#key Up   -Shift+Ansi+Control-AppCuKeys: "\E{a"
+#key Down -Shift+Ansi+Control-AppCuKeys: "\E{b"
+#key Right-Shift+Ansi+Control-AppCuKeys: "\E{c"
+#key Left -Shift+Ansi+Control-AppCuKeys: "\E{d"
+
+key Up   -Shift+Ansi-Control: "\E[A"
+key Down -Shift+Ansi-Control: "\E[B"
+key Right-Shift+Ansi-Control: "\E[C"
+key Left -Shift+Ansi-Control: "\E[D"
+
+key Up   -Shift+Ansi+Control: "\E{a"
+key Down -Shift+Ansi+Control: "\E{b"
+key Right-Shift+Ansi+Control: "\E{c"
+key Left -Shift+Ansi+Control: "\E{d"
+
+# linux functions keys F1-F5 differ from xterm
+
+key F1 -Shift-Control : "\E[[A"
+key F2 -Shift-Control : "\E[[B"
+key F3 -Shift-Control : "\E[[C"
+key F4 -Shift-Control : "\E[[D"
+key F5 -Shift-Control : "\E[[E"
+
+key F6 -Shift-Control : "\E[17~"
+key F7 -Shift-Control : "\E[18~"
+key F8 -Shift-Control : "\E[19~"
+key F9 -Shift-Control : "\E[20~"
+key F10-Shift-Control : "\E[21~"
+key F11-Shift-Control : "\E[23~"
+key F12-Shift-Control : "\E[24~"
+
+key F1 -Shift+Control : "\E{F1"
+key F2 -Shift+Control : "\E{F2"
+key F3 -Shift+Control : "\E{F3"
+key F4 -Shift+Control : "\E{F4"
+key F5 -Shift+Control : "\E{F5"
+key F6 -Shift+Control : "\E{F6"
+key F7 -Shift+Control : "\E{F7"
+key F8 -Shift+Control : "\E{F8"
+key F9 -Shift+Control : "\E{F9"
+key F10-Shift+Control : "\E{F10"
+key F11-Shift+Control : "\E{F11"
+key F12-Shift+Control : "\E{F12"
+
+key F1 +Shift-Control : "\E]F1"
+key F2 +Shift-Control : "\E]F2"
+key F3 +Shift-Control : "\E]F3"
+key F4 +Shift-Control : "\E]F4"
+key F5 +Shift-Control : "\E]F5"
+key F6 +Shift-Control : "\E]F6"
+key F7 +Shift-Control : "\E]F7"
+key F8 +Shift-Control : "\E]F8"
+key F9 +Shift-Control : "\E]F9"
+key F10+Shift-Control : "\E]F10"
+key F11+Shift-Control : "\E]F11"
+key F12+Shift-Control : "\E]F12"
+
+key Delete-Shift-Control: "\E[3~"
+key Insert-Shift-Control: "\E[2~"
+key Home  -Shift-Control: "\E[1~"
+key End   -Shift-Control: "\E[4~"
+key Prior -Shift-Control: "\E[5~"
+key Next  -Shift-Control: "\E[6~"
+
+key Home  -Shift+Control: "\E{h"
+key End   -Shift+Control: "\E{e"
+key Prior -Shift+Control: "\E{p"
+key Next  -Shift+Control: "\E{n"
+
+# Keypad-Enter. See comment on Return above.
+
+key Enter+NewLine : "\r\n"
+key Enter-NewLine : "\r"
+
+key Space +Control : "\x00"
+
+# some of keys are used by konsole.
+
+key Up    +Shift -Control: scrollLineUp
+key Prior +Shift -Control: scrollPageUp
+key Down  +Shift -Control: scrollLineDown
+key Next  +Shift -Control: scrollPageDown
+key Insert+Shift -Control: emitClipboard
+key Insert+Shift +Control: emitSelection
+
+key ScrollLock     : scrollLock
+
+#----------------------------------------------------------
+
+# keypad characters as offered by Qt
+# cannot be recognized as such.
+
+#----------------------------------------------------------
+
+# Following other strings as emitted by konsole.
+

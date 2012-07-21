@@ -1,0 +1,16 @@
+# /etc/console-tools/config
+
+#BLANK_TIME=30
+#BLANK_DPMS=off
+#POWERDOWN_TIME=30
+
+# rate and delay can get only specific values, consult kbdrate(1) for help
+KEYBOARD_RATE="30"
+KEYBOARD_DELAY="250"
+
+# Turn on numlock by default
+#LEDS=+num
+
+export SCREEN_FONT=/usr/share/consolefonts/CyrSlav-Terminus16.psf.gz
+export APP_CHARSET_MAP=cp1251
+export SETFONT_OPT='-m cp1251'

@@ -1,0 +1,80 @@
+#echo keymaps       #### (interactive) keymapping stuff
+ #use ctrl-v in command-line to escape any key (tab,ctrl-...,enter)
+ # and to see what it sends to sh/term
+ # sometimes "dd bs=1 count=1" also shows keys
+
+## use these to make home/end work; (eventualy also del/backspace - but change numbers!)
+## see _Xdefaults
+##xrdb -merge ...
+#*VT100.Translations: #override \
+#      <Key>Home:      string("\033[3~")\n\
+#      <Key>End:       string("\033[4~")\n\
+#      <Key>Delete:    string("\033[1~")\n\
+#!!     <Key>BackSpace: string(0x7F)\n\
+
+ #xmodmap controls how keys are interpreted (lowest layer)
+ #Xresources control how (interpreted)keys are mapped to applications
+
+_kcmd $_k_F2    d2      # ls -l dirs then files
+_kcmd $_k_F4    f
+_kcmd $_k_F5    up      # cd ..; works fine but doesn't update the prompt!
+_kcmd $_k_F7    dm		# du -m .
+_kcmd $_k_F8    mi      # process info
+_kcmd $_k_F9    "cd -"
+_kcmd $_k_F10   "v s"
+_kcmd $_k_F12   m       # make
+_kcmd $_k_F11   _g      # so .go
+_kcmd $_k_cF12  em      # e makefile
+_kcmd $_k_cF11  _h      # cd $HOME
+ #up/down also search (initialy they browse;doesnot work for bash) (esc-p/esc-n)
+_kbin $_k_PGUP  history-search-backward
+_kbin $_k_PGDN  history-search-forward
+_kbin $k_histUP history-search-backward
+_kbin $k_histDN history-search-forward
+_kbin $_k_HOME  beginning-of-line
+_kbin $_k_END   end-of-line
+ #can't find a way to delete commands from history
+_kbin $_k_INS   overwrite-mode
+
+ #del=del forward (may need to change some stty seting, which could be mapped to del - e.g.intr)
+_kbin $_k_DEL   delete-char
+
+_kbin $_CTL"L"      $_delwordB
+_kbin $_CTL"R"      $_delwordF
+_kbin $_CTL"O"      backward-word
+_kbin $_CTL"P"      $_wordF
+_kbin $_k_cLEFT     backward-word
+_kbin $_k_cRIGHT    $_wordF
+_kbin $_k_cHOME     backward-kill-line
+_kbin $_k_cEND      kill-line
+
+ # tab walk through list of choices (to show it: use ^d or tab-tab or ctrlTAB)
+ # shift-tab do it backward
+_kbin $_TAB         $_completeF
+#_kbin $_k_sTAB      $_completeB	#tcsh
+_kbin $_k_sTAB     "\e-$_TAB"		#bash: arg- then complete
+_kbin $_k_cTAB      $_completelist
+ #in tcsh this is glob-expand; in bash this is tab-expand
+_kbin $_CTL"G"      $_expand
+#_kstr $_CTL"X"      "exit"
+_kbin $k_clrscr     clear-screen
+
+ #ESC twice - revert-line(undo), go end of history, clear (not kill-whole-line!)
+ #do not use \M- meta in these strings
+_kbin $_CTL"Q"	    revert-line	 	#map undo to be used below
+_kbin $_CTL"S"	    end-of-history	#map to be used below
+_kstr $_ESC$_ESC    '\C-q\C-s\C-u\C-k' #undo end-history kill-backward-line kill-forward-line 
+
+ #"exec" dir = cd dir - if failed:
+ # now done by pressing F1 instead of Enter; assuming ins mode!
+_kstr $_k_F1        "$_k_HOME""cd $_k_END$_ENTER"
+_kstr $_k_F3        "$_k_HOME""man $_k_END$_ENTER"
+_kstr $_k_F6        "$_k_HOME""sudo $_k_END$_ENTER"
+_kstr $_k_cF4       "$_k_HOME""cbedic $_k_END$_ENTER"
+
+#_kstr $_k_F6        "$_k_HOME""wh $_k_END$_ENTER"
+_kstr $_k_cF3        "$_k_HOME""e \`which $_k_END\`$_ENTER"
+
+
+unset k_clrscr k_histUP k_histDN
+unset _delwordB _delwordF _wordF _completeF _completeB _completelist _expand

@@ -1,0 +1,19 @@
+#!/bin/sh
+#echo "============================" >> /tmp/halmo
+#echo "$@" >> /tmp/halmo
+#/usr/bin/env >> /tmp/halmo
+#export HAL_PROP_VOLUME_MOUNT_OPTIONS=noatime
+
+read zmount_point
+read zfstype
+read zmount_options
+#cat > /tmp/halstdin0
+#echo "==========" >>/tmp/halstdin
+#cat /tmp/halstdin0 >> /tmp/halstdin
+
+echo "$zmount_point
+$zfstype
+noatime\tnodiratime\t$zmount_options
+" | $0.org "$@" 
+
+#cat  /tmp/halin2 

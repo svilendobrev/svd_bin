@@ -1,0 +1,50 @@
+#
+# Configured by Xandros Configuration system.
+#
+#hiddenmenu
+# default boot entry
+default=0
+
+# Boot automatically after 1 second.
+timeout=2
+
+# Fallback to Configure.
+fallback=1
+
+title Normal, 2Gb
+	root (0x80,0)
+	kernel /boot/fmlinuz.gz quiet rw vga=785 irqpoll i8042.noloop=1 root=/dev/sda1
+	initrd /boot/initramfs-eeepc.img
+
+title Normal, original
+	root (0x80,0)
+	kernel /boot/vmlinuz-2.6.21.4-eeepc quiet rw vga=785 irqpoll i8042.noloop=1 root=/dev/sda1
+	initrd /boot/initramfs-eeepc.img
+
+title Normal, 2Gb-big
+	root (0x80,0)
+	kernel /boot/fmlinuz-big.gz quiet rw vga=785 irqpoll i8042.noloop=1 root=/dev/sda1
+	initrd /boot/initramfs-eeepc.img
+
+title Check Disk 
+	root (0x80,0)
+	kernel /boot/vmlinuz-2.6.21.4-eeepc quiet ro vga=785 irqpoll i8042.noloop=1 root=/dev/sda1 INIT=/sbin/init
+#	XANDROSSCAN=y
+	initrd /boot/initramfs-eeepc.img
+
+title busybox
+	root (0x80,0)
+	kernel /boot/vmlinuz-2.6.21.4-eeepc quiet ro vga=785 irqpoll i8042.noloop=1 root=/dev/sda1 XANDROSBOOTDEBUG=y /sbin/scanuser.sh
+	initrd /boot/initramfs-eeepc.img
+
+#title Restore Factory Settings
+#	root (0x80,0)
+#	kernel /boot/vmlinuz-2.6.21.4-eeepc quiet rw vga=normal nosplash=y irqpoll i8042.noloop=1 root=/dev/sda1 XANDROSRESTORE=y
+#	initrd /boot/initramfs-eeepc.img
+#
+title mobluntu
+	root (0x81,1)
+  	kernel /casper/vmlinuz file=/preseed/moblin-remix.seed rootdelay=11 boot=casper 
+#quiet splash
+	initrd /casper/initrd.lz 
+

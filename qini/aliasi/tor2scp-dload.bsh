@@ -1,0 +1,15 @@
+
+tor2dload1() {
+  DIR=`btshowmetainfo "$1" | perl -ne 's/^directory name: // && print'`
+  test -z "$DIR" && DIR=`btshowmetainfo "$1" | perl -ne 's/^file name\.*: // && print'` || DIR="$DIR/"
+  echo "$DIR"
+  DIR="http://osha/daimigi/$DIR"
+  echo "$DIR" >> /media/wtmp/todo/`basename "$1"`.dld
+}
+
+tor2scp_dload1() { 
+  scp2oshaget "$@"
+  for a in "$@" ; do tor2dload1 "$a"; done
+  mv "$@" /home/tmp/ok/
+}
+tor2scp_dload() { tor2scp_dload1 /home/tmp/*nt ; }

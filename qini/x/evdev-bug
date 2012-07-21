@@ -1,0 +1,56 @@
+/etc/X11/xorg.conf:
+
+Section "ServerFlags"
+Option "AutoAddDevices" "off"
+EndSection
+
+####################################
+
+$ setxkbmap -print
+
+#######################################
+ - difference in scancodes
+ - difference in key-repeating
+
+Here's the old XFree86 set: 
+Code:
+<RCTL> = 109; 
+<RALT> = 113; 
+<PRSC> = 111; 
+<SYRQ> = 92; 
+<PAUS> = 110; 
+<BRK> = 114; 
+<INS> = 106; 
+<HOME> = 97; 
+<PGUP> = 99; 
+<DELE> = 107; 
+<END> = 103; 
+<PGDN> = 105; 
+<UP> = 98; 
+<LEFT> = 100; 
+<DOWN> = 104; 
+<RGHT> = 102; 
+<KPDV> = 112; 
+<KPEN> = 108;
+
+
+And here's the new evdev codes (note that SysRq and Break don't have their own keycodes any more): 
+
+Code:
+<RCTL> = 105; 
+<RALT> = 108; 
+<PRSC> = 107; 
+<PAUS> = 127; 
+<INS> = 118; 
+<HOME> = 110; 
+<PGUP> = 112; 
+<DELE> = 119; 
+<END> = 115; 
+<PGDN> = 117; 
+<UP> = 111; 
+<LEFT> = 113; 
+<DOWN> = 116; 
+<RGHT> = 114; 
+<KPDV> = 106; 
+<KPEN> = 104;
+

@@ -1,0 +1,6 @@
+#!/bin/sh
+echo xxxxxxxxxxxxxxxx $1
+cd $1
+~/ain2tar *.AIN
+# *.ain
+

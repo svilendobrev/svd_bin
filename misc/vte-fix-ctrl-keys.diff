@@ -1,0 +1,49 @@
+--- org/vte-0.14.1/src/vte.c	2006-10-02 23:41:11.000000000 +0300
++++ vte-0.14.1/src/vte.c	2006-11-15 14:10:59.000000000 +0200
+@@ -3832,10 +3832,11 @@
+ #ifdef VTE_DEBUG
+ 		if (_vte_debug_on(VTE_DEBUG_EVENTS)) {
+ 			fprintf(stderr, "Keypress, modifiers=0x%x, "
+-				"keyval=0x%x, raw string=`%s'.\n",
++				"keyval=0x%x, raw string=`%s'. group=%d, level=%x\n",
+ 				terminal->pvt->modifiers,
+-				keyval, event->string);
++				keyval, event->string, event->group, event->hardware_keycode);
+ 		}
++
+ #endif
+ 
+@@ -4056,6 +4057,33 @@
+ 		/* If we didn't manage to do anything, try to salvage a
+ 		 * printable string. */
+ 		if (!handled && (normal == NULL) && (special == NULL)) {
++
++			if (event->group &&
++			    (terminal->pvt->modifiers & GDK_CONTROL_MASK)) //maybe ALT too?
++			{
++			    guint akeyval;
++			    gint aeffective_group;
++			    gint alevel;
++			    GdkModifierType aconsumed_modifiers;
++			    gdk_keymap_translate_keyboard_state( 0,
++				    event->hardware_keycode, event->state,
++				    0, //ignore group
++				    &akeyval,
++				    &aeffective_group,
++				    &alevel,
++				    &aconsumed_modifiers );
++#ifdef VTE_DEBUG
++			    if (normal && _vte_debug_on(VTE_DEBUG_EVENTS))
++				fprintf(stderr, "ctrl+Key, group=%d de-grouped into keyval=0x%x\n",
++				    event->group,
++				    akeyval,
++				    aeffective_group,
++				    alevel,
++				    aconsumed_modifiers );
++#endif
++			    keyval = akeyval;
++			}
++
+ 			/* Convert the keyval to a gunichar. */
+ 			keychar = gdk_keyval_to_unicode(keyval);
+ 			normal_length = 0;

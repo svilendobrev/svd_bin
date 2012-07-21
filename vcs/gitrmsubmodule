@@ -1,0 +1,9 @@
+#!/bin/sh
+p=$1
+git config -f .gitmodules --remove-section submodule.$p
+git config -f .git/config --remove-section submodule.$p
+git rm --cached $p
+git add .gitmodules 
+rm -rf $p
+echo rm -rf .git/modules/$p
+echo v i -m del-submod .

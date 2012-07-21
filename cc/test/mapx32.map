@@ -1,0 +1,49 @@
+
+ Start  Stop   Length Name                   Class
+ 00000H 00539H 0053AH __X386_DATASEG_16      DATA16
+ 00540H 02F65H 02A26H __X386_CODESEG_16      CODE
+ 02F70H 086F8H 05789H _TEXT                  CODE 32-bit
+ 086FCH 09213H 00B18H _DATA                  DATA 32-bit
+ 09214H 09214H 00000H XIB                    DATA 32-bit
+ 09214H 09214H 00000H XI                     DATA 32-bit
+ 09214H 09214H 00000H XIE                    DATA 32-bit
+ 09214H 09214H 00000H XCB                    DATA 32-bit
+ 09214H 09214H 00000H XC                     DATA 32-bit
+ 09214H 09214H 00000H XCE                    DATA 32-bit
+ 09214H 09214H 00000H CONST                  CONST 32-bit
+ 09214H 092C7H 000B4H _BSS                   BSS 32-bit
+ 092D0H 09B0FH 00840H c_common               BSS
+ 09B10H 09B10H 00000H HUGE_BSS               HUGE_BSS 32-bit
+ 09B10H 09B10H 00000H EEND                   ENDBSS 32-bit
+ 09B10H 09B10H 00000H STACK                  STACK 32-bit
+
+ Origin   Group
+ 02F7:0   DGROUP
+ 0000:0   __X386_GROUP_16
+
+  Address         Publics by Name
+
+ 02F7:5FFC       _DBL_MAX
+ .....
+
+  Address         Publics by Value
+
+ 02F7:FFFFD0A8       __x386_code_16_des
+ 02F7:FFFFD0D8       __x386_stack_32_des
+ 0000:00F0       __x386_esp0
+ 0000:0124       __x386_esp3
+ 0000:0404       __x386_x_bottom
+ 0000:0408       __x386_memstatus
+ 0000:04D2  Abs  __acrtused
+ 0054:0036       __x386_start
+ 02F7:000A       __x386_init
+ 02F7:02B2       __chkstack
+ 02F7:03D2       __get_video_selector
+ 02F7:040C       _thingtype__10ThingBlockCNp5ThingpCc
+ 02F7:051B       _looknext__9ThingIterNv
+ 02F7:05F2       _next__9ThingIterNv
+ 02F7:6AB4       _cpynm
+ 02F7:6B4C       __iob2
+ 02F7:6B9C       __new_handler
+
+Program entry point at 0054:0000

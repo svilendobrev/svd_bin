@@ -1,0 +1,25 @@
+#alias mp3-show='mp3info -x -r a'
+i()  	{ mp3-show "$@"; eyeD3 "$@" ; }
+
+fmp() 	{ ffmpeg -i "$1" -acodec copy 	fmp."$1" ;}
+vbr() 	{ a="$1"; shift ; vbrfix -ri1 -ri2 "$@" "$a"    vbr."$a" ; test -s vbr."$a" || rm -f vbr."$a" ;}
+val() 	{ mp3val -f "$1" ; test -f "$1".bak && mv "$1"  val."$1" && mv "$1".bak "$1" ;}
+cu3()	{ cutmp3 -i "$1" -O   cu3."$1" -a 0:0 -b 99999:0 ;}	#ignore non-sound
+
+noid3() { id3v2 -D "$@" ; }
+noyd3()	{ eyeD3 --remove-all "$@" ; }
+
+jcat() 	{ a="$1"; shift ; cat "$@" 		>jcat."$a" ;}
+jqm3() 	{ a="$1"; shift ; qmp3join -o 	jqm3."$a" "$@" ;}
+jmtx() 	{ a="$1"; shift ; mpgtx -j -o 	jmtx."$a" "$@" ;}
+jwrap() { a="$1"; shift ; mp3wrap 		jwrp."$a" "$@" ;}
+
+cat_cu3_vbr() { 
+ b="$1"; shift 
+ jcat "$b" "$@" 
+ cu3 jcat."$b"
+ ln -f cu3.jcat."$b" result."$b"
+ vbr cu3.jcat."$b"
+ ln -f vbr.cu3.jcat."$b" result."$b"
+ i result."$b"
+}

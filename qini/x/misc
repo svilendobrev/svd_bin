@@ -1,0 +1,8 @@
+#kde-konsole-title:
+dcop `echo $KONSOLE_DCOP_SESSION | sed "s/DCOPRef.//;s/,.*//"` \
+	 `echo $KONSOLE_DCOP_SESSION | sed "s/.*,//;s/)//"` \
+	 renameSession "kvoto-iskate-tuka-napr.$HOSTNAME:$PWD"
+
+####################
+http://www.faqs.org/docs/Linux-mini/Xterm-Title.html
+
