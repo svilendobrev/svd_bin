@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#$Id$
+
+'Bulgarian hyphenation rules. 1991-2009 svd'
 # Сричкопренасяне за български език.
-# Bulgarian hyphenation rules. (c) 2009 svd.
 # cp1251/utf8 text, HTML:softhyphen
 # original: wh2.c/hyrules.c (c) svd ~1991 reversed from izdatel 1.0
 
@@ -122,29 +122,25 @@ def test():
 
 
 if __name__ =='__main__':
-    import optparse
-    oparser = optparse.OptionParser( u'''
+    import optz
+    optz.help( u'''
     %prog [options] <infile  >outfile
     %prog [options] думи за пренасяне ...
     '''.rstrip())
-    def optany( name, *short, **k):
-        return oparser.add_option( dest=name, *(list(short)+['--'+name.replace('_','-')] ), **k)
-    def optbool( name, *short, **k):
-        return optany( name, action='store_true', *short, **k)
-    optany( 'hyphen', help= u'"тире" за отбелязване на пренасянето (меко/скрито-тире); подразбира се "%default"', default= config.hyphen )
-    optbool( 'html',  help= u'ползва HTML-меко-тире %(HTML_HYPHEN)r (вместо горното)' % locals() )
-    optbool( 'htmlpre',  help= u'пропуска съдържанието на <pre>..</pre> групи' )
-    optany( 'minsize', type=int, help= u'думи под тази дължина не се пренасят; подразбира се %default', default =config.minsize )
-    optbool( 'utf',   help= u'вх/изх utf8' )
-    optbool( 'iutf',  help= u'вх  utf8' )
-    optbool( 'iguess',  help= u'вх  познай кодировката' )
-    optbool( 'outf',  help= u'изх utf8' )
-    optbool( 'i1251', help= u'вх  cp1251' )
-    optbool( 'o1251', help= u'изх cp1251' )
-    optbool( 'cp1251',help= u'вх/изх cp1251' )
-    optbool( 'test',  help= u'самопроверка' )
-    optbool( 'demo',  help= u'демо' )
-    options,args = oparser.parse_args()
+    optz.text( 'hyphen',help= u'"тире" за отбелязване на пренасянето (меко/скрито-тире); подразбира се "%default"', default= config.hyphen )
+    optz.bool( 'html',  help= u'ползва HTML-меко-тире %(HTML_HYPHEN)r (вместо горното)' % locals() )
+    optz.bool( 'htmlpre',   help= u'пропуска съдържанието на <pre>..</pre> групи' )
+    optz.int( 'minsize',    help= u'думи под тази дължина не се пренасят; подразбира се %default', default =config.minsize )
+    optz.bool( 'utf',   help= u'вх/изх utf8' )
+    optz.bool( 'iutf',  help= u'вх  utf8' )
+    optz.bool( 'iguess',help= u'вх  познай кодировката' )
+    optz.bool( 'outf',  help= u'изх utf8' )
+    optz.bool( 'i1251', help= u'вх  cp1251' )
+    optz.bool( 'o1251', help= u'изх cp1251' )
+    optz.bool( 'cp1251',help= u'вх/изх cp1251' )
+    optz.bool( 'test',  help= u'самопроверка' )
+    optz.bool( 'demo',  help= u'демо' )
+    options,args = optz.get()
 
     if options.test:
         test()
