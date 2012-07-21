@@ -7,7 +7,7 @@ most used are: vcs/, qini/ + aliases, filedir/, eee/, and audio-videog'day
 my minimal set are:
 
     qini/ : same My keys and alias/commands "interface" to many shells and vim, on many terminals+machines..
-	vcs/ : a common vcs "interface"
+	vcs/ : a common vcs "interface" to bzr/svn/cvs/hg/git
     vcs/vcs.sh as two links :  'v' as general and 'u' for update only ; vcs/colorvcs.py ; vcs/uall.sh
     text/archiv as two links : 'vv' for viewing and 'xx' for extracting
     text/chall.pl    : replaces regexps and overwrites files
