@@ -21,6 +21,9 @@ def filesize( fn, curdir =None, config =config):
     ext = ext[1:].lower()
     fp = curdir and os.path.join( curdir, fn) or fn
     #if config.verbose>1: print 'ext:', ext
+    if not os.path.getsize( fp):
+        print '? 0', fn
+        return 0
     if ext == 'flac':
         samples = output( 'metaflac', '--show-total-samples', fp)
         rate = output( 'metaflac', '--show-sample-rate', fp)
@@ -100,7 +103,11 @@ def dirsize( curdir, config =config):
         all = [ curdir ]
         curdir = None
     for fn in all:
-        size = filesize( fn, curdir, config=config)
+        try:
+            size = filesize( fn, curdir, config=config)
+        except:
+            print '??', fn
+            raise
         total += size
 
     print '=',minsec(total), curdir or all[0]

@@ -15,7 +15,7 @@ al a-show   'apt-cache show'
 al a-file0  'dpkg -S'
 al a-list   'dpkg -L'
 al a-all    'dpkg -l'
-al a-all-inst    'a-all | grep ^ii'
+a-all-inst() {  a-all "$@" | grep ^ii ; }
 a-file()    { a-file0 "$@" |perl -ne 's/:.*//;print'; } 
 al a-repository 'sudo add-apt-repository'
 al a-ppa a-repository

@@ -87,6 +87,7 @@ fi
 #xmodmap -e "keysym F1 = F1 F13" -e "keysym F2 = F2 F14" -e "keysym F3 = F3 F15" -e "keysym F4 = F4 F16" -e "keysym F5 = F5 F17" -e "keysym F6 = F6 F18"
 #xmodmap -e "keysym F7 = F7 F19" -e "keysym F8 = F8 F20" -e "keysym F9 = F9 F21" -e "keysym F10 = F10 F22" -e "keysym F11 = F11 F23" -e "keysym F12 = F12 F24"
 
-#echo keysym Caps_Lock = Shift_L | xmodmap - #Caps_Lock
+echo clear lock | xmodmap -
+echo keysym Caps_Lock = Shift_L | xmodmap - >& /dev/null #Caps_Lock
 
 # vim:ts=4:sw=4:expandtab:ft=sh

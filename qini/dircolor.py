@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #$Id: dircolor.py,v 1.2 2007-03-02 17:30:28 sdobrev Exp $
 
 help = '''

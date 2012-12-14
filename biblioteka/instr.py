@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from util import eutf
+from svd_util import eutf
 
 def meta_prevodi( fname, dict= dict, nomer_stoinost =0, prn =None, zaglavie ='meta_prevodi' ):
     if prn: prn( zaglavie +':', fname)

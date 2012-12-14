@@ -59,7 +59,7 @@ split: $(SPLIT:%=mm.%-001.mkv)
 
 T?=0:0:20 #,0:4:30
 mm.%-001.mkv: %
-	mkvmerge $< -o mm.$* --split timecodes:$T
+	mkvmerge "$<" -o "mm.$*" --split timecodes:$T
 
 tags:
 	for a in *tags; do sh $$a; done

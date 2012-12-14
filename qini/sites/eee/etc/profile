@@ -20,5 +20,6 @@ export PATH
 export LANG=bg_BG.CP1251
 export LANG=bg_BG.UTF-8
 umask 002
-export TZ='Australia/Melbourne'
-
+export TZ=Europe/Sofia
+#big ext screen:
+export XTERMFONTSIZE=18

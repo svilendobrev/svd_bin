@@ -29,7 +29,7 @@ xmodmap -pk | grep -q Alt_R || xmodmap -e 'keycode 108 = Alt_R'
 #xmodmap -e "add mod1 = Alt_L Alt_R"
 
 echo clear lock | xmodmap -
-echo keysym Caps_Lock = Shift_L | xmodmap - #Caps_Lock
+echo keysym Caps_Lock = Shift_L | xmodmap - >& /dev/null #Caps_Lock
 
 if uname -a | grep -q eee ; then ##eeepc:
  echo eeepc

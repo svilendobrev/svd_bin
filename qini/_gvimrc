@@ -1,6 +1,6 @@
 
 "don't remember anything
-set viminfo=
+"set viminfo=
 set noautowrite	"dont save when switching buffers
 set visualbell t_vb=
 

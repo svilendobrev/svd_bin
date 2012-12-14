@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals
-from util.py3 import dictOrder
+from svd_util.py3 import dictOrder
 
 def razdeli_kamila( t):
     #r = ''
@@ -74,7 +74,7 @@ def sykrashtenia( t, samo_pred_glasna_sled_syglasna =False, ako_pochva_s_glasna 
     #if 'Вес' in ime and 'Димитров' in r or 'Магда'==ime or 'Асен'==ime: print( 2222222, vse, spisyk)
     return spisyk
 
-from util.dicts import dict_lower
+from svd_util.dicts import dict_lower
 
 class Abbr:
     dbg=0
@@ -165,7 +165,7 @@ class Abbr:
         for s in izmislimi: del az.rychni[s]
 
     def cheti_eutf( az, fl):
-        from util import eutf
+        from svd_util import eutf
         return az.cheti( eutf.readlines( fl))
 
     def cheti( az, fl, moin =False):
@@ -237,7 +237,7 @@ class Abbr:
 
 if __name__ == '__main__':
     import sys
-    from util import eutf
+    from svd_util import eutf
     eutf.fix_std_encoding()
     if '--test' not in sys.argv:
 

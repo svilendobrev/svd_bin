@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf8 -*-
-from util import optz
+from svd_util import optz
 optz.usage( '%prog [optz] ot-dir < ren-script-stdin')
 #optz.optany( 'ot')
 optz.text(  'link_kym',  help= 'направи ново дърво от връзки с този корен')

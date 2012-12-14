@@ -20,44 +20,46 @@ al so .
 #sos()  { echo --"$@"; so "$@"; }
 sosi()  { echo --${_INIs}"$1"; so ${_INIs}"$1"; }
 
+if [ -n "$PS1" ]; then #interactivestuff
+  if [ "x$1" != "xkeys" ]; then   # if this is at the top, so is not aliased
+    al wh     type    # -path'
+    al rehash 'hash -r'
+    al z    'fg %vi'        #pop up last suspended vi* job (ctrl-Z doesnt work)
+    test -z "$_EXT" && _EXT=.bsh
 
-if [ "x$1" != "xkeys" ]; then   # if this is at the top, so is not aliased
-  al wh     type    # -path'
-  al rehash 'hash -r'
-  al z    'fg %vi'        #pop up last suspended vi* job (ctrl-Z doesnt work)
-  test -z "$_EXT" && _EXT=.bsh
+    ####### interactive only:
+    echo "ahaaaa-$0"
 
-  ####### interactive only:
-  echo "ahaaaa-$0"
+    al verbose     "set -vx"
+    al unverbose   "set +vx"
+    #al _setcdpath "senv CDPATH"
 
-  al verbose     "set -vx"
-  al unverbose   "set +vx"
-  #al _setcdpath "senv CDPATH"
+    _kbin()   { test -n "$1" -a -n "$2" && bind '"'"$1"'"':"$2"; }             #builtin editfunc
+    _kcmd()   { test -n "$1" -a -n "$2" && bind '"'"$1"'"':'"'"$2"\\C-J'"'; }    #with "" and Enter
+    _kstr()   { test -n "$1" -a -n "$2" && bind '"'"$1"'"':'"'"$2"'"'; }         #with ""
+    sosi defalias$_EXT
+    al lko  'so ${_INIs}_bashrc keys'
+  fi # non-keys
 
-  _kbin()   { test -n "$1" -a -n "$2" && bind '"'"$1"'"':"$2"; }             #builtin editfunc
-  _kcmd()   { test -n "$1" -a -n "$2" && bind '"'"$1"'"':'"'"$2"\\C-J'"'; }    #with "" and Enter
-  _kstr()   { test -n "$1" -a -n "$2" && bind '"'"$1"'"':'"'"$2"'"'; }         #with ""
-  sosi defalias$_EXT
-  al lko  'so ${_INIs}_bashrc keys'
-fi      # non-keys
 
-_set _ESC='\e'
-_set _CTL='\C-'
-_set _delwordB=backward-kill-word
-_set _delwordF=kill-word
-_set _wordF=forward-word
-_set _completeF=menu-complete   # new versions have this; but now list is gone
-#_set _completeF=complete
-_set _completeB=complete        # eh, no backwards :(
-_set _completelist=possible-completions
-_set _expand=insert-completions
-_kesc() {
-  if test -n "$1" -a -n "$2" -a -n "$_ESC"; then
-    export _K_$1="$2"
-    export _k_$1=$_ESC"$2"
-  else echo "!_kesc empty 1=$1 2=$2 esc=$_ESC"
-  fi
-}
+  _set _ESC='\e'
+  _set _CTL='\C-'
+  _set _delwordB=backward-kill-word
+  _set _delwordF=kill-word
+  _set _wordF=forward-word
+  _set _completeF=menu-complete   # new versions have this; but now list is gone
+  #_set _completeF=complete
+  _set _completeB=complete        # eh, no backwards :(
+  _set _completelist=possible-completions
+  _set _expand=insert-completions
+  _kesc() {
+    if test -n "$1" -a -n "$2" -a -n "$_ESC"; then
+      export _K_$1="$2"
+      export _k_$1=$_ESC"$2"
+    else echo "!_kesc empty 1=$1 2=$2 esc=$_ESC"
+    fi
+  }
+fi  #interactivestuff
 
 # be careful, two commands cannot be bound to same key !!
 # [up] cant be both up-history and search-up-history
@@ -65,51 +67,52 @@ _kesc() {
 # no backward completion
 ########
 
-_DLM=":"
-
-case "x$OSTYPE" in
- xMSDOS*|xmsdos*) _set TERM=dosbsh
-	unalias e
-	_DLM=";"
- ;;
-esac
-
-pathfind() {
-	echo $PATH | egrep -q "(^|$_DLM)$1(\$|$_DLM)"
-}
-pathadd() {
-	if ! pathfind "$1" ; then
-	   if [ "$2" = "after" ] ; then
-	      senv PATH "$PATH$_DLM$1"
-	   else
-	      senv PATH "$1$_DLM$PATH"
-	   fi
-	fi
-}
-
 if [ "x$1" != "xkeys" ]; then
+  _DLM=":"
+
+  case "x$OSTYPE" in
+    xMSDOS*|xmsdos*) _set TERM=dosbsh
+      unalias e
+      _DLM=";"
+   ;;
+  esac
+
+  pathfind() {
+  	echo $PATH | egrep -q "(^|$_DLM)$1(\$|$_DLM)"
+  }
+  pathadd() {
+  	if ! pathfind "$1" ; then
+  	   if [ "$2" = "after" ] ; then
+  	      senv PATH "$PATH$_DLM$1"
+  	   else
+  	      senv PATH "$1$_DLM$PATH"
+  	   fi
+  	fi
+  }
+
   test "$USER" == "root" && U=/root || U=/home/$USER
   for x in /home/_bin $U/bin . ; do
-    [ -d $x ] && pathadd $x
+      [ -d $x ] && pathadd $x
   done  
-fi
-
-T="${MY_TERM:-$TERM}" 
-case "x$T" in
- xlinux|xxterm|xdosbsh|xxterm-vte) sosi k-$T;;
- xkonsole*) sosi k-konsole ;;
- x*) echo "what the hell @@@@@ unknown TERM=<$TERM> MY_TERM=<$MY_TERM>" ;;
-esac
-
-_set k_histUP="$_k_PGUP"
-_set k_histDN="$_k_PGDN"
-[ -n "$_k_F1" ] && sosi keybinds   #load these only if term is sure
-
-senv INPUTRC $_INIs/_inputrc
+fi  #non-keys
 
 
-if [ "x$1" != "xkeys" ]; then
-  if [ -n "$PS1" ]; then #interactivestuff
+if [ -n "$PS1" ]; then #interactivestuff
+  T="${MY_TERM:-$TERM}" 
+  case "x$T" in
+   xlinux|xxterm|xdosbsh|xxterm-vte) sosi k-$T;;
+   xkonsole*) sosi k-konsole ;;
+   x*) echo "what the hell @@@@@ unknown TERM=<$TERM> MY_TERM=<$MY_TERM>" ;;
+  esac
+
+  _set k_histUP="$_k_PGUP"
+  _set k_histDN="$_k_PGDN"
+  [ -n "$_k_F1" ] && sosi keybinds   #load these only if term is sure
+
+  senv INPUTRC $_INIs/_inputrc
+
+
+  if [ "x$1" != "xkeys" ]; then
 	#set bell-style=none	#not by set this way!
 	set --				#forget shell arguments from now on
 	stty stop undef
@@ -138,23 +141,26 @@ if [ "x$1" != "xkeys" ]; then
       # x*xterm*) PS1="\[\033]0;\u@\h\007\]$PS1" ;;
       #esac
       #so_flt() { $CRLF2LF $1 >tmp_; shift; so tmp_ $@; rm -f tmp_; }
-  fi #interactivestuff
+  fi #non-keys
+fi  #interactivestuff
 
+if [ "x$1" != "xkeys" ]; then
   for a in $_SITEs; do # 1st common a then a.shell-dependent
   # [ -f $a$_EXT ] && _set a $a$_EXT
     [ -f ${_INIs}$a ] && sosi $a
     [ -f ${_INIs}$a$_EXT ] && sosi $a$_EXT
   done
 
-  [ -n "$PS1" ] && tm
-fi      #non-keys
+  if [ -n "$PS1" ]; then #interactivestuff
+    tm
+    test -x $_INIs/dircolor.py && senv LS_COLORS `$_INIs/dircolor.py -ls`
+    which lesspipe >&/dev/null && eval "$(lesspipe)" 
+  fi  #interactivestuff  
+fi #non-keys
 # eof .bashrc
 
 ## en_US bg_BG etc locales collate like AaBb..Zz / aAbB..zZ 
 #so [A-Z] is NOT_AT_ALL what u think! put this also in etc/profile
 senv LC_COLLATE C
-
-test -x $_INIs/dircolor.py && senv LS_COLORS `$_INIs/dircolor.py -ls`
-which lesspipe >&/dev/null && eval "$(lesspipe)" 
 
 # vim:ts=4:sw=4:expandtab

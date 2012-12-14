@@ -374,7 +374,7 @@ cron.d/crontab direct: # m h dom mon dow (user) command
                     ).replace('  ',' '
                     ).replace(' ','_'
                     )
-        fname = fname[:120]
+        fname = fname[:100]
 
         if o.cron_earlier_minutes:
             t -= datetime.timedelta( minutes= o.cron_earlier_minutes)

@@ -2,7 +2,7 @@
 ##!/usr/bin/env python
 from __future__ import print_function
 from os.path import isdir, basename, exists, join, dirname, getmtime
-from util.osextra import execresult
+from svd_util.osextra import execresult
 
 class mp3times:
 

@@ -4,9 +4,14 @@
 
 import re,subprocess,sys,os
 from os.path import join, isdir, splitext, basename, exists
-from util import lat2cyr, eutf, rim_digit as rim
+from svd_util import lat2cyr, eutf, rim_digit as rim
+from svd_util import optz, osextra
+from svd_util.struct import DictAttr
+from glob import glob
 
-def go( fime, fdir):
+def c2l( x): return lat2cyr.zvuchene.cyr2lat( x).lower()
+
+def razglobi( fime ):
     f,ext = splitext( basename( fime))
     f = (f  .replace( '\u2013','-')  #- = x2013
             .replace( '\xA0','_')
@@ -35,7 +40,7 @@ def go( fime, fdir):
     m = re.match( '^[^+]+ \+ ([^+]+) \+ (.*)', f, re.VERBOSE)
     if not m:
         print( '   xxx NOMATCH', fime)
-        return 1111111
+        return locals() # data=data)
 
     rubrika = spc( m.group(1))
     imena = m.group(2).strip('_')
@@ -50,8 +55,10 @@ def go( fime, fdir):
     ss = re.split( '["”“]', imena)
     if len(ss)>1:
         avtor = ss[-1]
-        ime = '"'.join( ss[:-1])
+        ime = '_'.join( ss[:-1])
         razdelitel = razdelitel.lstrip('_')
+    elif '-' in imena:
+        ime,avtor = imena.split('-',1)
     else:
         ime = ''
         avtor = imena
@@ -64,7 +71,7 @@ def go( fime, fdir):
 
     #print( ime, '      :'+avtor, m and '', dok)
     if not m:
-        print( '   yyy', repr( avtor), imena)
+        print( '   ??? ', repr( avtor), imena)
         #return 22222222
 
     m = re.match( rlatcyr( '(документално_студио_*)(.*)'), ime, flags= re.I )
@@ -74,23 +81,23 @@ def go( fime, fdir):
 
     ime = ime.strip( '„"”“_-.,')
     avtor = avtor.strip('_-')
-    avtor = rim.rim2fix( avtor)
+    avtor = rim.rim2fix( avtor, doX= False)
 
     ime = spc( ime)
 
     #avtor.opis > avtor + nomer.chast (+opis)
     nomer = ''
 
-    rchast = rlatcyr( '(част|епизод)')
+    rchast = rlatcyr( '(част|епизод)и?')
     rnomer = rim.re_nomer
-    ss = re.split( rnomer+'_?'+rchast, avtor)
+    ss = re.split( '(('+rnomer+'_(и_)?)*' +rnomer+')_?'+rchast, avtor)
+    #print( 1111111111111111111111111111, ss)
     if len(ss)>1:
         avtor,nomer = ss[:2]
     else:
         ss = re.split( '[-_]'+rchast+'_?'+rnomer, avtor)
         if len(ss)>1:
             avtor,chast,nomer = ss[:3]
-    #print( ss)
 
     avtor = avtor.strip('_-')
     nomer = rim.rim2int( nomer, nomer)
@@ -98,19 +105,64 @@ def go( fime, fdir):
     #avtori
     avtor = spc( avtor)
     avtori = re.split( ' и ', avtor)
+    avtori = [ re.sub( '(.+?)((народна|приказка|радиоадаптация)[_ \.]?)+', r'\1', a.strip(), re.IGNORECASE
+                    ).replace( '[]',''
+                    ).rstrip('.'
+                    ).rstrip('_'
+                    ).strip()
+                for a in avtori]
+
     avtori_kysi = []
     for a in avtori:
         avtor_imena = a.split()
         if avtor_imena:
             kys = len( avtor_imena)>1 and avtor_imena[0][0]+'.'+avtor_imena[-1] or avtor_imena[0]
             avtori_kysi.append( kys)
-
-    def c2l( x): return lat2cyr.zvuchene.cyr2lat( x).lower()
-
     avtor_kys = '-'.join( avtori_kysi)
-    dirname = '--'.join( [c2l( ime), c2l(avtor_kys), 'radio'] ).replace(' ', '.')
 
-    avtori = '+'.join( ''.join( a.split()) for a in avtori)
+    avtor_dylyg = '-'.join( avtori)
+    dirname = '--'.join( [c2l( ime), c2l(avtor_dylyg), 'radio'] ).replace(' ', '.')
+
+    avtori_plus = '+'.join( ''.join( a.split()) for a in avtori)
+
+    zagolemi = (dok or 'деца' not in rubrika.lower() and 'приказк' not in rubrika.lower()) and 'възрастни' or ''
+    dok = dok and 'док' or ''
+    return locals()
+
+def go( fime, fdir, nedei =False, command =None):
+    ot_ime = DictAttr( razglobi( fime))
+    cnomer = ot_ime.get( 'nomer')
+    opis = '''
+име: {ime}
+етикети: {zagolemi} {dok}
+издание: радио
+автор: {avtori_plus}
+откъде: {rubrika} {data}
+{cnomer}
+'''.format( cnomer= cnomer and '#част: '+str(cnomer), **ot_ime ).strip()
+
+    print( opis)
+    opis += '''
+срез:
+участници:
+ ред:
+ изп:
+ др:
+ муз:
+ з.реж:
+ з.оп:
+ з.еф:
+ м.оф:
+ реж:
+опис:
+
+# vim:ts=4:sw=4:expandtab:ft=yaml'''
+
+    dirname = ot_ime.dirname
+    nomer   = ot_ime.nomer
+
+    print( '-----'*4)
+    if nedei: return
 
     dir = join( fdir, dirname)
     orgdir = join( dir, '0')
@@ -125,26 +177,6 @@ def go( fime, fdir):
         command( fime, wime)
         return
 
-    zagolemi = (dok or 'деца' not in rubrika.lower() or 'приказк' not in rubrika.lower()) and 'възрастни' or ''
-    cnomer = nomer and '#част: '+str(nomer)
-    dok = dok and 'док' or ''
-    opis = '''
-име: {ime}
-етикети: {zagolemi} {dok}
-издание: радио
-автор: {avtori}
-участници:
-опис:
-{cnomer}
-
-#{data}
-# vim:ts=4:sw=4:expandtab:ft=yaml
-'''.format( **locals()).strip()
-
-    print( opis)
-    print( '-----'*4)
-    if nedei: return 33333333
-
     try: os.makedirs( orgdir)
     except: pass
 
@@ -153,34 +185,41 @@ def go( fime, fdir):
     with eutf.filew_utf( fopis ) as f:
         print( opis, file= f)
 
-    nime = join( orgdir, os.path.basename( fime))
-    print( 'mv', fime, nime)
-    os.rename( fime, nime)
-    if nime.endswith('.flac'):
-        cmds = [ 'flac', '-d', '-o', wime, nime ]
-        print( cmds)
-        subprocess.call( cmds)
-    elif not exists( wime):
+    print( 'mv', fime, orgdir)
+    bezext,ext = splitext( fime)
+    ima_wav = False
+    for f in glob( osextra.globescape( bezext)+'.*'):
+        os.rename( f, join( orgdir, basename( f) ))
+        if f.endswith( '.wav'): ima_wav = True
+
+    #os.rename( fime, nime)
+    if not ima_wav and optz.decode:
+        nime = join( orgdir, basename( fime))
+        wwime = splitext( join( orgdir, basename( fime)))[0]+'.wav'
+        if nime.endswith('.flac'):
+            cmds = [ 'flac', '-d', '-o', wwime, nime ]
+            print( cmds)
+            subprocess.call( cmds)
+        elif nime.endswith('.mp3'):
+            cmds = 'lame --nohist -h -v -V 0 -S --decode'.split() + [ nime, wwime ]
+            print( cmds)
+            subprocess.call( cmds)
+
+    if not exists( wime):
         open( wime, 'w').close()
 
 
-def opt(x):
-    try: sys.argv.remove( x ); return True
-    except ValueError: return None
+if __name__ == '__main__':
+    optz.bool( 'decode', '-d')
+    optz.bool( 'nothing', '-n')
+    optz.bool( 'link',  '--ln')
+    optz.str( 'where',  default= '.', help= '[%default]')    #'/zapisi/novo/'
+    #print( optz.oparser._short_opt)
+    optz,argz = optz.get()
+    command = optz.link and os.link
 
-nedei = opt('-n')
-command = (opt('-ln') or opt('--ln')) and os.link
-
-fdir = '/zapisi/novo/'
-args = []
-for f in sys.argv[1:]:
-    if f[-1] == '/' or isdir( f):
-        fdir = f
-        continue
-    args.append( f)
-
-for fime in args:
-    print( fime)
-    go( fime, fdir)
+    for fime in argz:
+        print( fime)
+        go( fime, optz.where, nedei= optz.nothing, command= command)
 
 # vim:ts=4:sw=4:expandtab

@@ -175,8 +175,8 @@ ffmpeg2wav() {
     ffmpeg2wavany "$@" -ac 2
 }
 
-mkv2audio() {
-    mkvextract tracks "$1" "$2":"$1"."$2".audio
+mkv2extract() {
+    mkvextract tracks "$1" "$2":"$1"."$2"
 }
 
 qcut() {

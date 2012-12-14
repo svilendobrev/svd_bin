@@ -14,20 +14,21 @@
  - разходка по директории, и за всяка, ако има файл опис, се употребява
 '''
 
-from util.py3 import *
-from util import eutf, optz, lat2cyr
+from svd_util.py3 import *
+from svd_util import eutf, optz, lat2cyr
 cyr2lat = lat2cyr.zvuchene.cyr2lat
-from util.struct import DictAttr, attr2item
-from util.dicts import DictAttr_lower, dict_lower, make_dict_lower
+from svd_util.struct import DictAttr, attr2item
+from svd_util.dicts import DictAttr_lower, dict_lower, make_dict_lower
 dictOrder_lower = make_dict_lower( dictOrder)
-from util.dicts import make_dict_trans, make_dict_attr
+from svd_util.dicts import make_dict_trans, make_dict_attr
 
-import fnmatch, glob, locale
+import fnmatch, locale
+from glob import glob
+from svd_util.osextra import globescape
 import sys, os.path, re
 from os.path import isdir, basename, exists, join, dirname, realpath
-#import difflib
-#diff = difflib.unified_diff
-from util.diff import unified_diff_ignore_space as diff
+#from difflib import unified_diff as diff
+from svd_util.diff import unified_diff_ignore_space as diff
 
 from instr import meta_prevodi, zaglavie, nezaglavie
 
@@ -54,6 +55,7 @@ OPISIpat = OPISI
 
 def e_opis( fname):
     for pat in OPISIpat:
+        pat = globescape( pat)
         if fnmatch.fnmatch( fname, pat): return True
     return False
     return fname in OPISI
@@ -273,10 +275,11 @@ class info:
         nomer       = 'номер',
         nomervgrupa = 'нг номер-в-група номер-група',
         shablon     = 'шаблон',
-        simvoli_papka   = 'етикети-папка   eт-пап*ка   символи-пап*ка',
+        sort_prevodi= 'подреди-парчета подреди-части подреди-преводи',
+        #simvoli_papka   = 'етикети-папка   eт-пап*ка   символи-пап*ка',
         #само елементите
         shablon_element = 'шаблон-елемент',
-        simvoli_element = 'етикети-елемент eт-ел*емент символи-ел*ементи',
+        #simvoli_element = 'етикети-елемент eт-ел*емент символи-ел*ементи',
         #на папката/елемента
         ime         = 'име',
         imena       = 'имена',
@@ -288,6 +291,7 @@ class info:
         #за/от елементите и в папка
         avtor       = 'автор awtor author',
         godina      = 'година г год year y',
+        sfx         = 'наставка',
         ########
         element     = 'ел*ементи',
         papka       = 'пап*ка',
@@ -506,7 +510,7 @@ class info:
                 _prevodach = klas.stoinosti)
 
         p.etiketi = klas.DictAttrTrans()
-        for k in etiketi.pop( 'simvoli', '').strip().split():
+        for k in (etiketi.pop( 'simvoli', '') or '').strip().split():
             klas._slaga_etiket( k, True, p.etiketi)
 
         p.update_pre( ime= zaglavie( ime), original= original, **etiketi)
@@ -644,7 +648,6 @@ class info:
         return etiketi
 
     def danni( az):
-        from util.struct import attr2item
         dd = dictOrder()
         d = attr2item( dd)
 
@@ -686,11 +689,12 @@ class info:
         d.grupi = []    #[ { дългоиме или дългоиме,късоиме или късоиме,допиме , [ (file,prev,org) ] } ]
         if az.prevodi:
             pr = [ p for p in az.prevodi.values() if not p.grupa ]
-            if az.options.sort_prevodi: pr = sorted( pr, key= lambda p: p.fname)
+            sort_prevodi = az.options.sort_prevodi or az.etiketi.sort_prevodi
+            if sort_prevodi: pr = sorted( pr, key= lambda p: p.fname)
             d.prevodi = pr
 
             gr = az.grupi
-            if az.options.sort_prevodi: gr = sorted( gr, key= lambda g:g.ime)
+            if sort_prevodi: gr = sorted( gr, key= lambda g:g.ime)
             d.grupi = gr
 
         d.komentari = az.komentari  #['']
@@ -703,7 +707,7 @@ class info:
         #if not fname.endswith( ext): fname += ext
         return save_if_diff( fname, r, naistina=naistina)
 
-    re_godina = re.compile( '[-._]\(?(\d{4})\)?$')
+    re_godina = re.compile( ' *[-._(]+?(\d{4})\)?$')
     def samopopylva_ot_fname( az):
         fn = basename( az.fname).lower()
         if not az.etiketi.zvuk:
@@ -730,7 +734,7 @@ class info:
         while 1:
             kk,ext = os.path.splitext( fname)
             if not ext or ext[1:] not in exts: break
-            fname =kk
+            fname = kk.rstrip( '.')
             if samo1: break
         return fname
 
@@ -743,58 +747,77 @@ class info:
             r.append( fname)
         return r
 
+    vse_file_prevodi     = dict_lower()  # { fname: ime/orig/grupa/fname }
     def prevedi_elementi( az):
-        r = {}
-        g = {}
+        r = az.file_prevodi = {}
         k = az.fname
+        k = globescape( k)
         for ext in az.exts:
             #така че АБ.В.Г минава преди АБ.В XXX по-дългите първи щото иначе а-б.avi не минава преди а.avi
             for f in reversed( sorted(
-                        glob.glob( k+'/*.'+ext)
-                        + glob.glob( k+'/*/*.'+ext)     #./grupa1/file1
-                    , key= lambda x: (len(x),x) )):
-                assert isinstance( f, unicode)
-                fpath,fname = os.path.split( f)
-                if fpath != k:
-                    if exists( join( fpath, OPIS)):
-                        continue
-                    fname = f[ len(k):].lstrip('/')
+                        glob( k+'/*.'+ext)
+                        + glob( k+'/*/*.'+ext)     #./grupa1/file1
+                        , key= lambda x: (len(x),x) )
+                    ):
+                az.prevedi_element( f )
 
-                if az.e_za_propuskane( dirname( fname) ):
-                    continue
-
-                mgodina = None
-                for aname in az.bez_ext1x1( fname):
-                    if aname in info.vse_prevodi:
-                        break
-                else:
-                    mgodina = info.re_godina.search( aname)
-                    if mgodina:
-                        mgodina = mgodina.group(1)
-                        aname = info.re_godina.sub( '', aname)
-                    if aname not in info.vse_prevodi:
-                        if az.options.podrobno: prn( '!!! няма превод:', f, aname)
-                        continue
-
-                prevod = az.prevod_po_shablon( aname)
-                if mgodina: prevod += '.'+mgodina
-
-                oname = join( k, aname)
-                lodir = len(k)+1
-                loname= len(oname)
-                assert isinstance( oname, unicode), repr(oname)
-                for s in sorted( glob.glob( oname+'*')):
-                    staro = s[ lodir:]
-                    #това се скапва за приказка с :автор
-                    novo  = prevod+ s[ loname:]
-                    assert isinstance( novo, unicode), repr(novo)
-                    if staro not in r:
-                        r[staro] = novo     #АБ.В.Г е вече там когато минава през АБ.В
-
-        az.file_prevodi = r
         if az.options.podrobno and r:
             prn( '---------file_prevodi-----')
             prn( '\n'.join( '%-50s = %s' % (k,v) for k,v in sorted( r.items())))
+
+
+    def prevedi_element( az, f ):
+        k = az.fname
+
+        assert isinstance( f, unicode)
+        fpath,fname = os.path.split( f)
+        if fpath != k:
+            if exists( join( fpath, OPIS)):
+                return
+            fname = f[ len(k):].lstrip('/')
+
+        if az.e_za_propuskane( dirname( fname) ):
+            return
+
+        mgodina = None
+        for aname in az.bez_ext1x1( fname):
+            if aname in info.vse_prevodi:
+                break
+        else:
+            mgodina = info.re_godina.search( aname)
+            if mgodina:
+                mgodina = mgodina.group(1)
+                aname = info.re_godina.sub( '', aname)
+            if aname not in info.vse_prevodi:
+                if az.etiketi.sfx and aname.endswith( az.etiketi.sfx):
+                    aname = aname[ :-len(az.etiketi.sfx)]
+                    if aname not in info.vse_prevodi:
+                        if az.options.podrobno: prn( '!!! няма превод:', f, aname)
+                        return
+
+        prevod = az.prevod_po_shablon( aname)
+        if mgodina: prevod += '.'+mgodina
+
+
+        oname = join( k, aname)
+        lodir = len(k)+1
+        loname= len(oname)
+        assert isinstance( oname, unicode), repr(oname)
+        for s in sorted( glob( globescape( oname)+'*')):
+            staro = s[ lodir:]
+            kk,ext = os.path.splitext( staro)
+            if fname.startswith( kk):
+                novo = prevod + ext
+            else:
+                #това се скапва за приказка с :автор
+                novo  = prevod+ s[ loname:]
+            assert isinstance( novo, unicode), repr(novo)
+            if staro == novo: novo = None
+            if staro not in az.file_prevodi:
+                az.file_prevodi[ staro ] = novo     #АБ.В.Г е вече там когато минава през АБ.В
+            if not az.vse_file_prevodi.get( staro) and novo:
+                az.vse_file_prevodi[ staro ] = novo
+
 
 
     @staticmethod
@@ -963,7 +986,7 @@ class info:
         spisyk = []
         for k,i in sorted( info.vse.items()):
             spisyk += [ (join( k,o), join( k,noslash(n, k,o)) )
-                        for o,n in i.file_prevodi.items() if o!=n ]
+                        for o,n in i.file_prevodi.items() if n ]
             #след вътрешностите
             fpath,fname = os.path.split( k)
             spisyk.append( (k, join( fpath, noslash( i.ime_po_shablon(), k) )))
@@ -1000,7 +1023,8 @@ class info:
             for n in elementi:
                 #if join( orig, n) in info.vse:
                 #    continue    #пропусни info-та
-                rimena[ n] = i.file_prevodi.get( n, n)
+                rimena[ n] = i.file_prevodi.get( n) or klas.vse_file_prevodi.get( n) or n
+
             return rnovo, rimena
 
         from shutil import Error

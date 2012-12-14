@@ -19,8 +19,8 @@ import sys,os
 from glob import glob
 from os.path import join, split, isdir, realpath, exists, lexists, basename
 from instr import meta_prevodi
-from util.lowercase import dict_lower
-from util import optz
+from svd_util.lowercase import dict_lower
+from svd_util import optz
 optz.help( '%prog [опции] папка-изход  папки-входящи..')
 optz.str( 'prevodi_meta',   help= 'файл-речник с преводи на понятия (lat=cyr) - хора..')
 optz,args = optz.get()

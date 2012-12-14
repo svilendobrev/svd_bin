@@ -13,6 +13,7 @@ table.test {
 *[title~="Chuno"] { display : none }
 *[title~="Fockers"] { display : none }
 *[title~="Season"] { display : none }
+*[title~="Slavi"] { display : none }
 *[title~="Футбол:"] { display : none }
 *#div1 { display : none }
 /***********/
