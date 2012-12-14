@@ -122,7 +122,7 @@ def test():
 
 
 if __name__ =='__main__':
-    import optz
+    from svd_util import optz
     optz.help( u'''
     %prog [options] <infile  >outfile
     %prog [options] думи за пренасяне ...
@@ -171,7 +171,7 @@ if __name__ =='__main__':
         import sys
         tt = sys.stdin
         if options.iguess:
-            import eutf
+            from svd_util import eutf
             tt = eutf.readlines(tt)
             def ienc(a): return a
 
