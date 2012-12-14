@@ -2,7 +2,7 @@
 #$Id: opera-adr-sort.py,v 1.2 2007-01-04 14:19:00 sdobrev Exp $
 # opera-adr-parser
 
-ATTRS = 'NAME URL UNIQUEID'.split()
+ATTRS = 'NAME URL UNIQUEID trash'.split()
 def escape( x):
     return x.replace( '\\', '\\\\'
             ).replace( "'", "\\'"
@@ -15,8 +15,8 @@ from util import lat2cyr
 l2c = lat2cyr.zvuchene.lat2cyr
 
 class Node:
-    def __init__(me, parent =None, NAME =None, URL =None, items =None, bgNAME =None, UNIQUEID =None):
-        me.parent= parent
+    def __init__( me, parent =None, NAME =None, URL =None, items =None, bgNAME =None, UNIQUEID =None, trash =False):
+        me.parent = parent
         if parent and not parent.trash: parent.items.append( me)
         if bgNAME: NAME = l2c( bgNAME)#.decode('utf8') )
         #elif NAME: NAME = NAME.decode('utf8')
@@ -24,9 +24,8 @@ class Node:
         me.URL = URL
         me.UNIQUEID = UNIQUEID
         me.items = items or []
+        me.trash = trash
         for i in me.items: i.parent = me
-
-    trash =False
 
     def empty( me): return not me.NAME and not me.URL
 
@@ -45,7 +44,7 @@ class Node:
         return r % me.__dict__
 
     class dumper:
-        indent=2
+        indent = 2
         def __init__( me, **kargs):
             me.__dict__.update( kargs)
         def enter( me, o, pfx):
@@ -64,13 +63,16 @@ class Node:
         dumper.leave( me, pfx)
 
     class pydumper( dumper):
-        indent=2
+        indent = 2
         def enter( d, me, pfx):
             if me.items: print()
             r = 'dict('
             for a in ATTRS:
                 v = getattr( me, a, None)
-                if v: r += " "+a+"= '"+ escape( v) +"',"
+                if v:
+                    if a == 'trash': v = 'True'
+                    else: v = "'"+ escape( v) +"'"
+                    r += ' {a}= {v},'.format( **locals())
             print( pfx + r, end=' ')
             if me.items: print( 'items=[')
         def leave( d, me, pfx):
@@ -81,26 +83,31 @@ class Node:
         return me.dump( dumper= me.pydumper() )
 
     class operadumper( dumper):
-        indent=4
-        align= False
+        indent  = 4
+        align   = False
+        notrash = False
         def enter( d, me, pfx):
-            if me.NAME =='Trash': return
+            if me.trash and d.notrash: return
             r = []
-            if me.items:
-                if me.parent:
-                    r += ['#FOLDER']
-            else: r += ['#URL']
+            if me.URL:
+                r += ['#URL']
+            elif me.parent:
+                r += ['#FOLDER']
             subpfx = (d.align and d.indent or 1 ) * ' '
             for a in ATTRS:
-                v = getattr( me, a)
-                if v: r.append( subpfx+a+'='+ v)
+                v = getattr( me, a, None)
+                if v:
+                    if a == 'trash': a,v = 'TRASH FOLDER','YES'
+                    r.append( subpfx+a+'='+ v)
+            #    r += [ subpfx+'TRASH FOLDER=YES', subpfx+'DELETABLE=NO' ]
             for p in r: print( pfx + p)
         def leave( d, me, pfx):
-            if me.trash: return
+            if me.trash and d.notrash: return
             subpfx = (d.align and d.indent or 0 ) * ' '
-            if me.items and me.parent: print( pfx+subpfx+'-')
+            if not me.URL and me.parent:
+                print( pfx+subpfx+'-')
 
-    def opera( me, align=False):
+    def opera( me, align =False, notrash =False):
         print( '''\
 Opera Hotlist version 2.0
 Options: encoding = utf8, version=3
@@ -173,8 +180,12 @@ optz.bool( 'o2py' )
 optz.bool( 'py2o' )
 optz.bool( 'align' )
 optz.bool( 'o2flat' )
+optz.bool( 'nounique', help= 'ignore UNIQUEID' )
+optz.bool( 'notrash',  help= 'ignore trash' )
 options,args = optz.get()
 
+if options.nounique:
+    ATTRS.remove( 'UNIQUEID')
 #from util.eutf import readlines
 
 #inp = codecs.getreader('utf-8')
@@ -185,8 +196,8 @@ for a in args:
     if options.py2o:
         root = eval( r, dict(dict=Node) )
         #o.dump()
-        root.sort( key=key4tree)
-        root.opera( align=options.align)
+        root.sort( key= key4tree)
+        root.opera( align= options.align, notrash= options.notrash )
         continue
 
     root = parse( r)

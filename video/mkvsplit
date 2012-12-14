@@ -1,0 +1,2 @@
+#!/bin/sh
+mkvmerge "$1" -o "mm.$1" --split timecodes:$2

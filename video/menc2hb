@@ -2,6 +2,7 @@
 if test -z "$NOTITLE"; then 
 if test -z "$TITLE"; then WHAT="--main-feature"; else WHAT="-t $TITLE" ; fi
 fi
+oAUDIO="--aencoder copy  --audio-copy-mask aac,ac3,mp3  --audio-fallback ffac3"
 oVIDEO="--vfr"
 #oQUALITY="-vb 2000"
 oQUALITY="-q ${QUALITY:-20}"
@@ -14,6 +15,8 @@ case "x$O" in
  x-*|x) O="$I" ;; 
  x*) shift ;;
 esac 
-O="$O.$TITLE"
-echo -- args: -e x264 -2 -T $oVIDEO $oQUALITY $oSIZE $oLANG $WHAT -i "$I" -o "$O.mkv" "$@"
-$E handbrake-cli -e x264 -2 -T $oVIDEO $oQUALITY $oSIZE $oLANG $WHAT -i "$I" -o "$O.mkv" "$@"
+xSIZE=`perl -e '$_=$ENV{oSIZE}; s/[ -]//g; print'`
+O="$O.$TITLE.$xSIZE".mkv
+       
+echo    -- args: -e x264 -2 -T $oVIDEO $oAUDIO $oQUALITY $oSIZE $oLANG $WHAT -i "$I" -o "$O" "$@"
+$E handbrake-cli -e x264 -2 -T $oVIDEO $oAUDIO $oQUALITY $oSIZE $oLANG $WHAT -i "$I" -o "$O" "$@"

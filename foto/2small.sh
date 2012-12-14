@@ -14,6 +14,8 @@ mkdir -p $_SCALE
 test "$_SCALE" = "1" && __SCALE= || __SCALE="-scale 1/$_SCALE"
 for a in "$@"; do
  echo ==="$a"
+ mkdir -p $_SCALE/"$a"
+ rmdir $_SCALE/"$a"
  djpeg $__SCALE "$a" | cjpeg -q ${Q:-90} -progressive -optimize >$_SCALE/"$a"
  jhead -te "$a" -dt $_SCALE/"$a"
  test -n "$AUTOROT" && jhead -autorot $_SCALE/"$a"

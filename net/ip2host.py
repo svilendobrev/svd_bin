@@ -9,7 +9,7 @@ optz.any( 'prefix', help= 'extra prefix on each line')
 optz.bool( 'ipprefix', help= 'put i.p.= as prefix on each line')
 optz.int( 'timeout', help= 'timeout in seconds [%default]', default=5)
 optz.bool( 'merge_caches', help= 'merge all given arguments as caches', )
-optz.int( 'parallel', default=3, help= 'how many DNS queries at same time', )
+optz.int( 'parallel', default=7, help= 'how many DNS queries at same time', )
 optz,args = optz.get()
 
 db= anydbm.open( optz.cache, 'c')
@@ -20,7 +20,7 @@ if optz.merge_caches:
     raise SystemExit
 
 timeout = optz.timeout
-if hasattr(socket, 'setdefaulttimeout'):
+if hasattr( socket, 'setdefaulttimeout'):
     socket.setdefaulttimeout( timeout)
 
 cache = {}  # loaded at start, saved at end
@@ -57,12 +57,18 @@ for a in sys.stdin:
         cache.update( db.iteritems() )
         db.close()
 
-print >>sys.stderr, 'misses:', len(cmiss), ' totals:', totals
+print >>sys.stderr, 'misses:', len(cmiss), ' totals:', totals, optz.prefix
 
+n=0
 for ip,host,r in rr:
     if not isinstance( host, str):
-        host = host.get()
-        cmiss[ip] = host
+        h = cmiss[ip]
+        if isinstance( h, str): host = h
+        else:
+            host = host.get()
+            cmiss[ip] = host
+            n+=1
+            if not (((100*n)//len(cmiss)) % 10): print >>sys.stderr, n, optz.prefix
     r = host + ' ' + r
     if optz.ipprefix: r = ip + '= ' + r
     if optz.prefix: r = optz.prefix + r

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 import sys
 import re
@@ -83,7 +83,7 @@ else:
             d[k] = v
 
     if not with_crypt:
-        all = [ d for d in all if not d['crypto'] ]
+        all = [ d for d in all if not d['crypto'] and d.get('essid') ]
 
     all.sort( key= lambda d: (d['quality'],d['essid']) )
     all.reverse()
@@ -114,7 +114,7 @@ wpa_conf  = '/etc/wpa_supplicant.conf'
 wpa_stuff = '''
     up wpa_supplicant -B -Dwext -i$IFACE -c %(wpa_conf)s
     up wpa_cli reassociate
-''' % locals()
+'''
 
 adict = dict( (a['essid'], a) for a in all)
 
@@ -149,7 +149,15 @@ if o_menu and all:
         a = adict[essid]
         if a['crypto']:
             #wpa_conf = wpa_conf % locals()
-            assert essid in file( wpa_conf).read(), 'no network %(essid)s in file %(wpa_conf)s; use wpa_passphrase to make it' % locals()
+            for wpa_conf in wpa_conf, wpa_conf.replace( 'etc/', 'etc/wpa_supplicant/'):
+                try:
+                    ww = file( wpa_conf).read(), 'no network %(essid)s in file %(wpa_conf)s; use wpa_passphrase to make it' % locals()
+                except: pass
+                else:
+                    break
+            else:
+                assert 0, 'no file %(wpa_conf)s in /etc or /etc/wpa_supplicant/; use wpa_passphrase to make it' % locals()
+            assert essid in ww, 'no network %(essid)s in file %(wpa_conf)s; use wpa_passphrase to make it' % locals()
             wpa_stuff = wpa_stuff % locals()
             print wpa_stuff
         else: wpa_stuff = ''

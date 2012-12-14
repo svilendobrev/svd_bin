@@ -1,25 +1,33 @@
 #!/usr/bin/env python
-#$Id: encodec.py,v 1.3 2007-03-28 07:19:29 sdobrev Exp $
+#sdobrev 2007-
+
+from svd_util import optz
+optz.help( '''use as filter: enc2enc [options] input_encoding output_encoding <input >output
+    use utf2 as special input_encoding to double decode utf8
+''' )
+optz.bool( 'reverse')
+optz, argz = optz.get()
 
 import codecs
 import sys
-if len(sys.argv)<3:
-    print 'use as filter: enc2enc [-]input-encoding [-]output-encoding <input >output'
-    print '  the -enconding will reverse text'
-    raise SystemExit
-e_from = sys.argv[1]
-e_to = sys.argv[2]
-reverse = False
-if e_from[0]=='-':
-    e_from = e_from[1:]
-    reverse = not reverse
-if e_to[0]=='-':
-    e_to= e_to[1:]
-    reverse = not reverse
+import os
+
+e_from = argz[0]
+e_to = argz[1]
+
+utf2 = e_from == 'utf2'
+if utf2: e_from = 'utf8'
+
 fi = codecs.getreader( e_from)( sys.stdin, errors='replace')
+
+if utf2:
+    from unutf2 import unutf2
+    fi = [ unutf2( l, decode= False) for l in fi ]
+
 fo = codecs.getwriter( e_to)( sys.stdout, errors='replace')
+
 for l in fi:
-    if reverse:
+    if optz.reverse:
         a = list(l)
         a.reverse()
         l = ''.join(a)
