@@ -22,4 +22,4 @@ export LANG=bg_BG.UTF-8
 umask 002
 export TZ=Europe/Sofia
 #big ext screen:
-export XTERMFONTSIZE=18
+export XTERMFONTSIZE=16

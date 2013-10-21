@@ -22,7 +22,7 @@ dir/        -> dir/(.*).mp3->dir/the-single.mp3
 '''
 ext_equivs = 'mp3 wma ogg'.split()
 import sys
-from util import optz
+from svd_util import optz
 optz.text( 'base', help= 'base url')
 optz.text( 'path', help= 'base filepath')
 #optz.text( 'root', help=' root filepath, so root+ /base-url is valid filepath')

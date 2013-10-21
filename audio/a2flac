@@ -1,0 +1,6 @@
+#!/bin/sh
+_PFX=${PFX:-../oplochi}
+for a in $@; do 
+ mkdir -p $_PFX/$a
+ flac --output-prefix=$_PFX/ $a/*wav
+done

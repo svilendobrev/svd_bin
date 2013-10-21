@@ -1,0 +1,72 @@
+#!/usr/bin/python
+#$Id$
+
+usage = '''vfu's zip-reader/svd2009. usage:
+   rx_* l archive directory   # list archive directory
+   rx_* v archive             # list entire archive
+   rx_* x archive             # extract all
+   rx_* x archive [files...]  # extract files
+   rx_* x archive @listfile   # extract list of files
+'''
+
+#common
+import sys, os
+if len(sys.argv) < 3: raise SystemExit, usage+':1'
+cmd = sys.argv[1]
+archive = sys.argv[2]
+rest = sys.argv[3:] or None
+if cmd in ['x']:
+    #if not rest: raise SystemExit, usage+':2'
+    if rest and rest[0].startswith('@'):
+        rest = file( rest[0][1:]).read().readlines()
+elif cmd not in [ 'v', 'l']:
+    raise SystemExit, usage+':3'
+
+import zipfile
+z = zipfile.ZipFile( archive)
+result = []
+if cmd == 'l':
+    rlevels = rest and os.path.normpath( rest[0] ).split( os.sep) or []     #common?
+    depth = len( rlevels)
+    roots = []
+    for i in z.infolist():
+        levels = os.path.normpath( i.filename).split( os.sep)
+        if len( levels) <= depth: continue #itself or not at all matching
+        if levels[ :depth] != rlevels: continue #not matching
+        name = levels[ depth ]
+        if name in roots: continue     #already there
+        roots.append( name)
+
+        if (len(levels) > 1+depth or
+            len(levels) == 1+depth and i.filename.endswith( os.sep)
+            ): name += os.sep
+        result.append( (name,i) )
+
+elif cmd =='v':
+    for i in z.infolist():
+        result.append( (i.filename,i) )
+
+if cmd in 'lv':
+    for name,i in result:
+        year,month,day,h,m,s = i.date_time
+        time = '%(year)04d %(day)02d %(month)02d %(h)02d %(m)02d'.replace(' ','') % locals()
+        size = i.file_size
+        print 0*name or '''\
+NAME:%(name)s
+SIZE:%(size)s
+TIME:%(time)s
+''' % locals()
+
+else:   #'x'
+    if rest is None: rest = (i.filename for i in z.infolist())
+    for name in rest:
+        fpath,fname = os.path.split( name )
+        if fpath and not os.path.isdir( fpath): os.makedirs( fpath)
+
+        #file( '/tmp/xxx', 'w').write( '\n'.join( [name, os.getcwd()] ) )
+
+        o = file( name, 'w')
+        o.write( z.read( name) )
+        o.close()
+
+# vim:ts=4:sw=4:expandtab:ft=python

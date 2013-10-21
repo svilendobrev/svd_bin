@@ -1,6 +1,6 @@
 #!/bin/sh
-mkdir rot
+mkdir -p rot
 for a in "$@"; do
- x=`jhead $a | g Orientation`
+ x=`jhead $a | grep Orientation`
  [ -n "$x" ] && jpegtran -rotate `echo $x | sed s/.*tate//` $a >rot/$a
 done

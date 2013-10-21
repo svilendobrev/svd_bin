@@ -6,13 +6,16 @@
    и за всяко предаване прави ред в /etc/cron.d/radiorec
 2. /etc/cron.d/radiorec: съдържа редове пускащи radiorec в съответното време
 '''
-from util.struct import DictAttr
+import pprint
+from svd_util.struct import DictAttr, attr2item
+from svd_util.osextra import makedirs#, save_if_diff
 da = DictAttr
 
 bnr_kanali = da(
     hristobotev = da(
         weekly  = 'http://bnr.bg/sites/hristobotev/Pages/ProgramScheme.aspx',
         daily   = 'http://bnr.bg/sites/hristobotev/Daily/Pages/{yymmdd}.aspx',
+        daily1  = 'http://bnr.bg/sites/hristobotev/Daily/Pages/{yymmdd}_1.aspx',
         daily2  = 'http://bnr.bg/sites/hristobotev/Daily/Pages/{yymmdd}_izbrano.aspx',
         stream  = 'http://streaming.bnr.bg/HristoBotev',
         abbr = 'hb',
@@ -47,7 +50,7 @@ for k in list( bnr_kanali.values()):
 
 kanal_default = bnr_kanali.hristobotev
 
-from util.txt import strip, slim
+from svd_util.txt import strip, slim
 
 #Радиотеатър
 #Златния фонд
@@ -64,13 +67,25 @@ INTITLES = strip('''
 колекция
 приказк
 документа
+Хумор и сатира
+комика
+смешните
 ''').lower().split('\n')
+
+NOTINTITLES = strip( '''
+История на изкуството
+Музикални пътешествия
+''').lower().split('\n')
+
 
 def title_match( title):
     if not title: return False
     title = title.lower().replace('  ',' ')
     for f in INTITLES:
-        if f in title: return True
+        if f in title:
+            for n in NOTINTITLES:
+                if n in title: break
+            else: return True
 
 def time4str( t): #hh:mm or hh.mm ...
     x = re.split( '(\d+)', t)
@@ -82,8 +97,8 @@ STREAM   = kanal_default.stream
 
 
 import sys
-from util.html_visitor import visit
-from util.py3 import dictOrder
+from svd_util.html_visitor import visit
+from svd_util.py3 import dictOrder
 import re
 import datetime
 
@@ -179,7 +194,7 @@ class bnr_weekly:
 
         return items
 
-from util import html_visitor
+from svd_util import html_visitor
 #html_visitor.dbg=1
 import urllib
 import traceback
@@ -269,10 +284,10 @@ class bnr_daily:
         <br>
         \s*
         (?P<text>.*)
-        ''', re.X|re.DOTALL)
+        ''', re.X|re.DOTALL) #(<br>)?
     @classmethod
     def get( me, kanal, o, today):
-        for url in [ kanal.get('daily'), kanal.get('daily2'), ]:
+        for url in [ kanal.get('daily'), kanal.get('daily1'), kanal.get('daily2'), ]:
             if not url: continue
             yymmdd = today.strftime( '%y%m%d' )
             url = url.format( **locals() )
@@ -289,15 +304,19 @@ class bnr_daily:
                 continue
 
             whole = me.today_whole.pop()
-            tds = re.split( '([оo][тt] *\d+([.:]\d+)? *[дd][оo] *\d+([.:]\d+)? *часа)', whole, flags= re.IGNORECASE )
-            print( '#...', len(tds), len(me.today_items) -m, file= sys.stderr)
-            #print( '#...', tds, file= sys.stderr)
-            allitems = [ (tds[ i], tds[i+3])
-                        for i in range( 1,len( tds),4) ]
+            whole = whole .replace( '\u2013','-'     #-
+                    )
+
+            tds = re.split( '([оo][тt] *\d+([.:]\d+)? *-? *([дd][оo]|-) *\d+([.:]\d+)? *часа)', whole, flags= re.IGNORECASE )
+            #print( '#...', len(tds), len(me.today_items) -m, file= sys.stderr)
+            #print( '##...', tds, file= sys.stderr)
+            allitems = [ (tds[ i], tds[i+3+1])
+                        for i in range( 1,len( tds),4+1) ]
 
             for times,data in allitems:
                 times = re.split( '(\d+(.\d+)?)', times)
                 m = me.re_titles.search( data)
+                #print( 3333333, times, data, m.groups())
                 title= m and m.group( 'title') or ''
                 text = m and m.group( 'text') or ''
                 me.today_items.append( da( bnr_daily.anitem,
@@ -309,22 +328,137 @@ class bnr_daily:
             return indata
 
     @classmethod
-    def filter( me, today, nofilter =False):
+    def filter( me, nofilter =False):
         items = dictOrder()
         for i in me.today_items:
             if not nofilter:
                 if not title_match( i.title): continue
-            key = i.channel, today, i.time
-            items[ key ] = da( i, today= today, stream= i.stream, channel= i.channel )
+            key = i.channel, i.today, i.time
+            items[ key ] = da( i, stream= i.stream, channel= i.channel )    #today= today,
         return items
 
 
+import os, glob
+import rec2dir
+from svd_util.yamls import usability
+l2c = rec2dir.lat2cyr.zvuchene.lat2cyr
+import difflib
+
+def junk( x): return not x.isalpha()
+if 0:
+    def tyrsi_podobni( ime, nalichni, dai_ime =lambda x: x, min_ratio =0.7, quick =0):
+        s = difflib.SequenceMatcher( junk )
+        if not quick:  ratio = s.ratio
+        elif quick==2: ratio = s.real_quick_ratio
+        else:          ratio = s.quick_ratio
+
+        s.set_seq2( ime.lower() )
+        podobni = [ (not s.set_seq1( dai_ime( i).lower()) and 1-ratio(), i )
+            for i in nalichni
+            ]
+        podobni.sort()
+        min_ratio1 = 1-min_ratio
+        return [ (r,i) for r,i in podobni if r <= min_ratio1 ]
+
+    def nalichni_imena( o):
+        if not o.nalichni_opisi: return
+        nalichni_imena = [] #ime,dir,file
+        for fn in glob.glob( o.nalichni_opisi):
+            try:
+                with open( fn) as f:
+                    opis = dict( usability.load( f ) )
+                    ime = opis.get( 'име')
+                    ime = ime and str(ime)
+                    if not ime or not ime.strip('?'):
+                        ime = l2c( os.path.basename( fn))
+                    nalichni_imena.append( (ime, fn))
+                    parcheta = opis.get( 'парчета')
+                    if not parcheta: continue
+                    for fnp,p in parcheta.items():
+                        if isinstance( p, str): ime = p
+                        else: ime = p.get( 'име')
+                        ime = ime and str(ime)
+                        ime = ime or l2c( fnp)
+                        nalichni_imena.append( (ime, fn, fnp) )
+            except IOError: pass
+            except Exception:
+                print( fn)
+                raise
+        print( '#налични описи:', len( nalichni_imena))
+        def dai_ime_nalichno( x): return x[0]
+        def tyrsach( ime):
+            return tyrsi_podobni( ime, nalichni_imena, dai_ime_nalichno,
+                    min_ratio= 0.7 )
+        o.tyrsach = tyrsach
+        return tyrsach
+else:
+    def tyrsi_podobni( ime, nalichni, min_ratio =0.7):
+        podobni = [ (not s.set_seq1( ime.lower()) and 1-s._ratio(), s._item )
+            for s in nalichni
+            ]
+        podobni.sort()
+        min_ratio1 = 1-min_ratio
+        return [ (r,i) for r,i in podobni if r <= min_ratio1 ]
+
+    def nalichni_imena( o, quick =0):
+        if not o.nalichni_opisi: return
+        nalichni_imena = [] #s(ime).(ime,dir,file)
+        def dobavi( x):
+            s = difflib.SequenceMatcher( junk )
+            if not quick:  ratio = s.ratio
+            elif quick==2: ratio = s.real_quick_ratio
+            else:          ratio = s.quick_ratio
+            s._ratio = ratio
+            s._item = x
+            s.set_seq2( x[0].lower() )
+            nalichni_imena.append( s)
+
+        def kym_imeto( opis):
+            avtor = opis.get( 'автор')
+            if avtor:
+                if isinstance( avtor, (list,tuple)): avtor = ' '.join( avtor)
+                avtor = avtor.strip()
+            return avtor and ' : '+avtor or ''
+        for fn in glob.glob( o.nalichni_opisi):
+            try:
+                with open( fn) as f:
+                    opis = dict( usability.load( f ) )
+                    ime = opis.get( 'име')
+                    ime = ime and str(ime).strip()
+                    if not ime or not ime.strip('?'):
+                        ime = l2c( os.path.basename( fn))
+                    avtor = kym_imeto( opis)
+                    ime += avtor
+                    dobavi( (ime, fn))
+                    parcheta = opis.get( 'парчета')
+                    if not parcheta: continue
+                    for fnp,p in parcheta.items():
+                        if isinstance( p, str): ime = p
+                        else:
+                            ime = p.get( 'име')
+                            avtor = kym_imeto( p) or avtor
+                        ime = ime and str(ime).strip()
+                        ime = ime or l2c( fnp)
+                        ime += avtor
+                        dobavi( (ime, fn, fnp) )
+            except IOError: pass
+            except Exception:
+                print( fn)
+                raise
+        print( '#налични описи:', len( nalichni_imena))
+        def tyrsach( ime):
+            return tyrsi_podobni( ime, nalichni_imena,
+                    min_ratio= 0.7 )
+        o.tyrsach = tyrsach
+        return tyrsach
 
 def cron( items, o ):
     '''
 cron/crontab plain:  # m h dom mon dow  command
 cron.d/crontab direct: # m h dom mon dow (user) command
 '''
+    tyrsach = nalichni_imena( o)
+
     for x in sorted( items, key= lambda a: (a.today,a.time) ):
         h,m = x.time
 
@@ -346,42 +480,245 @@ cron.d/crontab direct: # m h dom mon dow (user) command
         if channel in bnr_kanali:
             channel = bnr_kanali[ channel ].abbr
 
-        fname = str( channel)
-        if not o.cron_fname_notime:
-            fname += '-{t.month:02d}{t.day:02d}-{t.hour:02d}{t.minute:02d}'.format( **locals())
-        if x.get('title'): fname += '+'+x.title
-        if x.get('text'): fname += '+'+x.text
 
-        #rI = '\u0406'   #І
-        #p = ' част'
-        fname = fname.replace('"',''
-                    ).replace("'",''
-                    ).replace('(','['   #sh
-                    ).replace(')',']'   #sh
-                    ).replace(':',''    #mplayer
-                    ).replace(',',''    #mplayer
+        fname = str( channel)
+        fname_kanal = fname
+        dati = '-{t.month:02d}{t.day:02d}-{t.hour:02d}{t.minute:02d}'.format( **locals())
+        if not o.cron_fname_notime: fname += dati
+        fname_kanal_vreme = fname + dati
+
+        if x.get('title'): fname += '+'+x.title
+        if x.get('text'):
+            DOT = '\u2022' #'•'
+            tx = x.text.replace('Предаването', 'Пр.'
+                      ).replace('посветено', 'посв.'
+                      ).replace('годишнина', 'год.'
+                      ).replace('години', 'г.'
+                      ).replace( DOT,'-'
+                      )
+            fname += '+'+tx
+            x.text = x.text.replace( DOT, '\n--')
+
+        def sykr( x):
+            x = re.sub( rec2dir.requo, '', x.strip()
+                    ).replace( '\u2013','-'     #-
+                    ).replace( '\u0406','I'     #І
+                    #).replace( '\u0425','X' cyrХ latX ?
+                    ).replace( 'x','х'
+                    ).replace('  ',' '
+                    ).replace(' -','-'
+                    ).replace('- ','-'
+                    ##).replace('  ',' '
+                    ).replace(' ','_'
+                    ).replace('__','_'
+                    #).replace('„',''
+                    #).replace('”',''
+                    ).replace('Документално_студио','Док.ст.'
+                    ).replace('Радиоколекция',      'Ркц'
+                    #).replace('„Радиотеатър”',      'Рт'
+                    ).replace('Радиотеатър',        'Рт'
+                    ).replace('Време_за_приказка',  'ВзаП'
+                    ).replace('Ваканционна_програма',   'Вкц'
+                    ).replace('Избрано_от_',        '' #Избр.'
+                    ).replace('_на_БНР',''
+                    ).replace('Запазена_марка',''
+                    ).replace('фонда_на_редакция',''
+                    ).replace('Семейно_радио', '' #Сем
+                    ).replace('Съвременна',     'Съвр.'
+                    ).replace('Драматургични',  'драм.'
+                    ).replace('драматургия',    'драм.'
+                    ).replace('Незабравими_български_спектакли_във_фонда', 'бълг.др.'
+                    ).replace('българска',  'бълг.'
+                    ).replace('български',  'бълг.'
+                    )
+            x = re.sub( rec2dir.rlatcyr( '([Дд])окументал(ен|н(а|о|и))'), r'\1ок.', x)
+            x = re.sub( rec2dir.rezlf, rec2dir.zlf, x)
+            x = re.sub( rec2dir.reakm, rec2dir.akomika, x)
+            x = re.sub( rec2dir.rehs, rec2dir.hs, x)
+            x = x.strip( rec2dir.rend+':')
+            return x
+
+        dosave = 10#True
+        danni = DictAttr(
+            rubrika = x.get('title') or '',
+            data = '{t.year:04d}{t.month:02d}{t.day:02d}'.format( **locals()),
+            opisanie = x.get('text') or '',
+        )
+        danni.opisanie = '\n'.join( d.strip() for d in danni.opisanie.split('\n') if d.strip())
+        danni.rubrika_kysa = sykr( danni.rubrika)
+        z = danni.razglobeno = rec2dir.razglobi_imena(
+            imena= danni.opisanie.replace(' ','_'),
+            rubrika= danni.rubrika,
+            #rubrika_kysa = danni.rubrika_kysa,
+            data = danni.data,
+            dirname = None
+        )
+        z = attr2item( z, default='')
+
+        op = danni.opisanie.lower()
+
+        opis = dictOrder()
+        s = attr2item( opis)
+        s.име = z.ime or '??'
+        s.автор     = z.avtori_plus
+        s.откъде    = [ danni.rubrika_kysa, danni.data ]
+        s.издание   = 'радио'
+        s.етикети   = [ z.zagolemi, z.dok,
+                            'радиоколекция' in z.rubrika.lower() and 'стихове' not in op and 'прочит',
+                            'стихове' in op and 'стихове',
+                            ]
+        s.година    = z.godina
+        s['#част']  = z.nomer
+        s['#продължителност'] = sizemins and sizemins*60
+        s.вид       = [ k for k in 'разказ стихове'.split() if k in op]
+        s.описание  = (z.opisanie or '').replace('_', ' ')
+        s['#автори_отделни'] = z.avtori
+        if danni.opisanie != s.описание:
+            s.ориг_описание = danni.opisanie
+        s.ориг_рубрика  = danni.rubrika
+        #s.dirname = z.dirname
+
+        if tyrsach and not z.bez_ime and z.ime:
+            ime = z.ime
+            if z.avtori_plus: ime += ' : '+z.avtori_plus
+            s['#подобни'] = '\n# '.join( ['']+[str(t) for t in tyrsach( ime )])
+
+        for k,v in list( opis.items()):
+            if isinstance( v, (tuple,list)):
+                v = ' '.join( str(x) for x in v if x )
+            if not v: del opis[k]
+            else:
+                if isinstance( v,str) and v.isdigit(): v = int(v)
+                opis[ k ] = v
+
+        #pprint( danni)
+        #pprint( opis)
+
+        def filtr( fname ):
+            return ((fname
+                    ).replace( '._', '.'
+                    ).replace( '__', '_'
+                    ).replace( '+_', '+'
+                    ).replace( '_+', '+'
+
+                    ).replace( '"',  ''
+                    ).replace( "'",  ''
+                    ).replace( '(',  '['   #sh
+                    ).replace( ')',  ']'   #sh
+                    ).replace( ':',  ''    #mplayer,make
+                    ).replace( ',',  ''    #mplayer
                     #).replace( rI+'V'+p, '.4'
                     #).replace( 'V'+p,    '.5'
                     #).replace( 3*rI+p,'.3'
                     #).replace( 2*rI+p,'.2'
                     #).replace( 1*rI+p,'.2'
                     ##).replace( '\xA0',' '
-                    ).replace( '\u2013','-'     #-
-                    ).replace( '\u0406','I'     #І
-                    #).replace( '\u0425','X' cyrХ latX ?
-                    ).replace(' - ','-'
-                    ##).replace('  ',' '
-                    ).replace('  ',' '
-                    ).replace(' ','_'
-                    )
-        fname = fname[:100]
+                    ))
+        if 0:
+            fname = filtr( fname)
+            fname = sykr( fname
+                        #).replace('Избрано_от_Златния_фонд', rec2dir.zlf
+                        #).replace('Избрано_от_фонда_на_редакция_„Хумор_и_сатира”', 'Избр.ХиС'
+                        ).replace('Незабравими_бълг._спектакли_във_фонда', 'бълг.др.'
+                        )
+            fname2 = fname[80:]
+            fname = fname[:80]
+            if o.save_text:
+                tx = x.get('text') or ''
+                if len(tx) > 50 or fname2 or dosave:
+                    with fopen( fname+ (dati not in fname and dati or '') +'.text') as f:
+                        if x.get('title'): print( '#'+x.title, file=f)
+                        print( tx, file=f)
+                        if dosave: pprint( opis, stream=f) #file=f
+                        #if dosave: pprint( danni, stream=f) #file=f
+
+        dirname = fname_kanal+'/'+fname_kanal_vreme
+        makedirs( dirname)
+        #ldirname = '--'.join( n for n in [z.get(k) for k in 'ime avtor_dylyg'.split()] if n.strip() )
+        ldirname = z.get( 'dirname_cyr','').rsplit('--радио')[0]
+        if ldirname in ('радио', danni.rubrika_kysa, danni.rubrika, danni.rubrika.replace(' ','_'), z.get('rubrika_') ):
+            ldirname = ''
+        ldirname = fname_kanal_vreme + '+' + (danni.rubrika_kysa or x.get('ime') or '') + bool( ldirname)*'+' + ldirname[:60]
+
+        for d in glob.glob( fname_kanal_vreme+'*'):
+            try: os.remove( d)
+            except: pass
+        try:
+            os.symlink( dirname, ldirname)
+        except: pass
+
+        fname = dirname + '/' + (z.dirname or fname_kanal)[:60]
+        fname = filtr( sykr( fname))
+        usability.Dumper.force_block = '>'
+        usability.Dumper.shorten_width = 15
+        komentari = [ (k + ': ' +str(opis.pop(k))) for k in list( opis.keys()) if k[0]=='#' ]
+        VIMtail = '# v' + 'im:ts=4:sw=4:expandtab:ft=yaml' #separated!
+        r = usability.dump( opis)
+        r += '\n'+'\n'.join( komentari)
+        r += '''
+
+срез:
+участници:
+ редактор:
+ превод:
+ драматизация:
+ адаптация:
+ изпълнение:
+ музика:
+ зв.реж:
+ зв.оп:
+ зв.оформ:
+ муз.оформ:
+ запис:
+ режисьор:
+съдържание:
+
+''' + 0*'''
+#излишните полета може да се оставят празни или да се изтрият
+#срез:
+# 12:34.5 - 890.7
+#или
+# 722 -
+# - 900.2
+#или
+# име.на.парче1
+# от-до
+# име.на.парче2
+# от-до
+# ...
+
+''' + VIMtail
+        fopis0 = os.path.join( dirname, 'opis')
+        fopis = fopis0 + '1'
+        while os.path.exists( fopis):
+            ro = open( fopis).read()
+            if ro == r: break
+            fopis += '1'
+        else:
+            with fopen( fopis) as f:
+                f.write( r)
+
+        #opis = link( opis1)
+        if os.path.exists( fopis0):
+            s = os.stat( fopis0)
+            if s.st_nlink >1:
+                os.remove( fopis0)
+            else:
+                f0 = fopis0
+                while os.path.exists( f0):
+                    f0 += '0'
+                os.rename( fopis0, f0)
+        os.link( fopis, fopis0)
 
         if o.cron_earlier_minutes:
             t -= datetime.timedelta( minutes= o.cron_earlier_minutes)
 
         if sizemins:
+            if o.cron_later_percent:
+                sizemins += (sizemins * o.cron_later_percent) // 100
             if o.cron_earlier_minutes: sizemins += o.cron_earlier_minutes
-            if o.cron_later_minutes: sizemins += o.cron_later_minutes
+            if o.cron_later_minutes:
+                sizemins += o.cron_later_minutes
 
         print( t.minute, t.hour, t.day, t.month, '*',
                 o.cron_user or '',
@@ -393,7 +730,7 @@ cron.d/crontab direct: # m h dom mon dow (user) command
 
 if __name__ == '__main__':
 
-    from util import optz
+    from svd_util import optz
     optz.bool( 'html_strict',   help= 'хтмл-парсер: стриктен' )
     optz.bool( 'html_notfixed', help= 'хтмл-парсер: непоправен оригинален' )
     optz.text( 'ienc',          help= 'входно кодиране [автоматично]' )
@@ -404,9 +741,10 @@ if __name__ == '__main__':
     optz.bool( 'cron_fname_notime',     help= 'без дата/час в резултатното име' )
     optz.int(  'cron_earlier_minutes',  help= 'пуска толкова минути по-рано')
     optz.int(  'cron_later_minutes',    help= 'спира толкова минути по-късно')
+    optz.int(  'cron_later_percent',    help= 'спира толкова процента по-късно')
     optz.bool( 'nofilter',      help= 'всичко, без филтри' )
     optz.int(  'days',          help= 'филтър толкова дни от днес [%default]', default=1 )
-    optz.append( 'force',       help= 'включва на запис, формат: канал-чч:мм-чч:мм', )
+    optz.append( 'force',       help= 'включва на запис, формат: канал-чч:мм-чч:мм[-име] но може без име', )
 #   optz.bool( 'preferdaily',   help= 'при наличие на дневна и всичко, без филтри' )
 
     choices= list( bnr_kanali.keys())
@@ -416,15 +754,27 @@ if __name__ == '__main__':
     optz.append( 'weekly',  help= 'входно седмично разписание: URL или файл; може няколко пъти' )
     optz.append( 'daily',   help= 'входно дневно разписание: URL или файл; може няколко пъти' )
     optz.append( 'stream',  help= 'източник за запис; може няколко пъти - към всяко разписание' )
+    optz.append( 'filter',  help= 'допълнителен филтър съдържа-се-в-заглавието; може няколко' )
     optz.text(   'save_plan',  help= 'запис на резултатния списък в ТОВА.datetime' )
     optz.text(   'save_input', help= 'запис на входящите данни в ТОВА.wd.kanal.datetime' )
+    optz.bool(   'save_text',  help= 'запис на текста отделно ако не се събира в името в име.text' )
     optz.bool(   'yesterday',  help= 'днеска е вчера' )
+    optz.bool(   'today_daily',  help= 'извлича датата от името на файла с дневното разписание' )
+    optz.str(    'nalichni_opisi',  help= 'файлов-шаблон за достъп до наличните описи' )
     o,args = optz.get()
 
     if o.oenc:
-        from util.eutf import fix_std_encoding, filew
+        from svd_util.eutf import fix_std_encoding, filew
         fix_std_encoding( ENC= o.oenc)
         #print( '#', sys.stdout.encoding)
+
+    def fopen( fn):
+        if o.oenc: f = filew( o.oenc, fn)
+        else: f = open( fn, 'w')
+        return f
+
+    for f in (o.filter or ()):
+        INTITLES.append( f.lower().strip() )
 
     import itertools
 
@@ -438,7 +788,8 @@ if __name__ == '__main__':
     today = datetime.date.today()
     if o.yesterday: today -= datetime.timedelta( days=1)
 
-    now = datetime.datetime.now().strftime( '%Y%m%d.%H.%M') #.%S')
+    now = datetime.datetime.now()
+    def pnow(): return now.strftime( '%Y%m%d.%H.%M') #.%S')
 
     for k in kanali:
         wdta = ddta = None
@@ -448,8 +799,18 @@ if __name__ == '__main__':
             traceback.print_exc( file= sys.stderr)
             print( '  ??weekly', k, file= sys.stderr)
 
+        today_daily = today
+        if o.today_daily:
+            m = re.search( '(\d+)(\.(\d+)\.(\d+))', k.daily or '')
+            if m:
+                td = m.group(1)
+                today_daily = datetime.date( year= int(td[:4]), month= int(td[4:6]), day= int(td[6:]))
+                if m.group(3):
+                    now = datetime.datetime.combine( today_daily,
+                                datetime.time( hour= int(m.group(3)), minute= int(m.group(4)) ))
+                today = today_daily   #HACK
         try:
-            ddta = bnr_daily.get( k, o, today)
+            ddta = bnr_daily.get( k, o, today_daily)
         except:
             traceback.print_exc( file= sys.stderr)
             print( '  ??daily', k, file= sys.stderr)
@@ -457,30 +818,29 @@ if __name__ == '__main__':
         if o.save_input:
             for pfx,dta in [['w',wdta], ['d',ddta]]:
                 if not dta: continue
-                fn = '.'.join( [ o.save_input, pfx, k.abbr, now, 'html' ])
-                if o.oenc: f = filew( o.oenc, fn)
-                else: f = open( fn, 'w')
-                with f:
+                fn = '.'.join( [ o.save_input, pfx, k.abbr, pnow(), 'html' ])
+                with fopen( fn) as f:
                     f.write( dta )
     if 0:
         for d in bnr_daily.today_items:
             print( '\n#...', d, file= sys.stderr)
 
     rw = bnr_weekly.filter( today, n= o.days, nofilter= o.nofilter )
-    rd = bnr_daily.filter( today, nofilter= o.nofilter )
+    rd = bnr_daily.filter( nofilter= o.nofilter )
 
     r = rd
     for k,v in rw.items():
         if k not in rd:
             r[k] = v
 
-    nasila = [ x.split('-') for x in (o.force or ())]
+    nasila = [ x.split('-',3) for x in (o.force or ())]
     rr = dictOrder()
     for dayofs in range( o.days):
         tday = today + datetime.timedelta( days= dayofs )
-        for k,ot,do in nasila:
+        for k_ot_do_ime in nasila:
+            k,ot,do,*ime = k_ot_do_ime
             kk = bnr_kanali[k]
-            i = da( channel=kk.name, time= time4str( ot), endtime= time4str( do), stream= kk.stream)
+            i = da( channel= kk.name, time= time4str( ot), endtime= time4str( do), stream= kk.stream)
             for a in r.values():
                 if (a.today, a.stream, a.channel) != (tday, i.stream, i.channel):
                     continue
@@ -491,22 +851,51 @@ if __name__ == '__main__':
                 break
             else:
                 key = i.channel, tday, i.time
-                rr[ key ] = da( i, today= tday, stream= i.stream, channel= i.channel )
+                a = rr[ key ] = da( i, today= tday, stream= i.stream, channel= i.channel )
+            if ime: a.ime = ime[0]
     r.update( rr)
 
+    def sortit( x, asdict =True, ignore =()):
+        r = dictOrder()
+        y = x.copy()
+        r['tmdt'] = '%2d:%02d ' % y.get('time',(-1,-1)) + str( y.get('today', None))
+        r.update( (k, y.pop(k)) for k in 'ime title text'.split() if k in y )
+        r.update( (k, v) for k,v in sorted( y.items()) )
+        if asdict: return r
+        return 'dict( ' + ', '.join( k+'='+repr(v) for k,v in r.items() if k not in ignore)  + ' )'
+
+    fzaglavia = ' '.join( str(x) for x in [
+            '#филтър:', today, '+', o.days, 'дни;',
+            'заглавия', INTITLES,
+            'незаглавия', NOTINTITLES,
+            ])
+
     if o.save_plan:
-        fn = o.save_plan +'.'+ now
-        if o.oenc: f = filew( o.oenc, fn)
-        else: f = open( fn, 'w')
-        with f:
-            print( '#филтър:', today, '+', o.days, 'дни;', 'заглавия', INTITLES, file=f )
-            for x in r.values(): print( ' ', x, file=f)
+        fn = o.save_plan +'.'+ pnow()
+        with fopen( fn) as f:
+            print( fzaglavia, file=f )
+            print( '[', file=f )
+            for x in r.values():
+                #print( ' ', x, ',', file=f)
+                print( ' ', sortit( x, asdict=False), ',', file=f)
+            print( ']', file=f )
             print( '#всички за деня:', file=f )
-            for x in bnr_daily.today_items: print( '# ', x, file=f)
+            for x in bnr_daily.today_items:
+                print( '# ', sortit( x, asdict=False), file=f)
 
     if o.cron:
         cron( r.values(), o )
 
-    print( '#филтър:', today, '+', o.days, 'дни;', 'заглавия', INTITLES, file= sys.stderr)
-    for x in r.values(): print( ' #', x, file= sys.stderr)
+    print( fzaglavia, file= sys.stderr)
+    for x in r.values():
+        r = sortit(x)
+        xx = [ r['tmdt'] ]
+        xx += [ k+'= '+str(v) for k,v in r.items() if k not in 'time today tmdt'.split() ]
+        #y = x.copy()
+        #xx =  [ '%2d:%02d ' % y.pop('time',(-1,-1)) + str( y.pop('today', None)) ]
+        #xx += [ k+': '+str(y.pop(k)) for k in 'ime title text'.split() if k in y ]
+        #xx += [ k+': '+str(v) for k,v in sorted( y.items()) ]
+        print( ' #', '; '.join( xx), file= sys.stderr)
     if not r: raise SystemExit(1)
+
+# vim:ts=4:sw=4:expandtab

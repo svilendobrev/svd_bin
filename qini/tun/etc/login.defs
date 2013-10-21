@@ -1,0 +1,32 @@
+#
+# /etc/login.defs - Configuration control definitions for the login package.
+#
+...
+# Login configuration initializations:
+#
+#	UMASK		Default "umask" value.
+#
+# UMASK is the default umask value for pam_umask and is used by
+# useradd and newusers to set the mode of the new home directories.
+#
+# If USERGROUPS_ENAB is set to "yes", that will modify this UMASK default value
+# for private user groups, i. e. the uid is the same as gid, and username is
+# the same as the primary group name: for these, the user permissions will be
+# used as group permissions, e. g. 022 will become 002.
+#
+# Prefix these values with "0" to get octal, "0x" to get hexadecimal.
+#
+#UMASK		022
+UMASK		002
+
+#
+# Enable setting of the umask group bits to be the same as owner bits
+# (examples: 022 -> 002, 077 -> 007) for non-root users, if the uid is
+# the same as gid, and username is the same as the primary group name.
+#
+# If set to yes, userdel will remove the user´s group if it contains no
+# more members, and useradd will create by default a group with the name
+# of the user.
+#
+USERGROUPS_ENAB yes
+

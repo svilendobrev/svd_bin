@@ -1,0 +1,6 @@
+function vfu() 
+  { 
+  /usr/local/bin/vfu $*; 
+  cd "`cat /tmp/vfu.exit.$USER`";
+  rm -f /tmp/vfu.exit.$USER; 
+  }

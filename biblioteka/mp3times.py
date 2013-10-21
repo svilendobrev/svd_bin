@@ -75,7 +75,8 @@ def durations( dirpath, fnames, cache_file =None, durations =None, durations_tim
             mtsec = sum( durations.values())
             if tsec is None and cache_file:
                 tsec = mtsec
-                open( cache_file, 'w' ).write( repr( durations))
+                print( '>>', cache_file)
+                open( cache_file, 'w' ).write( '{' + ', '.join( '%r:%s' % kv for kv in sorted( durations.items()) )+'}' )
             elif abs(mtsec-tsec) > 9*len(fnames):
                 print( '! %(m)s.size %(mtsec)s != mp3.size %(tsec)s' % locals(), dirpath)
 

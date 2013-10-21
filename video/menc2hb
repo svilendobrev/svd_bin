@@ -2,7 +2,8 @@
 if test -z "$NOTITLE"; then 
 if test -z "$TITLE"; then WHAT="--main-feature"; else WHAT="-t $TITLE" ; fi
 fi
-oAUDIO="--aencoder copy  --audio-copy-mask aac,ac3,mp3  --audio-fallback ffac3"
+#aac,
+oAUDIO="--aencoder copy  --audio-copy-mask ac3,mp3  --audio-fallback ffac3"
 oVIDEO="--vfr"
 #oQUALITY="-vb 2000"
 oQUALITY="-q ${QUALITY:-20}"

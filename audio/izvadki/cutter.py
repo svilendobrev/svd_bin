@@ -53,11 +53,11 @@ class Cutter:
         name = me.name
         #name = name.replace(' - ', '--').replace(' ','_')
         name = name.replace('/','--')
-        rec = DictAttr( name= name, start= me.start, end= me.end, nopause= me.nopause)
+        rec = DictAttr( name= name or 'cut', start= me.start, end= me.end, nopause= me.nopause)
         if None not in rec.values():
             me.cuts.append( rec)
             me.newcut()
-        elif not (name == '' and me.start == me.end == None ):
+        elif not (me.start == me.end == None ): #name == '' and
             print( ' ?what is this', rec )#, '/infile=', me.infile)
 
     re_time = re.compile( '\+?\d+')
@@ -93,9 +93,10 @@ class Cutter:
                 me.offset0 = me.start
             else:
                 me.add()
-                me.name = c
+                me.name = ' '.join( a for a in [me.name, c] if a)
 
     def readcuts( me, c):
+        print( '....:', c)
         isstart = True
         for t in c.split():
             #a- -b
@@ -116,7 +117,7 @@ class Cutter:
                     else: t = '-'+t
 
             me.readline( t)
-            assert me.name != t, t
+            #assert me.name != t, t ???
             isstart = True
 
 
@@ -157,7 +158,7 @@ class Cutter:
                 infile = a
                 break
         else:
-            print( '!!! nema go', infile)
+            print( '!!! nema go', a)
             return
 
         import wave

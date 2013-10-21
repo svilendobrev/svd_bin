@@ -1,0 +1,10 @@
+<advancedsettings>
+     <loglevel hide="false">0</loglevel>
+     <gui>    
+         <algorithmdirtyregions>1</algorithmdirtyregions>
+         <nofliptimeout>500</nofliptimeout>
+     </gui>
+     <thumbres>555</thumbres>
+     <imageres>480</imageres>
+     <bginfoloadermaxthreads>1</bginfoloadermaxthreads>
+ </advancedsettings>

@@ -1,0 +1,10 @@
+*font: vga
+*boldFont: vga
+*saveLines: 500
+*foreground: #cccccc
+*background: #444444
+*cursorColor: green
+*scrollBar: False
+*title: Term
+*keysym.16: "\b"
+*keysym.6f: "^?"

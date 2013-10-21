@@ -26,6 +26,10 @@ stop-xscreensaver=1
 #mc=0
 vo=vdpau,
 vc=ffmpeg12vdpau,ffh264vdpau,
+#ffodivxvdpau,
+#ffvc1vdpau  ffmpeg    problems  FFmpeg WVC1 (VDPAU)  [vc1_vdpau]
+#ffwmv3vdpau 
+
 #vc=ffh264vdpau,
 
 use-filedir-conf=1

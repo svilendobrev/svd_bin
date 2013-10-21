@@ -132,14 +132,10 @@ Colorer( 'diffC', '^(diff|Only|[<>])', {
      '<': diff_del,
 }, whole=True ).alias( 'diff')
 
-Colorer( 'diffU', '^([-+@=]+)', {
-     '===': diff_file,
-     '+++': diff_add,
-     '---': diff_del,
+Colorer( 'diffU', '^([-+@=])', {    #only 1st char matters: allows for things like adding line starting with +++, or @
      '=': diff_file,
      '+': diff_add,
      '-': diff_del,
-     '@@': diff_chunk,
      '@': diff_chunk,
 }, whole=True )
 

@@ -60,29 +60,6 @@ al ren_ 'rename.pl y/\ /_/'
 al top  'top -d 1'
 al sort 'LC_ALL=C sort'
 
-#### obsolete; use xx/vv script
-#al zx   unzip
-#al zv   'zx -v'
-#al xz   zx
-## tar from stdin: tar vt  or  or tar vtf -
-#al tv   'tar vtf'
-#al tx   'tar vxf'
-##if tar --version | grep GNU >/dev/null ; then
-# al tgzv 'tar tzvf'
-# al tgzx 'tar xzvf'
-# al tbzv 'tar tjvf'
-# al tbzx 'tar xjvf'
-# al tzv  'tar tZvf'
-# al tzx  'tar xZvf'
-##else
-## al tgzv 'gzip -dc \!:1 | tv -'
-## al tgzx 'gzip -dc \!:1 | tx -'
-## al tbzv 'bzip2 -dc \!:1 | tv -'
-## al tbzx 'bzip2 -dc \!:1 | tx -'
-## al tzv  'uncompress -dc \!:1 | tv -'
-## al tzx  'uncompress -dc \!:1 | tx -'
-##fi
-
 
 al psu  'ps -u $USER'   # BSD style; override if other layout
 test 0 == `id -u` && al psu  'ps ax'   # BSD style; override if other layout
@@ -109,7 +86,7 @@ al elb  'elxtr _bashrc'
 al elv  'elxtr _vimrc'
 al elbb 'e ~/.bashrc'
 
-##commented: now using the ~/bin/vcs named as 'v'
+#use the ~/bin/vcs named as 'v'
 #al cu  'cvs up -dP'
 #al cvi 'cvs ci'
 #al cvd 'cvs diff -bw'
@@ -118,11 +95,10 @@ al elbb 'e ~/.bashrc'
  #file compare ignoring whitespace
 al fc   'diff -btw'
  
-fc12()  { fc  "$1" "$2"/"$1"; }
-cp12()  { cp -vL "$1" "$2"/"$1"; }
- #now dir first
-fc21()  { fc  "$2" "$1"/"$2"; }
-cp21()  { cp -vL "$2" "$1"/"$2"; }
+fcfile2dir()  { fc  "$1" "$2"/"$1"; }
+cpfile2dir()  { cp -vL "$1" "$2"/"$1"; }
+fcdir2file()  { fc  "$2" "$1"/"$2"; }
+cpdir2file()  { cp -vL "$2" "$1"/"$2"; }
 
 ### filefind from current dir; (give wildcards in quotes)
  #will invoke an ls . if nothing found
@@ -147,7 +123,7 @@ ggg()   { grep -Ens "$@" /dev/null; }
 #al xgg "xargs -e grep -nsE \!#:1 /dev/null" #xargs -e coz otherwise it uses _ as EOFmarker
 #al zgg "find . -type f -name \!#:2* | xgg \!#:1"
 
-senv _SRC   '[cChylg] [ch]pp [ch]xx cc CC asm p[yl] java js xsl rb php'
+senv _SRC   '[cChylgm] [ch]pp [ch]xx cc CC asm p[yl] java js xsl rb php as'
 senv _EXCL  'CVS .svn .bzr .hg .repo'
  #recursive     from current dir grep in source files ONLY
  ###grep --exclude-dir to ignore whole-dirs
@@ -155,8 +131,9 @@ senv _EXCL  'CVS .svn .bzr .hg .repo'
 #al grs  "ggg -r --exclude=\*.svn-\* \!#:* . `perl -e '$_=$ENV{"_SRC"}; s/(\S+)/--include=\\*.\1/g; print'` "
 grs()   { set -f; ggg -r "$@" . `for a in $_SRC; do echo --include="*.$a"; done `; set +f; } 
 al gr   grs
-grm()   { ggg -r --exclude=\*.svn-\* "$@" . --include=[mM]akef\* --include=*.mak ; } 
-grh()   { ggg -r "$@" . --include=\*.html --include=\*.htm --include=\*.css; } 
+grm()   { ggg -r --include=[mM]akef\* --include=*.mak --exclude=\*.svn-\* "$@" . ; } 
+grh()   { ggg -r --include=\*.html --include=\*.htm --include=\*.css "$@" . ; } 
+grx()   { ggg -r --include=\*.xml "$@" . ; } 
 grimport()  { gr "(import.*$1|$1.*import)"; }
 
 #see fff.sh for quote troubles
@@ -186,7 +163,7 @@ al win2utf 'encodec.py cp1251 utf8'
 al f vfu
 #l calc 'echo "\!#:*" |bc'
 #calc()  { echo print "$@" | python ; } 
-calc()  { python -c "print $*"; } 
+calc()  { python -c "from math import *; print( $*)"; } 
 
 #addusergroup()  { usermod -G `id -Gn "$1" | sed "s/ /,/g"`,"$2" "$1"; } 
 #XXX ubuntu
@@ -197,12 +174,21 @@ addusergroup()  { u=$1; shift; usermod -a -G "$@" $u ; }
 ##mount
 # see http://www.fuw.edu.pl/~pliszka/hints/dvd.html
 #al mud 'for a in ud1 ud2 usb; do mount /mnt/$a; done'
-#al mud 'for a in a1 a5 a6  b1 b5 b6; do mount /dev/sd$a; done'
-#al mud  'for a in a b; do D=/dev/sd$a; mount "$D"6 && mount "$D"5 && mount "$D"1 && echo $D; done'
 #al umd  'for a in 0 1 2; do umount /mnt/ud$a; done'
-#al pumd 'for a in 0 1 2; do pumount /media/UD$a; done'
-al pmount   'pmount --noatime'
-al pm   pmount
+if which udevil >&/dev/null ; then
+ al mc1    'udevil mount  /dev/sdc1'
+ al uc1    'udevil umount /dev/sdc1'
+else #pmountm 
+ al pmount   'pmount --noatime'
+ al pm   pmount
+ al pmc1  'pmount /dev/sdc1'
+ al pmc2  'pmount /dev/sdc2'
+ al puc1  'pumount /dev/sdc1'
+ al puc2  'pumount /dev/sdc2'
+ al mc1    pmc1
+ al uc1    puc1
+fi
+al umediat  'fusermount -u /media/t'
 
 al qiv  'XLIB_SKIP_ARGB_VISUALS=1 qiv -l'
 al qiviw 'qiv -s -m -i -f -d 7'
@@ -223,37 +209,57 @@ al mpsoft   'mp -softvol -softvol-max 2000'
 flv2mkv()   { ffmpeg -i "$1" -vcodec copy -acodec copy  "$1".mkv; }
 avi2mkv()   { mkvmerge -o "$1".mkv "$@"; }
 
+#net
 al bt       'btlaunchmanycurses.bittorrent . --max_rate_period 10 --display_interval 2' #--max_upload_rate 60' # --max_initiate 20 --min_peers 10 --max_uploads 3
 #al mulewait 'strings -n 20 ~/.aMule/Temp/*met | uniq'
-al net      'sudo /etc/init.d/networking restart'
 al tcpstat  'netstat -anp | g tcp'
+al netrestart  'sudo /etc/init.d/networking restart'
+al nct      'sudo netctl start'
+al nctlist  'sudo netctl list|sort'
+#eee/lapa
+al ww 'iw.py --crypto'
+al nn 'sudo dhclient eth0'
+
 #--content-disposition 
 al wgetrnp 'wget -r -np --restrict-file-names=nocontrol --trust-server-names'
 al wgetrcnp 'wgetrnp -c'
 al wgetrcnpx 'wgetrcnp -R.part -X\*[Ss]ample'
-al wgetcd 'wget --content-disposotion'
+al wgetcd 'wget --content-disposition'
 
-al diskstate 'sudo hdparm -C /dev/[hs]d?'
 
 cbedic() { `which cbedic` `echo $@ | utf2win ` | win2utf; }
 xxall() { for a in "$@"; do xx "$a"; done }
 
 so /home/qini/aliasi/wrongisright.alias.bsh
 
+al py python 
+al py2 python2
+al py3 python3
+al p3 py3
+al piplocal 'pip install --user'
+
+al maf 'make -f ~/src/bin/foto/makefile'
+al ema 'e ~/src/bin/audio/makefile'
+al emf 'e ~/src/bin/foto/makefile'
+
+which ncal >&/dev/null  && al cal 'ncal -M' || al cal '/usr/bin/cal -m'
+
+#vcs
 vdprev() {
     v d "$1" -r `v l -l 2 "$1" | perl -ne 'print if s/revno: *//' | tail -1`
 }    
-
-al py python #2.x
-al py3 python3
-al p3 py3
-al mfoto 'make -f ~/src/bin/foto/makefile'
-al mfo mfoto
-al battery 'ibam -a'
-al cal 'ncal -M'
-al piplocal 'pip install --user'
-
+al i 'v i -m'
 al gp 'git push'
 al svn2git2path 'svn2git --no-minimize-url --rootistrunk'
+
+#hw
+al diskstate 'sudo hdparm -C /dev/[hs]d?'
+al battery 'ibam -a'
+al ss  sensors
+#if which nvidia-settings >&/dev/null ; then
+# al gpu 'nvidia-settings -q GPUCoreTemp | grep Attri'
+# al ss  "gpu; sensors"
+#fi
+#al sss 'ss;hddtemp /dev/sda /dev/sdb'
 
 # vim:ts=4:sw=4:expandtab

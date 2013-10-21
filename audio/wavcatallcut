@@ -1,0 +1,2 @@
+#!/bin/sh
+for a in "$@"; do wavcat.py -o "$a"/"$a".wav "$a"/cut*.wav; done

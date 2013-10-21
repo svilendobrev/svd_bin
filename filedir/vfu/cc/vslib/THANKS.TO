@@ -1,0 +1,12 @@
+
+  $Id: THANKS.TO,v 1.2 2003/01/19 16:14:54 cade Exp $
+  
+  I'd like to thank the following people for helping me for vslib:
+  
+  - Ivo Baylov <ivo@datamax.bg> for the KMP search hint.  
+
+  - Larry Wall <larry@wall.org> for Perl. :)
+    (most work done on this library is about the Perl-like structures)
+
+  - Philip Hazel <ph10@cam.ac.uk> and University of Cambridge for
+    the fantastic pcre library!

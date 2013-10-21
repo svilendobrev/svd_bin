@@ -1,0 +1,18 @@
+
+$Id: README.DOS,v 1.2 2002/04/26 07:39:37 cade Exp $
+
+  FAR PRELIMINARY :)
+
+  this file contains some hints how to compile vfu under dos/djgpp
+ 
+  1. you have to edit makefile's in the vslib and vfu directories
+     and change `g++' to `gcc' in `CC' and `LD' fields.
+ 
+  2. remove `-lncurses' from both makefiles `LDFLAGS' field.
+ 
+  3. try to `make' in vslib dir and after this in the vfu dir.
+
+  NOTE: you must preserve the tabs in the makefile's!
+
+  if you have problems contact me at <cade@biscom.net>
+

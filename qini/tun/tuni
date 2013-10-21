@@ -46,4 +46,9 @@ kernel.....
 export LANGUAGE=en	#start in en plz not bg
 exec "${OPERA_BINARYDIR}opera" "$@"  -notrayicon -nomail
 
+#if ipv6 is off / X11 forwarding request failed on channel 0 :
+/etc/ssh/sshd_config:
+AddressFamily inet
 
+#nfs mount umask follows mounpoint?? e.g. to get g+w by default:
+chmod g+w /media/themount

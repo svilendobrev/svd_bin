@@ -1,0 +1,37 @@
+<sources>
+    <programs>
+        <default pathversion="1"></default>
+    </programs>
+    <video>
+        <default pathversion="1"></default>
+        <source>
+            <name>filmi</name>
+            <path pathversion="1">/home/xbmc/filmi/</path>
+        </source>
+        <source>
+            <name>-библиотека</name>
+            <path pathversion="1">/media/na/-библиотека/</path>
+        </source>
+        <source>
+            <name>-ново</name>
+            <path pathversion="1">/media/na/novo/</path>
+        </source>
+    </video>
+    <music>
+        <default pathversion="1"></default>
+        <source>
+            <name>zvuk</name>
+            <path pathversion="1">/home/xbmc/zvuk/</path>
+        </source>
+    </music>
+    <pictures>
+        <default pathversion="1"></default>
+        <source>
+            <name>snimki</name>
+            <path pathversion="1">/home/xbmc/snimki/</path>
+        </source>
+    </pictures>
+    <files>
+        <default pathversion="1"></default>
+    </files>
+</sources>

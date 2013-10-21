@@ -1,0 +1,49 @@
+
+
+
+  VFU CONFIGURATION, OPTIONS AND CACHE FILES LOCATIONS
+  ------------------------------------------------------------------------
+
+  By default VFU searches these locations for `vfu.conf' config file:
+ 
+  1. personal vfu.conf ( explained below )
+  2. /etc/
+  3. /usr/local/etc/
+  4. /usr/local/
+ 
+  The personal vfu.conf is located in `$HOME/.vfu/' directory and it is
+  created if not exist. The same directory is used for keeping options
+  and cache files ( directory tree, history, options, etc. )
+ 
+  Well, More than 1/3 of all files in my home directory are various
+  configuration ( dotfiles -> `.name' ) files for many applications
+  ( and directories as well ). I think that if all these files/dirs
+  are moved to `$HOME/etc/' or `$HOME/.conf/' or similar directory,
+  the home directory will look a lot more clean. I know that dotfiles
+  are considered `hidden' but I'd like to see all files w/o such
+  restrictions. I also know that keeping configs in `$HOME/.name'
+  files is usual since the beginning, but it doesn't help.
+ 
+  So a simple solution to this problem is to check for exported
+  environment variable called `RC_PREFIX' and if found to check
+  for config files in `$HOME/$RC_PREFIX/.name' ( where `.name'
+  is the config file or dir ). Is $RC_PREFIX is not defined all
+  configs will go as usual in the `$HOME/.name'.
+ 
+  VFU works in this way and I have got always $RC_PREFIX defined
+  to `etc' ( i.e. vfu.conf goes in `$HOME/etc/.vfu/' ).
+ 
+  I don't know if there is similar idea already, but if you like it
+  it would be nice if your own programs support this option. Of 
+  cource if you don't like the name RC_PREFIX you can use other like
+  CONFIG_PREFIX for example.
+ 
+                           Thanx for the attention!
+                           Vladi Belperchinov-Shabanski
+                           <cade@biscom.net> <cade@datamax.bg>
+                           http://soul.datamax.bg/~cade/vfu
+  ------------------------------------------------------------------------
+ 
+ 
+ 
+ 

@@ -4,7 +4,7 @@ import sys
 import re
 import subprocess, os
 
-from util import optz
+from svd_util import optz
 optz.bool(  'dryrun', '-n', )
 optz.bool(  'verbose', '-v', )
 optz.bool(  'autoon',  )
@@ -54,7 +54,7 @@ if optz.autoon:
         time.sleep( 2)    #2
 
 if optz.essid:
-    all = [ dict( essid=optz.essid, crypto=True)]
+    all = [ dict( essid=optz.essid, crypto=with_crypt)]
 else:
     if o_scan:
         ifc = 'sudo ifconfig'.split() + [ iface, 'up']
@@ -112,8 +112,8 @@ iface %(iface_name)s inet manual
 
 wpa_conf  = '/etc/wpa_supplicant.conf'
 wpa_stuff = '''
-    up wpa_supplicant -B -Dwext -i$IFACE -c %(wpa_conf)s
-    up wpa_cli reassociate
+    up /sbin/wpa_supplicant -B -Dwext -i$IFACE -c %(wpa_conf)s
+    up /sbin/wpa_cli reassociate
 '''
 
 adict = dict( (a['essid'], a) for a in all)
@@ -139,19 +139,23 @@ if o_menu and all:
         verbose = o_v and '--verbose' or ''
 
         tmp_ifaces_fn = '/tmp/iw.py.tmp'
-        iface_name = 'iw'
-        ifdn = 'sudo ifdown --verbose'.split() + [ iface]
-        print ifdn
+        iface_name =  'iw' #iface
+        ifdns = [
+            [ 'sudo', 'ifdown', '--verbose', iface],
+            ['sudo', 'ifconfig', iface, 'down'],
+        ]
+        print ifdns
         if not o_n:
-            r = subprocess.Popen( ifdn)
-            r.wait()
-            print '-------', r.returncode
+            for ifdn in ifdns:
+                r = subprocess.Popen( ifdn)
+                r.wait()
+                print '-------', r.returncode
         a = adict[essid]
         if a['crypto']:
             #wpa_conf = wpa_conf % locals()
             for wpa_conf in wpa_conf, wpa_conf.replace( 'etc/', 'etc/wpa_supplicant/'):
                 try:
-                    ww = file( wpa_conf).read(), 'no network %(essid)s in file %(wpa_conf)s; use wpa_passphrase to make it' % locals()
+                    ww = file( wpa_conf).read()
                 except: pass
                 else:
                     break
@@ -169,8 +173,8 @@ if o_menu and all:
             #print tmptext
         else:
             print '>', tmp_ifaces_fn, '\n', tmptext
-
-        ifup = ('sudo ifup %(verbose)s -i %(tmp_ifaces_fn)s %(iface)s=%(iface_name)s' % locals() ).split()
+        iface_namex = iface_name != iface and '='+iface_name or ''
+        ifup = ('sudo ifup %(verbose)s -i %(tmp_ifaces_fn)s %(iface)s%(iface_namex)s' % locals() ).split()
         print ifup
         if not o_n: os.execvp( ifup[0], ifup)
 

@@ -22,6 +22,7 @@ optz.list( 'exclude',    help= 'exclude filepattern (multiple)')
 optz.list( 'include',    help= 'include filepattern (multiple)')
 optz.list( 'direxclude', help= 'exclude dirpattern  (multiple)')
 optz.list( 'dirinclude', help= 'include dirpattern  (multiple)')
+optz.bool( 'verbose', '-v')
 optz.simvolni = True #',  '-L', help= 'обхожда и символни връзки')
 
 ops = {
@@ -61,10 +62,10 @@ def levels( d): return d.strip('/').split('/')
 def walk( argz, target, followlinks =True):
     if not exists( target): yield None, target
     else: assert isdir( target)
-    for src in argz:
-        src = realpath( src)
+    for isrc in argz:
+        src = realpath( isrc)
         if not isdir( src):
-            yield src, join( target, src)
+            yield src, join( target, basename( isrc))
         else:
             srcdepth = len( levels( src))
             for path,dirs,files in os.walk( src, followlinks= followlinks):
@@ -88,14 +89,17 @@ op = op2op.get( optz.op)
 for s,t in walk( argz, target):
     try:
         if not s:
+            if not op or optz.verbose: print( '>>', t+'/' )
             if op: osextra.makedirs( t)
-            else: print( '>>', t+'/' )
-        elif op:
-            if exists( t) and optz.force: os.remove( t)
-            op( s, t)
-        else: print( '--', s, '\n->', t)
-    except:
-        print( '--', s, '\n->', t)
+        else:
+            if not op or optz.verbose: print( '--', s, '\n->', t)
+            if op:
+                if exists( t) and optz.force: os.remove( t)
+                op( s, t)
+    except OSError as e:
+        print( str(e), '\n  --', s, '\n  ->', t)
+    except Exception as e:
+        print( str(e), '\n  --', s, '\n  ->', t)
         raise
 
 # vim:ts=4:sw=4:expandtab

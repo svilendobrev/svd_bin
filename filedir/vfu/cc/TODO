@@ -1,0 +1,21 @@
+
+$Id: TODO,v 1.2 2002/04/26 07:39:37 cade Exp $
+
+MOST IMPORTANT (LONG TERM?) TODO NOTES:
+
+-- clean up all the documentation and build/install scripts mess!!!
+
+-- fix makemake.pl to handle install/uninstall targets
+
+-- write rx_* tools for different archives/storages (HELP WANTED!)
+
+-- mount in JumpToMountpoints menu
+
+-- build tree from local file systems only (option)
+
+-- edit symlink reference to use get_dir_name() instead of get_text()...
+
+-- check if source exist when move/copy/symlink (warning really)
+
+-- save/load selection with key
+

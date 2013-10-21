@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from __future__ import print_function, unicode_literals
 import ezodf
 from ezodf.text import Paragraph, Heading, Span, ListItem, List, CN
 
@@ -33,7 +34,7 @@ else:
 
 def walk( a,  lvl =''):
     if a.__class__ is Span:
-        print( lvl, span(a))
+        print( span(a), end='')
         #print( lvl, a.tail)
         return
     tag = ''

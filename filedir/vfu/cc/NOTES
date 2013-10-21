@@ -1,0 +1,44 @@
+
+  This file contains some misc notes...
+
+  -- If you try to compile vfu under NetBSD:
+ 
+     try to use `build.netbsd'...
+     If you fail to compile it try one of:
+     1. get newer vfu version at http://soul.datamax.bg/~cade/vfu
+     2. mailto: Hubert Feyrer <hubertf@netbsd.org>
+        Hubert Feyrer is official VFU maintainer for NetBSD platform.
+     3. mailto: Vladi Belperchinov-Shabanski <cade@biscom.net>
+
+  -- If you want to compile vfu static binary:
+     1. cd vfu
+     2. make LDDEF=-static
+        voila! :)
+ 
+  -- How to compile VFU for other UNIX platform?
+
+  You have to edit vslib/target.h file and to add these lines
+  just before `#ifndef _TARGET_DESCRIPTION_' line:
+  (I'll give example as if the new target is RS6000)
+ 
+  ---cut---
+  #ifdef _TARGET_UNKNOWN_
+    #if defined(__RS6000__)
+    #define _TARGET_RS6000_
+    #define _TARGET_DESCRIPTION_	"UNIX/RS6000"
+    #undef _TARGET_UNKNOWN_
+    #endif
+  #endif
+  ---cut---
+ 
+  and start make:
+ 
+  make CCDEF=-D__RS6000__
+ 
+  in both vslib and vfu directories
+ 
+  VFU should compile without big problems on any UNIX (hope so:))
+ 
+  P! Vladi.
+  Vladi Belperchinov-Shabanski <cade@biscom.net>
+ 

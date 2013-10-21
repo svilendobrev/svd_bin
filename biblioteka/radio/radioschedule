@@ -6,20 +6,21 @@ date
 ./radioschedule.py --oenc=utf-8 --days=2 \
 	--cron="`pwd`/radiorec --retry_delay_seconds=25 --retry_n=12" \
 	--cron-fname-notime \
-	--cron-earlier-minutes=9 \
-	--cron-later-minutes=8 \
+	--cron-earlier-minutes=8 \
+	--cron-later-minutes=5 \
+	--cron-later-percent=50 \
 	--save-plan=plan/p \
 	--save-input=in/i \
-	--force=hb-6:50-7:00 \
- 	--force=hb-18:22-18:35 \
+	--nalichni-opisi='/zapisi/op/*/op/*' \
+	--force=hb-6:50-7:00-събуди_ме_с_пр \
+ 	--force=hb-18:20-18:30-време_за_пр \
 	--channel=hristobotev \
 	--channel=varna \
 	--channel=horizont \
 		>radiorec-crontab && crontab -u svilen radiorec-crontab
 
+NOSUDO=1 /home/svilen/bin/nfsrights .
 
+# 	--force=hb-21:20-21:30-ркц\
+#	--save-text \
 #	--channel=sofia 
-#събуди ме с приказка
-#	--force=hb-6:50-7:00 
-#време за приказка
-#	--force=hb-18:20-18:30 

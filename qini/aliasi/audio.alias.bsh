@@ -180,6 +180,28 @@ mkv2extract() {
 }
 
 qcut() {
-    qwavcut "$1" -o cut"$1" -B $2 -E $3
+    qwavcut "$1" -o cut"$1" -B $2 -E $3 
+    chmod a+r cut"$1"
 }
+
+rec0nocache() {
+  sudo sh -c "echo 1  >/proc/sys/vm/dirty_ratio"
+  sudo sh -c "echo 5  >/proc/sys/vm/dirty_background_ratio"
+  ##sudo sh -c "echo 10000000   >/proc/sys/vm/dirty_bytes "
+  #sudo sh -c "echo 30000000   >/proc/sys/vm/dirty_background_bytes"
+  sudo sh -c "echo 20  >/proc/sys/vm/dirty_expire_centisecs "
+  sudo sh -c "echo 50  >/proc/sys/vm/dirty_writeback_centisecs "
+}
+
+al arec 'arecord -f cd -V stereo ' #--fatal #-B 5666777'
+al srec 'rec -r 44100 -b 16 -c 2 -s -S -t wav '
+al zrec srec
+#al rec1 'arec -d 1500 1.wav'
+#al rec2 'arec -d 1500 2.wav'
+r() { srec $1.wav trim 0 0:27:0; }
+al r1 'r 1'
+al r2 'r 2'
+al rec1 r1
+al rec2 r2
+
 # vim:ts=4:sw=4:expandtab

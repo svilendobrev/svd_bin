@@ -1,6 +1,5 @@
-deb http://download.virtualbox.org/virtualbox/debian maverick contrib non-free
-#deb http://download.virtualbox.org/virtualbox/debian lucid contrib non-free
-#deb http://download.virtualbox.org/virtualbox/debian karmic contrib non-free
+deb http://download.virtualbox.org/virtualbox/debian quantal contrib non-free
+deb http://download.virtualbox.org/virtualbox/debian raring contrib non-free
 
 #deb http://download.virtualbox.org/virtualbox/debian squeeze contrib non-free
 #deb http://download.virtualbox.org/virtualbox/debian lenny contrib non-free

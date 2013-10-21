@@ -3,7 +3,7 @@
 
 import opisvane
 from opisvane import zaglavie, prn, dictOrder, dict_lower, make_dict_attr, make_dict_trans, str2list, fnmatch_list, cyr2lat
-from opisvane import appendif, extendif, setorder, listif
+from svd_util.lists import appendif, extendif, listif
 from svd_util.struct import DictAttr, attr2item
 from svd_util import optz
 import collections
@@ -11,6 +11,7 @@ import subprocess, re, os
 from glob import glob
 from svd_util.osextra import globescape
 from os.path import isdir, basename, exists, join, dirname
+import pprint
 
 import mp3times
 
@@ -26,245 +27,12 @@ org/ne.imeorg :пропуска
 '''
 
 
-izdateli = DictAttr(
-    kynev   = 'Кънев',
-    pan     = 'Пан',
-    bnr     = 'БНР',
-    gega    = 'ГегаНю',
-    litia   = 'Лития',
-    rem     = 'РЕМ',
-    suprafon= 'Супрафон',
-    balkanton= 'БалканТон',
-    balkanton_kys = 'БТон',
-    polysound= 'ПолиСаунд',
-    orfei    = 'Орфей',
-)
-r_izdateli = dict( (v,k) for k,v in izdateli.items())
-radio  = 'радио'
-org_izdateli = { izdateli.balkanton, radio }
-
-def izdatel4opis( i):
-    if i in (izdateli[k] for k in 'balkanton pan litia bnr kynev polysound orfei'.split()): return i.lower()
-    return i
-def nomer4opis( n):
-    n = n.replace( 'ВТТЕС', 'ВТТеС')
-    n = n.replace( 'АДД', 'ADD')
-    n = n.replace( 'ААД', 'AAD')
-    n = n.replace( 'СД', 'cd')
-    n = n.replace( 'РАДИОПРОМ', 'радиопром')
-    return n
-
-kaseta = 'касета'
-ploca  = 'плоча'
-ploca2 = 'плоча_малка'
-disk   = 'диск'
-lenta  = 'лента'
-tv     = 'ТВ'
-
-nositel4izdatel = {
-    ploca:  [ izdateli.balkanton, izdateli.balkanton_kys, ],
-    ploca2: [ izdateli.suprafon],
-    kaseta: [ izdateli.kynev, izdateli.pan, izdateli.rem, izdateli.litia ],
-    disk:   [ izdateli.polysound, izdateli.bnr, izdateli.orfei ],
-}
-nositel4izdatel = dict( (k, [ v.lower() for v in vv]) for k,vv in nositel4izdatel.items() )
-
-balkanton = izdateli.balkanton.lower()
-balkanton_kys = izdateli.balkanton_kys.lower()
-
-def izdatel_kys( i):
-    if i and i.lower() in (balkanton, balkanton_kys): return izdateli.balkanton_kys
-    return i
-
-re_izdanie = DictAttr(
-    (k, re.compile( '('+'|'.join(v.split())+')(\d+)', re.IGNORECASE))
-    for k,v in dict(
-        bton_ploca = '[бв][а-я][а-я] b[a-z][a-z] бтонр радиопром',
-        bton_kaseta = '[бв]амс bamc [бв]ттес',
-        disk = 'cd add',
-    ).items() )
-
-nositeli = {
-    'cd': disk,
-    'mc': kaseta,
-    'lp': ploca,
-    'tv': tv,
-    'ep': ploca2,
-    disk: disk,
-    ploca: ploca,
-    ploca2: ploca2,
-    kaseta: kaseta,
-    lenta: lenta,
-}
-
-kysi_cyr = {
-    kaseta:     'мк',
-    ploca:      'пл',
-    ploca+'?':  'пл',
-}
-kysi_lat = {
-    kaseta:     'mc',
-    ploca:      'lp',
-    ploca+'?':  'lp',
-    ploca2:     'ep',
-    disk :      'cd',
-    tv:         'tv',
-}
-
-bukvi_lat = 'A B E X M H T C O K D e P'.split()
-bukvi_cyr = 'А В Е Х М Н Т С О К Д е Р'.split()
-
-def e_nositel( izdania, *vidove):
-    for izdanie in izdania.lower().split():
-        for a in vidove:
-            if isinstance( a, str):
-                if izdanie.startswith( a): return True
-            elif a.search( izdanie): return True
-
-def e_balkanton( izdanie):
-    if balkanton in izdanie.lower() or balkanton_kys in izdanie.lower(): return True
-    return e_nositel( izdanie, re_izdanie.bton_kaseta, re_izdanie.bton_ploca)
-
-def koi_izdatel( izdanie, kys =False, strict =False):
-    izd = izdanie.lower()
-    if e_balkanton( izd): return kys and izdateli.balkanton_kys or izdateli.balkanton
-    for k,v in izdateli.items():
-        if k.lower() in izd or v.lower() in izd: return v
-    ff = izdanie.split( '-', 1)
-    if len(ff)==2:
-        if ff[0].lower() in nositeli:
-            r = ff[1]
-            if r.strip('?') in ('', 'друг', 'друга'): return ''
-            return r
-    return izdanie
-
-def koi_nositel( izdania):
-    for izdanie in izdania.lower().split():
-        if e_nositel( izdanie, re_izdanie.disk, disk, 'cd-') : return disk
-        if e_nositel( izdanie, re_izdanie.bton_kaseta, kaseta, 'mc-' ): return kaseta
-        if e_nositel( izdanie, ploca2 ): return ploca2
-        if e_nositel( izdanie, re_izdanie.bton_ploca, ploca ): return ploca
-        if radio in izdanie: return radio
-        if balkanton in izdanie.lower(): return ploca+'?'
-        if izdanie in nositeli: return izdanie
-    return '?'
-
-
-bxa_godini = sorted( {
-# 6395: 1960,
- 491: 1966,
- 1052 : 1968,
- 1149 : 1969,
- 1181 : 1970,
- 1301 : 1971,
- 1348 : 1972,
- 1501 : 1973,
- 1674 : 1974,
- 1741 : 1975,
- 1948 : 1976,
- 2063 : 1977,
- 2100 : 1978,
- 2198 : 1978,
- 2200 : None,
- 10000: 1979,
- 10449: 1980,
- 10608: 1981,
- 10926: 1982,
- 10986: 1983,
- 11253: 1984,
- 11391: 1985,
- 11676: 1986,
- 12062: 1987,
- 12257: 1988,
- 12582: 1989,
- 12709: 1990,
-
- 19000: 1994,
-}.items())
-
-def bton_nomer2godina( nomer):
-    m = re_izdanie.bton_ploca.match( nomer)
-    if not m: return None
-    kod = m.group(1).lower()
-    nom = int( m.group(2))
-    godina = 1965
-    gg = str( godina)+'?'
-    if kod[0] in 'бв' and kod[-1] != 'м':
-        for n,g in bxa_godini:
-            if nom >=n: godina = g
-            if n > nom: break
-    return godina and str( godina) or gg
-
-def izdanie_razglobi( izdanie):
-    neznajno = '?' in izdanie
-    izdanie = izdanie.replace( '?','')
-    i = izdanie
-    godina = None
-    sg = izdanie.rsplit('/',1)
-    if len(sg)==2:
-        i,g = (s.strip() for s in sg)
-        if g: godina = g
-    s = i.split('-')
-    nositel = koi_nositel( i)
-    izdatel = koi_izdatel( i)
-    izd_kys = koi_izdatel( i, kys=True)
-
-    pp = [ p.lower().strip('?')
-            for p in (nositel, izdatel, izd_kys, r_izdateli.get( izdatel, izdatel) ) ]
-    nn = []
-    for a in s:
-        b = a.lower()
-        if not b or b in pp: continue
-        if b in nositeli or b in kysi_cyr.values(): continue
-        appendif( nn, a)
-    nomer = '-'.join( nn)
-    godina2nomer = False
-    if izdatel.lower()==balkanton and nomer and nositel in (ploca, ploca2):
-        nomer = nomer.upper()
-        for l,c in zip( bukvi_lat, bukvi_cyr):
-            nomer = nomer.replace( l,c)
-        if not godina or not godina.strip('?'):
-            godina = bton_nomer2godina( nomer)
-            godina2nomer = True
-    return DictAttr( nositel=nositel, izdatel=izdatel, nomer=nomer, neznajno= neznajno, godina=godina, godina2nomer=godina2nomer)
-
-def izdanie_sglobi( nositel, izdatel, nomer, neznajno =False, godina =None, opis= False, godina2nomer =False):
-    #prn( locals(), koi_izdatel( nomer), koi_nositel( nomer) )
-    if not nomer:
-        if koi_nositel( izdatel) ==nositel: nositel = ''
-    else:
-        if koi_izdatel( nomer) ==izdatel: izdatel = ''
-        if koi_nositel( nomer) ==nositel: nositel = ''
-    if opis:
-        izdatel = izdatel4opis( izdatel)
-        #nositel = nositel4opis( nositel)
-        nomer = nomer4opis( nomer)
-    r = '-'.join( listif( [a for a in (nositel, nomer, izdatel) if a]))
-    if godina and not godina2nomer: r+='/'+str(godina)
-    if '?' not in r and neznajno: r += '?'
-    return r
-
-fname_kaseta  = re.compile( '(касета|kaseta|bamc|[\.-]mc\.)')
-fname_cd      = re.compile( '[\.-](cd|add)')
-fname_ploca   = re.compile( '(плоча|ploch?a|[\.-]lp\.|[\.-](b[a-z][a-z])\d{4,5}|-\d{5}\.)')
-#fname_radio   = re.compile( '-radio')
-def koi_nositel4fname( fname, media, izdanie):
-    if fname_kaseta.search( fname): return kaseta
-    if fname_cd.search(   fname):   return disk
-    if fname_ploca.search( fname):  return ploca
-    if media == radio: return ''
-    if media in (disk, kaseta): return media
-    izdanie = izdanie.lower().strip('?')
-    for k,vv in nositel4izdatel.items():
-        if izdanie in vv: return k
-    return ''
-
-
+from izdania import *
 
 extra_exts= set( kysi_lat.values())
 IKONA = '.ikona.jpg'
 MIKONA = '.m'+IKONA
-from datetime import datetime
+from datetime import datetime, timedelta
 sega_fmt = '%y%m%d'
 sega_fmt2 = '%Y%m%d'
 sega = datetime.today()
@@ -364,63 +132,70 @@ class info( opisvane.info):
     @staticmethod
     def opts():
         opisvane.info.opts()
-        optz.str(  'debug',   default='', help= 'списък(,) от main,dirs,sizes,times,items2,tags')
-        optz.str( 'vreme_app',  type= 'choice', choices= mp3times.apps, help= 'проверява продължителността с този инструмент')
+        optz.text( 'debug',   default='', help= 'списък(,) от main,dirs,sizes,times,items2,tags')
+        optz.text( 'vreme_app',  type= 'choice', choices= mp3times.apps,
+                                    help= 'проверява продължителността с този инструмент')
         optz.bool( 'dveniva',       help= 'търси файлове и в */ (освен в ./)')
-        optz.str( 'proizhod_da',    help= 'подпапка за използвани оригинали-от-кого [%default]', default= '0/da.*')
-        #optz.str( 'proizhod_ne',    help= 'подпапка за неползвани оригинали-от-кого [%default]', default= '0/ne.*')
+        optz.text( 'proizhod_da',   help= 'подпапка за използвани оригинали-от-кого [%default]', default= '0/da.*')
+        #optz.text( 'proizhod_ne',   help= 'подпапка за неползвани оригинали-от-кого [%default]', default= '0/ne.*')
         optz.bool( 'prezapis',      help= 'презаписва всички файлове (иначе само ако са различни)')
 
         gg = optz.grouparg( 'съкращения и участници/дейности')
-        optz.str( 'sykr',           help= 'файл със съкращения (списъци имена или от грамофонче)', **gg)
-        optz.str( 'sykr_spisyk',    help= 'прави файл със съкращения като списък', **gg)
-        optz.str( 'sykr_moin',      help= 'прави файл със съкращения за грамофонче', **gg)
+        optz.text( 'sykr',          help= 'чети файл със съкращения (списъци имена или от грамофонче)', **gg)
+        optz.text( 'sykr_spisyk',   help= 'прави файл със съкращения като списък', **gg)
+        optz.text( 'sykr_moin',     help= 'прави файл със съкращения за грамофонче', **gg)
         optz.bool( 'sykr2dylgo',    help= 'разписва знайните съкращения', **gg)
         optz.bool( 'opis2dejnosti', help= 'извлича участници/дейности/роли от полето описание', **gg)
 
         gg = optz.grouparg( 'mp3-етикети на съдържанието')
-        optz.str(  'tags_app',  type= 'choice', choices= 'mp3info eyed3'.split(),
-                help= 'с кой инструмент да се слагат mp3-етикети - ако изобщо', **gg)
+        optz.text( 'tags_app',  type= 'choice', choices= 'mp3info eyed3'.split(),
+                                    help= 'с кой инструмент да се слагат mp3-етикети - ако изобщо', **gg)
         optz.bool( 'tags_direct',   help= 'слага етикетите на място', **gg)
-        optz.str(  'tags_enc',      help= 'кодировка на етикетите [%default]', default= 'cp1251', **gg)
-        optz.str(  'tags_spisyk',       help= 'прави общ списък за слагане на етикети', **gg)
-        optz.str(  'tags_po_papki',     help= 'прави списъци по папки за слагане на етикети', **gg)
-        optz.str(  'tags_po_otdelno',   help= 'прави отделни рецепти за слагане на етикети', **gg)
+        optz.text( 'tags_enc',      help= 'кодировка на етикетите [%default]', default= 'cp1251', **gg)
+        optz.text( 'tags_spisyk',       help= 'прави общ списък за слагане на етикети', **gg)
+        optz.text( 'tags_po_papki',     help= 'прави списъци по папки за слагане на етикети', **gg)
+        optz.text( 'tags_po_otdelno',   help= 'прави отделни рецепти за слагане на етикети', **gg)
 
         gg = optz.grouparg( 'преименоване на съдържанието')
-        optz.str( 'spisyk_preimenovane',   help= 'прави списък за преименоване+превеждане на съдържанието', **gg)
-        optz.str( 'prehvyrli_sydyrzhanie', help= 'прехвърля+превежда съдържанието към тук/', **gg)
+        optz.text( 'spisyk_preimenovane',   help= 'прави списък за преименоване+превеждане на съдържанието', **gg)
+        optz.text( 'prehvyrli_sydyrzhanie', help= 'прехвърля+превежда съдържанието към тук/', **gg)
 
         gg = optz.grouparg( 'html списъци')
-        optz.str( 'html_enc',       help= 'кодировка на html [%default]', default='utf8', **gg)  #cp1251
-        optz.bool( 'vnosa_e_obiknoven',    help= 'внесените външни папки са като обикновени', **gg)
+        optz.text( 'html_enc',      help= 'кодировка на html [%default]', default='utf8', **gg)  #cp1251
+        optz.bool( 'vnosa_e_obiknoven',         help= 'внесените външни папки са като обикновени', **gg)
         optz.bool( 'nakratko_stihove_pesni',    help= 'ет.стихове и ет.песни стават ет.накратко', **gg)
-        optz.bool( 'spisyk_samo_papki',    help= 'общия списък само с папки, без връзки към файлове', **gg)
-        optz.str( 'url_koren',  default= '/detski/zvuk',    help= 'абс.адрес на общия корен', **gg)
+        optz.bool( 'spisyk_samo_papki',         help= 'общия списък само с папки, без връзки към файлове', **gg)
+        optz.text( 'url_koren',  default= '/detski/zvuk',    help= 'абс.адрес на общия корен', **gg)
 
-        optz.str( 'html_index',     help= 'прави отделни html-страници по папки', **gg)
-        optz.str( 'html_papka',     help= 'прави отделни html-новости-избор по папки', **gg)
+        optz.text( 'html_index',    help= 'прави отделни html-страници по папки', **gg)
+        optz.text( 'html_papka',    help= 'прави отделни данни=списък-новости-избор по папки', **gg)
 
-        optz.str( 'html_spisyk',    help= 'прави общ списък html-страница', **gg)
-        optz.str( 'html_novi',      help= 'прави общ списък новости отделен (иначе част от общия списък)', **gg)
-        optz.str( 'html_izbrani',   help= 'прави общ списък само хубавите - извадка от общия списък', **gg)
-        optz.str( 'html_hora',      help= 'прави общ списък на хората', **gg)
-        optz.str( 'index_hora',     help= 'прави общ списък на хората не-html', **gg)
+        optz.text( 'html_spisyk',   help= 'прави общ списък html-страница', **gg)
+        optz.text( 'html_spisyk_sykr', help= 'съкращава имената на участниците в общия списък', **gg)
+        optz.text( 'html_novi',     help= 'прави списък новости отделен (иначе част от общия списък)', **gg)
+        optz.text( 'html_izbrani',  help= 'прави списък на само хубавите - извадка от общия списък', **gg)
+        optz.text( 'html_hora',     help= 'прави общ списък на хората', **gg)
+        optz.text( 'index_hora',    help= 'прави общ списък на хората не-html', **gg)
 
-#       optz.str( 'url_tuk',    default= '',                help= 'отн.адрес тук спрямо корена', **gg)
-#       optz.str( 'pyt_tuk',    default= '',                help= 'отн.път   тук спрямо корена', **gg)
-#       optz.str( 'pyt_kym_drugvid',    default= '../%(drugvid)s/xxx',  help= 'отн.файлов път към папка-корен от другвид (приказки/песнички/..)', **gg)
+#       optz.text( 'url_tuk',    default= '',                help= 'отн.адрес тук спрямо корена', **gg)
+#       optz.text( 'pyt_tuk',    default= '',                help= 'отн.път   тук спрямо корена', **gg)
+#       optz.text( 'pyt_kym_drugvid',    default= '../%(drugvid)s/xxx',  help= 'отн.файлов път към папка-корен от другвид (приказки/песнички/..)', **gg)
 #       optz.append( 'samo_vnos',   default=[], help= 'папка-внос от/обработена другаде - показва се само в списъка', **gg)
         optz.bool( 'obshto_otgore',         help= 'слага Общо: отгоре (иначе отдолу)', **gg)
         optz.bool( 'obshto_broi_zapisi',    help= 'брои файловете със записи, а не папките', **gg)
-        optz.str(  'podredba',              help= 'подрежда по изброените полета [%default]',
+        optz.text( 'podredba',              help= 'подрежда по изброените полета [%default]',
             default= 'humor,ime_sglobeno,pored',
                 **gg)
         optz.bool( 'otkoga_e_mintime',      help= 'слага липсващо откога=най-ранното време на папката', **gg)
-        optz.int( 'kolko_dni_e_novo',   default=35, help= 'толкова дни нещо се счита за ново [%default]', **gg)
-        optz.int( 'kolko_sa_novi',      default=0,  help= 'толкова последни неща се считат за нови [%default]', **gg)
+        optz.int(  'kolko_dni_e_novo',   default=35, help= 'толкова дни нещо се счита за ново [%default]', **gg)
+        optz.int(  'kolko_sa_novi',      default=0,  help= 'толкова последни неща се считат за нови [%default]', **gg)
+        optz.int(  'novi_prez_dni',      help= 'през толкова дни се слага дата; по подразбиране не се слага', **gg)
 
-        optz.str( 'izdania_spisyk',    help= 'прави общ списък по издания', )
+        optz.text( 'izdania_spisyk',    help= 'прави общ списък по издания', )
+        optz.bool( 'otdeli',            help= 'прави отделни папки с отделните парчета', )
+        optz.append( 'ima_etiket',      help= 'включва папки с такъв етикет или имащи елементи с такъв етикет; може няколко', )
+        optz.text( 'vkl_etiket',        help= 'включва само папки с такъв етикет', )
+        optz.append( 'izkl_etiket',     help= 'изключва папки с такъв етикет', )
 
 
     stoinosti_simvoli = dict(
@@ -442,10 +217,14 @@ class info( opisvane.info):
         glas1       = 'прочит',
         pesen       = 'песни песен песничка песнички',
         teatyr      = 'театър',
+        litdok      = 'лит-док*-композиция литдок',
+        litkomp     = 'лит-комп*озиция литкомп',
+        dokkomp     = 'док-комп*озиция доккомп',
         humor       = 'хумор',
         stihove     = 'стих*ове стихот*ворение стихотворения',
         dokumentalni= 'документални док*ументално',
         muzikal     = 'мюзикъл мюзикъли',
+        portret     = 'портрет',
         otkys       = 'откъс откъси',
         opera       = 'опера',
         #само папката
@@ -467,29 +246,37 @@ class info( opisvane.info):
         prefix      = 'представки представка префикс',
         nakratko    = 'накр*атко',               #в списъка - без описания
         #само елементите
-        nakratko_bez_otdelni_avtori  = 'накратко-без-автори',   #в списъка - без отделни автори
-        nakratko_bez_sydyrzhanie     = 'накратко-без-съдържание без-съдържание',   #в списъка - без съдържания
+        nakratko_bez_otdelni_avtori = 'накратко-без-автори',   #в списъка - без отделни автори
+        nakratko_bez_sydyrzhanie    = 'накратко-без-съдържание без-съдържание',   #в списъка - без съдържания
+        nakratko_bez_uchastnici     = 'накратко-без-уч*астници',   #в списъка - без отделни участници
         avtor_sled_opisanie = 'автор-след-опис*ание автор-в-опис*ание',  #в index - отделните автори не са към имената, а след описанието
         vid_v_opisanie = 'вид-след-опис*ание вид-в-опис*ание',
         #на папката/елемента
         izp_v_avtor = 'изпълнители-в-автор изп-в-автор',
+        izp_ne_v_avtor = 'изпълнители-не-в-автор изп-не-в-автор',
         uch_v_avtor = 'участници-в-автор уч-в-автор',
         mt_v_avtor  = 'м-т-в-автор мт-в-автор музика-текст-в-автор',
-        rez_v_avtor = 'реж-в-автор режисьор-в-автор',
+        prev_v_avtor = 'превод-в-автор прев-в-автор пр-в-автор',
+        prev_ne_v_avtor = 'превод-не-в-автор прев-не-в-автор пр-не-в-автор',
+        rez_v_avtor = 'режисьор-в-автор реж-в-автор',
         ),
     )
     stoinosti_danni = dict(
         ##поредица
         ##организатор/инициатор/постановка/запис
         #на папката/елемента
+        ime_kyso    = 'име-късо',
         opisanie2   = 'описание2 опис2',
-        vryzki      = 'опис.връзки опис-връзки вр*ъзки връзка url wryzki wryzka',
+        vryzki      = 'опис.връзки опис-връзки вр*ъзки връзка url wr*yzki wryzka',
+        nagradi     = 'опис.награди опис-награди наград*а награди nagrad*a nagradi',
         fon         = 'опис.фон    опис-фон    фон',
+        poredica    = 'опис.поредица опис-поредица поредица',
         povreda     = 'повреда',    #към описанието
         obrabotka   = 'обр*аботка',
         otkoga      = 'откога',
         bez_otkoga  = 'без-откога', #елементите които нямат откога
         otkyde      = 'откъде',
+        srez        = 'срез срез*ове',
         #за/от елементите и в папка
         uchastnici  = 'уч*астници участв*ат',
         izdanie     = 'изд*ания издание',
@@ -500,7 +287,7 @@ class info( opisvane.info):
         #само папката
         ikoni       = 'ик*они икона',
         pored       = 'поред',  #ако има няколко едноименни папки, напр. Андерсенови приказки
-        #avtor       = 'автор',
+        avtor       = 'ав*тор автори awt*ori',
         #godina      = 'година',
         #изчислими и запомнени
         vreme       = '_време продължителност',
@@ -512,6 +299,10 @@ class info( opisvane.info):
     for simv in stoinosti_simvoli.values():
         stoinosti0.update( simv)
 
+    stoinosti_edinstveno = dict(
+        стихове = 'стих',   #отворение
+        песни   = 'песен',
+    )
 
     def kachestva( az, **kargs):
         return kachestva( az.etiketi.kachestvo, **kargs)
@@ -530,7 +321,27 @@ class info( opisvane.info):
         if az.etiketi.koren: return
         az._samopopylva_etiketi()
 
-    def opravi_otkoga( az, etiketi, fname, predv_otkoga =None):
+    def opravi_vid( az, etiketi):
+        _vidove = az.stoinosti.portret, az.stoinosti.glas1, az.stoinosti.teatyr
+        if 0*'към вид':
+            vid = etiketi.vid or []
+            if vid:
+                vid = isinstance( vid,str) and vid.split() or list( vid)
+            for a in _vidove:
+                if etiketi.pop( a,None):
+                    appendif( vid, a)
+        else:   #към етикети
+            vid = etiketi.vid
+            if not vid: return
+            vid = isinstance( vid,str) and vid.split() or list( vid)
+            for a in _vidove:
+                try:
+                    vid.remove( a)
+                    az._slaga_etiket( a, True, etiketi)
+                except ValueError: pass
+        az._slaga_etiket( 'vid', ' '.join( vid), etiketi)
+
+    def opravi_otkoga( az, etiketi, fname, predv_otkoga =None, lipsva_otkoga =False):
         eotkoga = str( etiketi.otkoga).split()
         vse_eotkoga = list( eotkoga)
         otkoga_e_mintime = az.options.otkoga_e_mintime
@@ -547,14 +358,17 @@ class info( opisvane.info):
             if otkoga_e_mintime:
                 t = min( getattr( os.path, f)( fname ) for f in 'getmtime getctime getatime'.split() )
                 otkoga = datetime.fromtimestamp( t)
+            lipsva_otkoga = True
+        else:
+            otkoga = max( date( a) for a in vse_eotkoga )
+
+        if lipsva_otkoga:
             o = otkoga.strftime( sega_fmt2)
             if not eotkoga:
                 o = int(o)
             else:
                 o = ' '.join( listif( eotkoga + [ o]))
             etiketi.otkoga = o
-        else:
-            otkoga = max( date( a) for a in vse_eotkoga )
 
         return otkoga
 
@@ -579,6 +393,8 @@ class info( opisvane.info):
 
         for v in dvid:
             az.slaga_etiket( v, True)
+
+        az.opravi_vid( az.etiketi)
 
         qcontent,qrecord = az.kachestva()
         az.etiketi.kachestvo = qcontent+'/'+qrecord
@@ -605,7 +421,7 @@ class info( opisvane.info):
             az.etiketi.ikoni = az.ikoni_vse[0].replace( MIKONA, '.jpg')
 
         for o in 'opisanie opisanie2'.split():
-            opis,lipsva = lipsva_izvadi( getattr( az.etiketi, o))
+            opis,lipsva = lipsva_izvadi( str(getattr( az.etiketi, o) or ''))
             if lipsva:
                 az.slaga_etiket( o, opis)
                 az.slaga_etiket( 'povreda', lipsva, zamesti= False)
@@ -624,8 +440,15 @@ class info( opisvane.info):
         az.opis2hora2dejnosti()
 
         ime = az.ime.lower()
-        #if ime.startswith( 'стихове'): az.etiketi.stihove = True
+        if ime.lower() == 'стихове': az.etiketi.stihove = True
+        #if az.etiketi.stihove:
+        #    az.etiketi_element.izp_v_avtor = True
+        #    #az.etiketi_element.prev_v_avtor = True
+        #    del az.etiketi.izp_v_avtor
         if 'хумор' in ime: az.etiketi.humor = True
+        if len(az.soundfiles)<=1:
+            for k in 'prefixime prefixavtor prefixnomer'.split():
+                if az.etiketi.get(k): prn( '??', az.stoinosti0[ k], az.fname)
 
     def opravi_izdania( az, etiketi):
         if not etiketi.izdanie: return ()
@@ -648,11 +471,30 @@ class info( opisvane.info):
                 dejnosti2hora.slaga_dejnost( az.dejnost_podrazbirane, e.uchastnici)
             elif isinstance( e.uchastnici, str):
                 r = dejnosti2hora.opis2dejnosti( e.uchastnici, e)
-                assert not r, e.uchastnici
+                assert not r, (e.uchastnici, e)
             elif e.uchastnici:
+                def slepiImena( x): return x.replace(' ','')
+                def nelepiImena( x): return x
+
                 for dd,v in e.uchastnici.items():
                     if not v: continue
-                    vv = isinstance( v, dict) and [ v ] or ( v.split() if isinstance( v, str) else list(v) )
+                    #XXX не работи добре за разни оркестри и пр.... затова nelepiImena
+                    if isinstance( v, dict): #Aa Bb: rrr ; CcDd: rr
+                        vv = [ dict( (nelepiImena(h),r) for h,r in v.items()) ]
+                    elif isinstance( v, str):
+                        if ',' in v:    #Aa Bb, Cc Dd
+                            vv = [ slepiImena( h.strip()) for h in v.split(',') ]
+                        else:   #AaBb CcDd
+                            vv = v.split()
+                    else: #list #Aa Bb ; CcDd ;
+                        #vv = list(v)
+                        vv = [ dict( (nelepiImena(h),r) for h,r in i.items())
+                                if isinstance(i, dict)
+                                else nelepiImena( i)
+                               for i in v
+                             ]
+
+                    #vv = isinstance( v, dict) and [ v ] or ( v.split() if isinstance( v, str) else list(v) )
                     for d in dd.split('+'):
                         d = abbr.dejnosti4vse.get( d.strip('.'), d)
                         extendif( dejnosti2hora.setdefault( d, []), vv)
@@ -674,10 +516,10 @@ class info( opisvane.info):
                 hh = []
                 for h in hora:
                     h,r = dejnosti2hora.h2hr( h)
-                    abbr.dobavi( h, e.ime)
                     if az.options.sykr2dylgo:
-                        h = abbr.dai_imepylno( h, True)
+                        h = abbr.dai_imepylno( h) or h
                         hh.append( dejnosti2hora.hr2h( h,r))
+                    abbr.dobavi( h, e.ime)
                 if hh: hora[:] = hh
 
             if az.options2( 'avtor2dejnosti') and e.avtor:
@@ -715,6 +557,27 @@ class info( opisvane.info):
             #общо за цялото
             az.uchastnici_vse.dobavi( dejnosti2hora, bezplus= True)
 
+            #от съдържание
+            uchastnici_syd = az.make_Uchastnici()
+            l_uchastnici_syd = []
+            dejnost_podrazbirane = 'автор'
+            for s in e.sydyrzhanie or ():
+                u = None
+                if s:
+                    r = razglobi( s)
+                    if not r.get('avtor'): u = None
+                    else:
+                        u = az.make_Uchastnici()
+                        for a in r.avtor:
+                            opis = u.opis2dejnosti( a, e, u.posledna_dejnost or dejnost_podrazbirane)
+                        az.uchastnici_vse.dobavi( u, bezplus= True)
+                l_uchastnici_syd.append( u)
+            az.uchastnici_vse.dobavi( uchastnici_syd, bezplus= True)
+            if l_uchastnici_syd:
+                #if e is not az.etiketi:
+                e._uchastnici_syd = l_uchastnici_syd
+                #else: az._uchastnici_syd = l_uchastnici_syd
+
             if e is not az.etiketi:
                 #общо за парчето
                 vse = az.make_Uchastnici().dobavi( dejnosti2hora, bezplus= True )    #copy
@@ -731,6 +594,7 @@ class info( opisvane.info):
                                 o[h] = joinif(' ', [o.get( h,''), r])
                             hh = [ vse.hr2h( h,r) for h,r in o.items() ]
                         vse[ d] = hh
+                vse.dobavi( uchastnici_syd, bezplus= True )    #copy
                 if vse: e.uchastnici_vse = vse
 
     def make_Uchastnici( az):
@@ -746,7 +610,9 @@ class info( opisvane.info):
                     az.slaga_dejnost( d, hora, bezplus)
             return az
 
+        posledna_dejnost = None
         def slaga_dejnost( az, dejnost, hora, bezplus =False):
+            az.posledna_dejnost = dejnost
             if not hora: return
             dai_imepylno = az.abbr.dai_imepylno
             for d in isinstance( dejnost, str) and [dejnost] or dejnost:
@@ -754,7 +620,7 @@ class info( opisvane.info):
                 for h in hora:
                     if bezplus and h == '+': continue
                     h,r = az.h2hr( h)
-                    h = dai_imepylno( h, True)
+                    h = dai_imepylno( h) or h
                     appendif( i, az.hr2h( h,r))
         @staticmethod
         def h2hr( h):
@@ -773,15 +639,16 @@ class info( opisvane.info):
             opis = abbr.re_dejnost_.sub( r'\1\2', opis)
             r = []
             for b in opis.split(';'):
+                posledna_dejnost = None
                 r.append( [] )
                 kalpak = None
                 bb = b.split()
                 while bb:
                     aa = bb.pop(0)
-                #for aa in b.split():
                     pred_kalpak = kalpak
                     a = aa.rstrip(',.')
                     kalpak = abbr.dai_kalpak( a)
+                    #prn( 88999999999, a, kalpak, bb)
                     if 0:
                         if kalpak and not kalpak[0].isupper():
                             prn( '??sykr', a, element.ime)
@@ -801,14 +668,19 @@ class info( opisvane.info):
                         if bb[0][0] == '(': #roli
                             rolia = []
                             while bb:
-                                rolia.append( bb.pop(0) )
-                                if rolia[-1][-1]==')': break
+                                rol = bb.pop(0).strip('.,')
+                                rolia.append( rol)
+                                if rol[-1]==')': break
+                                #if rolia[-1][-1]==')': break
                             rolia = ' '.join( rolia ).strip( '()' )
-
+                    if info.options.sykr2dylgo:
+                        kalpak = abbr.dai_imepylno( kalpak) or kalpak
+                    #prn( 788999999999, kalpak, bb)
                     hora = abbr.dobavi( kalpak, element.ime)
                     if rolia: hora = [ { h:rolia } for h in hora ]  #TODO io only!
-                    for d in abbr.dai_dejnosti( a, dejnost_podrazbirane):
+                    for d in abbr.dai_dejnosti( a, posledna_dejnost or dejnost_podrazbirane):
                         az.slaga_dejnost( d, hora)
+                        posledna_dejnost = az.posledna_dejnost
 
             opis = joinif( '; ', [' '.join(a) for a in r if a] )
             return opis
@@ -828,25 +700,30 @@ class info( opisvane.info):
                 az._slaga_etiket( k, True, p.etiketi)
             p.update_pre( **razglobeni)
             az.opravi_avtori( p)
+            az.opravi_vid( p.etiketi)
+
             p._izdania = az.opravi_izdania( p)
 
-            if not p.etiketi.neotdelno and az.etiketi.avtor and p.avtor and p.avtor != az.etiketi.avtor :
+            if not p.etiketi.neotdelno and not az.etiketi.neotdelno and az.etiketi.avtor and p.avtor and not set(p.avtor).issubset( set( az.etiketi.avtor)) :
                 az.etiketi.otdelni = True
 
             az.fix_urls( p)
 
     def setup_prevodi2( az):
+        lipsva_otkoga = len( az.prevodi) == sum( not p.otkoga for p in az.prevodi.values())
         for p in az.prevodi.values():
             fname = p.get( '_fname')
             if fname:
                 p._otkoga = otkoga = az.opravi_otkoga( p, join( az.fname, fname),
                                 az.etiketi.bez_otkoga and date( az.etiketi.bez_otkoga )
-                                or not az.etiketi.otdelni and az._otkoga)
+                                    or (not az.etiketi.otdelni or lipsva_otkoga) and az._otkoga,
+                                lipsva_otkoga= lipsva_otkoga
+                                )
                 if az._otkoga < otkoga: az._otkoga = otkoga
 
     class SoundElement( DictAttr):
         _other = None
-        _others = 'uchastnici uchastnici_vse sydyrzhanie opisanie2 otkyde vryzki povreda etiketi _izdania'.split()
+        _others = 'uchastnici uchastnici_vse sydyrzhanie opisanie2 otkyde vryzki nagradi povreda etiketi _izdania'.split()
 
         def __getitem__( az, k):
             try:
@@ -860,6 +737,10 @@ class info( opisvane.info):
             if k in az: return DictAttr.__getitem__( az, k)
             if az._other is None: return DictAttr.get( az, k, *default)
             return az._other.get( k, *default)
+        def items( az):
+            for k,v in DictAttr.items( az): yield k,v
+            if az._other is not None:
+                for k,v in az._other.items(): yield k,v
 
     def setup_elementi( az):
         #елементи
@@ -890,6 +771,7 @@ class info( opisvane.info):
                     if not pnm: pnm = az.file_prevodi.get( m)
                     p = az.prevodi.get( m)
                     if p: break
+                v._prevod = p
 
                 #и понеже преводът с :автор може да е скапан с .mp3 в prevedi_elementi..
                 v.ime = pnm and az.bez_ext( pnm, extra_exts=extra_exts)
@@ -936,7 +818,7 @@ class info( opisvane.info):
                 if 1:
                     v._other = p
                 else:
-                    for k in 'uchastnici uchastnici_vse sydyrzhanie opisanie2 otkyde vryzki povreda etiketi _izdania'.split():
+                    for k in SoundElement._others:
                         u = p.get( k)
                         #if u:
                         v[k]=u
@@ -996,14 +878,21 @@ class info( opisvane.info):
             return [ a for a in [
                 az.znak( 'muzikal', **k) and az.stoinosti.muzikal,
                 az.znak( 'otkys', **k)   and az.stoinosti.otkys,
+                #az.znak( 'stihove', **k) and 'стихо' not in y.ime and az.stoinosti.stihove,
             ] if a]
         az.vid4ime = vid4ime()
 
 
         #подредба
         if len( az.soundfiles) > 1:
-            if az.options.sort_prevodi or az.etiketi.sort_prevodi:
-                az.soundfiles.sort( key= lambda v: v.ime )
+            podredba = az.options.sort_prevodi or az.etiketi.sort_prevodi
+            if podredba:
+                if isinstance( podredba, bool):
+                    def key(v): return v.ime
+                else:
+                    if isinstance( podredba, str): podredba = podredba.split()
+                    def key(v): return tuple( str(v.get( k,'')) for k in podredba)
+                az.soundfiles.sort( key= key)
             else:
                 def porednost( v):
                     nm = v.name
@@ -1024,12 +913,12 @@ class info( opisvane.info):
         nn = len(az.soundfiles) - bool( az.etiketi.nomer0)
         nsz = len(str(nn))  #10:2, 9:1
 
-        az.avtori2vse( az.etiketi, az.uchastnici_vse, az.etiketi.avtor)
+        az.avtori2vse( az.etiketi, az.etiketi.uchastnici, az.etiketi.avtor)
 
         for v in az.soundfiles:
             i = v._izdania or az._izdania
-            v.izdanie_kyso = izdatel_kys( i and i[0].izdatel or '')
-            v.nositel = koi_nositel4fname( v.name, nositel, v.izdanie_kyso)
+            v.izdanie_kyso_zapis = izdatel_kys( i and i[0].izdatel or '')
+            v.nositel = koi_nositel4fname( v.name, nositel, v.izdanie_kyso_zapis)
             v.vid4ime = vid4ime( etiketi= v.get( 'etiketi'), za_elementi=True, )
             uchastnici_vse = v.get( 'uchastnici_vse')
             az.avtori2vse( v, uchastnici_vse, za_elementi=True)
@@ -1042,7 +931,7 @@ class info( opisvane.info):
 
             n+=1
             v.nomer = v.nomer_str = None
-            if len( az.soundfiles)!=1 and az.etiketi.nomer or az.etiketi.nomer0:
+            if len( az.soundfiles)!=1 and az.etiketi.nomer or az.etiketi.nomer0 or az.etiketi.prefixnomer:
                 nr = n
                 if az.etiketi.nomer0: nr = n-1
                 v.nomer = nr
@@ -1067,12 +956,20 @@ class info( opisvane.info):
         az.e_radio = eradio
         az.e_teatyr = eteatyr
 
-        az.v_zaglavieto2 = [ i==radio and eteatyr and 'радиотеатър' or i
-                                for i in az.izdateli]
-        az.v_zaglavieto = [ i=='радиотеатър' and i+'/драматизация' or i
-                                for i in az.v_zaglavieto2]
-        if eteatyr and 'радиотеатър/драматизация' not in az.v_zaglavieto:
-            az.v_zaglavieto += [ 'театър/драматизация' ]
+        az.v_zaglavieto = [
+            eteatyr and ( radio in az.izdateli and 'радиотеатър' or 'театър' ), #/драматизация
+            az.etiketi.dokumentalni and 'док.',
+            az.etiketi.litdok   and 'лит-док-комп.',
+            az.etiketi.dokkomp  and 'док-комп.',
+            az.etiketi.litkomp  and 'лит-комп.',
+            az.etiketi.portret  and az.stoinosti.portret not in az.ime.lower() and az.stoinosti.portret,
+            az.etiketi.stihove  and 'стихо' not in az.ime.lower() and az.stoinosti.stihove,
+            az.etiketi.glas1    and az.stoinosti.glas1,
+        ]
+        if not (eteatyr and radio in az.izdateli):
+            az.v_zaglavieto += az.izdateli
+        #az.v_zaglavieto += [ i.nomer for i in az._izdania]
+        az.v_zaglavieto = [ a for a in az.v_zaglavieto if a ]
 
     def vidove( az, etiketi, vid ='', uchastnici_vse =(), eradio =False):
         eteatyr = ( etiketi and etiketi.teatyr
@@ -1080,32 +977,42 @@ class info( opisvane.info):
                           uchastnici_vse.get( 'драматизация')
                        or uchastnici_vse.get( 'адаптация')
                        or uchastnici_vse.get( 'режисьор')
-                       or (len( az.soundfiles)==1  or not eradio) and len( uchastnici_vse.get( 'изпълнение',()))>1
+                       #or (len( az.soundfiles)==1  or not eradio) and len( uchastnici_vse.get( 'изпълнение',()))>1
                        ))
 
         #TODO множ.число/род
-        vid = vid and vid.split() or etiketi and sorted( v for v in [
+        vid = vid and isinstance( vid, str) and vid.split() or list( vid or ())
+        extendif( vid, etiketi and sorted( v for v in [
                 etiketi.dokumentalni and az.stoinosti.dokumentalni,
                 etiketi.stihove      and az.stoinosti.stihove,
                 etiketi.pesen        and az.stoinosti.pesen,
                 etiketi.glas1        and az.stoinosti.glas1,
                 etiketi.humor        and az.stoinosti.humor,
                 etiketi.muzikal      and az.stoinosti.muzikal,
+                etiketi.portret      and az.stoinosti.portret,
+                etiketi.litdok  and 'литературно-документална композиция',
+                etiketi.litkomp and 'литературна композиция',
+                etiketi.dokkomp and 'документална композиция',
             ] if v) or ()
+            )
         if eteatyr:
             if not vid:
                 vid = [ eradio and 'радиотеатър/драматизация' or 'театър/драматизация']
-            else: eteatyr = False
+            elif vid != [ az.stoinosti.dokumentalni ] or not (etiketi and etiketi.teatyr):
+                eteatyr = False
         return eteatyr, vid
 
     class Prevod( opisvane.info.Prevod):
-        _vytr_svoistva = opisvane.info.Prevod._vytr_svoistva + '_izdania _fname _otkoga'.split()
+        _vytr_svoistva = opisvane.info.Prevod._vytr_svoistva + '''
+            _izdania _fname _otkoga
+            ime_bez_grupa_i_nomer ime_bez_grupa vid4ime
+            '''.split()
         _izdania = ()
 
 
     @classmethod
     def all( klas):
-        all( sorted( (x for x in klas.vse.values() if not x.etiketi.koren), key= lambda x: x.ime), klas.options)
+        vse( sorted( (x for x in klas.vse.values() if not x.etiketi.koren), key= lambda x: x.ime), klas.options)
         super().all()
 
     def opravi_avtori( az, et):
@@ -1135,50 +1042,137 @@ class info( opisvane.info):
     def avtori2vse( az, v, uchastnici_vse =None, avtor =(), za_elementi =False):
         v.avtor1 = v.avtor and [ nskaPrikazka.dai_imepylno( a, edinstveno=True)
                                     for a in v.avtor] or avtor
+        bb = dictOrder()
+        bb[ 'avtor1' ] = v.avtor1 or ()
+        bb[ 'avtor'  ] = v.avtor or avtor
+
         aa = []
+        aabezizp = []
         vetiketi = v.get( 'etiketi')
         def znak( t): return az.znak( t, vetiketi, za_elementi)
+        if za_elementi and not uchastnici_vse: uchastnici_vse = az.etiketi.uchastnici   #наследи
         if uchastnici_vse:    #ред: текст, музика, изпълнение, всички други
             c = []
-            z = DictAttr( (k, znak(k)) for k in
-                    'uch_v_avtor izp_v_avtor mt_v_avtor rez_v_avtor pesen muzikal stihove'.split())
-            izp = z.izp_v_avtor or z.uch_v_avtor or za_elementi and (z.stihove or z.pesen)
-            if izp and z.pesen:
-                appendif( c, 'изпълнение')
-            if z.rez_v_avtor or z.uch_v_avtor:
-                appendif( c, 'режисьор')
+            z = DictAttr( (k, znak(k)) for k in '''
+                    uch_v_avtor     rez_v_avtor     mt_v_avtor
+                    izp_v_avtor     izp_ne_v_avtor
+                    prev_v_avtor    prev_ne_v_avtor
+                    pesen   muzikal     stihove
+                    '''.split())
+            izpylniteli = uchastnici_vse.get( 'изпълнение') or ()
+            izp = z.izp_v_avtor or z.uch_v_avtor or (za_elementi or len( izpylniteli)<=2) and (z.stihove or z.pesen)
+            if z.izp_ne_v_avtor: izp = False
+            if izp and (z.pesen or z.stihove): appendif( c, 'изпълнение')
+            if not z.stihove and (1 or z.rez_v_avtor) or z.uch_v_avtor: appendif( c, 'режисьор')
             if za_elementi and z.pesen or (z.muzikal and (not az.etiketi.otdelni or za_elementi)) or z.mt_v_avtor or z.uch_v_avtor:
                 mt = 'либрето текст'.split()
+                if not z.prev_ne_v_avtor: mt.append( 'превод')
                 m = 'музика'.split()
                 if z.muzikal or z.pesen: mt = m+mt
                 else:    mt = mt+m
                 c += mt
+            if not z.prev_ne_v_avtor:
+                if z.stihove or z.prev_v_avtor or z.uch_v_avtor: appendif( c, 'превод')
             if izp: appendif( c, 'изпълнение')
-            #if z.pesen: prn( 11111111, v.ime, c, z, uchastnici_vse)
+            #if 'kuk' in az.fname or z.pesen: prn( 11111111, v.ime, c, z, uchastnici_vse)
+
+
             for a in c:
                 ii = uchastnici_vse.get( a)
-                if not ii: continue
-                if a=='изпълнение' and len(ii)>=3 and not (z.uch_v_avtor or z.izp_v_avtor):
-                    continue
-                extendif( aa, ii)
+                if not ii:
+                    ii = az.etiketi.uchastnici and az.etiketi.uchastnici.get( a)
+                    if not ii:
+                        continue
+                if 0*a=='изпълнение':
+                    if not (z.uch_v_avtor or z.izp_v_avtor):
+                        if len(ii)>2:
+                            continue    #не повече от 2 изпълнителя
+                    else:
+                        extendif( aabezizp, ii)
+                #extendif( aa, ii)
+                bb[a] = ii
             if z.uch_v_avtor:
-                for u in uchastnici_vse.values():
-                    extendif( aa, u)
-        aa = [ az.Uchastnici.h2hr(h)[0] for h in aa]
-        v.avtor1_s_uchastnici = list( v.avtor1 or ())
-        extendif( v.avtor1_s_uchastnici, aa)
-        v.avtor_s_uchastnici = list( v.avtor or avtor)
-        extendif( v.avtor_s_uchastnici, aa)
+                for k,u in uchastnici_vse.items():
+                    extendif( bb.setdefault( k, []), u)
+                    #extendif( aa, u)
+                    #extendif( aabezizp, u)
+
+        for k,hh in bb.items():
+            bb[k] = [ az.Uchastnici.h2hr(h)[0] for h in hh ]
+        v.avtor_s_uchastnici = bb
 
     def sykrati_avtori( az, aa):
-        dai_kyso = az.abbr.dai_kyso
-        rr = [ dai_kyso( h, original= False) or h
-                for h in aa]
-        return '+'.join( rr)
+        #dai_kyso = az.abbr.dai_kyso
+        #rr = [ dai_kyso( h, original= False) or h for h in aa]
+        rr = aa
+        r = ','.join( rr)
+        r = r.replace( ':,', '') #dejnost
+        return r
 
-    @property
-    def avtor_s_uchastnici( az):
-        return az.etiketi.otdelni and az.etiketi.avtor or az.etiketi.avtor_s_uchastnici
+    def avtor_s_uchastnici( az, element =None, **ka):
+        if element is None:
+            avtor_s_uchastnici = 0 and az.etiketi.otdelni and dict( avtor= az.etiketi.avtor) or az.etiketi.avtor_s_uchastnici
+        else:
+            avtor_s_uchastnici = element.avtor_s_uchastnici
+        return az._avtor_s_uchastnici( avtor_s_uchastnici, **ka)
+    @staticmethod
+    def _avtor_s_uchastnici( avtor_s_uchastnici, samo_imena =True, sykr_dejnost =True, edno =False,
+            bez_roli =True,
+            sykr_avtori =False, sykr_neavtori =False, sykr_vse =False, razdeli_avtor =False ):
+        if not avtor_s_uchastnici: return ''
+
+        _dai_kyso = info.abbr.dai_kyso
+        def dai( h, sykr):
+            h0 = h
+            if isinstance( h, dict):
+                assert len(h)==1
+                k,v = list( h.items())[0]
+                if sykr or sykr_vse:
+                    k = _dai_kyso( k, original= False) or k
+                if razdeli_avtor: k = razdeli_kamila2( k )
+                if bez_roli: h = k
+                else: h = k + ' ('+ v +')'
+                #prn(5555555, repr(k),repr(v), h0)
+            else:
+                if sykr or sykr_vse:
+                    h = _dai_kyso( h, original= False) or h
+                    if razdeli_avtor: h = razdeli_kamila2( h )
+            return h
+        def rhh( hh, sykr):
+            return [ dai( h, sykr) for h in hh ]
+
+        r = []
+        r0= []
+        for d,hh in avtor_s_uchastnici.items():
+            if not hh: continue
+            h0 = hh
+            if d in ('avtor1', 'avtor', 'автор'):
+                if edno:
+                    if d != 'avtor1': continue
+                else:
+                    if d == 'avtor1': continue
+                #if d != (edno and 'avtor1' or 'avtor'): continue
+                hh = rhh( hh, sykr_avtori)
+            else:
+                hh = h0 = [ h for h in hh
+                            if h not in r0 or d not in (info.abbr.dejnost_podrazbirane, 'музика', 'текст', 'либрето', 'режисьор') ]
+                if not hh: continue
+                hh = rhh( hh, sykr_neavtori)
+                #XXX горното не е 100% вярно..
+                if not samo_imena:
+                   r.append( (sykr_dejnost and dejnost2sykr( d) or d) + ':')
+            r += hh
+            r0 += h0
+
+        if 0 and razdeli_avtor:
+            r = [ razdeli_kamila2(a) for a in r]
+        if 0:   #изп и прев и муз, или изп и автор.. може. но автор и прев - не..
+            broi = collections.Counter( r)
+            for c in broi.values():
+                if c > 1:
+                    prn( '????', r, c)
+                    break
+        return r
 
 def kachestva( k, as_dict =False, default ='?'):
     if k and '/' in k:
@@ -1190,12 +1184,13 @@ def kachestva( k, as_dict =False, default ='?'):
     if as_dict: return dict( qcontent= qcontent, qrecord= qrecord)
     return qcontent, qrecord
 
-def save_if_diff( *a,**k):
+def save_if_diff( *a,**ka):
+    options = ka.pop( 'options', info.options)
     return opisvane.save_if_diff(
-        naistina= info.options.davai,
-        podrobno= not info.options.davai,
-        prezapis= info.options.prezapis,
-        *a,**k)
+        naistina= options.davai,
+        podrobno= not options.davai,
+        prezapis= options.prezapis,
+        *a,**ka)
 
 def etiket( y, k):
     if get_attrib( y, k, False, error= (AttributeError,KeyError) ): return True
@@ -1207,7 +1202,7 @@ def bold( t, **k):  return anea( 'b', t, **k)
 def ital( t, **k):  return anea( 'i', t, **k)
 def h4( t, sep=' '): return anea( 'h4', t, sep)
 def h1( t, sep=' '): return anea( 'h1', t, sep)
-def blockquote( t, sep= '\n '): return anea( 'blockquote', t, sep)
+def blockquote( t, sep= '\n'): return anea( 'blockquote', t, sep)
 def center( t, sep= '\n'):  return anea( 'center', t, sep)
 def font_1( t, sep=''   ):  return t and sep.join( ['<font size=-1>',t,'</font>'])
 def joinif( j,tt):  return j.join( [t.strip() for t in tt if t and t.strip() ])
@@ -1223,17 +1218,32 @@ def bez_pfx( t, *pfx):
             t = t[ len(p):]
     return t
 
-def sglobi( ime, avtor='', vid ='', izdanie ='', godina='', nomer =None, html= True):
-    r = zaglavie( ime)
+def sglobi( ime, avtor='', vid ='', izdanie ='', godina='', nomer =None, html= True, razdeli_avtor =True):
+    ime = zaglavie( ime)
+    r = ime
     if vid:
         if isinstance( vid, str): vid = vid.split()
         for i in vid:
-            assert i not in r, i
+            if i.lower() in r.lower(): continue
+            #assert i not in r, i
             r += ' -'+ i
     if avtor:
-        if not isinstance( avtor, str): avtor = '+'.join( avtor)
-        if html: avtor = ital( avtor)
-        r += ' :'+ avtor
+        if isinstance( avtor, str): avtor = [ avtor ]
+        j = ','
+        if razdeli_avtor:
+            avtor = [ razdeli_kamila2(
+                info.abbr.dai_imepylno( a) or a
+                ) for a in avtor]
+            j = ', '
+        avtor = j.join( avtor)
+        avtor = avtor.replace( ':'+j,' ') #dejnost
+        avtor = avtor.replace( '  ',' ')
+        if avtor.lower() != ime.lower():
+            if html: avtor = ital( avtor)
+            if razdeli_avtor:
+                r += ' ('+ avtor + ')'
+            else:
+                r += ' :'+ avtor
     for gi in izdanie, godina:
         if not gi: continue
         if isinstance( gi, int): gi = str(gi)
@@ -1245,12 +1255,13 @@ def sglobi( ime, avtor='', vid ='', izdanie ='', godina='', nomer =None, html= T
     return r
 
 re_all = re.compile( ' ('+ '|'.join( [
-    '(?P<kachestvo>[*~?+-]/[~?+-])',
-    '-(?P<vid>песен|песни|мюзикъли?|откъси?)',
-    ':(?P<avtor>\S+)',
-    '/(?P<godina>\d+\??)',  #(-\d+\??)?
-    '/(?P<izdanie>\S+)',
-    ]) +')$', re.IGNORECASE)
+    '(?P<kachestvo>[*~?+-]/[~?+-])$',
+    '-(?P<vid>песен|песни(чки)?|мюзикъли?|откъси?)$',
+    '/(?P<godina>\d+\??)$',  #(-\d+\??)?
+    '/(?P<izdanie>\S+)$',
+    #':(?P<avtor>\S+)',
+    r':(?P<avtor>\S[^/]+)', #без $ в края, може (
+    ]) +')', re.IGNORECASE)
 
 def razglobi( ime ):
     #ime -vid :avtor [extra]/izdanie /godina; opisanie +
@@ -1266,10 +1277,13 @@ def razglobi( ime ):
         m = re_all.search( ime)
         if not m: break
         for k,v in m.groupdict().items():
-            if not v or not v.strip(): continue
-            d.setdefault( k, []).insert( 0, v.strip() )
-        ime = ime[0:m.start()] + ime[ m.end():]
+            if v: v = v.strip()
+            if not v: continue
+            #if k == 'avtor':
+            d.setdefault( k, []).insert( 0, v )
+        ime = ime[0:m.start()] + ' ' + ime[ m.end():]
         ime = ime.strip()
+        ime = ime.replace( '  ',' ')
 
     d.ime = ime
     return DictAttr( (k,v) for k,v in d.items() if v)
@@ -1282,6 +1296,16 @@ def lipsva_izvadi( t):
     return t,lipsva
 def lipsva_udebeli( t):
     return re.sub( '(липсва \S+)', bold( r'\1'), t)
+
+def sydyrzhanie2imena( y):
+    for a,u in zip( y.sydyrzhanie or (), y.get('_uchastnici_syd') or () ):
+        if not a: yield a
+        else:
+            kk = razglobi( a)
+            if kk.get('avtor'):
+                x = info._avtor_s_uchastnici( u, samo_imena= False, bez_roli =False )
+                kk['avtor'] = x
+            yield sglobi( html= False, **kk)
 
 ##############
 
@@ -1297,7 +1321,9 @@ def soundfiles( fn, options ):
 
 def proizhod( fn, proizhod_dir):
     return set( basename( d).split('.',1)[-1]
-            for d in glob( join( globescape( fn), proizhod_dir)))
+            for d in glob( join( globescape( fn), proizhod_dir))
+            if d.rsplit('.',1)[-1] not in info.exts
+            )
 
 def sizes( items, options):
     prn( '..размери')
@@ -1339,10 +1365,13 @@ NBSP = '&nbsp;'
 
 def alt4ikona( ikona, imeavtor, media, izdanie):
     r = imeavtor +' /'+ koi_nositel4fname( ikona, media, izdanie)
-    return re.sub( r'</?[a-z]+>', '', r)
+    return re.sub( r'</?[a-z]+>', '', r).rstrip('/ ')
 
+def dejnost2sykr( d):
+    g = info.abbr.dejnosti2sykr.get( d)
+    return g and g+'.' or d
 
-def html4uchastnici( uchastnici, sykr =False, bez_dejnosti =(), samo_dejnosti =() ):
+def html4uchastnici( uchastnici, sykr =False, bez_dejnosti =(), samo_dejnosti =(), bez_roli =False ):
     if not uchastnici: return ''
     u = dictOrder( uchastnici)
     if samo_dejnosti: u = dictOrder( (k,u[k]) for k in samo_dejnosti if k in u )
@@ -1357,49 +1386,63 @@ def html4uchastnici( uchastnici, sykr =False, bez_dejnosti =(), samo_dejnosti =(
         for h in hora:
             hd.setdefault( h, []).append( d)
 
-    def dsykr( d):
-        g = abbr.dejnosti2sykr.get( d)
-        return g and g+'.' or d
+
+    def grupira_dejnosti( d, horа):
+        #групиране м.+т.
+        if len(hora) !=1: return
+        xd = hd.get( hora[0])
+        if not xd: return True  #вече изядено
+        if len( xd)<2: return
+        for x in xd:
+            if x == d: continue
+            if len( dh.get(x) ) >1: return  #групирана в д:х+х
+        del hd[ hora[0] ]
+        return '+'.join( dejnost2sykr( x) for x in xd)
 
     for d,hora in dh.items():
         podrazb = (d == abbr.dejnost_podrazbirane)
         if sykr:
-            d = dsykr( d)
+            d0 = d
+            d = dejnost2sykr( d)
 
             #групиране м.+т.
             if not podrazb:
-                if len(hora)==1:
-                    xd = hd.get( hora[0])
-                    if not xd: continue     #вече изядено
-                    if xd and len( xd)>1:
-                        d = '+'.join( dsykr( x) for x in xd)
-                        del hd[ hora[0] ]
+                rd = grupira_dejnosti( d0, hora)
+                if rd is True: continue  #вече изядено
+                if rd: d = rd
 
+        drugi = None
         hh = []
         for h in hora:
             h,rolia = uchastnici.h2hr( h)
+            h0=h
             if sykr:
                 h = abbr.dai_kyso( h, original= False, min= False) or h
                 if '.' not in h: h = razdeli_kamila2( h)
             else:
-                h = abbr.dai_imepylno( h, True)
+                h = abbr.dai_imepylno( h) or h
                 h = razdeli_kamila2( h)
-                if rolia: h += ' ('+ rolia +')'
-            hh.append( h)
+                if rolia and not bez_roli: h += ' ('+ rolia +')'
+            if 'други' in (abbr.imena.get( h0) or ()):
+                drugi = h
+            else:
+                appendif( hh, h)
+        if drugi:
+            appendif( hh, drugi)
         hh = ( sykr and (not podrazb and '+' or ', ') or ', ' ).join( hh)
         r.append( (d, hh) )
 
     if sykr:
         r = '; '.join( d+' '+hh for d,hh in r )
     else:
-        r = '<br>\n '.join( d+': '+hh for d,hh in r )
+        r = ' ' + '<br>\n '.join( d+': '+hh for d,hh in r )
     return blockquote( r)
 
 
 def href( url, ime):
     return '<a href="%(url)s"> %(ime)s</a>' % locals()
 
-re_url = re.compile( r'(url|papka|file)\[ *(\S+) *== *(.*?) *\]url' )
+re_url = re.compile( r'(url|papka|file)\[ *(\S+?)(?:==| +==*) *(.*?) *\]url'.replace(' ',r'\s') )
 def repl( m):
     func = m.group(1)
     url = m.group(2).strip()
@@ -1419,10 +1462,11 @@ def url( x):
     return re_url.sub( repl, x)
 
 def html4opisanie( d):
+    if not d: return d
     return blockquote( url( d.replace( '%', '%%')).replace( '\n', '\n <br> ' ))
 
 def otkyde( o):
-    if o: o = '(%s)' % o
+    if o: o = '(%s)' % ' '.join( info.meta_prevodi.get(x,x) for x in str(o).split())
     return o
 
 def html( x):
@@ -1445,69 +1489,86 @@ def html( x):
     opisanie    = joinif( ' ; ', [ x.etiketi.opisanie,
                                    lipsva_udebeli( x.etiketi.povreda) ])
     opisanie12  = joinif( '\n', [ opisanie, x.etiketi.opisanie2, otkyde( x.etiketi.otkyde) ])
-    sydyrzhanie = '\n'.join( x.etiketi.sydyrzhanie or () )
+    sydyrzhanie = '\n'.join( a for a in sydyrzhanie2imena( x.etiketi) )
 
     izdanie = x.etiketi.izdanie
     nositel = x.nositel
-
-    ime = x.ime_sglobeno2
 
     for a in '''
             url2papka
             q size time org
             opisanie opisanie12 sydyrzhanie
-            ime nositel
+            nositel
             izdanie kachestvo preporyka izbor prepizbor
-            '''.split():    #avtor
+            '''.split():    #avtor ime
         x.html[a] = locals()[a]
     return x.html
 
 def html4koloni( redove):
     if not redove: return ''
     nm = len(redove)
-    nm2 = (len(redove)+1)//2
-    if nm2<3:
-        nkoloni = 1
-        r = divl( redove, 'kolona0')
-    else:
-        nkoloni = 2
-        for n in nm2, nm2-1, nm2+1, nm2-2, nm2+2:
-            if n< nm and redove[n].startswith('<h4>'):  #HACK
-                nm2 = n
-                break
+    nkoloni = 2
+    if 0*'цели елементи':
+        nm2 = (nm+1)//2
+        if nm2<2: nkoloni = 1
+        else:
+            for n in nm2, nm2-1, nm2+1, nm2-2, nm2+2:
+                if n< nm and redove[n].startswith('<h4>'):  #HACK
+                    nm2 = n
+                    break
+    else:   #редове в елементи
+        if nm<=3: nkoloni = 1
+        else:
+            ll = [ len( [ i for i in e.split('<br>') if i.strip() ]) for e in redove ]
+            lkolona = (sum( ll) + nkoloni-1)//nkoloni
+            nm2 = 0
+            for l in ll:
+                nm2 += 1
+                lkolona -= l
+                if lkolona<=0: break
 
+    if nkoloni>1:
         r = divl( redove[ :nm2], 'kolona1')
         r+= divl( redove[ nm2:], 'kolona2')
+    else:
+        r = divl( redove, 'kolona0')
 
-    return '\n'.join( ['<br>'] + r), nkoloni
+    return DictAttr( html= '\n'.join( ['<br>'] + r), nkoloni= nkoloni)
 
 
 def html4zapisi( x, imeavtor, sykr =False,
         bez_avtor =False,
         avtor_sled_opisanie= False,
-        uchastnici= True,
+        uchastnici      =True,
         uchastnici_vse  =False,
         uchastnici_sykr =False,
+        uchastnici_bez_roli= False,
         sydyrzhanie= True,
-        vryzki= True,
-        opis2= True,
-        godina= True,
-        izdanie= True,
+        vryzki  =True,
+        nagradi =True,
+        opis2   =True,
+        godina  =True,
+        izdanie =True,
         vid_v_opisanie =None,
         elementi_bez_vryzki =False,
+        vid_v_opisanie_sykr =False,
+        izdanie_v_ime =False,
+        samo_dejnosti =(),
         ):
 
     if sykr:
         #bez_avtor = x.etiketi.nakratko_bez_otdelni_avtori
         avtor_sled_opisanie =False
-        uchastnici      =False
+        #uchastnici      =False
         uchastnici_vse  =False
         uchastnici_sykr =False
         #sydyrzhanie =False
-        vryzki =False
-        opis2= False
-        godina= False
-        izdanie= False
+        vryzki  =False
+        nagradi =False
+        opis2   =False
+        #godina  =False
+        #izdanie =False
+        #vid_v_opisanie_sykr =True
 
         soundfiles = [ y for y in x.soundfiles if not etiket( y, 'neotdelno' ) ]
     else:
@@ -1520,26 +1581,35 @@ def html4zapisi( x, imeavtor, sykr =False,
     def linkzapis( fname, imeavtor ):
         return href( '%(url2papka)s/'+fname, imeavtor )
 
-    if len( soundfiles) == 1 and (not x.prevodi or sykr):
+    redove = []
+
+    if 0: #TODO fake soundfiles( x.prevodi.values()
+        if len( soundfiles) == 1 and len( x.prevodi)>1:
+            elementi_bez_vryzki = True
+            redove += [ linkzapis( soundfiles[0].name, imeavtor ) ]
+            soundfiles = list( x.prevodi.values())
+
+    if len( soundfiles) == 1 and (not x.prevodi or not soundfiles[0]._prevod or sykr):
         if elementi_bez_vryzki: return
-        redove = [ linkzapis( soundfiles[0].name, imeavtor ) ]
+        redove += [ linkzapis( soundfiles[0].name, imeavtor ) ]
     else:
         grupa = ''
-        redove = []
         for y in soundfiles:
             g = ''
             if y.grupa != grupa:
                 grupa = y.grupa
                 redove.append( h4( url( grupa )) )
             avtor = ()
-            if not bez_avtor and y.avtor and y.avtor != x.etiketi.avtor:
-                avtor = y.avtor
+            if not bez_avtor:
+                a = y.avtor #or y.avtor_s_uchastnici_bez_izp
+                if a and a != x.etiketi.avtor:
+                    avtor = a
 
             ime = sglobi( y.ime_bez_grupa_i_nomer,
                                 avtor= not avtor_sled_opisanie and avtor,
                                 vid= y.vid4ime,
                                 godina= godina and y.godina,
-                                izdanie= izdanie and y.izdanie,
+                                izdanie= izdanie and izdanie_v_ime and y.izdanie,
                                 )
 
             if elementi_bez_vryzki:
@@ -1550,60 +1620,110 @@ def html4zapisi( x, imeavtor, sykr =False,
             qcontent,qrecord = kachestva( y.kachestvo, default='')
             r += ' ' + qcontent
 
-            opisanie = [ lipsva_udebeli( url( str( y.opisanie))) ]
+            opisania = [ lipsva_udebeli( url( str( y.opisanie))) ]
             if opis2:
-                opisanie += [ y.opisanie2 and str( y.opisanie2),
-                              otkyde( y.otkyde),
+                opisania += [ y.opisanie2 and url( str( y.opisanie2)),
+                              y.otkyde and y.otkyde != x.etiketi.otkyde and otkyde( y.otkyde),
                               y.povreda and lipsva_udebeli( y.povreda) or '',
                               ]
 
             if vid_v_opisanie:
-                for k in 'stihove pesen'.split():
-                    if x.znak( k, za_elementi= True, etiketi= y.etiketi):
-                        v = x.stoinosti[k]
-                        if sykr: v = v[0]
-                        opisanie += [ '/'+ v ]
+                v = y.vid
+                if not v:
+                    for k in 'stihove pesen'.split():   #.. prochit teatyr ???
+                        if x.znak( k, za_elementi= True, etiketi= y.etiketi):
+                            v = [ x.stoinosti[ k] ]
+                            break
+                if v:
+                    vv = []
+                    for i in v:
+                        if i in ime.lower(): continue #стихове..
+                        i = x.stoinosti_edinstveno.get( i,i)
+                        if vid_v_opisanie_sykr: i = i[0]
+                        vv.append( i)
+                    if vv: r += ' - ' + ','.join( vv)
+                    #v = [ x.stoinosti_edinstveno.get( i,i) for i in v]
+                    #if vid_v_opisanie_sykr: v = [ i[0] for i in v]
+                    #r += ' - ' + ','.join( v)
+                    ##opisania += [ '/'+ v ]
 
             if avtor_sled_opisanie and avtor:
-                opisanie += [ ital( '+'.join( avtor)) ]
+                opisania += [ ital( ','.join( avtor)) ]
             if y.vryzki and vryzki:
-                opisanie += [ html4vryzki( y.vryzki) ]
+                opisania += [ html4vryzki( y.vryzki) ]
+            if y.nagradi and nagradi:
+                opisania += [ str( y.nagradi) ]
 
-            opisanie = joinif( '\n', opisanie)
+            opisania = [ html4opisanie( joinif( '\n', opisania )) ]
 
             uc = None
             if uchastnici or uchastnici_vse or uchastnici_sykr:
                 koi = y.uchastnici_vse if uchastnici_vse else y.uchastnici
-                uc = html4uchastnici( koi, sykr= uchastnici_sykr)
+                uc = html4uchastnici( koi, sykr= uchastnici_sykr, bez_roli= uchastnici_bez_roli, samo_dejnosti= samo_dejnosti)
 
             if uc and uchastnici_sykr:
-                if opisanie: opisanie += ' ; '
-                opisanie += uc
+                if opisania: opisania += ' ; '
+                opisania += [ uc ]
 
             if y.sydyrzhanie and sydyrzhanie:
-                opisanie += ''.join( '\n<br> '+NBSP+i for i in y.sydyrzhanie)
+                opisania += [ ''.join( '\n<br> '+NBSP+i
+                    for i in sydyrzhanie2imena( y)) ]
 
-            if opisanie:
-                r += font_1( ' - ' + opisanie )
             if uc and not uchastnici_sykr:
-                r += '\n<br> ' + uc
-            if not (r.endswith( 'blockquote>') or r.endswith( 'br>') ):
-                r+= '<br>'
+                #if not (r.endswith( 'blockquote>') or r.endswith( 'br>') ): r+= '\n<br>'
+                opisania += [ uc ]
+            if izdanie and not izdanie_v_ime and y._izdania:
+                #if not (r.endswith( 'blockquote>') or r.endswith( 'br>') ): r+= '\n<br>'
+                opisania += [ html4opisanie( izdania2text( y)) ]
+
+            oo = []
+            for b in opisania:
+                b = b.strip()
+                for k in 'blockquote br'.split():
+                    k = '<'+k+'>'
+                    if b.startswith( k): b = b[len(k):]
+                for k in 'blockquote'.split():
+                    k = '</'+k+'>'
+                    if b.endswith( k): b = b[:-len(k)]
+                b = b.strip()
+                if b: oo.append( b)
+
+            if oo:
+                if not (r.endswith( 'blockquote>') or r.endswith( 'br>') ): r+= '\n<br>'
+                r += blockquote( '<br>\n'.join( o.strip() for o in oo))
+            else:
+                r += '<br>'
             redove.append( ' ' + r )
 
     return html4koloni( redove)
 
 def html4vryzki( vryzki):
     if not vryzki: return vryzki
-    return '\n'.join( href( k, v) for k,v in vryzki.items() )
+    if isinstance( vryzki, str):
+        if 'bnr.bg' in vryzki: vryzki = { vryzki: 'БНР' }
+        elif 'chitanka.info' in vryzki: vryzki = { vryzki: 'текст' }
+    r = ''
+    for k,v in vryzki.items():
+        razd = '\n'
+        if k[0]=='+':
+            razd = ' '
+            k=k[1:]
+        r += razd + href( k, v)
+    return r.strip()
+
+def izdania2text( v, bez_radio =False):
+    izdania = [ joinif( ' ', listif( i.izdatel, i.nositel, i.nomer, i.neznajno and '?') ) for i in v._izdania ]
+    if not izdania: return
+    if bez_radio and izdania == [ radio ]: return
+    return 'издания: ' + ', '.join( izdania)
 
 def html4index( x):
     h = DictAttr( x.html, url2papka='.')
 
     kartinki = [ '''\
-  <a href="%(k)s">
-    <img src="%(i)s" alt="%(alt)s" hspace=5 align=right vspace=3 style='clear:right' >
-  </a>''' % dict( locals(), alt= alt4ikona( i, x.imeavtor, h.nositel, h.izdanie))
+ <a href="%(k)s">
+  <img src="%(i)s" alt="%(alt)s" hspace=5 align=right vspace=3 style='clear:right' >
+ </a>''' % dict( locals(), alt= alt4ikona( i, x.imeavtor, h.nositel, h.izdanie))
         for k,i in sorted( zip( x.kartinki, x.ikoni_vse), key= lambda p: p[0].replace('.jpg','') ) ]
 
     r= ''
@@ -1617,7 +1737,8 @@ def html4index( x):
     #r += ' </div>'
     r += ' ~'
 
-    r = center( font_1( '\n'+r, sep=' '), sep=' ' )+'\n'
+    r = center( font_1( '\n'+r, sep=' '), sep=' ' ) + '\n'
+    r += '<?php echo $header; ?>\n'
     r += h1( x.ime) +'\n'
 
     qcontent,qrecord = x.kachestva()
@@ -1641,25 +1762,26 @@ def html4index( x):
                             avtor_sled_opisanie= x.znak( 'avtor_sled_opisanie', za_elementi=True),
                             )
     if kartinki: kartinki = divl( kartinki, 'kolona_kartinki')
-    izdania = [ joinif( ' ', listif( i.izdatel, i.nositel, i.nomer, i.neznajno and '?') ) for i in x._izdania ]
     for a in [
         #'тип нещо = приказки',
         '\n'.join( kartinki),
         ['автор'    , ', '.join( razdeli_kamila2(a) for a in x.etiketi.avtor) ],
         ['вид' , ', '.join( x.vid) ],
         ['година'   , x.godina ],
-        ['издания'  , ', '.join( izdania) ],
         joinif( '; ', [
            ( x.etiketi.izbor     and ital('нашият избор') or '' ),
            ( x.etiketi.preporyka and bold('препоръчвам') or '' ),
            ]) or None,
         ['качество' , ' '.join( [x.etiketi.kachestvo, NBSP, kach_opis ])  ],
         ['описание' , html4opisanie( h.opisanie12) % h ],
-        ['връзки',  html4vryzki( x.etiketi.vryzki) ],
-        ['фон',     x.etiketi.fon, ],
+        ['поредица' , x.etiketi.poredica ],
+        ['връзки'   , html4vryzki( x.etiketi.vryzki) ],
+        ['награди'  , x.etiketi.nagradi ],
+        ['фон'      , x.etiketi.fon, ],
         ['участници', html4uchastnici( x.etiketi.uchastnici, sykr= False) ],
+        izdania2text( x),
         '',
-        [ bold('записи'), zapisi and zapisi[0] % h + (zapisi[1]>1 and '<br clear=left>' or '') ],
+        [ bold('записи'), zapisi and zapisi.html % h + (zapisi.nkoloni>1 and '<br clear=left>' or '') ],
         ['размер'   , '%(size)sM:%(time)sмин' % h ],
         ['произход' , h.org  ],
         ['източник' , ' '.join( h.nositel) ],
@@ -1676,20 +1798,22 @@ def html4index( x):
             r += ' <br>'
         r += '\n'
 
-    h.title = 'Грамофонче: ' + x.ime_sglobeno.replace('"',"'")
+    h.title = x.ime_sglobeno.replace('"',"'")
     #SE optmz
     if x.tip == tipove.prikazki and 'приказк' not in h.title.lower(): h.title += '/приказки'
 
     return '''\
 <script language="php">
-$title="%(title)s";
+$title="%(title)s за слушане - Грамофонче";
 $lang='bg';
+$keywords='mp3 слушане детски приказки театър стихове песнички';
 $hasnoen=1;
 $noh1=1;
 $head="
 <link rel='image_src' href='/kartinki/gramofonche2.jpg'>
 <link rel='stylesheet' type='text/css' href='/detski/zvuk/spisyk.css'>
 ";
+
 $bodycolor='ddddc0';
 include( $_SERVER['DOCUMENT_ROOT'].'/ezik.php' ); </script>
 
@@ -1697,131 +1821,177 @@ include( $_SERVER['DOCUMENT_ROOT'].'/ezik.php' ); </script>
 <?php bottom() ?> <!-- svilen 2011 -->
 '''
 
-def html_spisyk( items, table =False):
-    result =''
-    for x in items:
-        h = x.html
-        imgs = [ '<img src="%(url2papka)s/%(i)s" align=right hspace=7 alt="%(alt)s">'
-                        % dict( h, i=i, alt= alt4ikona( i, x.imeavtor, h.nositel, h.izdanie) )
-                    for i in reversed( x.ikoni) ] #reversed because of right align
-        imgs_ime = joinif( '\n ', imgs + [ h.ime ] )
-        content1 = href( h.url2papka+'/', imgs_ime)
+def html4spisyk( x, table =False):
+    h = x.html
+    imgs = [ '<img src="%(url2papka)s/%(i)s" align=right hspace=7 alt="%(alt)s">'
+                    % dict( h, i=i, alt= alt4ikona( i, x.imeavtor, h.nositel, h.izdanie) )
+                for i in reversed( x.ikoni) ] #reversed because of right align
+    imgs_ime = joinif( '\n ', imgs + [ x.ime_sglobeno2 ] )
+    content1 = href( h.url2papka+'/', imgs_ime)
 
-        if x.etiketi.nakratko or info.options.nakratko_stihove_pesni and (x.etiketi.stihove or x.etiketi.pesni):  #XXX
-            gr = [ g.kyso+' <br>' for g in x.grupi ]
-            zapisi = gr and html4koloni( gr) or ''
-        else:
-            zapisi = html4zapisi( x, imeavtor= '(запис)', sykr=True,
-                                    elementi_bez_vryzki = info.options.spisyk_samo_papki,
-                                    sydyrzhanie = not x.etiketi.nakratko_bez_sydyrzhanie,
-                                    bez_avtor= x.etiketi.nakratko_bez_otdelni_avtori,
+    if x.etiketi.nakratko or info.options.nakratko_stihove_pesni and (x.etiketi.stihove or x.etiketi.pesni):  #XXX
+        gr = [ g.kyso+' <br>' for g in x.grupi ]
+        zapisi = gr and html4koloni( gr) or ''
+    else:
+        zapisi = html4zapisi( x, imeavtor= '(запис)',
+                                sykr= True, #info.options.html_spisyk_sykr,
+                                uchastnici_bez_roli= True,
+                                elementi_bez_vryzki = info.options.spisyk_samo_papki,
+                                sydyrzhanie = not x.etiketi.nakratko_bez_sydyrzhanie,
+                                bez_avtor   = x.etiketi.nakratko_bez_otdelni_avtori,
+                                uchastnici  = not x.etiketi.nakratko_bez_uchastnici,
+                                samo_dejnosti= x.abbr.dejnosti_vazhni,
+                            )
+    sydyrzhanie = info.options.spisyk_samo_papki and not x.etiketi.nakratko and html4koloni(
+                        [ i+' <br>' for i in sydyrzhanie2imena( x.etiketi)] )
 
-                    )
-        sydyrzhanie = info.options.spisyk_samo_papki and not x.etiketi.nakratko and html4koloni(
-                            [ i+' <br>' for i in x.etiketi.sydyrzhanie or () ] )
+    opisanie = joinif( '\n', [
+            html4opisanie( h.opisanie),
+            html4uchastnici( #x.uchastnici_vse,
+                x.etiketi.uchastnici,
+                bez_roli= True,
+                sykr=  info.options.html_spisyk_sykr,
+                samo_dejnosti= x.abbr.dejnosti_vazhni,
+                bez_dejnosti= ( x.papka_etiketi.nakratko_bez_otdelni_avtori and
+                                (x.papka_etiketi.mt_v_avtor or x.element_etiketi.mt_v_avtor) and
+                                'музика текст'.split() or [])
+              ),
+            html4opisanie( izdania2text( x, bez_radio=True)),
+            ])
+    content2 = joinif( '\n ', [
+                sydyrzhanie and sydyrzhanie.html,
+                sydyrzhanie and sydyrzhanie.nkoloni>1 and (opisanie or zapisi) and '<br clear=left>',
+                zapisi and zapisi.html,
+                zapisi and zapisi.nkoloni>1 and opisanie and '<br clear=left>',
+                opisanie,
+                ] )
 
-        opisanie = joinif( '\n', [
-                html4opisanie( h.opisanie),
-                html4uchastnici( x.uchastnici_vse, sykr= True,
-                    samo_dejnosti= x.abbr.dejnosti_vazhni,
-                    bez_dejnosti= ( x.papka_etiketi.nakratko_bez_otdelni_avtori and
-                                    (x.papka_etiketi.mt_v_avtor or x.element_etiketi.mt_v_avtor) and
-                                    'музика текст'.split() or [])
-                    ),
-                ])
-        content2 = joinif( '\n ', [
-                    sydyrzhanie and sydyrzhanie[0],
-                    sydyrzhanie and sydyrzhanie[1]>1 and (opisanie or zapisi) and '<br clear=left>',
-                    zapisi and zapisi[0],
-                    zapisi and zapisi[1]>1 and opisanie and '<br clear=left>',
-                    opisanie,
-                    ] )
+    prepizbor = NBSP*(2-len( h.prepizbor)) + h.prepizbor
+    if h.prepizbor: prepizbor = '<span class=p>'+prepizbor+'</span>'
+    #qcontent: #'<span class=q>
+    sizes = '%(time)sмин' #:%(size)sМб'
+    if 0: sizes = '<font size=-1>'+sizes+'</font>'
+    else: sizes = '.. '+sizes
 
-        result += ('''
+    return ('''
 <div><hr>
- <span class=p>%(prepizbor)s</span> ''' + #'<span class=q>
- '''%(qcontent)s
+ ''' + prepizbor + ''' %(qcontent)s
  ''' + content1 + '''
- <font size=-1> %(size)sM:%(time)sмин</font>
+ ''' + sizes + '''
  ''' + content2 + '''
 </div>
-''') % dict( h, prepizbor= NBSP*(2-len( h.prepizbor)) + h.prepizbor,
+''') % dict( h, prepizbor= prepizbor,
             ** x.kachestva( as_dict=True)
             )
-    result += '<br clear=all>'
-    return result
 
-def html_total( items, options):
+def calc_total( items, options):
     total_time = sum( x.html.time for x in items)  #or x.time??
     total_size = sum( x.size for x in items)
-
     total_n = len( items)
-    #total_time_h = '%.1f' % (total_time/60.0)
-    total_time_h = total_time//60
-    if options.obshto_broi_zapisi:
-        total_n = sum( len( x.soundfiles) for x in items)
-    total = '''
-общо: %(total_n)sброя / %(total_size)sMb / %(total_time_h)sчаса ''' % locals()
-    return total
+    total_n_zapisi = sum( len( x.soundfiles) for x in items)
+    return DictAttr( time= total_time, size= total_size, n= total_n, n_zapisi= total_n_zapisi)
 
 def sort4time4file( x):
     if not x.soundfiles: return 0
     return max( func( x.soundfiles[0].fname ) for func in (os.path.getmtime, os.path.getctime) )
 
 def e_novo( x, options):
+    if isinstance( x, tuple): x,_papka = x
     return (sega - x._otkoga).days < options.kolko_dni_e_novo
 
-def html_novi( items, items2, options):
-    if 1:
-        items2 = [ (y,x) for y,x in items2 if not etiket( y, 'neotdelno') ]
-        bez_otkoga = [ (y,x) for y,x in items2 if not y._otkoga]
-        if bez_otkoga:
-            for y,x in bez_otkoga:
-                y._otkoga = sega
-                prn( '?? без откога?', y.ime, y.fname, x.ime, x.fname )
+def key4novi_el( yx):
+    return yx[0]._otkoga, yx[1].ime, yx[0].ime
+def key4novi_pap( x):
+    return x._otkoga, x.ime
 
-        items2 = sorted( items2, key= lambda yx: (yx[0]._otkoga, yx[1].ime, yx[0].ime))
-        if options.kolko_sa_novi:
-            nz = items2[ -options.kolko_sa_novi:]
+def calc_novi( items):
+    za_elementi = items and isinstance( items[0], tuple)
+    if not za_elementi:
+        return sorted( items, key= key4novi_pap)
+    items = [ (y,x) for y,x in items if y is x or not etiket( y, 'neotdelno') ]
+    bez_otkoga = [ (y,x) for y,x in items if not y._otkoga]
+    if bez_otkoga:
+        for y,x in bez_otkoga:
+            y._otkoga = sega
+            prn( '?? без откога?', y.ime, y.fname, x.ime, x.fname )
+    return sorted( items, key= key4novi_el)
+
+def html4novi( items):
+    za_elementi = items and isinstance( items[0], tuple)
+    for x in items:
+        if za_elementi:
+            key4novi = key4novi_el( x)
+            y,x = x
         else:
-            nz = [ (y,x) for y,x in items2 if e_novo( y, options) ]
-    else:
-        items = sorted( items, key= lambda x: (x._otkoga, x.ime))
-        if options.kolko_sa_novi:
-            nz = items[ -options.kolko_sa_novi:]
-        else:
-            nz = [ x for x in items if e_novo( x, options) ]
+            key4novi = key4novi_pap( x)
+            y = None
+        ri = url_imena( y, x)
+        red = href( ri.url, ri.ime)
+        yx = y or x
+        #red += ' -- ('+ x.str_orgs +')'     #proizhod
+        yield red, yx._otkoga, key4novi
+
+def html_novi( items, options, html4novi ):
+    #items = calc_novi( items)
+    nz = items
+    if options.kolko_dni_e_novo:
+        nz = [ x for x in nz if e_novo( x, options) ]
+    if options.kolko_sa_novi:
+        nz = nz[ -options.kolko_sa_novi:]
 
     prn( '..new', len(nz))
     if not nz: return '',nz
     nz.reverse()
     r = [ '<ul> Последни придобивки и поправки:' ]
-    for x in nz:
-        rr = '<li>'
-        y = None
-        if isinstance( x, tuple): y,x = x
-        ime = x.ime_sglobeno2
-        if y is not None and y is not x:
-            iime = sglobi( y.ime, avtor= (y.avtor != x.etiketi.avtor) and y.avtor)
-            ime = ' : '.join ( [ iime, ime ])
-        rr += href( x.absurl+'/', ime)
-        #rr += ' ' + str((y or x)._otkoga.date())
-        #rr += ' -- ('+ x.str_orgs +')'     #proizhod
-        r += [rr]
+    otkoga = None
+    for red,_otkoga,key in html4novi( nz):
+        #red += ' ' + str((y or x)._otkoga.date())
+        if options.novi_prez_dni:
+            if not otkoga or otkoga >= _otkoga + timedelta( days= int( options.novi_prez_dni)):
+                otkoga = _otkoga #.month
+                red += ' - %s.%s.%s' % ( otkoga.day, otkoga.month, otkoga.year)
+        r+= [ '<li> '+red ]
     r+= ['</ul> <hr width=50%>']
     return '\n'.join(r), nz
 
 
+def url_imena( element, papka, sglobeno =True):
+    y,x = element,papka #t[2:4]
+    ime = x.ime_sglobeno3
+    r = DictAttr(
+        url= x.absurl+'/',
+        ime = ime,
+        el_ime = None,
+        )
+    if y is not None and y is not x:
+        iime = sglobi( y.ime, avtor= (y.avtor != x.etiketi.avtor) and y.avtor)
+        r.pap_ime= ime
+        r.el_fname = y.name
+        r.el_ime = iime
+        r.ime = iime + ' : ' + ime
+    return r #(r_pp[0],ime2r_pp,r_el
+
 
 
 def rename( x):
-    MAXSZ = 82 #64  #dvd/joliet=64, longjoliet=103
+    #MAXSZ = 82 #64  #dvd/joliet=64, longjoliet=103
+    MAXSZ = 199
     nms = {}
 
     ime0 = x.ime
 
+    papka = x.etiketi.papka or not x.etiketi.otdelni and len( x.soundfiles)>1
+    izdanie = x.etiketi.izdanie
+    papka_dir = papka and '--'.join( [
+                            ime0,
+                            x.sykrati_avtori( x.avtor_s_uchastnici( sykr_vse= True) ),
+                            #x.godina,
+                            koi_izdatel( izdanie, kys=True),
+                            ]) or ''
+
     for v in x.soundfiles:
-        avtor_sykr = x.sykrati_avtori( v.avtor1_s_uchastnici )
+        avtor_sykr = x.sykrati_avtori( x.avtor_s_uchastnici( v, edno=True, sykr_vse= True))
+        izdanie_kyso = koi_izdatel( v.izdanie or izdanie, kys=True)
         nfn = '--'.join(
             s #cyr2lat( s.lower().replace(' ','_'))
             for s in [
@@ -1829,17 +1999,19 @@ def rename( x):
                     x.etiketi.prefixime and ime0+': ',
                     x.etiketi.prefixavtor and avtor_sykr+': ',
                     x.etiketi.prefixnomer and (v.nomer_str+'.'),
-                    v.ime, ] ),
+                    v.ime,
+                    ] ),
+                ] + (v.vid4ime or x.vid4ime) + [
                 (not x.etiketi.prefixavtor and avtor_sykr),
                 #v.godina,
-                v.izdanie_kyso.lower(),
+                izdanie_kyso.lower(), #v.izdanie_kyso_zapis.lower(),
                 ]
             if s )
 
         if v.nositel:
             nfn += '.'+ kysi_lat.get( v.nositel, cyr2lat( v.nositel)).lower()
         if '-радио' in nfn and 'lp' in nfn:
-            print( '!!!!!!!!!!!!!! ', nfn, v.izdanie_kyso, v.nositel, v.izdanie)
+            print( '!!!!!!!!!!!!!! ', nfn, izdanie_kyso, v.nositel, v.izdanie)
         fnoext,ext = os.path.splitext( v.name) #basename(f) )
 
         maxsz = MAXSZ - len(ext)
@@ -1850,7 +2022,7 @@ def rename( x):
                 ( '--','-'),
                 ( '- ','-'),
                 ( ' -','-'),
-                x.etiketi.papka and ( '-'+v.izdanie, '') or (),
+                papka and v.izdanie and ( '-'+v.izdanie, '') or (),
                 ( ': ',':'),
                 ( '-мюзикъл', '-мюз'),
                 ( '-мюз', ''),
@@ -1867,13 +2039,14 @@ def rename( x):
         nms[nfn]=1
 
         nfn += ext
-        ttfile = join( x.etiketi.papka and '--'.join(
-                            [ime0,
-                            avtor_sykr,
-                            #v.godina,
-                            v.izdanie_kyso,
-                            ]) or '',
-                        nfn)
+        ttfile = join( papka_dir
+                        #papka and '--'.join(
+                        #    [ime0,
+                        #    avtor_sykr,
+                        #    #v.godina,
+                        #    izdanie_kyso,
+                        #    ]) or ''
+                        , nfn)
 
         qcontent,qrecord = x.kachestva()
 
@@ -1933,27 +2106,34 @@ def tags4mp3( x, options):
     else: image = None
 
     album_title = sglobi( x.ime,
-                        x.sykrati_avtori( x.avtor_s_uchastnici ),
+                        x.sykrati_avtori( x.avtor_s_uchastnici( sykr_vse= True, samo_imena= False) ),
                         vid= x.vid4ime,
+                        razdeli_avtor= False,
                         html= False) #x.etiketi.izdanie) #??
     izdanie = x.etiketi.izdanie
     for v in x.soundfiles:
-        avtor = '+'.join( x.abbr.dai_imepylno( h, True)
-                            for h in v.avtor1_s_uchastnici )
+        avtor = ','.join( #x.abbr.dai_imepylno( h) or h
+                          #  for h in
+                            x.avtor_s_uchastnici( v, edno= True, samo_imena= False))
+        avtor = avtor.replace( ':,','') #dejnost
 
         izdanie = koi_izdatel( v.izdanie or izdanie)#, kys=True)
         #izdanie = izdanie.lower()
 
-        title = sglobi( v.ime,
+        title = sglobi(
+                    #(x.etiketi.prefixime and x.ime+': ' or '') +
+                    v.ime,
                         vid= v.vid4ime,
-                        izdanie= izdanie, html= False)#, nomer= v.nomer_str ) #avtor=avtor
+                        izdanie= izdanie,
+                        razdeli_avtor= False,
+                        html= False)#, nomer= v.nomer_str ) #avtor=avtor
         artist= avtor or ''
         album = joinif( ' :', [ album_title, izdanie, ] )
         godina= v.godina or v._godina or x.godina
         if godina:
             if isinstance( godina, str): godina = godina.split()
             if isinstance( godina, int): godina = [ str(godina) ]
-            godina = [ g.strip('?') for g in godina]
+            godina = [ g.strip('?г.') for g in godina]
             godina = str(int(godina[0]))
         nomer = v.nomer is not None and str(v.nomer) or ''
 
@@ -1961,7 +2141,7 @@ def tags4mp3( x, options):
 
         if 'tags' in options.debug:
             f = v.relname
-            prn( '-- %(f)-130s Title=%(title)-50s Artst=%(artist)-40s Album=%(album)s' % locals())
+            prn( '-- %(f)-130s Title=%(title)-50s Artist=%(artist)-40s Album=%(album)s' % locals())
 
         d = DictAttr(
             title   = title,
@@ -2069,92 +2249,10 @@ def tags4mp3_all( items, options):
         save_if_diff( o.tags_spisyk, tags_spisyk, enc= o.tags_enc, prepend_py_enc= True)
 
 ##############
-class Abbr2( Abbr):
-    @classmethod
-    def setup( az):
-        d2sykr = dictOrder()
-        d2vse  = dictOrder()
-        for a in az.dejnosti.strip().split( '\n'):
-            xx = a.split()
-            if not xx: continue
-            k = xx[0]
-            podrazb = k[0] == '*'
-            k = k.replace('*', '')
-            if podrazb:
-                az.dejnost_podrazbirane = k
-
-            dd = []
-            sykr = []
-            sykr_avto = []
-            for v in xx:
-                v = v.lstrip('*')
-                if v[0]=='.': appendif( sykr, v[1:] )
-                v = v.lstrip('.')
-                if '*' in v:
-                    l,r = v.split('*')
-                    vv = [ l+r[:i] for i in range( len(r))]
-                    extendif( dd, vv)
-                    extendif( sykr_avto, vv)
-                appendif( dd, v.replace('*',''))
-
-            d2vse[ k] = dd
-            dd += [ v.replace('-',' ') for v in dd if '-' in v ]
-            dd += [ cyr2lat( v) for v in dd ]
-            extendif( sykr, sorted( sykr_avto, key= len))
-            if sykr: d2sykr[k] = sykr
-        az.dejnosti = d2vse
-        az.dejnosti4vse = dict_lower( (v,k)
-                for k,vv in d2vse.items()
-                for v in vv
-                )
-        az.dejnosti4vse.update( (k,k) for k in d2vse )
-
-        az.dejnosti2sykr = dict( (k,v[0]) for k,v in d2sykr.items() )
-        ds = az.dejnosti4sykr = dict( (v,k)
-                for k,vv in d2sykr.items()
-                for v in vv
-                )
-        d = '('+'|'.join( ds.keys() )+')'
-        az.re_dejnost0 = '('+d+'([.+]|\.\+))*'+d+'\.'
-        az.re_dejnost  = re.compile( '^'+az.re_dejnost0)    #1
-        az.re_dejnost_ = re.compile( '(^| )('+ az.re_dejnost0 +'*) +')  #много
-
-        az.dejnosti_vazhni = [ l.split()[0].replace('*','') for l in (az.dejnosti1+az.dejnosti3).strip().split( '\n') if l.strip() ]
-
-    def dai_dejnosti( az, a, dejnost_podrazbirane =None ):
-        m = az.re_dejnost.search( a)
-        dejnosti = m and [ az.dejnosti4sykr[ g]
-                        for g in m.group(0).replace('.','+').split('+')
-                        if g and g.isalpha() ]
-        return dejnosti or [ dejnost_podrazbirane or az.dejnost_podrazbirane ]
-
-    @staticmethod
-    def nglavni(x): return sum( a.isupper() for a in x)
-
-    def dai_kalpak( az, a):
-        a = a.rstrip(',.;')
-        if not a or not a[0].isalpha(): return
-        ng = az.nglavni( a)
-        if not ng: return
-        if ng==1:
-            #print( 11, a, 555555, x.ime)
-            return
-
-        kalpak = az.re_dejnost.sub( '', a)
-        return kalpak
-
-    tyrseni = {}
+from dejnosti import AbbrDejnosti
+class Abbr2( AbbrDejnosti):
     def dobavi( az, tt, xime):
-        r = [ i.rstrip(',?') for i in tt.split('+') ]
-        r = [ i for i in r if i.strip() ]
-        for i in r:
-            if '.' in i: az.tyrseni.setdefault( i, set()).add( xime)
-            else:
-                if nskaPrikazka.syvpada( i): continue
-                if az.dai_imepylno( i): continue
-                az.eto_imepylno( i)
-        return r
-
+        return AbbrDejnosti.dobavi( az, tt, xime, propusni_takiva= nskaPrikazka.syvpada )
     dejnosti1 = '''
         пр*евод         .прев          преводач
         д*раматизация   .др            драматург
@@ -2168,28 +2266,31 @@ class Abbr2( Abbr):
         текст-песни     .т.п .тп       текстове
         стихове         .стих
         музика-песни    .п .м.п .мп    песни
+        изпълнение-песни    изп-песни
         ар*анжимент
         дир*игент
     '''
     dejnosti2 = '''
         хор*майстор     .хорм      хор-дир*игент диригент-хор хордир
-        музикално-оформление  .м.оф  .м.о  .мо    музикална-картина музикална-среда музикално-оформление муз.оф*ормление
+        музикално-оформление  .м.оф .муз.оф .м.о  .мо    музикална-картина музикална-среда музикално-оформление муз.оф*ормление муз-оф*ормление музикален-редактор
         звуково-оформление    .зв.оф .зв .з .з.оф*ормление  .зв.еф*екти .з.е*фекти .зе звук звукова-картина звукова-среда звуково-оформление зв.оф*ормление звукови-еф*екти ефекти
         звукор*ежисьор  .зв.р*еж   .з.р*еж      тонр*ежисьор тон.реж*исьор
         звукооп*ератор  .зв.оп     .з.оп        тоноп*ератор тон.оп*ератор
         звукоинж*енер   .зв.инж    .з.инж       тонинж*енер тонм*айстор тон.инж*енер
         звукот*ехник    .зв.т*ехник  .з.т*ехн     тонт*ехник зв.тех*ник тон.т*ехник
         звукозапис      запис
-        ред*актор
-        рис*унка
-        худ*ожник       .худ .худ.оф    художествено-оформление
+        звукообр*аботка постпр*одукция .зв.обр .з.обр
+        ред*актор       .ред
+        рис*унка        .рис
+        худ*ожник       .худ
+        художествено-оформление .худ.оф .х.оф
         фот*ограф       снимки снимка
     '''
     dejnosti3 = '''
-        сол*ист                         солисти
        *изп*ълнение                     изпълни*тели изпълня*ват
+        сол*ист                         солисти
     '''
-    dejnosti = dejnosti1 + dejnosti2 + dejnosti3
+    dejnosti = dejnosti1 + dejnosti3 + dejnosti2
 
     #текст-песни е същото като текст за неща които са песни
     #музика-песни е същото като музика/композитор за неща които не са музикални, а само музикално-оформени
@@ -2220,6 +2321,10 @@ podredba = dict(
     stihove= lambda x: bool( x.etiketi.stihove),
     kachestvo= lambda x: (not x.etiketi.preporyka, not x.etiketi.izbor, x.etiketi.kachestvo),
     pored= lambda x: x.etiketi.pored == '' and 999 or int(x.etiketi.pored),
+    dokumentalni= lambda x: bool( x.etiketi.dokumentalni),
+    teatyr = lambda x: bool( x.e_teatyr),
+    portret = lambda x: bool( x.etiketi.portret),
+    izdanie= lambda x: x.etiketi.izdanie,
 )
 def podredi( x):
     #TODO: nagore/nadolu?
@@ -2232,7 +2337,39 @@ def podredi( x):
         r.append( v)
     return r
 
-def all( items, options):
+def _html_spisyk( items, table =False, gotovi =False):
+    if gotovi:
+        result = ''.join( items)
+    else:
+        result = ''.join( html4spisyk( x, table=table) for x in items)
+    result += '<br clear=all>'
+    return result
+
+def html_spisyk( options, spisyk, izbor, total, novi, gotovi =False, html4novi =html4novi):
+    if options.obshto_broi_zapisi: total.n = total.n_zapisi
+    htotal = '''
+общо: %(n)sброя / %(size)sMb / %(time_h)sчаса ''' % dict( total, time_h= total.time//60)
+        #time_h = '%.1f' % (total.time/60.0)
+
+    spisyk = _html_spisyk( spisyk, gotovi= gotovi)
+    rt = [spisyk, htotal]
+    if options.obshto_otgore: rt.reverse()
+
+    rnovo,novi = html_novi( novi, options, html4novi= html4novi)
+    if options.html_novi:
+        save_if_diff( options.html_novi, rnovo, enc= options.html_enc )
+    else:
+        rt.insert( options.obshto_otgore and 0, rnovo)
+    rhtml = '\n<hr>\n'.join( rt)
+
+    save_if_diff( options.html_spisyk, rhtml, enc= options.html_enc )
+
+    if options.html_izbrani:
+        hubavi = _html_spisyk( izbor, gotovi= gotovi)
+        save_if_diff( options.html_izbrani, hubavi, enc= options.html_enc )
+
+
+def vse( items, options):
     prn( '..zvuci')
 
     for x in items:
@@ -2246,33 +2383,70 @@ def all( items, options):
 
     sykr_all( items, options)
 
+    if options.ima_etiket:
+        e = options.ima_etiket
+        def ima_etiket( x, ee):
+            if isinstance( ee, str): ee = [ee]
+            for e in ee:
+                if x.znak( e) or any( x.znak( e, y.get('etiketi'), za_elementi=True) for y in x.soundfiles):
+                    return True
+            #return x.znak( e) or any( x.znak( e, y.get('etiketi'), za_elementi=True) for y in x.soundfiles)
+        items = [ x for x in items if ima_etiket( x, e) ]
+    if options.vkl_etiket:
+        e = options.vkl_etiket
+        items = [ x for x in items if x.etiketi[ e] ]
+    if options.izkl_etiket:
+        ee = options.izkl_etiket
+        if isinstance( ee, str): ee = [ee]
+        items = [ x for x in items if not any( x.etiketi[ e] for e in ee) ]
+
     for x in items:
         try:
-            avtor = x.avtor_s_uchastnici
-            x.imeavtor = sglobi( x.ime, avtor=avtor, vid= x.vid4ime )
+            avtor = x.avtor_s_uchastnici( samo_imena= False)
+            x.imeavtor = sglobi( x.ime, avtor= avtor, vid= x.vid4ime )
             x.ime_sglobeno = sglobi( x.ime, avtor= avtor, vid= x.vid4ime,
-                                    izdanie= ' '.join( x.v_zaglavieto), html= False )
+                                    izdanie= ' '.join( x.v_zaglavieto),
+                                    html= False )
             x.ime_sglobeno2= sglobi( x.ime, avtor= avtor, vid= x.vid4ime,
-                                    izdanie= ' '.join( x.v_zaglavieto2),
+                                    izdanie= ' '.join( x.v_zaglavieto),
                                     godina= x.godina
                                     )
+            x.ime_sglobeno3= x.ime_sglobeno2
+            if x.etiketi.stihove and x.etiketi.uchastnici == x.uchastnici_vse:
+                #if sum( bool( y.get('etiketi',{} ).get('stihove')) for y in x.soundfiles) == len( x.soundfiles):
+                if all( y.get('etiketi',{} ).get('stihove') for y in x.soundfiles):
+                    avtor = x.avtor_s_uchastnici( x.soundfiles[0], samo_imena= False)
+                    x.ime_sglobeno3= sglobi( x.ime, avtor= avtor, vid= x.vid4ime,
+                                    izdanie= ' '.join( x.v_zaglavieto),
+                                    godina= x.godina
+                                    )
+                #if x.ime_sglobeno3 != x.ime_sglobeno2: prn( 11111111111, x.ime_sglobeno3)
         except :
             prn( '? ? ', x.fname, x.ime)
             raise
+        '''
+        index   : h1= .ime ; title= .ime_sglobeno
+        spisyk  : href.txt= .ime_sglobeno2
+        novi    : href.txt= .ime_sglobeno2
+        *link   : href.txt= .ime_sglobeno2
+        ikoni   : alt= .imeavtor
+        zapis   : href.txt= .imeavtor
+        '''
 
     options.podredba = options.podredba.split(',')
     items.sort( key= podredi)
 
     if 'items' in options.debug:
-        from pprint import pprint
         for x in items:
             prn( x.ime)
             prn( x.ime_sglobeno)
             prn( x.ime_sglobeno2)
+            prn( x.ime_sglobeno3)
             prn( x.uchastnici_vse)
-            pprint( x.etiketi)
+            prn( x.etiketi.avtor_s_uchastnici)
+            pprint.pprint( x.etiketi)
 
-            #for c in x.soundfiles: pprint( c)
+            #for c in x.soundfiles: pprint.pprint( c)
 
             prn( 20*'#')
 
@@ -2285,26 +2459,20 @@ def all( items, options):
     if options.html_spisyk or options.html_index:
         sizes( items, options)
         times( items, options)
-        for x in items: html(x)
+        for x in items:
+            try: html(x)
+            except:
+                prn( '?', x.fname)
+                raise
+
 
     if options.html_spisyk:
-        total = html_total( items, options)
-        spisyk = html_spisyk( items)
-        rt = [spisyk, total]
-        if options.obshto_otgore: rt.reverse()
-
-        rnovo,novi = html_novi( items, items2, options)
-        if options.html_novi:
-            save_if_diff( options.html_novi, rnovo, enc= options.html_enc )
-        else:
-            rt.insert( options.obshto_otgore and 0, rnovo)
-        rhtml = '\n<hr>\n'.join( rt)
-
-        save_if_diff( options.html_spisyk, rhtml, enc= options.html_enc )
-
-        if options.html_izbrani:
-            hubavi = html_spisyk( [ x for x in items if x.html.prepizbor and not x.vnos] )
-            save_if_diff( options.html_izbrani, hubavi, enc= options.html_enc )
+        html_spisyk( options,
+            spisyk = items,
+            novi = calc_novi( items2),
+            total = calc_total( items, options),
+            izbor = [ x for x in items if x.html.prepizbor and not x.vnos],
+            )
 
     if options.html_index:
         for x in items:
@@ -2316,182 +2484,287 @@ def all( items, options):
                 prn( '?', x.fname)
                 raise
 
+    if options.html_papka:
+        assert len( items)==1
+        x = items[0]
+        if x.vnos:
+            prn( 'vnos', x.fname)
+        else:
+            data4papka = DictAttr(
+                total   = calc_total( items, options),
+                html4novi = list( html4novi( calc_novi( items2))),
+                izbor   = bool( not x.vnos and (x.etiketi.preporyka or x.etiketi.izbor )),
+                spisyk  = html4spisyk( x),
+                podredba = podredi( x),
+            )
+            ofname = join( x.fname, options.html_papka)
+            save_if_diff( ofname, pprint.pformat( data4papka), enc= options.html_enc )
+            #save_if_diff( 'spisyk', html_spisyk( items), enc= options.html_enc )
+
     if options.html_hora or options.index_hora:
-        uchastnici = []
-        for y,x in items2:
-            if y.uchastnici_vse:
-                for dejnost,hora in y.uchastnici_vse.items():
-                    for h in hora:
-                        uchastnici.append( DictAttr( dejnost= dejnost, ime= info.Uchastnici.h2hr(h)[0], element= y, papka= x))
-            for h in y.avtor1 if y is not x else y.etiketi.avtor1:
-                uchastnici.append( DictAttr( dejnost= 'автор', ime= h, element= y, papka= x))
-
-        uuchastnici = [ DictAttr( h= a.ime, d= a.dejnost, p= a.papka, e= a.element) for a in uchastnici ] #None if a.element is a.papka else
-
-        def imena( e,p):
-            y,x = e,p #t[2:4]
-            ime = x.ime_sglobeno2
-            r = [ (x.absurl+'/', ime) ]
-            if y is not None and y is not x:
-                iime = sglobi( y.ime, avtor= (y.avtor != x.etiketi.avtor) and y.avtor)
-                r += [ (y.name, iime) ]
-            return r
-
-        #txt = ''.join( str( dict(u))+',\n' for u in uchastnici)
-        from itertools import groupby
-        for po_dejnost in False, True:
-            fkey = po_dejnost and (lambda a: (a.d, a.h, a.e, a.p, a)) or (lambda a: (a.h, a.d, a.e, a.p, a))
-            uu = sorted( (fkey(u) for u in uuchastnici), key= lambda t: (t[:2],t[2].ime,t[3].ime) )
-                    #key= po_dejnost and (lambda a: (a.d, a.h, a.e, a.p)) or (lambda a: (a.h, a.d, a.e, a.p))
-                    #)
-            if options.index_hora:
-                if not po_dejnost:
-                    import pprint
-                    save_if_diff( options.index_hora + 'hdep', pprint.pformat(
-                        [ [ u[0], u[1] ] + imena( u[2], u[3] )
-                            for u in uu],
-                        width=120), enc= options.html_enc )
-                continue
-
-            key = po_dejnost and 'd' or 'h'
-            gg = groupby( uu, key= lambda u: u[0] )
-            tt = [ (k, groupby( list(g), key= lambda u: u[1])) for k,g in gg ]
-            if 0:
-                txt = [ 'array(' ]
-                for k,g in tt:
-                    txt += [ repr(k) + '=> array(' ] #nt( 1111, k)
-                    for k2,u in g:
-                        txt += [ ' '+repr(k2) + '=> array(',
-                                ',\n'.join( '  ' + repr( t[2]) for t in u),
-                                ' ),' ]
-                    txt[-1] = txt[-1].rstrip(',')
-                    txt += [ '),' ]
-                txt[-1] = txt[-1].rstrip(',')
-                txt += [ ')' ]
-                txt = '\n'.join( txt)
-
-            elif 1:
-                txt = [ '<ul>' ]
-                for k,g in tt:
-                    txt += [ '<li> '+str(k) + ' <ul>' ]
-                    for k2,u in g:
-                        txt += [ ' <li>'+str(k2) + ' <ul>' ]
-                        for t in u:
-                            ii = imena( *t[2:4])
-                            url,ime = ii[0]
-                            if ii[1:]:
-                                efname,eime = ii[1]
-                                ime = eime + ' : ' + ime
-                            txt += [ '  <li>' + href( url, ime ) ]
-                        #txt += [ '  <li>' + str( t[2])
-                        txt += [ '  </ul>' ]
-                    txt += [ ' </ul>' ]
-                txt += [ '</ul>' ]
-                txt = '\n'.join( txt)
-
-            else:
-                txt = 'array(\n  ' + ',\n'.join(
-                    repr(k) + ' => array(\n    ' +',\n'.join(
-                                    repr(k2) + ' => array( ' + ', '.join( repr(v) for v in u[2:] ) + ')'
-                                    for k2,u in list(g)
-                                    )+ ')'
-                    for k,g in tt ) + '''
-)
-'''
-            save_if_diff( options.html_hora + (po_dejnost and 'd2h' or 'h2d'), txt, enc= options.html_enc )
-
-
+        index_hora( items2, options)
     if options.spisyk_preimenovane or options.prehvyrli_sydyrzhanie:
         rename_all( items, options)
     if options.tags_app:
         tags4mp3_all( items, options)
     if options.izdania_spisyk:
-        izd = {}
-        def a2list(x):
-            return isinstance( x, str) and x.split() or isinstance( x, int) and [ str(x) ] or x
-        re_izd = re.compile( '(\D*)(\d*)(.*)')
-        neizv = 0
-        for az in items:
-            if az.vnos: continue
-            ii = [ DictAttr(
-                    izdanie= az._izdania,
-                    godina = az.etiketi.godina or '',
-                    ime   = [ az.etiketi.ime ],
-                    avtor = az.avtor_s_uchastnici or '',
-                    vid = az.vid,
-                    shapka= 1,
-                    fname = az.fname,
-                    )]
-            if len(az.soundfiles)>1:
-                for v in az.soundfiles:
-                    if re.search( '(страна|част) *[1-9]$', v.ime, re.IGNORECASE): continue
-                    appendif( ii[0].ime, v.ime )
-                    if v._izdania:
-                        ii+= [ DictAttr(
-                                izdanie= v._izdania,
-                                godina = v.godina or '',
-                                ime   = [ v.ime ],
-                                avtor = v.avtor_s_uchastnici or '',
-                                shapka= 0,
-                                fname = v.relname,
-                                vid = v.vid or az.vid,
-                                )]
+        izdania_spisyk( items, options)
+    if options.otdeli:
+        for x in items:
+            if x.vnos: continue
+            if not x.etiketi.otdelni: continue
+            if len( x.soundfiles)<=1: continue
+            for y in x.soundfiles:
+                avtor_kyso = '-'.join( razdeli_kamila2( h) #x.abbr.dai_imepylno( h) or h)
+                            for h in x.avtor_s_uchastnici( y, edno=True, sykr_neavtori =True))
+                avtor_kyso = avtor_kyso.replace( '. ','.')
+                izdanie_kyso = koi_izdatel( y.izdanie or x.etiketi.izdanie, kys=True)
+                nositel = kysi_lat.get( y.nositel, y.nositel)
+                nfn = '--'.join( s
+                    for s in [
+                        joinif( '', [
+                            x.etiketi.prefixime and x.ime+': ',
+                            x.etiketi.prefixavtor and avtor_kyso+': ',
+                            x.etiketi.prefixnomer and (y.nomer_str+'.'),
+                            y.ime_kyso or y.ime,
+                            ] + [ '-'+k for k in y.vid4ime or x.vid4ime
+                            ]
+                            ),
+                        (not x.etiketi.prefixavtor and avtor_kyso),
+                        izdanie_kyso.lower(),
+                        ]
+                    if s )
+                if nositel:
+                    nfn += '.'+ nositel
+                nfn = nfn.replace(' ', '_')
 
-            for d in ii:
-                xizdanie = d.izdanie
-                xgodina  = xizdanie.godina and xizdanie.godina.split() or a2list( d.godina)
-                xavtor   = a2list( d.avtor)
+                oname = os.path.splitext( y.name)[0]
+                oname = cyr2lat( nfn.lower())
 
-                for i in xizdanie:
-                    if i.izdatel in (radio, 'avtori.com'): continue
-                    m = re_izd.match( i.nomer )
-                    assert m, d
-                    dd = DictAttr(
-                                    prednomer= m.group(1),
-                                    bashnomer= m.group(2),
-                                    slednomer= m.group(3),
-                                    izdatel= i.izdatel,
-                                    nomer  = i.nomer,
-                                    nositel= i.nositel,
-                                )
-                    #prn( 3333333, i, dd.nomer, m.groups())
-                    if not dd.bashnomer:
-                        neizv-=1
-                        dd.bashnomer = neizv
-                    else:
-                        dd.bashnomer = int( dd.bashnomer)
-                    di = izd.setdefault( (dd.izdatel, dd.nositel, dd.nomer, dd.bashnomer), dd)
-                    di.setdefault( 'godina', set()).update( xgodina)
-                    extendif( di.setdefault( 'ime', [] ), d.ime)
-                    extendif( di.setdefault( 'avtor', []), xavtor)
-                    di.setdefault( 'fname', set()).update( d.fname)
-                    di.setdefault( 'vid', set()).update( d.get( 'vid',()))
+                ofdir = join( x.fname, oname)
+                if not isdir( ofdir): os.makedirs( ofdir)
+                ofname = join( ofdir, y.name)
+                prn( ofname)
+                if not exists( ofname): os.link( y.fname, ofname)
 
-        r = []
-        for i in sorted( izd.values(),
-                    key= lambda i: (i.izdatel, i.nositel,
-                                        i.bashnomer, i.prednomer, i.slednomer) ):
-            for a,v in i.items():
-                if a in ('avtor', 'vid'): continue
-                if isinstance( v,(tuple,set,list)) and len(v)==1: i[a] = list(v)[0]
-            o = dictOrder()
-            d = attr2item(o)
-            d.izdatel = i.izdatel
-            d.nositel = i.nositel
-            d.nomer = i.nomer or '?'
-            d.bashnomer = ''
-            if i.bashnomer>0:
-                d.bashnomer = str(i.bashnomer)
-                if i.slednomer.startswith(','):
-                    d.bashnomer += ','+ d.bashnomer[ : len(d.bashnomer)-len(i.slednomer)+1] + i.slednomer[1:]
-            d.ime = i.ime
-            d.vid = i.vid and '('+','.join( i.vid)+')' or ''
-            d.avtor = i.avtor and ':'+'+'.join( i.avtor) or ''
-            d.godina = i.godina or ''
+                o = info( fname= ofdir )
+                o.slaga_ime( y.ime)
+                o.etiketi.update_pre( **dict((k,v) for k,v in dict(
+                    avtor   = y.avtor or x.avtor,
+                    izdanie = y.izdanie or x.etiketi.izdanie,
+                    godina  = y.godina or y._godina or x.godina,
+                    uchastnici = y.uchastnici_vse,
+                    #uchastnici_vse = y.uchastnici_vse,
+                    vid     = extendif( extendif( [], y.vid), x.vid),
+                    ).items() if v #and v.strip()
+                    )
+                )
 
-            r += [' '.join( str( l) for l in o.values())]
+                def upd_ako_nema( o, i):
+                    for k,v in i.items():
+                        if k == info.stoinosti.etiketi: continue
+                        if k not in info.stoinosti0 and k not in info.stoinosti: continue
+                        if not o.get( k) and v:
+                            o[ k] = v
+                    return o
+                upd_ako_nema( o.etiketi, y.etiketi)
+                upd_ako_nema( o.etiketi, x.etiketi_element)
+                izbegni = 'nomer prefix nakratko otdelni neotdelno sort_prevodi'.split()
+                izbegni += [ info.stoinosti[k] for k in izbegni]
+                for k,v in x.etiketi.items():
+                    if v is True and not o.etiketi.get(k) and k not in izbegni:
+                        o.etiketi[k] = v
+                upd_ako_nema( o.etiketi, y)
 
-        save_if_diff( options.izdania_spisyk, r, enc= options.html_enc )
+                #o.samopopylva_etiketi()
+                razlika, t = o.zapis( naistina= True or options.zapis_opisi )
+
+def izdania_spisyk( items, options):
+    izd = {}
+    def a2list(x):
+        return isinstance( x, str) and x.split() or isinstance( x, int) and [ str(x) ] or x
+    re_izd = re.compile( '(\D*)(\d*)(.*)')
+    neizv = 0
+    for az in items:
+        if az.vnos: continue
+        ii = [ DictAttr(
+                izdanie= az._izdania,
+                godina = az.etiketi.godina or '',
+                ime   = [ az.etiketi.ime ],
+                avtor = az.avtor_s_uchastnici( samo_imena= False) or '',
+                vid = az.vid,
+                shapka= 1,
+                fname = az.rname,
+                absurl = az.absurl,
+                )]
+        if len(az.soundfiles)>1:
+            for v in az.soundfiles:
+                if re.search( '(страна|част) *[1-9]$', v.ime, re.IGNORECASE): continue
+                appendif( ii[0].ime, v.ime )
+                if v._izdania:
+                    ii+= [ DictAttr(
+                            izdanie= v._izdania,
+                            godina = v.godina or '',
+                            ime   = [ v.ime ],
+                            avtor = az.avtor_s_uchastnici( v, samo_imena= False) or '',
+                            shapka= 0,
+                            fname = v.relname,
+                            vid = v.vid or az.vid,
+                            absurl = join( az.absurl, v.name),
+                            )]
+
+        for d in ii:
+            xizdanie = d.izdanie
+            assert isinstance( xizdanie, (list,tuple)), xizdanie
+            #xgodina  = xizdanie.godina and xizdanie.godina.split() or a2list( d.godina)
+            xgodina = a2list( d.godina)
+            xavtor  = a2list( d.avtor)
+
+            for i in xizdanie:
+                if i.izdatel in (radio, 'avtori.com'): continue
+                m = re_izd.match( i.nomer )
+                assert m, d
+                dd = DictAttr(
+                                prednomer= m.group(1),
+                                samonomer= m.group(2),
+                                slednomer= m.group(3),
+                                izdatel= i.izdatel,
+                                nomer  = i.nomer,
+                                nositel= i.nositel,
+                            )
+                if not dd.samonomer:
+                    neizv-=1
+                    dd.samonomer = neizv
+                else:
+                    dd.samonomer = int( dd.samonomer)
+                di = izd.setdefault( (dd.izdatel, dd.nositel, dd.nomer, dd.samonomer), dd)
+                di.setdefault( 'godina', set()).update( xgodina)
+                extendif( di.setdefault( 'ime', [] ), d.ime)
+                extendif( di.setdefault( 'avtor', []), xavtor)
+                di.setdefault( 'fname', set()).add( d.fname)
+                di.setdefault( 'absurl', set()).add( d.absurl)
+                di.setdefault( 'vid', set()).update( d.get( 'vid',()))
+
+    r = []
+    for i in sorted( izd.values(),
+                key= lambda i: (i.izdatel, i.nositel,
+                                    i.samonomer, i.prednomer, i.slednomer) ):
+        for a,v in i.items():
+            if a in ('avtor', 'vid'): continue
+            if isinstance( v,(tuple,set,list)) and len(v)==1: i[a] = list(v)[0]
+        o = dictOrder()
+        d = attr2item(o)
+        d.izdatel = i.izdatel
+        d.nositel = i.nositel
+        d.nomer = i.nomer or '?'
+        d.samonomer = ''
+        if i.samonomer>0:
+            d.samonomer = str(i.samonomer)
+            if i.slednomer.startswith(','):
+                d.samonomer += ','+ d.samonomer[ : len(d.samonomer)-len(i.slednomer)+1] + i.slednomer[1:]
+        d.ime = i.ime
+        #d.avtor = i.avtor and ':'+'+'.join( i.avtor) or ''
+        d.avtor = i.avtor and ', '.join( [ razdeli_kamila2(a) for a in i.avtor]) or ''
+        d.avtor = d.avtor.replace( ':, ', ' ') #dejnost
+
+        d.godina = i.godina or ''
+        #d.vid = i.vid and '('+','.join( i.vid)+')' or ''
+        d.vid = i.vid and ' '.join( i.vid) or ''
+        d.fname  = isinstance( i.fname, str) and [ i.fname] or list( i.fname )
+        d.url    = isinstance( i.absurl, str) and [ i.absurl ] or list( i.absurl )
+
+        r.append( o)
+
+    if options.izdania_spisyk.endswith( '.csv'):
+        from io import StringIO
+        import csv
+        f = StringIO()
+        cw = csv.writer( f)
+        cw.writerow( [ k for k in r[0]
+                         if k not in ['fname', ]
+                         ])
+        for o in r:
+            o['url'] = [ 'http://www.svilendobrev.com' + i for i in o['url'] ]
+            cw.writerow( [ isinstance( v, str) and v or '\n'.join( v)
+                            for k,v in o.items()
+                            if k not in ['fname', ]
+                            ] )
+        rr = f.getvalue()
+    else:
+        rr = [' '.join( str( l) for l in o.values()) for o in r]
+
+    save_if_diff( options.izdania_spisyk, rr, enc= options.html_enc )
+
+
+def index_hora( items2, options):
+    uchastnici = []
+    for y,x in items2:
+        if y.uchastnici_vse:
+            for dejnost,hora in y.uchastnici_vse.items():
+                for h in hora:
+                    uchastnici.append( DictAttr( dejnost= dejnost, ime= info.Uchastnici.h2hr(h)[0], element= y, papka= x))
+        for h in y.avtor1 if y is not x else y.etiketi.avtor1:
+            uchastnici.append( DictAttr( dejnost= 'автор', ime= h, element= y, papka= x))
+
+    uuchastnici = [ DictAttr( h= a.ime, d= a.dejnost, p= a.papka, e= a.element) for a in uchastnici ] #None if a.element is a.papka else
+
+    #txt = ''.join( str( dict(u))+',\n' for u in uchastnici)
+    from itertools import groupby
+    for po_dejnost in False, True:
+        fkey = po_dejnost and (lambda a: (a.d, a.h, a.e, a.p, a)) or (lambda a: (a.h, a.d, a.e, a.p, a))
+        uu = sorted( (fkey(u) for u in uuchastnici), key= lambda t: (t[:2],t[2].ime,t[3].ime) )
+                #key= po_dejnost and (lambda a: (a.d, a.h, a.e, a.p)) or (lambda a: (a.h, a.d, a.e, a.p))
+                #)
+        if options.index_hora:
+            if not po_dejnost:
+                save_if_diff( options.index_hora + 'hdep', pprint.pformat(
+                    [ [ u[0], u[1], url_imena( u[2], u[3]) ]
+                        for u in uu],
+                    width=120), enc= options.html_enc )
+            continue
+
+        key = po_dejnost and 'd' or 'h'
+        gg = groupby( uu, key= lambda u: u[0] )
+        tt = [ (k, groupby( list(g), key= lambda u: u[1])) for k,g in gg ]
+        if 0:
+            txt = [ 'array(' ]
+            for k,g in tt:
+                txt += [ repr(k) + '=> array(' ] #nt( 1111, k)
+                for k2,u in g:
+                    txt += [ ' '+repr(k2) + '=> array(',
+                            ',\n'.join( '  ' + repr( t[2]) for t in u),
+                            ' ),' ]
+                txt[-1] = txt[-1].rstrip(',')
+                txt += [ '),' ]
+            txt[-1] = txt[-1].rstrip(',')
+            txt += [ ')' ]
+            txt = '\n'.join( txt)
+
+        elif 1:
+            txt = [ '<ul>' ]
+            for k,g in tt:
+                txt += [ '<li> '+str(k) + ' <ul>' ]
+                for k2,u in g:
+                    txt += [ ' <li>'+str(k2) + ' <ul>' ]
+                    for t in u:
+                        ri = url_imena( *t[2:4])
+                        txt += [ '  <li>' + href( ri.url, ri.ime ) ]
+                    #txt += [ '  <li>' + str( t[2])
+                    txt += [ '  </ul>' ]
+                txt += [ ' </ul>' ]
+            txt += [ '</ul>' ]
+            txt = '\n'.join( txt)
+
+        else:
+            txt = 'array(\n  ' + ',\n'.join(
+                repr(k) + ' => array(\n    ' +',\n'.join(
+                                repr(k2) + ' => array( ' + ', '.join( repr(v) for v in u[2:] ) + ')'
+                                for k2,u in list(g)
+                                )+ ')'
+                for k,g in tt ) + '''
+)
+'''
+        save_if_diff( options.html_hora + (po_dejnost and 'd2h' or 'h2d'), txt, enc= options.html_enc )
 
 
 if __name__ == '__main__':

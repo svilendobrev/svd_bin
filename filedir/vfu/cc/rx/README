@@ -1,0 +1,55 @@
+
+  RX_* TOOLS README
+
+  $Id: README,v 1.2 2005/06/03 00:34:57 cade Exp $
+
+  This is preliminary documentation to the `RX_*' utilities.
+  The main purpose of rx_* is to provide standard archive-like
+  interface to various containers (archives, ftp sites, etc). 
+  It is mainly used with VFU file manager which can be found 
+  at http://cade.datamax.bg/vfu.
+
+  `FTP' archives contain just info how to connect to the
+  required site.
+  
+  example1:
+  
+  text file named: soul.ftp
+  ---cut---
+  soul.tetida.org
+  cade
+  secretpassword
+  ---cut---
+  
+  command line: 
+    
+    rx_auto v soul.ftp /pub
+    
+  will show all files in the `/pub' directory at the FTP site 
+  soul.tetida.org. you can use dash `-' as username and password
+  to mimic anonymous access:
+  
+  example2:
+  
+  text file named: cade.jane.org
+  ---cut---
+  jane.tetida.org
+  -
+  -
+  ---cut---  
+  
+  command line:
+  
+    rx_ftp x cade.jane.ftp pub/welcome.txt
+    
+  will extract/download welcome.txt file from he pub directory at
+  the jane.tetida.org FTP site. username will be `anonymouse' and
+  password will be `current_username@current_hostname' (from the
+  environment)
+
+  For more details and if you have problems contact me:
+  
+    Vladi Belperchinov-Shabanski <cade@biscom.net>
+    
+  Good luck!    
+  
