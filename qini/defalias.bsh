@@ -238,7 +238,7 @@ al diskstate 'sudo hdparm -C /dev/[hs]d?'
 cbedic() { `which cbedic` `echo $@ | utf2win ` | win2utf; }
 xxall() { for a in "$@"; do xx "$a"; done }
 
-so /home/qini/aliasi/wrongisright.alias.bsh
+so $_INIs/aliasi/wrongisright.alias.bsh
 
 vdprev() {
     v d "$1" -r `v l -l 2 "$1" | perl -ne 'print if s/revno: *//' | tail -1`
@@ -256,4 +256,5 @@ al piplocal 'pip install --user'
 al gp 'git push'
 al svn2git2path 'svn2git --no-minimize-url --rootistrunk'
 
+al i 'v i -m'
 # vim:ts=4:sw=4:expandtab
