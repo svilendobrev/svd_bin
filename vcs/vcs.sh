@@ -154,6 +154,14 @@ git_l='log'
 git_r='rm'
 git_v='checkout --'
 
+#to turn checkout into bare:
+#git config --bool core.bare true
+#rm * but .git/
+
+#to make local-fir repo shareable:
+#git init --shared=0777 --bare
+#chmod a+rw -R .git/
+
 ####################
 
 if [ $cmd == 'v' ] ; then
