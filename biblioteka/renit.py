@@ -6,9 +6,10 @@ optz.usage( '%prog [optz] ot-dir < ren-script-stdin')
 optz.text(  'link_kym',  help= 'направи ново дърво от връзки с този корен')
 optz.bool( 'rename',     help= 'преименувай на място')
 optz.bool( 'rename_alt', help= 'преименувай на място и остави символна връзка към старото име.alt')
-optz.append( 'opis', help= 'подменя имена в опис ; може няколко пъти')
+optz.list( 'opis', help= 'подменя имена в опис ; може няколко пъти')
 optz.bool( 'link_zagolemi_pootdelno', help= 'връзки: раздели заголеми/ на /moze /neizv ..')
 optz.bool( 'nothing', '-n')
+oparser = optz.oparser
 optz,args = optz.get()
 
 import os, sys, stat
@@ -28,13 +29,14 @@ def link( ot, ikym, *pfxs):
             ss[ix] = None
         if kym in allfiles:
             old = allfiles[kym]
-            print( old)
-            print( ss)
-            if old == ss:
+            print( '---')
+            print( *old)
+            print( ot, ss)
+            if old[-1] == ss:
                 print( ' !ignore dup')
                 return
         assert kym not in allfiles, kym
-        allfiles[kym] = ss
+        allfiles[kym] = ot,ss
         if not exists( kym):
             if optz.nothing: print( 'os.link', ot, kym)
             else:
@@ -60,8 +62,8 @@ def rename( ot, kym, *pfxs):
 
 dorename = optz.rename or optz.rename_alt
 if not (optz.link_kym or dorename or optz.opis):
-    optz.oparser.print_help()
-    optz.oparser.error( 'deistvie?')
+    oparser.print_help()
+    oparser.error( 'deistvie?')
 
 
 opisi = dict( (opis, open( opis).read()) for opis in (optz.opis or ()) )
@@ -77,7 +79,7 @@ def rena2b( *a):
     elif dorename: rename( *a)
 
 if len(args)<1:
-    optz.oparser.error( 'ot') #print_help()
+    oparser.error( 'ot') #print_help()
 dir_ot = args[0]
 
 exec( sys.stdin.read() ) #'ren-script')

@@ -1,0 +1,28 @@
+
+  This directory contains some extra files,
+  not (directly) related to the VFU project
+ 
+ 
+  Xmodmap     is a modmap file that enables
+              keypad keys as arrows/home/end
+              etc...
+ 
+  vga.pcf     is my favorite font for rxvt
+              (xterm)
+ 
+  Rxvt        is my configuration for rxvt
+              (/var/X11R6/lib/app-defaults/Rxvt)
+              OBSOLETE: see Xdefaults
+ 
+  vfu-bash    is a bash function that enables
+              vfu to change working directory
+              on exit, to merge with your
+              current environment you have to:
+              . ./vfu-bash
+              note the leading dot!
+
+  Xdefaults   contains some fixes to allow easier
+              VFU usage under X (mostly rxvt issues)
+  
+  Vladi.
+ 

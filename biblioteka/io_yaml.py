@@ -21,14 +21,14 @@ class opis_io:
 
         for (obhvat, e_simvol), stoinosti in sorted( d.etiketi.items(), key= lambda kv: (kv[0][0],not kv[0][1]) ):
             if not stoinosti: continue
-
             if obhvat:
                 r = dd.setdefault( az.stoinosti[ obhvat], dictOrder() )
             else: r = dd
             if e_simvol:
-                r[ az.stoinosti.simvoli ] = ' '.join( stoinosti)
+                r[ az.stoinosti.simvoli ] = ' '.join( sorted( stoinosti))
             else:
                 for k,vv in stoinosti:
+                    if k[0]=='_': continue      #_vytr
                     if not isinstance( vv, (tuple, list)): vv = [vv]
                     #vv = [ v.strip() if isinstance( v, str) else v for v in vv ]
                     vv = [ int(v) if isinstance( v, str) and v.strip().isdigit() else v
@@ -40,11 +40,11 @@ class opis_io:
         def prev( p):
             r = [ (az.stoinosti.ime, p.ime) ]
             if p.etiketi:
-                r += [ ( az.stoinosti.simvoli, ' '.join( p.etiketi)) ]
+                r += [ ( az.stoinosti.simvoli, ' '.join( sorted( p.etiketi))) ]
             r += [ #(az.stoinosti[k],v)
                     (k,v)
                     for k,v in sorted( p.items())
-                    if v and k not in kv4prev ]
+                    if k[0]!='_' and v and k not in kv4prev ]
             return ( p.fname, len(r) > 1 and dictOrder( r) or p.ime)
         def prevodi2zapis( pr):
             return dictOrder( prev(p) for p in pr)
@@ -148,10 +148,11 @@ class opis_io:
                             assert isinstance( k, str), vo
                             assert isinstance( v, (int, str, tuple, list, dict)), vo
                         vv = dict( (az.rstoinosti.get(k,k),v) for k,v in vo.items())
+                        if 'ime' not in vv: vv['ime'] = f
                 else:
                     v,o = vo
                     vv = dict( ime=v, original=o)
-                az.nov_prevod( fname= f, grupa= grupa, roditel= az.fname, **vv)
+                az.nov_prevod( fname= str(f), grupa= grupa, roditel= az.fname, **vv)
         else: #list
             for kvo in prevodi:
                 if isinstance( kvo, (tuple,list)):

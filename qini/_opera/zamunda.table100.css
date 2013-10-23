@@ -14,6 +14,18 @@ table.test {
 *[title~="Fockers"] { display : none }
 *[title~="Season"] { display : none }
 *[title~="Slavi"] { display : none }
+*[title~="Looper"] { display : none }
 *[title~="Футбол:"] { display : none }
+*[title~="Риболов"] { display : none }
+*[title~="Paranormal"] { display : none }
+*[title~="Ted"] { display : none }
+*[title~="Skyfall"] { display : none }
+*[title~="Psychopats"] { display : none }
+
+*[title~="Пайнер"] { display : none }
+*[title~="Payner"] { display : none }
+*[title~="Голые"] { display : none }
+
 *#div1 { display : none }
+iframe { display : none }
 /***********/

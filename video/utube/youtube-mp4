@@ -1,2 +1,2 @@
 #!/bin/sh
-youtube-dl  -f 18 "$@"
+youtube-dl -t -f 18 "$@"

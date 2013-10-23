@@ -1,4 +1,5 @@
 ## these -> 127.0.0.1
+
 127.0.0.1 1.adbrite.com
 127.0.0.1 2.adbrite.com
 127.0.0.1 3.adbrite.com
@@ -9,6 +10,7 @@
 127.0.0.1 a.tribalfusion.com
 127.0.0.1 ace.advertising.com
 127.0.0.1 ad.adriver.ru
+127.0.0.1 ad.au.doubleclick.net
 127.0.0.1 ad.de.doubleclick.net
 127.0.0.1 ad.doubleclick.net
 127.0.0.1 ad.topsport.bg
@@ -20,7 +22,10 @@
 127.0.0.1 ad3.bannerbank.ru
 127.0.0.1 ad4.bannerbank.ru
 127.0.0.1 ad6.bannerbank.ru
+127.0.0.1 adbg.hit.gemius.pl
+127.0.0.1 adcz.hit.gemius.pl
 127.0.0.1 adidnes2.bbmedia.cz
+127.0.0.1 adocean.pl
 127.0.0.1 ads.adbrite.com
 127.0.0.1 ads.adultfriendfinder.com
 127.0.0.1 ads.arenabg.com
@@ -41,6 +46,7 @@
 127.0.0.1 ads1.ad-flow.com
 127.0.0.1 ads1.phonearena.com
 127.0.0.1 ads2.phonearena.com
+127.0.0.1 ads2.zamunda.net
 127.0.0.1 adserve.adster.com
 127.0.0.1 adserver.adreactor.com
 127.0.0.1 adserver.idgverlag.de
@@ -55,6 +61,7 @@
 127.0.0.1 banner.yoosms.com
 127.0.0.1 banners.adultfriendfinder.com
 127.0.0.1 banners.bgmaps.com
+127.0.0.1 bg.adocean.pl
 127.0.0.1 bg.search.etargetnet.com
 127.0.0.1 c5.zedo.com
 127.0.0.1 c7.zedo.com
@@ -64,14 +71,18 @@
 127.0.0.1 content.yieldmanager.com
 127.0.0.1 content.yieldx.com
 127.0.0.1 counter.search.bg
+127.0.0.1 cz.adocean.pl
 127.0.0.1 doubleclick.net
+127.0.0.1 ds.serving-sys.com
 127.0.0.1 easyads.bg
 127.0.0.1 easytrader.bg
+127.0.0.1 engine.adzerk.net
 127.0.0.1 etargetnet.com
 127.0.0.1 focusin.ads.targetnet.com
 127.0.0.1 i2.wisdom.bg
 127.0.0.1 images.boostclic.com
 127.0.0.1 images.rambler.ru
+127.0.0.1 images.smh.com.au
 127.0.0.1 imgn.dt00.net
 127.0.0.1 js2.rfihub.com
 127.0.0.1 media.adrevolver.com
@@ -80,19 +91,24 @@
 127.0.0.1 media.fastclick.net
 127.0.0.1 media.iprom.net
 127.0.0.1 monitor.neogen.bg
+127.0.0.1 ofertini.com
 127.0.0.1 pagead2.googlesyndication.com
 127.0.0.1 popunder.adsrevenue.net
 127.0.0.1 r5.dir.bg
 127.0.0.1 rot.imoti.net
+127.0.0.1 s0.2mdn.net
 127.0.0.1 search.etargetnet.com
 127.0.0.1 servedby.advertising.com
 127.0.0.1 srs.targetpoint.com
+127.0.0.1 static.adzerk.net
 127.0.0.1 static.blife.bg
 127.0.0.1 static.easytrader.bg
 127.0.0.1 storage.netinfo.bg
 127.0.0.1 track.boostclic.com
 127.0.0.1 www.adzooga.com
+127.0.0.1 www.box.bg
 127.0.0.1 www.google-analytics.com
 127.0.0.1 www.newplay.bg 
 127.0.0.1 www.surveymonkey.com
+127.0.0.1 www.usenetjunction.com
 127.0.0.1 www.yoosms.com

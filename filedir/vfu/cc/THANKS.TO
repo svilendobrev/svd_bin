@@ -1,0 +1,55 @@
+
+  THANKS.TO $Id: THANKS.TO,v 1.4 2005/06/03 00:34:55 cade Exp $
+  ----------------------------------------------------------------------------
+ 
+  Yes! There are many people that I should thank... :)
+  Few days ago ( about 1.Apr.2000(!) ) I was accused of not
+  providing appropriate thanks/credits! Wow(?!:)), it was a friend
+  of mine :)) ... anyway, from now on this file will keep
+  track of all the people that help the VFU project!
+ 
+  BIG THANKS TO ALL OF THEM!
+  ( note: the following list is in random order and 
+          is *NOT* complete! )
+ 
+  If someone is missing in this list, please inform me!
+ 
+  The author of the old F (unknown to me)
+        ( F is an old dos real-mode file manager )
+  	-- for the original F itself
+  
+  Alexander Dimitrov <susho@biscom.net>
+  	   for the extensive vfu testing and sample config file(s)
+  
+  Hubert Feyrer <hubertf@netbsd.org>
+  	   for NetBSD support & packaging
+  
+  Ryan Weaver <ryanw@infohwy.com> <ryanw@falsehope.com>
+  	   for RedHat (rpm) support & packaging
+  
+  Mika Fischer <mf@debian.org>
+  	   for Debian support & packaging
+  
+  Ivaylo Baylov <ivo@datamax.bg>
+  	   for bits of code (credits in the source) and ideas (*)
+  
+  Charles Hannum <mycroft@netbsd.org>
+       for several fixups
+  
+  BIS OnLine [http://www.biscom.net]
+       for hosting the VFU site all these years
+
+  DataMax SA [http://soul.datamax.bg]
+       for hosting the VFU site since Nov.2002
+ 
+  There are some people that I still not have expressly permission
+  to list here. Some of them are people that has helped the VF
+  project which is indirectly the same thing. The rest are all
+  known and unknown VFU users (and YOU, yes you, reader :)).
+ 
+ 
+  P! Vladi Belperchinov-Shabanski <cade@biscom.net> <cade@datamax.bg>
+  http://cade.datamax.bg
+ 
+  ---eof----------------------------------------------------------------------
+ 

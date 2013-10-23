@@ -1,0 +1,388 @@
+
+   FREQUENTLY ASKED QUESTIONS ABOUT:
+   VF File Manager for Unix/Linux ( VFU )
+   by Vladi Belperchinov-Shabanski "Cade"
+   <cade@biscom.net> <cade@datamax.bg>
+   http://soul.datamax.bg/~cade/vfu
+
+   $Id: FAQ,v 1.8 2005/06/05 22:02:05 cade Exp $
+
+
+    1. What is `TP' field on the third line?
+ 
+       This stands for "type" and means:
+       [] -- directory
+       <> -- link to directory
+       -> -- link
+       ** -- executable
+       ++ -- character device
+       ## -- socket
+       () -- FIFO (pipe)
+       == -- block device
+       -- -- regular file
+
+ 
+    2. Does VFU follows directory links when calculating directory(ies) size?
+ 
+       No. :)
+
+ 
+    3. I cannot see entire filename?
+ 
+       Try '>' or '0' -- it will show only filenames... or
+       try `1'..`6' to toggle different info entries.
+
+ 
+    4. What files are considered `executables' (i.e. marked `**')
+ 
+       File is marked `**' if any of `x' modes are set (regardless
+       owner, group, etc.) This means that if file has mode of
+       -rwxr--r-- and you are not owner the file will be still marked
+       as `**' but you won't be able to execute it! This behavior may
+       be changed in the future but not for now. (in general `**' does
+       NOT mean that you can execute it)
+
+ 
+    5. Do I need to set `HOME' environment variable under DOS, and where
+       it is supposed to point?
+ 
+       Yes. In general, the HOME directory is used to keep all
+       configuration and status files. Well, if you don't set it, VFU
+       will set HOME directory into TEMP ( c:/tmp/ under DOS )
+       But keep in mind that VFU is UNIX file manager in nature so
+       it can use HOME under DOS for something else in the future,
+       so it is recommended to set it. ( just to be safe :) )
+
+ 
+    7. How can I use `JumpToMountpoint' function under DOS?
+ 
+       The information for this function comes from the `/etc/mtab'
+       file. This file show currently mounted file systems.
+       Under DOS platform the only way is to simulate this file, which
+       is quite simple -- You have just to create `_vfu.mtb' file in the
+       HOME (see FAQ 6 above) directory.
+       Content of this file is: (this is example)
+ 
+       ---cut---
+       -        c:/
+       -        d:/
+       -        j:/
+       ---cut---
+ 
+       Please note the leading `-', it must be here. However you can
+       add whatever you want ( I mean paths ), but normally you just
+       should add roots of all drives.
+
+ 
+    8. I've just created `some/newdir' in the current directory. VFU
+       reported no error, but I cannot see it.
+ 
+       Well, you just have to hit 'r' to reload directory content.
+       I know this may be confusing at first, but you'll get used to
+       it quite fast. :)
+
+ 
+    9. How can I exit to new directory from vfu (UNIX)
+ 
+       On exit VFU always try to create file named `/tmp/vfu.exit.USERNAME`
+       where `USERNAME' is current user's user name :) for example my
+       filename will be named `/tmp/vfu.exit.cade'. To make use of this file
+       you should define alias or function (bash) for it like this example:
+
+       function vfu()
+         {
+         /usr/local/bin/vfu $*;
+         cd `cat /tmp/vfu.exit.$USER`;
+         rm -f /tmp/vfu.exit.$USER;
+         }
+
+       This is bash function that does the trick. If someone need this
+       for other shell or with an alias then please contact me.
+
+       After this you can use `q' to exit VFU and cd to the VFU's current
+       working directory.
+ 
+       You can change this filename by exporting new name in this way:
+ 
+       export VFU_EXIT="/tmp/my.exit.file.$$"
+ 
+       And VFU will use it instead of default one.
+
+       NOTE: DOS version should work without this -- the `q'uit function
+             will work standalone.
+
+ 
+   10. What is `Name###' sort order? And why should I RTFM?! :)
+ 
+       This mode forces sort order as follows:
+
+       file names are: `vs011.txt', `vs04.txt', `vs030.txt'
+       sort order is : `Name'
+       the result is : `vs011.txt', `vs030.txt', `vs04.txt'
+
+       file names are: `vs011.txt', `vs04.txt', `vs030.txt'
+       sort order is : `Name###'
+       the result is : `vs04.txt', `vs011.txt', `vs030.txt'
+
+       ...in a few words: if the file name (until first dot if exist)
+       ends with number, VFU will sort them in regard to the numeric
+       values found at the ends of the filenames.
+
+       (real parsing re is "^(.*)([0123456789]+)(\\.(.*))?$" if you
+        know what this means:))
+
+       NOTE: This mode drops all after the first dot!
+       NOTE: This mode resets on exit!
+ 
+
+   11. How is done the tilde expansion in VFU?
+ 
+       It works only in standard input line for getting directory
+       name which is used for: chdir, copy, move... it won't work
+       in vfu.conf or anywhere else.
+
+ 
+   12. What is the mask expansion and how it works?
+ 
+       If no `*' or `?' found in the mask then:
+         1. add `*' at the end
+         2. if mask starts with `.' then add `*' to the front
+       else
+         1. leave it `as is'
+       Just try it -- if you don't like the expansion -- switch it
+       off: Options(Toggles)/FilesMaskExpand and FileFindMaskExpand.
+
+ 
+   13. Where mask expansion applies and can I turn it off?
+ 
+       Wherever you need to enter mask! (file list masking, global
+       select, file find, etc...)
+       You can turn it off form the `Options'
+       (key `O')
+
+ 
+   14. Can I browse/view more than one file at the same time?
+ 
+       Yes! You have just to select needed files and press 'B'
+       (browse). Then use `1'..`0' to switch between files/slots.
+       The limit is 10 files.
+
+ 
+   15. What `Show Real Free Space' option means?
+ 
+       Most of the operating systems keep users from filling the
+       entire disks. So there is two `free spaces' the one is the
+       `real free space' ( i.e. physical one ) and `user free space'
+       which is the free space available to any user.
+       By default VFU shows the free space available to the user.
+       If you want to use the real free space count -- turn this on.
+
+ 
+   16. How can I use the FTP support?
+ 
+	   NOTE! as of Nov.2002 VFU doesn't use `ftparc' anymore!
+	   Instead rx_ftp uses Net::FTP perl module.
+
+       All you need to use FTP support is:
+
+       a. install Net::FTP if you haven't done this already.
+
+       b. create needed FTP file archives:
+          
+		  example:
+
+          create plain text file:
+
+          cade-at-jane.ftp
+ 
+          ---cut---
+          jane.tetida.org
+          cade
+          password
+          ---cut---
+
+          This file has to contain three lines: host, username and
+          password.
+
+       c. Then from inside VFU press `+' or `ENTER' to enter FTP site
+          just as it is plain archive file.
+
+          More details could be found in the README file with rx_*.
+		  (rx directory under VFU main distribution directory)
+
+ 
+   17. I cannot enter archive/ftp! What's wrong?
+ 
+       Since version 3.00 VFU uses external utilities to handle
+       archives/ftp. These utilities are named rx_ext, where
+       `ext' is archive type extensions. However VFU calls
+       `rx_auto' which decides which specific `rx_*' to call.
+       So the solution is: make sure rx_* utilities are
+       in the path. Then test the result of `rx_auto l archive',
+       it should return something like:
+ 
+       ---cut---
+       NAME: some/name.ext
+       SIZE: 1024
+       MODE: -rwx---rwx
+ 
+       NAME: other/name.misc
+       SIZE: 1110
+       MODE: ----------
+ 
+       ...
+       ---cut---
+ 
+   18. What is the interface to those rx_* tools?
+ 
+       rx_* tools should provide the following commands:
+ 
+       rx_ftp v archive directory
+	 view contents of `directory' of archive `archive'
+
+       rx_ftp V archive directory
+	 view contents of `directory' of archive `archive'
+	 recursively (i.e. all filenames are with full path,
+	 `directory' is ignored )
+	
+	
+       rx_ftp x archive files...
+	 extract files from archive
+ 
+       rx_ftp x archive @listfile
+	 extract files from archive (but get the list from
+	 file named `listfile')
+	
+       examples:
+ 
+         rx_tar v vfu-3.01.tar.gz /vfu-3.01/vslib/
+         rx_tar V vfu-3.01.tar.gz
+         rx_tar x vfu-3.01.tar.gz /vfu-3.01/ftparc/README
+
+       The expected format that has to be returned for commands
+       `v' and `V' is:
+ 
+       ---cut---
+       NAME:filename
+       SIZE:12345678
+       MODE:-rwxr-xr--
+       TIME:YYYYMMDDHHMMSS
+ 
+       NAME:filename
+       SIZE:12345678
+       MODE:-rwxr-xr--
+       TIME:YYYYMMDDHHMMSS
+
+       ...
+       ---cut---
+ 
+       Currently only NAME and SIZE are supported! The order for
+       fields is random. Each entry is separated with empty line.
+       `filename' contains only filename for `v' command and full
+       path for `V' command.
+ 
+
+       examples:
+
+       `v' command:
+ 
+       ---cut---
+       NAME:README
+       SIZE:605
+       MODE:-rw-r--r--
+       TIME:200005231124
+ 
+       NAME:vfumenu.h
+       SIZE:614
+       MODE:-rw-r--r--
+       TIME:200005191052
+ 
+       NAME:vfusetup.h
+       SIZE:1327
+       MODE:-rw-r--r--
+       TIME:200008010017
+ 
+       NAME:makefile
+       SIZE:3772
+       MODE:-rw-r--r--
+       TIME:200005191058
+ 
+       ---cut---
+
+       `V' command:
+       ---cut---
+       NAME:vfu-3.02/vfu.1
+       SIZE:16773
+       MODE:-rw-r--r--
+       TIME:200008010118
+ 
+       NAME:vfu-3.02/build.netbsd
+       SIZE:832
+       MODE:-rwxr-xr-x
+       TIME:200006171605
+ 
+       NAME:vfu-3.02/README.DOS
+       SIZE:430
+       MODE:-rw-r--r--
+       TIME:199902161511
+ 
+       NAME:vfu-3.02/TODO
+       SIZE:685
+       MODE:-rw-r--r--
+       TIME:200006172251
+ 
+       NAME:vfu-3.02/ftparc/ftparc.cpp
+       SIZE:7521
+       MODE:-rw-r--r--
+       TIME:200004161224
+ 
+       ---cut---
+
+
+   19. What does Tools/RenameTools/SiplifyName do?
+ 
+       First replaces all `special' symbols as `'&\"/ etc with _
+       then it compresses all repeating _'s and finally it replaces
+       `_-_' with `-'.
+
+       NOTE: I accept any suggestions for this feature behaviour!
+
+   20. How can I purge directory sizes cache?
+ 
+       The sizes cache is flushed on directory tree rebuild.
+
+   21. Why I cannot execute image viewer (or any prog) on a file
+       inside archive? It reports `file not found' error?
+ 
+       The problem is when you want to spawn image viewer with `&'
+       on background. At this point VFU has taken control back and
+       temporary file/dir is removed. There is no slick solution to
+       this and only workaround is to remove `&' from your command.
+
+   22. How to make VFU to handle Ctrl+Z, Ctrl+C?
+   
+       You have to export UNICON_NO_RAW environment variable:
+       
+       export UNICON_NO_RAW=1
+       vfu
+       ...
+
+   23. Is it possible to see file sizes above 4GB properly?
+   
+       Yes, you have to compile this way:
+       
+          export CCDEF="-D_FILE_OFFSET_BITS=64"
+          make
+          
+       or
+       
+          make CCDEF="-D_FILE_OFFSET_BITS=64"
+ 
+   99. I don't/do like feature X, can I turn it OFF/ON?
+ 
+       I tried to give option for every arguable behavior of
+       most features. So you have to check `Options' menu (key O
+       inside VFU) and vfu.conf file to find out how to solve the
+       problem. If this doesn't help contact me...
+
+

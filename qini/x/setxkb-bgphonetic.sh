@@ -35,5 +35,8 @@ if uname -a | grep -q eee ; then ##eeepc:
  echo eeepc
   echo keycode 135 = Control_R    | xmodmap - #Menu
   echo add control = Control_R    | xmodmap -
+else
+ xmodmap -e "keycode 133 = underscore"	#winLeft =_
+ xmodmap -e "keycode 134 = underscore"	#winRight=_
 fi
 

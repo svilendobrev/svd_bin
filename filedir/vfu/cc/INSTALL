@@ -1,0 +1,63 @@
+
+   1. how to compile vfu
+
+     run `make' from vfu base directory
+     
+     this should compile everything
+     
+     to compile each part of vfu manually do this:
+     
+     -- go to `vslib' directory
+     -- run `make'
+     -- go to `vfu' directory
+     -- run `make'
+     
+     if something goes wrong, check these:
+
+     -- if your `curses.h' file locations is not `/usr/include/ncurses'
+        you have to change this in the Makefile.
+ 
+     -- if vslib library is not in the `../vslib' directory you also
+        have to change this in the Makefile.
+
+     to get file sizes above 4GB shown properly you need to make this way:
+     
+          export CCDEF="-D_FILE_OFFSET_BITS=64"
+          make
+          
+       or
+       
+          make CCDEF="-D_FILE_OFFSET_BITS=64"
+
+   2. how to install vfu
+ 
+      run `install' script from vfu base directory
+      
+      install script checks if all required files are available/built and
+      then does this:
+      
+        cp vfu/vfu rx/rx_* /usr/local/bin
+        cp vfu.1 /usr/local/man/man1
+        cp vfu.conf /usr/local/etc
+
+   3. how to install vfu manually
+ 
+     -- you have to copy `vfu' in the `/usr/local/bin' or
+        `/usr/bin' directory and set mode to 755 `rwxr-xr-x'
+        the owner is not significant ( root is also possible ).
+
+     -- there is preliminary man page ( vfu.1 ) which could be
+        copied to /usr/man/man1.
+ 
+     -- copy all `rx/rx_*' tools to /usr/local/bin
+     -- install Net::FTP perl module if needed.
+        (this is used for FTP support)
+
+   WARNING: make sure to remove all old personal cache files!
+ 
+   If you still have problems feel free to contact me anytime.
+
+   P! Vladi.
+   --
+   Vladi Belperchinov-Shabanski <cade@biscom.net> <cade@datamax.bg>
+   http://cade.datamax.bg/vfu

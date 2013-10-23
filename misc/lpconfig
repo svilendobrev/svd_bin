@@ -1,0 +1,19 @@
+налични модели/драйвери
+$ lpinfo -m
+
+налични протоколи (и търси мрежови принтери)
+$ lpinfo -v
+
+създава и разрешава:
+$ lpadmin -p Lexmark -P /home/share/1/hardware/Lexmark-X203n.ppd -v lpd://192.168.100.25/PASSTHRU -E
+
+изтрива
+$ lpadmin -x Lexmark 
+
+опашки:
+$ lpstat -a
+
+устройства/адреси към опашки:
+$ lpstat -v
+
+

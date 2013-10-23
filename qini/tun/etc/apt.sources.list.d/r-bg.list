@@ -1,0 +1,16 @@
+
+deb http://bg.archive.ubuntu.com/ubuntu/ raring main restricted universe multiverse
+deb http://bg.archive.ubuntu.com/ubuntu/ raring-updates main restricted universe multiverse
+deb http://bg.archive.ubuntu.com/ubuntu/ raring-backports main restricted universe multiverse
+deb http://security.ubuntu.com/ubuntu/ raring-security main restricted universe multiverse
+deb http://extras.ubuntu.com/ubuntu raring main
+
+deb-src http://bg.archive.ubuntu.com/ubuntu/ raring main restricted universe multiverse
+deb-src http://bg.archive.ubuntu.com/ubuntu/ raring-updates main restricted universe multiverse
+deb-src http://bg.archive.ubuntu.com/ubuntu/ raring-backports main restricted universe multiverse
+deb-src http://security.ubuntu.com/ubuntu/ raring-security main restricted universe multiverse
+deb-src http://extras.ubuntu.com/ubuntu raring main
+
+deb http://archive.canonical.com/ubuntu raring partner
+deb-src http://archive.canonical.com/ubuntu raring partner
+

@@ -1,0 +1,27 @@
+#!/bin/bash
+
+#answer=$(xmessage -print -center -buttons Shutdown:off,QuitX:quit,Cancel:cancel "Shutdown")
+#if [ $answer = "Shutdown" ]; then
+#   #shutdown -h now
+#   poweroff
+#fi
+#
+#if [ $answer = "QuitX" ]; then
+#	 `openbox --exit`
+#fi
+
+#!/bin/bash
+
+if echo $LANG | grep -q BG ; then
+ gmessage "изключване ?" -center -title "изключване" -default "_Остави" -buttons "_Остави":1,"_БезХ":2,"_Рестарт":3,"_Изключи":4 >/dev/null 
+else
+ gmessage "turn off ?" -center -title "turn off" -default "_Cancel" -buttons "_Cancel":1,"_Log out":2,"_Reboot":3,"_Shut down":4 >/dev/null 
+fi
+
+case $? in
+	1) echo "Exit";;
+	2) `openbox --exit`;;
+	3) sudo shutdown -r now;;
+	4) sudo shutdown -h now;;
+esac
+

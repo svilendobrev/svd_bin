@@ -1,0 +1,8 @@
+#start this with `xfce4-terminal -x bash --rcfile ./aaa`
+# still vim is not suspendable..
+
+test -f /etc/bash.bashrc && . /etc/bash.bashrc
+test -f ~/.bashrc && . ~/.bashrc
+echo aaaaaaac
+
+vim "$@"

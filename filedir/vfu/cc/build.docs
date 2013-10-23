@@ -1,0 +1,7 @@
+#!/bin/sh
+
+pod2man --center="VFU File Manager" --release="Version 4.xx" vfu.pod > vfu.1
+pod2html vfu.pod > vfu.html
+rm -f pod2htmd.x~~ pod2htmi.x~~ pod2html-dircache pod2html-itemcache vfu.pod.tmp
+
+echo "done."

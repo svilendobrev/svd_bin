@@ -1,0 +1,23 @@
+#### obsolete; use xx/vv script
+#al zx   unzip
+#al zv   'zx -v'
+#al xz   zx
+## tar from stdin: tar vt  or  or tar vtf -
+#al tv   'tar vtf'
+#al tx   'tar vxf'
+##if tar --version | grep GNU >/dev/null ; then
+# al tgzv 'tar tzvf'
+# al tgzx 'tar xzvf'
+# al tbzv 'tar tjvf'
+# al tbzx 'tar xjvf'
+# al tzv  'tar tZvf'
+# al tzx  'tar xZvf'
+##else
+## al tgzv 'gzip -dc \!:1 | tv -'
+## al tgzx 'gzip -dc \!:1 | tx -'
+## al tbzv 'bzip2 -dc \!:1 | tv -'
+## al tbzx 'bzip2 -dc \!:1 | tx -'
+## al tzv  'uncompress -dc \!:1 | tv -'
+## al tzx  'uncompress -dc \!:1 | tx -'
+##fi
+

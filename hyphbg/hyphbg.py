@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 
 'Bulgarian hyphenation rules. 1991-2009 svd'
 # Сричкопренасяне за български език.
@@ -110,15 +111,15 @@ tsz4 = u'ала~ба~ла~ни~ца тур~с~ка па~ни~ца джин~дж�
 def test():
     t0,t1 = txt, tsz4
     cfg = dict( hyphen= '~', minsize= 4)
-    print cfg
+    print( cfg)
     def tst( res, exp):
         if res != exp:
-            print '\n %(res)s ?=\n %(exp)s' % locals()
+            print( '\n %(res)s ?=\n %(exp)s' % locals())
             assert res == exp
     for w,w1 in zip( t0.split(), t1.split() ):
         tst( hyphtext( w, **cfg), w1 )
     tst( hyphtext( t0, **cfg), t1 )
-    print t1
+    print( t1)
 
 
 if __name__ =='__main__':
@@ -129,6 +130,7 @@ if __name__ =='__main__':
     '''.rstrip())
     optz.text( 'hyphen',help= u'"тире" за отбелязване на пренасянето (меко/скрито-тире); подразбира се "%default"', default= config.hyphen )
     optz.bool( 'html',  help= u'ползва HTML-меко-тире %(HTML_HYPHEN)r (вместо горното)' % locals() )
+    optz.str( 'start',  help= u'започва да променя след този текст' )
     optz.bool( 'htmlpre',   help= u'пропуска съдържанието на <pre>..</pre> групи' )
     optz.int( 'minsize',    help= u'думи под тази дължина не се пренасят; подразбира се %default', default =config.minsize )
     optz.bool( 'utf',   help= u'вх/изх utf8' )
@@ -140,43 +142,55 @@ if __name__ =='__main__':
     optz.bool( 'cp1251',help= u'вх/изх cp1251' )
     optz.bool( 'test',  help= u'самопроверка' )
     optz.bool( 'demo',  help= u'демо' )
-    options,args = optz.get()
+    optz,args = optz.get()
 
-    if options.test:
+    if optz.test:
         test()
         raise SystemExit,0
 
     cfg = dict(
-        hyphen= options.html and HTML_HYPHEN or options.hyphen,
-        htmlpre=options.html and options.htmlpre,
-        minsize= options.minsize, )
+        hyphen= optz.html and HTML_HYPHEN or optz.hyphen,
+        htmlpre=optz.html and optz.htmlpre,
+        minsize= optz.minsize, )
 
     def ienc(a):
-        if options.iutf or options.utf: a = a.decode('utf8')
-        elif options.i1251 or options.cp1251: a = a.decode('cp1251')
+        if optz.iutf or optz.utf: a = a.decode('utf8')
+        elif optz.i1251 or optz.cp1251: a = a.decode('cp1251')
         return a
     def oenc(a):
-        if options.outf or options.utf: a = a.encode('utf')
-        elif options.o1251 or options.cp1251: a = a.encode('cp1251')
+        if optz.outf or optz.utf: a = a.encode('utf')
+        elif optz.o1251 or optz.cp1251: a = a.encode('cp1251')
         return a
 
-    if options.demo:
-        print oenc( hyphtext( txt, **cfg))
+    if optz.demo:
+        print( oenc( hyphtext( txt, **cfg)))
         raise SystemExit,0
 
     if args:
         for a in args:
-            print oenc( hyphtext( ienc(a), **cfg)),
+            print( oenc( hyphtext( ienc(a), **cfg)), end=' ')
     else:
         import sys
         tt = sys.stdin
-        if options.iguess:
+        if optz.iguess:
             from svd_util import eutf
             tt = eutf.readlines(tt)
             def ienc(a): return a
 
         if 0: tt = tt.readlines() * 10  #profile
+        started=False
         for l in tt:
-            print oenc( hyphtext( ienc(l.rstrip()), **cfg))
+            l = l.rstrip()
+            if optz.start:
+                if not started:
+                    if optz.start in l:
+                        started = True
+                        n,l = l.split( optz.start,1)
+                        n+= optz.start
+                        print( oenc( ienc(n)), end='')
+                    else:
+                        print( oenc( ienc(l)) )
+                        continue
+            print( oenc( hyphtext( ienc(l), **cfg)))
 
 # vim:ts=4:sw=4:expandtab

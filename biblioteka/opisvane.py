@@ -29,23 +29,9 @@ import sys, os.path, re
 from os.path import isdir, basename, exists, join, dirname, realpath
 #from difflib import unified_diff as diff
 from svd_util.diff import unified_diff_ignore_space as diff
+from svd_util.lists import appendif, extendif, listif
 
 from instr import meta_prevodi, zaglavie, nezaglavie
-
-def appendif( lst, o):
-    if o not in lst: lst.append( o)
-    return lst
-def extendif( lst, oo):
-    if oo:
-        for o in oo:
-            if o not in lst: lst.append( o)
-    return lst
-def setorder( *a):
-    r = []
-    if len(a)==1 and isinstance( a[0], collections.Iterable): #(list,tuple,dict)):
-        a = a[0]
-    return extendif( r, a )
-listif = setorder
 
 _DictAttrTrans = make_dict_attr( make_dict_trans() )
 
@@ -181,8 +167,8 @@ def str2list( ss, sep ='\n'):
         ss = ss.strip().split( '\n')
     else:
         ss = list( ss)
-    while ss and not ss[0].strip(): del ss[0]
-    while ss and not ss[-1].strip(): del ss[-1]
+    while ss and not (ss[0]  or '').strip(): del ss[0]
+    while ss and not (ss[-1] or '').strip(): del ss[-1]
     return ss
 
 class Naslagvane:
@@ -221,7 +207,7 @@ class info:
  [група: име]
  файл-име == заглавие
 '''
-
+    options = None
     @staticmethod
     def opts():
         optz.help( '''%prog [опции] папка ..
@@ -268,14 +254,14 @@ class info:
     #.rstoinosti: всичко към latinica/ключа отляво
     stoinosti0 = DictAttr(
         #само папката
-        prevodi     = 'парче*та части превод*и',
+        prevodi     = 'парч*ета части превод*и',
         grupi       = 'групи',
         grupa       = 'група',
         grupa_i_nomer= 'група-номер',
         nomer       = 'номер',
         nomervgrupa = 'нг номер-в-група номер-група',
         shablon     = 'шаблон',
-        sort_prevodi= 'подреди-парчета подреди-части подреди-преводи',
+        sort_prevodi= 'подреди-парчета подреди-части подреди-преводи подреди',
         #simvoli_papka   = 'етикети-папка   eт-пап*ка   символи-пап*ка',
         #само елементите
         shablon_element = 'шаблон-елемент',
@@ -726,7 +712,7 @@ class info:
     def samopopylva_etiketi( az):
         pass
 
-    exts = 'mkv avi mov wmv mpg mpeg mp4 ts m2ts  mp3 wma flac wav ac3 ogg'.split()
+    exts = 'mkv avi mov wmv webm mpg mpeg mp4 ts m2ts flv  mp3 wma flac wav ac3 ogg'.split()
     @classmethod
     def bez_ext( az, fname, exts= (), extra_exts =(), samo1 =False):
         exts = set( exts or az.exts)
@@ -765,6 +751,21 @@ class info:
             prn( '---------file_prevodi-----')
             prn( '\n'.join( '%-50s = %s' % (k,v) for k,v in sorted( r.items())))
 
+    svoistva_ot_fname__shabloni= [ re_godina ]
+    svoistva_ot_fname__red = ()
+
+    def svoistva_ot_fname( az, aname):
+        red_svoistva_ot_fname = az.svoistva_ot_fname__red or az.svoistva_ot_fname__shabloni
+        r = len( red_svoistva_ot_fname) * [ None ]
+        for rre in az.svoistva_ot_fname__shabloni:
+            try: ix = red_svoistva_ot_fname.index( rre )
+            except ValueError: ix = None
+            if ix is not None:
+                for x in rre.finditer( aname):
+                    r[ ix ] = x.group(1)        #вземи последното
+                    #if SAMO_PYRVOTO: break
+            aname = rre.sub( '', aname)
+        return [x for x in r if x], aname
 
     def prevedi_element( az, f ):
         k = az.fname
@@ -779,27 +780,30 @@ class info:
         if az.e_za_propuskane( dirname( fname) ):
             return
 
-        mgodina = None
-        for aname in az.bez_ext1x1( fname):
-            if aname in info.vse_prevodi:
+        svoistva = ()
+        aname = None
+        for ime_bez_ext in az.bez_ext1x1( fname):
+            if ime_bez_ext in info.vse_prevodi:
                 break
         else:
-            mgodina = info.re_godina.search( aname)
-            if mgodina:
-                mgodina = mgodina.group(1)
-                aname = info.re_godina.sub( '', aname)
+            svoistva,aname = az.svoistva_ot_fname( ime_bez_ext)
+            aname = aname.rstrip('.')
             if aname not in info.vse_prevodi:
-                if az.etiketi.sfx and aname.endswith( az.etiketi.sfx):
-                    aname = aname[ :-len(az.etiketi.sfx)]
-                    if aname not in info.vse_prevodi:
-                        if az.options.podrobno: prn( '!!! няма превод:', f, aname)
-                        return
+                for aname in az.bez_ext1x1( aname):
+                    if aname in info.vse_prevodi:
+                        break
+                else:
+                    if az.etiketi.sfx and aname.endswith( az.etiketi.sfx):
+                        aname = aname[ :-len(az.etiketi.sfx)]
+                        if aname not in info.vse_prevodi:
+                            if az.options.podrobno: prn( '!!! няма превод:', f, aname)
+                            return
 
-        prevod = az.prevod_po_shablon( aname)
-        if mgodina: prevod += '.'+mgodina
+        prevod = az.prevod_po_shablon( aname or ime_bez_ext)
+        if svoistva: prevod = '.'.join( [prevod] + svoistva )
 
 
-        oname = join( k, aname)
+        oname = join( k, ime_bez_ext)
         lodir = len(k)+1
         loname= len(oname)
         assert isinstance( oname, unicode), repr(oname)
@@ -859,7 +863,8 @@ class info:
 
         if options.prevodi_meta:
             info.meta_prevodi.update( meta_prevodi( options.prevodi_meta, dict= dict_lower,
-                        prn= options.podrobno and prn, zaglavie= 'мета-преводи'))
+                        prn= options.podrobno and prn, zaglavie= 'мета-преводи', razdelitel_v_nachaloto=True
+                        ))
 
         info.fenc = options.filename_enc or (eutf.e_utf_stdout() and 'utf-8' or locale.getpreferredencoding())
         if options.podrobno:

@@ -1,6 +1,8 @@
 ### pacman
 #al()  { alias  $1="$2"; }  #no parameters allowed!
 al pac1line "perl -e 'undef $/; while(<>) { s/\n  /\t/g; print; }'"
+al pacnamesize "perl -ne 's/,00//; print \$1 if s/^Name *: *(\S+)//; print if s/^Installed Size *:/\t/' "
+#|sort -n -k 2
 
 al a-install 'sudo pacman -S'
 #al a-installre 'a-install --reinstall'
@@ -11,15 +13,24 @@ al a-delete a-remove
 #al a-purge  dpkg-purge
 al a-autoremove 'sudo pacman -S --clean'
 al a-autoclean a-autoremove
-#al a-autoclean2 'sudo apt-get autoclean; sudo apt-get autoremove'
+al a-autoclean2 'a-autoclean --clean'
 a-search() { pacman -S --search "$@" | pac1line; } 
 al a-show    'pacman -S --info'
 al a-file0   'pacman -Q --owns'
 al a-list    'pacman -Q --list'
-a-all()         { pacman -S --list "$@" | pac1line; }   #??
-a-all-inst()    { pacman -Qs "$@" | pac1line; } 
+a-all()         	{ pacman -S --list "$@" | pac1line; }   #??
+a-all-inst()    	{ pacman -Qs "$@" | pac1line; } 
+a-all-instsize() 	{ pacman -Qi "$@" | pacnamesize; } 
+# -e explicit
+
+al a-upgradable-full 'pacman -Su -p | sort'
+al a-upgradable "a-upgradable-full | perl -ne 's,.*686/(.*?)-[0-9].*,\1,;print' | sort "
+
 al a-file    a-file0 
 #al a-repository 'sudo add-apt-repository'
 #al a-ppa a-repository
 
+#    1  pacman -Qe
+#    2  pacman -Qet
+#   13  pacman -Qei| perl -ne 's/,00//; print $1 if s/^Name *: (\S+)//; print if s/^Installed Size *:/\t/' |sort -n -k 2
 # vim:ts=4:sw=4:expandtab

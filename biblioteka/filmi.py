@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from opisvane import info
+import re
 
 if __name__ == '__main__':
 
@@ -24,6 +25,9 @@ if __name__ == '__main__':
             avtor = avtori_en,  #+ ..
             )
 
+        re_xy = re.compile( '[-. _]?(w\d{3,4}|\d{3,4}p)')
+        svoistva_ot_fname__shabloni = [ re_xy, info.re_godina, ]
+        svoistva_ot_fname__red      = list( reversed( svoistva_ot_fname__shabloni))
 
         @classmethod
         def ime_ot_prevod( klas, name ):

@@ -80,4 +80,9 @@ tags:
 izv:
 	$(PY) ~/src/bin/audio/izvadki/wavspl.py *izv*
 
+FILMs= $(wildcard $(SFILM))
+filmid: $(FILMs:%=%.filmid)
+%.filmid: %
+	filmid.sh "$<" >"$@"
+
 # vim:ts=4:sw=4:noexpandtab

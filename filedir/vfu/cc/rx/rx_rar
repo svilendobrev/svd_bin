@@ -1,0 +1,68 @@
+#!/usr/bin/perl
+#############################################################################
+#
+# rx_* dispatcher and handlers for VFU File Manager
+# (c) Vladi Belperchinov-Shabanski "Cade" 2002 
+# <cade@biscom.net> <cade.datamax.bg> http://cade.webbg.com
+# $Id: rx_rar,v 1.2 2002/11/07 23:22:21 cade Exp $
+#
+# usage:
+#   rx_* l archive directory   # list archive directory 
+#   rx_* v archive             # list entire archive
+#   rx_* x archive files...    # extract one file
+#   rx_* x archive @listfile   # extract list of files
+#
+#############################################################################
+use strict;
+my $cmd = lc shift @ARGV;
+my $archive = shift @ARGV;
+
+if ( $cmd eq "l" || $cmd eq "v" ) {
+   my $dir = shift @ARGV;
+   if ( $dir ) { $dir .= "/" unless $dir =~ /\/$/; }
+ 
+   my $in = 0;
+   open( i, "unrar v \"$archive\" |" );
+   my $N="";
+   while(<i>) {
+      $in = ! $in and next if/^[\- ]{16,}$/;
+      next unless $in;
+	  s/^ +//;
+	  s/\s+$//;
+	  $N = $_;
+      $_ = <i>;
+	  s/\s+$//;
+	  #print "$_\n";
+	  my @D = split /\s+/; 
+      if ( $cmd eq "l" ) {
+        next unless $N =~ s/^$dir([^\/]+\/?)$//;
+        $N = $1;
+      }
+      my $S = $D[1];
+      my $T = $D[4] . $D[5];
+      $T =~ s/(\d\d)-(\d\d)-(\d\d)(\d\d):(\d\d)/$3$2$1$4$5/;
+      $T = ( $3 < 70 ? '20' : '19' ) . $T;
+      my $M = $D[6];
+	  $N.="/" if $M=~/D/;
+      print "NAME:$N\nSIZE:$S\nTIME:$T\nMODE:$M\n\n";
+   }
+   close( i );
+
+} elsif ( $cmd eq "x" ) {
+  my $list;
+  if ( $ARGV[0] =~ /^\@(.+)$/ ) {
+    $list = $1;
+  } else {
+    $list = "/tmp/$$.rx.list";
+    open( o, ">$list" );
+    chmod oct(600), $list;
+    print o "$_\n" for @ARGV;
+    close( o );
+  }
+  system( "unrar x $archive \@$list 1> /dev/null 2> /dev/null" );
+  unlink $list;
+
+} else {
+  die $0 . ": wrong command.\n";
+}
+

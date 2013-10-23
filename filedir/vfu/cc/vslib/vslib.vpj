@@ -1,0 +1,82 @@
+[CONFIGURATIONS]
+activeconfig=,Release
+config=,Release
+[GLOBAL]
+workingdir=/home/cade/pro/vslib
+macro=\n
+version=6.0
+[ASSOCIATION]
+[STATE]
+SCREEN: 800 600 -4 -4 800 549 0 0 N 0 0 0 0 651 493
+CWD: /home/cade/pro/twins
+BUFFER: BN="/home/cade/pro/twins/twins.pl"
+BI: MA=1 74 1  TABS=1 3  WWS=1 IWT=0 ST=0 IN=1 BW=0 US=32000 RO=0 SE=1 SN=0 BIN=0 MN=Perl	HM=0 MF=544
+VIEW: LN=.0 CL=1 LE=0 CX=0 CY=1 WI=5 BI=15 HT=0 HN=0 HF=0 HC=4
+WINDOW: 0 0 439 332 0 0 M  WF=0 WT=2 "alias-vga,10,0,1"
+BUFFER: BN="/home/cade/pro/twins/twins.pl"
+VIEW: LN=.875 CL=12 LE=0 CX=11 CY=3 WI=66 BI=15 HT=0 HN=0 HF=0 HC=4
+FILEHIST: 9
+/home/cade/public_html/hl/index.html
+/home/cade/public_html/mw/mw.pl
+/home/cade/public_html/hl/data/.mime.types
+/home/cade/pro/seek.pl/ls-1R.pl
+/home/cade/pro/seek.pl/loc.pl
+/home/cade/bin/xvpic.pl
+/home/cade/pro/palm-fe3/pro/p3_conf.pm
+/home/cade/public_html/hl/hl.pl
+/home/cade/pro/twins/twins.pl
+[COMPILER.Release]
+FILTEREXPANSION=1 1 1 1 1
+includedirs=%(INCLUDE)
+tagfiles=
+reffile=
+compile=copts: concur|capture|menu: Compile:&Compilecmd: make %n.o CCDEF="-DTEST"
+make=copts: concur|capture|saveall|menu: Build:&Buildcmd: make CCDEF="-DTEST"
+rebuild=copts: concur|capture|menu: Rebuild:&Rebuildcmd: 
+debug=copts: menu: Debug:&Debugcmd: xxgdb [exename-here]
+execute=copts: concur|capture|saveall|menu: Execute:E&xecutecmd: make CCDEF="-DTEST" && vslib
+user1=copts: hide|menu: User 1:User 1cmd: 
+user2=copts: hide|menu: User 2:User 2cmd: 
+[FILES]
+ansiterm.cpp
+ansiterm.h
+clusters.cpp
+clusters.h
+conmenu.cpp
+conmenu.h
+dlog.cpp
+dlog.h
+eval.cpp
+eval.h
+fnmatch2.cpp
+fnmatch2.h
+form_in.cpp
+form_in.h
+getopt2.cpp
+getopt2.h
+mm.conf
+scroll.cpp
+scroll.h
+target.h
+test.cpp
+unicon.cpp
+unicon.h
+vscrc.cpp
+vslib.cpp
+vslib.h
+vstring.cpp
+vstring.h
+vstrlib.cpp
+vstrlib.h
+vsuti.cpp
+vsuti.h
+pcre/chartables.c
+pcre/config.h
+pcre/get.c
+pcre/internal.h
+pcre/mm.conf
+pcre/pcre.c
+pcre/pcre.h
+pcre/pcreposix.c
+pcre/pcreposix.h
+pcre/study.c

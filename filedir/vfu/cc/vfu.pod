@@ -1,0 +1,170 @@
+=head1 NAME
+
+vfu - VFU is console (text-mode) file manager for UNIX/Linux
+
+=head1 SYNOPSIS
+
+vfu [options]
+
+=head1 DESCRIPTION
+
+B<vfu> has following features:
+
+ - Fast one-key commands
+ - Extended completition and wildcard expansion
+ - Directory tree with sizes (incl. sizes cache)
+ - File-type colorization (extension and type)
+ - Archives support (TAR, TGZ, BZ2, and many more)
+ - Simple FTP support through archive-like interface
+ - Internal text/hex file viewer and editor (optional)
+ - Extensive user-defined external support/utils
+ - Regular expressions selection and search
+ - Multiple file masks
+ - and much more...
+
+=head1 OPTIONS
+
+ -h
+prints help for command line options
+
+ -i
+runs vfu in interactive mode (can be used with \-d)
+
+ -d path
+changes working directory to `path'
+
+ -r
+rebuild directory tree
+
+ -t
+view directory tree only
+
+These options are for using vfu in partial non-interactive mode.
+
+ example: vfu -d /usr/local -i
+
+=head1 CONFIGURATION
+
+B<vfu>
+configuration is divided in two parts (files):
+
+B<vfu.conf>
+
+This file contains configuration for external editor and pager, favorite
+directories, file-type colorization. This is plain text file which format
+is described below. vfu only reads vfu.conf, it never writes in it!
+
+B<vfu.options>
+
+This file contains all Options/Toggles which can be changed from inside
+vfu -- Options menu. vfu.options is binary file and is overwritten on
+vfu exit or on change option event! Deleting this file will reset vfu
+toggles to default values. vfu.options is not portable between vfu
+versions!
+
+=head2 Location of vfu.conf
+
+B<vfu.conf> can be placed as any of:
+
+ $HOME/.vfu/vfu.conf
+ 
+ $HOME/$RC_PREFIX/vfu/vfu.conf  (if $RC_PREFIX is exported)
+ 
+ /etc/vfu.conf
+ 
+ /usr/local/etc/vfu.conf
+ 
+ /usr/local/vfu.conf
+
+=head2 Other files location
+
+All other files including vfu.options are placed in:
+
+ $HOME/.vfu/
+ 
+ $HOME/$RC_PREFIX/vfu/
+
+What is B<C<$RC_PREFIX>> and why to use it? Some more information for
+this can be found in the B<CONFIG> file which is supplied with
+B<vfu> package.
+
+=head1 VFU.CONF
+
+This is a sample copy of vfu.conf with appropriate comments:
+
+=begin text
+
+#include "vfu.conf"
+
+=end text
+
+=head1 DISTRIBUTION
+
+It is supposed that only source packages will be distributed.
+However sometimes binary packages will be released, but not often.
+VFU packages are named in this way:
+
+ vfu-X.xx.src.tgz
+ 
+source package for version X.xx
+
+ vfu-X.xx.bin.platform.tgz
+
+binary package for version X.xx for `platform' platform
+
+examples:
+
+ vfu-4.00.src.tgz
+
+ vfu-4.00.bin.linux.glibc.tgz
+
+ vfu-4.00.bin.linux.libc5.tgz
+
+ vfu-4.00.bin.dos.tgz
+
+All packages are TAR+GZIP .tgz, bz2 and zip are available on request.
+
+B<NOTE>:
+Always check HISTORY document -- it often
+contains some usefull notes!
+
+=head1 FILES
+
+ $HOME/$RC_PREFIX/vfu/vfu.conf
+
+configuration, explained above
+
+ $HOME/$RC_PREFIX/vfu/vfu.options
+
+options, explained above
+
+ $HOME/$RC_PREFIX/vfu/vfu.history
+
+contains history lines
+
+ $HOME/$RC_PREFIX/vfu/vfu.tree
+
+contains directory tree
+
+If you don't set $RC_PREFIX configuration files are:
+
+ $HOME/.vfu/vfu.conf
+ $HOME/.vfu/vfu.options
+ $HOME/.vfu/vfu.history
+ $HOME/.vfu/vfu.tree
+
+=head1 TODO
+
+see the TODO file
+
+=head1 BUGS
+
+unknown
+
+=head1 AUTHOR
+
+ Vladi Belperchinov-Shabanski "Cade"
+ <cade@biscom.net> <cade@datamax.bg>
+ http://soul.datamax.bg/~cade/
+ http://soul.datamax.bg/~cade/vfu
+

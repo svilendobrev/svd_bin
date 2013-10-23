@@ -1,0 +1,26 @@
+#!/bin/sh
+#
+# note: `-D__NetBSD__' is removed `CCDEF' -- it is defined by default...
+
+echo "Compiling VSLIB..."
+cd vslib
+make CCDEF="-I${LOCALBASE}/include" LDDEF="-Wl,-R${LOCALBASE}/lib -L${LOCALBASE}/lib"
+if [ -e libvslib.a ]; then
+  echo "VSLIB compiled ok."
+else
+  echo "VSLIB compilation failed..."
+fi
+
+cd ..
+
+echo "Compiling VFU..."
+cd vfu
+make CCDEF="-I${LOCALBASE}/include -DFILENAME_CONF_GLOBAL0=\\\"${PREFIX}/etc/\\\" -DFILENAME_CONF_GLOBAL1=\\\"${PREFIX}/\\\" " LDDEF="-Wl,-R${LOCALBASE}/lib -L${LOCALBASE}/lib"
+if [ -e vfu ]; then
+  echo "VFU compiled ok."
+else
+  echo "VFU compilation failed..."
+fi
+
+cd ..
+ 

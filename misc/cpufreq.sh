@@ -1,5 +1,5 @@
 #!/bin/sh
-ARGS=''
+ARGS='-r '
 for a in $@; do
  case $a in
  	-1.2*) ARGS="$ARGS --min 1.2ghz" ;;
@@ -16,4 +16,3 @@ for a in $@; do
 done
 echo cpufreq-set $ARGS
 sudo cpufreq-set $ARGS -c 0
-sudo cpufreq-set $ARGS -c 1

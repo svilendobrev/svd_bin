@@ -1,0 +1,13 @@
+Rxvt*font: vga
+Rxvt*boldFont: vga
+Rxvt*saveLines: 500
+Rxvt*foreground: #cccccc
+Rxvt*background: #444444
+Rxvt*cursorColor: green
+Rxvt*scrollBar: False
+Rxvt*title: Term
+Rxvt*keysym.16: "\b"
+Rxvt*keysym.6f: "^?"
+Rxvt*backspacekey: ^H
+Rxvt*modifier: mod1
+

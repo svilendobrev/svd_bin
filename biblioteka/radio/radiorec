@@ -5,6 +5,6 @@ exec &>>log/rec.`date +%m%d-%H%M`.$$
 date 
 ./radiorec.py --quiet-mplayer --seconds-extra 200 \
 	--exec 'flac --silent {}' \
+	--exec 'lame --quiet --nohist -h -v -V 6 {}' \
 	"$@" 
 
-#	--exec 'lame --nohist -h -v -V 6 {}' \

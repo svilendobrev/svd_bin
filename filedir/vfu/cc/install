@@ -1,0 +1,25 @@
+#!/bin/bash
+
+if [ ! -e vfu/vfu ]; then
+  echo "vfu/vfu cannot be found, try to build it first..."
+  exit;
+fi
+
+# this is not completely correct, it should check for all rx_* tools
+if [ ! -e rx/rx_auto ]; then
+  echo "rx/rx_* cannot be found, check distribution/docs..."
+  exit;
+fi
+
+echo "Press ENTER to install vfu,rx_* to /usr/local/bin"
+echo "Or press Ctrl+C to cancel"
+read
+
+cp vfu/vfu rx/rx_* /usr/local/bin
+cp vfu.1 /usr/local/man/man1
+cp vfu.conf /usr/local/etc
+cd /usr/local/bin
+chmod 755 vfu rx_*
+
+echo "done."
+

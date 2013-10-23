@@ -5,20 +5,12 @@
 " URL:		http://www.cs.tcd.ie/David.OCallaghan/taskpaper.vim/
 " Version:	0.3
 " Last Change:  2008-03-03
-
+" load-only-on-filetype: svilend 2013
 
 if exists("loaded_task_paper")
     finish
 endif
 let loaded_task_paper = 1
-
-"add '@' to keyword character set so that we can complete contexts as keywords
-setlocal iskeyword+=@-@
-
-"set default folding: by project (syntax), open (up to 99 levels), disabled 
-setlocal foldmethod=syntax
-setlocal foldlevel=99
-setlocal nofoldenable
 
 "show tasks from context under the cursor
 function! s:ShowContext()
@@ -63,13 +55,30 @@ function! s:ToggleDone()
 
 endfunction
 
-" Set up mappings
-noremap <unique> <script> <Plug>ToggleDone       :call <SID>ToggleDone()<CR>
-noremap <unique> <script> <Plug>ShowContext      :call <SID>ShowContext()<CR>
-noremap <unique> <script> <Plug>ShowAll          :call <SID>ShowAll()<CR>
-noremap <unique> <script> <Plug>FoldAllProjects  :call <SID>FoldAllProjects()<CR>
+"do not pollute this always - on filetype
+function! s:LoadTaskpaper()
 
-"map <buffer> <silent> <LocalLeader>td <Plug>ToggleDone
-"map <buffer> <silent> <LocalLeader>tc <Plug>ShowContext
-"use zR map <buffer> <silent> <LocalLeader>ta <Plug>ShowAll
-"use zM map <buffer> <silent> <LocalLeader>tp <Plug>FoldAllProjects
+ 	"add '@' to keyword character set so that we can complete contexts as keywords
+ 	setlocal iskeyword+=@-@
+
+	"set default folding: by project (syntax), open (up to 99 levels), disabled 
+	setlocal foldmethod=syntax
+	setlocal foldlevel=99
+	setlocal nofoldenable
+
+ if !exists( "s:aloaded_task_paper")
+	" Set up mappings
+	noremap <unique> <script> <Plug>ToggleDone       :call <SID>ToggleDone()<CR>
+	noremap <unique> <script> <Plug>ShowContext      :call <SID>ShowContext()<CR>
+	noremap <unique> <script> <Plug>ShowAll          :call <SID>ShowAll()<CR>
+	noremap <unique> <script> <Plug>FoldAllProjects  :call <SID>FoldAllProjects()<CR>
+
+	"map <buffer> <silent> <LocalLeader>td <Plug>ToggleDone
+	"map <buffer> <silent> <LocalLeader>tc <Plug>ShowContext
+	"use zR map <buffer> <silent> <LocalLeader>ta <Plug>ShowAll
+	"use zM map <buffer> <silent> <LocalLeader>tp <Plug>FoldAllProjects
+ endif	
+ let s:aloaded_task_paper = 1
+endfunction
+
+au FileType taskpaper call s:LoadTaskpaper()

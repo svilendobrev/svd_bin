@@ -47,6 +47,7 @@ Plugin {
         item {
             image=gnome-logout
             command=logout
+            #command=shut
         }
     }
 }

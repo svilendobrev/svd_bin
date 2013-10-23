@@ -11,9 +11,10 @@ def optbool( name, *short, **k):
     return optany( name, action='store_true', *short, **k)
 optbool( 'nosize', default= bool( os.environ.get( 'NOSIZE')), help= 'ignore size diffs')
 optany(  'exclude', '-x', help= 'regexp to exclude/ignore files')
-optbool( 'same',   help= 'show same/similar things instead of differences')
-optbool( 'nosymlink', help= 'dont follow symlink dirs')
-options,args = oparser.parse_args()
+optbool( 'same',        help= 'show same/similar things instead of differences')
+optbool( 'nosymlink',   help= 'dont follow symlink dirs')
+optbool( 'symtext',     help= 'compare symlinks as text, no dereference')
+optz,args = oparser.parse_args()
 if len(args)<2:
     oparser.error('compare what?')
 
@@ -22,21 +23,24 @@ fenc = locale.getpreferredencoding()
 #eutf.e_utf_stdout() and 'utf-8' or
 
 ignore = None
-if options.exclude:
-    print 'excluding:', options.exclude
-    ignore = re.compile( options.exclude)
+if optz.exclude:
+    print 'excluding:', optz.exclude
+    ignore = re.compile( optz.exclude)
 
-from os.path import join, getsize
+from os.path import join, getsize, islink
 def files( root):
     c = os.getcwd()
     os.chdir( root )
     o = []
-    for root, dirs, files in os.walk( '.', followlinks= not options.nosymlink):
+    for root, dirs, files in os.walk( '.', followlinks= not optz.nosymlink):
         for f in files:
             fp = join( root, f)
             if ignore and ignore.search( fp): continue
             #fp = fp.decode( fenc)
-            if not options.nosize:
+            if optz.symtext and islink( fp):
+                sz = os.readlink( fp)
+                fp = sz,fp #'%16s ' % sz + fp
+            elif not optz.nosize:
                 try:
                     sz = getsize( fp)
                 except Exception, e:
@@ -44,8 +48,18 @@ def files( root):
                     sz = '##'
                 fp = sz,fp #'%16s ' % sz + fp
             o.append( fp)
+        dd = []
+        for f in dirs:
+            fp = join( root, f)
+            if optz.symtext and islink( fp):
+                sz = os.readlink( fp)
+                fp = sz,fp #'%16s ' % sz + fp
+                o.append( fp)
+            else: dd.append(f)
+        dirs[:] = dd
+
     os.chdir( c)
-    if options.nosize:
+    if optz.nosize:
         o.sort()
     else:
         o.sort( key= lambda x: x[1])
@@ -60,7 +74,7 @@ a2   = args[1]
 
 import difflib
 f1,f2 = files(a1), files( a2)
-if options.same:
+if optz.same:
     for l in difflib.ndiff( f1,f2):
         if l.startswith('  '): print l
 else:

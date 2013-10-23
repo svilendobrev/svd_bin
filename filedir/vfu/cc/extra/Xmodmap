@@ -1,0 +1,16 @@
+keycode 22 = BackSpace osfBackSpace
+keycode  63 = asterisk
+keycode 112 = slash
+keycode 108 = Return
+keycode 79 = Home      
+keycode 80 = Up        
+keycode 81 = Page_Up   
+keycode 82 = minus   
+keycode 83 = Left      
+keycode 85 = Right     
+keycode 86 = plus
+keycode 87 = End       
+keycode 88 = Down      
+keycode 89 = Page_Down 
+keycode 90 = Insert    
+keycode 91 = Delete    

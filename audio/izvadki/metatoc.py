@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from util import optz
+from svd_util import optz
 optz.usage( '%prog [options] < metatoc-script-stdin')
 optz.text( 'outpath2opispath', help= 'какво да се добави към outpath за да се стигне до .../opis')
 optz.bool( 'opis', help= 'състави опис')
@@ -11,7 +11,7 @@ opts,args = optz.get()
 
 import sys
 import os.path
-from util import struct, py3
+from svd_util import struct, py3
 dictOrder = py3.dictOrder
 DictAttr = struct.DictAttr
 
@@ -59,8 +59,8 @@ def opis():
             print( i.fname, '==', '{групаномер}'+t )
 
 
-from util.minsec import sec2minsec, prnsec, minsec2sec
-from util import lat2cyr
+from svd_util.minsec import sec2minsec, prnsec, minsec2sec
+from svd_util import lat2cyr
 def zaglavie(x): return x and x[0].upper() + x[1:]
 
 def toc( cyr2lat =False):

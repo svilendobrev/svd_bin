@@ -1,0 +1,36 @@
+
+$Id: README,v 1.3 2003/04/28 17:18:54 cade Exp $
+
+   VF File Manager for Unix/Linux ( VFU )
+
+   ------------------------------------------------------------------
+ 
+   Please if you use or evaluate VFU send me a message with something
+   like `I'm using/evaluating VFU' at <cade@biscom.net>. I'd like to
+   have rough idea how many users VFU has.
+ 
+						Thank you in advance!
+ 
+   DISCLAIMER AND LICENSE
+
+        VFU is distributed under the GPL ( GNU General Public License ). 
+        See the `COPYING' for the full GPL text.
+
+   WARNING
+   
+        Make sure you removed all old personal config and cache files
+        before new version install! Usually this means you have to
+        remove or rename ~/.vfu directory.
+
+   NOTE
+ 
+        This file was a vfu documentation file once, now it is split
+        into separated files ( INSTALL, HISTORY, FAQ, TODO, etc... )
+
+   AUTHOR
+
+         Vladi Belperchinov-Shabanski "Cade".
+	 <cade@biscom.net> <cade@datamax.bg>
+         http://soul.datamax.bg/~cade/vfu
+
+   ---eof------------------------------------------------------------

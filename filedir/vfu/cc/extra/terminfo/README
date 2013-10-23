@@ -1,0 +1,30 @@
+
+  NOTE: THIS IS OPTIONAL, YOU SHOULD USE THIS ONLY IF YOU HAVE
+        PROBLEMS WITH STANDARD TERMINFO ENTRIES (linux,linux*,rxvt...)
+
+  If you want to use this terminfo/termcap definition:
+ 
+  1. copy `linux-c2' file to /usr/share/terminof/l/
+  2. export TERM=linux-c2
+     (for bash)
+  3. run vfu
+ 
+  or
+ 
+  1. compile linux-c2.terminfo.src:
+     tic linux-c2.terminfo.src -o .
+  2. you should got linux-c2 file in ./l/ directory
+  3. proceed as above
+
+  This works fine with linux console and rxvt (xterm works also).
+ 
+  If you have found bugs in linux-c2 or you have any notes
+  about this file, feel free to contact me <cade@biscom.net>
+  I'll be glad to help you or to fix/update linux-c2.
+ 
+  vfu home page is:
+ 
+  http://cade.datamax.bg/vfu
+ 
+ 
+

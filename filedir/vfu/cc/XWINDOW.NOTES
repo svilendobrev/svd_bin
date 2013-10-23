@@ -1,0 +1,55 @@
+
+$Id: XWINDOW.NOTES,v 1.2 2002/04/26 07:39:37 cade Exp $
+
+  This file contains some hints for using VFU under XWindow,
+  i.e. in a xterm, rxvt or other compatible(?) terminal.
+
+  The only solution I come up to use VFU with colors, keys etc.
+  under xterm is to set terminal type to `linux', i.e. console:
+
+  export TERM=linux
+  or
+  export TERM=rxvt   (if you use rxvt like me:))
+
+  It works fine here, so try it.
+  I suggest you create script like this:
+
+  ---cut---
+  #!/bin/bash
+  #
+  # vfux -- script for starting vfu under xterm
+  #
+  export TERM=linux
+  vfu
+  ---cut---
+
+  If you still have problems (wrong keys,missing sequences,etc.)
+  you can try a modified terminfo definition (based on linux-c)
+  which I use. Check the `terminfo' directory in the vfu package.
+
+  If you want to use keypad for navigation (arrows, +, -, ...)
+  and your keypad is mapped to numbers (KP_1 ... KP_9, etc.)
+  you have to add these lines to your Xmodmap ( usually located at
+  /var/X11R6/lib/xinit/.Xmodmap )
+
+  ---cut---
+  keycode  63 = asterisk
+  keycode 112 = slash
+  keycode 108 = Return
+  keycode  79 = Home
+  keycode  80 = Up
+  keycode  81 = Page_Up
+  keycode  82 = minus
+  keycode  83 = Left
+  keycode  85 = Right
+  keycode  86 = plus
+  keycode  87 = End
+  keycode  88 = Down
+  keycode  89 = Page_Down
+  keycode  90 = Insert
+  keycode  91 = Delete
+  ---cut---
+
+  That's all for now...
+  If you have problems contact me at <cade@biscom.net>
+
