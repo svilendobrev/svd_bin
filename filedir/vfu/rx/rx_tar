@@ -22,18 +22,19 @@ if ( $cmd eq "l" || $cmd eq "v" )
    my $dir = shift @ARGV;
    if ( $dir ) { $dir .= "/" unless $dir =~ /\/$/; }
  
-   if( ! -e $cache )
-     {
-     # cache not found--fill it
-     system( "vv \"$archive\"  > \"$cache\"" );
-     chmod oct(600), $cache; # a bit late but still... :)
-     }
-   else
-     {
-     utime time(), time(), $cache; # update last modification time of the cache
-     }  
+   #if( ! -e $cache )
+   #  {
+   #  # cache not found--fill it
+   #  system( "vv \"$archive\"  > \"$cache\"" );
+   #  chmod oct(600), $cache; # a bit late but still... :)
+   #  }
+   #else
+   #  {
+   #  utime time(), time(), $cache; # update last modification time of the cache
+   #  }  
    
-   open( i, $cache );
+   #open( i, $cache );
+   open( i, "vv \"$archive\" |" );
    while(<i>)
       {
       chop;
@@ -47,7 +48,7 @@ if ( $cmd eq "l" || $cmd eq "v" )
         next unless $N =~ s/^$dir([^\/]+\/?)$//;
         $N = $1;
         }
-      my $T = "$D[3]$D[4]"; # time
+      my $T = $D[3].$D[4]; # time
       $T =~ s/[\-\s\:]//g;
       $T = substr( $T, 0, 12 );
       print "NAME:$N\nSIZE:$D[2]\nMODE:$D[0]\nTIME:$T\n\n";

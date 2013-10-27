@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#$Id$
+from __future__ import print_function
 
 usage = '''vfu's zip-reader/svd2009. usage:
    rx_* l archive directory   # list archive directory
@@ -11,16 +11,16 @@ usage = '''vfu's zip-reader/svd2009. usage:
 
 #common
 import sys, os
-if len(sys.argv) < 3: raise SystemExit, usage+':1'
+if len(sys.argv) < 3: raise SystemExit (usage+':1')
 cmd = sys.argv[1]
 archive = sys.argv[2]
 rest = sys.argv[3:] or None
 if cmd in ['x']:
-    #if not rest: raise SystemExit, usage+':2'
+    #if not rest: raise SystemExit( usage+':2')
     if rest and rest[0].startswith('@'):
         rest = file( rest[0][1:]).read().readlines()
 elif cmd not in [ 'v', 'l']:
-    raise SystemExit, usage+':3'
+    raise SystemExit( usage+':3')
 
 #o=open('/tmp/zzzzz', 'a')
 import zipfile
@@ -52,13 +52,13 @@ elif cmd =='v':
 if cmd in 'lv':
     for name,i in result:
         year,month,day,h,m,s = i.date_time
-        time = '%(year)04d %(day)02d %(month)02d %(h)02d %(m)02d'.replace(' ','') % locals()
+        time = '%(year)04d %(month)02d %(day)02d %(h)02d %(m)02d'.replace(' ','') % locals()
         size = i.file_size
-        print 0*name or '''\
+        print( 0*name or '''\
 NAME:%(name)s
 SIZE:%(size)s
 TIME:%(time)s
-''' % locals()
+''' % locals())
 
 else:   #'x'
     if rest is None: rest = (i.filename for i in z.infolist())

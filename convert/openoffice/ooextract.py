@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # sdobrev 2006-2008-2012
+from __future__ import print_function
 import sys
 from util import optz
 import uno
@@ -37,7 +38,7 @@ class cfg:
 optz.text( 'filter',
     help= 'output filter type; one of: '
             + ' '.join( sorted( cfg.filters.keys())) + '; default: %default',
-    choices= cfg.filters.keys(),
+    choices= list( cfg.filters.keys()),
     default= 'txt',
     )
 optz.text( 'filter2',
@@ -118,22 +119,22 @@ try:
             if not opts.stdout:
                 out = len(args)==1 and opts.out or path + '.' + (opts.filter2 or opts.filter)
                 destUrl = absolutize( cwd, systemPathToFileUrl( out) )
-                print >> sys.stderr, destUrl
+                print( destUrl, file= sys.stderr)
                 doc.storeToURL( destUrl, outProps)
             else:
                 doc.storeToURL( 'private:stream',outProps)
-        except IOException, e:
-            print >> sys.stderr, 'Error during conversion of %(path)s:' % locals(), e.Message
+        except IOException as e:
+            print( 'Error during conversion of %(path)s:' % locals(), e.Message, file= sys.stderr)
             retVal = 1
-        except UnoException, e:
-            print >> sys.stderr, 'Error ('+repr(e.__class__)+') during conversion of %(path)s:' % locals(), e.Message
+        except UnoException as e:
+            print( 'Error ('+repr(e.__class__)+') during conversion of %(path)s:' % locals(), e.Message, file= sys.stderr)
             retVal = 1
         if doc:
             doc.dispose()
 
-except UnoException, e:
+except UnoException as e:
     print >> sys.stderr, 'Error ('+repr(e.__class__)+') :' + e.Message
     retVal = 1
 
-raise SystemExit, retVal
+raise SystemExit( retVal)
 # vim:ts=4:sw=4:expandtab

@@ -67,13 +67,15 @@ void vfu_read_archive_files( int a_recursive )
       memset( &t, 0, sizeof(t) );
       VRegexp r( "^(....)(..)(..)(..)(..)(..)?" );
       r.m( line + 5 );
-      t.tm_year = atoi( r[0] ) - 1900;
-      t.tm_mon  = atoi( r[1] );
-      t.tm_mday = atoi( r[2] );
-      t.tm_hour = atoi( r[3] );
-      t.tm_min  = atoi( r[4] );
-      t.tm_sec  = atoi( r[5] );
+      t.tm_year = atoi( r[1] ) - 1900;  //r[0] is whole
+      t.tm_mon  = atoi( r[2] ) - 1;
+      t.tm_mday = atoi( r[3] );
+      t.tm_hour = atoi( r[4] );
+      t.tm_min  = atoi( r[5] );
+      t.tm_sec  = atoi( r[6] );
+      //for (int x=0;x<7; x++) printf( "%s ", (const char *)r[x]);
       st.st_mtime = st.st_ctime = st.st_atime = mktime( &t );
+      //printf( "%d \n", st.st_atime);
       } else
     if ( line[0] == 0 )
       {

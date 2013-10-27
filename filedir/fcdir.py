@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-#$Id$
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 import os,sys, re
 
 import optparse
@@ -24,7 +24,7 @@ fenc = locale.getpreferredencoding()
 
 ignore = None
 if optz.exclude:
-    print 'excluding:', optz.exclude
+    print( 'excluding:', optz.exclude)
     ignore = re.compile( optz.exclude)
 
 from os.path import join, getsize, islink
@@ -43,8 +43,8 @@ def files( root):
             elif not optz.nosize:
                 try:
                     sz = getsize( fp)
-                except Exception, e:
-                    print e
+                except Exception as e:
+                    print( e)
                     sz = '##'
                 fp = sz,fp #'%16s ' % sz + fp
             o.append( fp)
@@ -76,10 +76,10 @@ import difflib
 f1,f2 = files(a1), files( a2)
 if optz.same:
     for l in difflib.ndiff( f1,f2):
-        if l.startswith('  '): print l
+        if l.startswith('  '): print( l)
 else:
     diff = difflib.unified_diff
     for l in diff( f1,f2, a1,a2, lineterm=''):
-        print l
+        print( l)
 
 # vim:ts=4:sw=4:expandtab
