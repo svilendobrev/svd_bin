@@ -158,9 +158,11 @@ git_v='checkout --'
 #git config --bool core.bare true
 #rm * but .git/
 
-#to make local-fir repo shareable:
+#to make local-dir repo shareable:
 #git init --shared=0777 --bare
 #chmod a+rw -R .git/
+#chgrp -R somegroup .git/
+#chmod g+s `find .git -type d`
 
 ####################
 
