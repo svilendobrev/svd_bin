@@ -4,6 +4,8 @@ import os,sys,re
 prg = sys.argv.pop(0)
 try: dont = sys.argv.remove('-n') or True
 except: dont = False
+try: link = sys.argv.remove('-l') or True
+except: link = False
 try: dirfiles = sys.argv.remove('-r') or True
 except: dirfiles = False
 
@@ -26,7 +28,7 @@ def doit(a):
     b = func(a)
     if b != a:
         print( a, '->', b)
-        if not dont: os.rename( a,b)
+        if not dont: (link and os.link or os.rename)( a,b)
     return b
 
 import glob
