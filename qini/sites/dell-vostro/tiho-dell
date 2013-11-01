@@ -1,0 +1,3 @@
+#!/bin/sh
+sudo switcheroo.sh
+i8kfan 0 0

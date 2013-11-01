@@ -1,3 +1,0 @@
-deb http://www.backports.org/debian lenny-backports-sloppy main contrib non-free
-##packages newer than squeeze
-
