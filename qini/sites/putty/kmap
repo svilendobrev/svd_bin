@@ -1,0 +1,22 @@
+#it says xterm but its not really
+
+#this for normal cmd mode
+_kesc cUP    "OA"
+_kesc cDN    "OB"
+_kesc cRIGHT "OC"
+_kesc cLEFT  "OD"
+
+_kesc sUP    "OA"
+_kesc sDN    "OB"
+_kesc sRIGHT "OC"
+_kesc sLEFT  "OD"
+
+#this for "application" mode
+_kesc cUP2    "[A"
+_kesc cDN2    "[B"
+_kesc cRIGHT2 "[C"
+_kesc cLEFT2  "[D"
+
+#TODO: home/end in application-mode - vfu,less etc
+
+_kesc sTAB   "[Z"
