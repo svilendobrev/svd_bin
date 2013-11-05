@@ -4,7 +4,7 @@ for a in ${@:-*}; do
  test -d $a || continue
  if test ! -L $a -o -n "$LINKSuall" -o `basename "$0"` = "luall.sh"; then
   cd $a 
-  if test -f ignore-uall ; then echo ' ** ignored' `pwd` 
+  if test -f ignore-uall ; then echo '** ignored' `pwd` 
   else 
     H=">>> $a"
     #`pwd`'---'
