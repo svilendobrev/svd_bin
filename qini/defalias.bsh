@@ -195,6 +195,7 @@ al qiviw 'qiv -s -m -i -f -d 7'
 
 which apt-get >&/dev/null && so $_INIs/aliasi/apt.alias.bsh
 which pacman >&/dev/null  && so $_INIs/aliasi/pacman.alias.bsh
+which yum    >&/dev/null  && so $_INIs/aliasi/yum.alias
 so $_INIs/aliasi/audio.alias.bsh
 so $_INIs/aliasi/rename.alias.bsh
 so $_INIs/aliasi/cddvdrw.alias.bsh
