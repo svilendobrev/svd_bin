@@ -1,0 +1,27 @@
+#!/bin/sh
+#tried goping via patches (git -p --reverse .. | git apply ...) and it didnt work well.
+#so...
+#
+#TARGET
+git clone $TARGET  targ 
+#SOURCE
+git clone $SOURCE  sorc
+
+cd sorc/
+#just in case to avoid bad surprises
+git remote rm origin
+
+#i wanted to move all into subdir $DIR
+mkdir -p $DIR
+mv * $DIR/
+
+git add .
+git commit -m intodir .
+
+cd ../targ/
+git remote add repoa  ../apom/
+git pull repoa master
+git remote rm repoa
+
+diff -r $DIR/ ../sorc
+#git push..
