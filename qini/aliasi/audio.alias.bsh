@@ -165,6 +165,7 @@ anyinfo() {
 }
 
 al mau 'make -f ~/src/bin/audio/makefile'
+al ema 'e ~/src/bin/audio/makefile'
 
 ffmpeg2wavany() { 
     ffmpeg -i "$@"  "$1".wav 
@@ -203,5 +204,7 @@ al r1 'r 1'
 al r2 'r 2'
 al rec1 r1
 al rec2 r2
+
+al izz 'izvadki2opis.py --z .'
 
 # vim:ts=4:sw=4:expandtab

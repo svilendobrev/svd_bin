@@ -18,7 +18,7 @@ enco() {
     #echo "============================ $a"
     #$E menc2hb "$a" "$a".mkv
     #test -f "$a".mkv* && 
-    mkdir -p ok/ && mv "$a"* ok/
+    mkdir -p ok/ && /bin/mv -f "$a"* ok/
 }
 
 

@@ -43,6 +43,7 @@ def nomer4opis( n):
 
 kaseta = 'касета'
 ploca  = 'плоча'
+ploca1 = 'малка.плоча'
 ploca2 = 'плоча_малка'
 disk   = 'диск'
 lenta  = 'лента'
@@ -95,6 +96,7 @@ nositeli = {
     'ep': ploca2,
     disk: disk,
     ploca: ploca,
+    ploca1: ploca2,
     ploca2: ploca2,
     kaseta: kaseta,
     lenta: lenta,
@@ -110,6 +112,7 @@ kysi_lat = {
     ploca:      'lp',
     ploca+'?':  'lp',
     ploca2:     'ep',
+    ploca1:     'ep',
     disk :      'cd',
     tv:         'tv',
 }
@@ -145,7 +148,7 @@ def koi_nositel( izdania):
     for izdanie in izdania.lower().split():
         if e_nositel( izdanie, re_izdanie.disk, disk, 'cd-') : return disk
         if e_nositel( izdanie, re_izdanie.bton_kaseta, kaseta, 'mc-' ): return kaseta
-        if e_nositel( izdanie, ploca2 ): return ploca2
+        if e_nositel( izdanie, ploca1,ploca2 ): return ploca2
         if e_nositel( izdanie, re_izdanie.bton_ploca, ploca ): return ploca
         if radio in izdanie: return radio
         if balkanton in izdanie.lower(): return ploca+'?'
@@ -257,7 +260,7 @@ def izdanie_razglobi( izdanie):
         appendif( nn, a)
     nomer = '-'.join( nn)
     godina2nomer = False
-    if izdatel.lower()==balkanton and nomer and nositel in (ploca, ploca2):
+    if izdatel.lower()==balkanton and nomer and nositel in (ploca, ploca1, ploca2):
         nomer = nomer.upper()
         for l,c in zip( bukvi_lat, bukvi_cyr):
             nomer = nomer.replace( l,c)
@@ -268,6 +271,7 @@ def izdanie_razglobi( izdanie):
             if not (godina or '').strip('?'):
                 godina = god
                 godina2nomer = True
+    if nositeli.get( izdatel)== nositel: izdatel = nositel   #ploca1/ploca2
     return DictAttr( nositel=nositel, izdatel=izdatel, nomer=nomer, neznajno= neznajno, godina=godina, godina2nomer=godina2nomer)
 
 def izdanie_sglobi( nositel, izdatel, nomer, neznajno =False, godina =None, opis= False, godina2nomer =False):
@@ -277,6 +281,7 @@ def izdanie_sglobi( nositel, izdatel, nomer, neznajno =False, godina =None, opis
     else:
         if koi_izdatel( nomer) ==izdatel: izdatel = ''
         if koi_nositel( nomer) ==nositel: nositel = ''
+
     if opis:
         izdatel = izdatel4opis( izdatel)
         #nositel = nositel4opis( nositel)

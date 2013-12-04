@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#$Id: sumtim2.py,v 1.6 2007-07-29 04:49:05 sdobrev Exp $
+from __future__ import print_function
 import os, os.path
 import subprocess, wave
 class config:
@@ -20,9 +20,9 @@ def filesize( fn, curdir =None, config =config):
     name,ext = os.path.splitext(fn)
     ext = ext[1:].lower()
     fp = curdir and os.path.join( curdir, fn) or fn
-    #if config.verbose>1: print 'ext:', ext
+    #if config.verbose>1: print( 'ext:', ext)
     if not os.path.getsize( fp):
-        print '? 0', fn
+        print( '? 0', fn)
         return 0
     if ext == 'flac':
         samples = output( 'metaflac', '--show-total-samples', fp)
@@ -92,7 +92,7 @@ def filesize( fn, curdir =None, config =config):
             assert 0, 'cant find size of '+fn
 
     if size:
-        if config.verbose: print '+',minsec(size), fn
+        if config.verbose: print( '+',minsec(size), fn)
     return size
 
 def dirsize( curdir, config =config):
@@ -106,11 +106,11 @@ def dirsize( curdir, config =config):
         try:
             size = filesize( fn, curdir, config=config)
         except:
-            print '??', fn
+            print( '??', fn)
             raise
         total += size
 
-    print '=',minsec(total), curdir or all[0]
+    print( '=',minsec(total), curdir or all[0])
     return total
 
 if __name__ == '__main__':
@@ -129,6 +129,6 @@ if __name__ == '__main__':
     for curdir in (args or [os.getcwd()]):
         total += dirsize( curdir, config= options)
 
-    print 'total:', minsec(total)
+    print( 'total:', minsec(total))
 
 # vim:ts=4:sw=4:expandtab
