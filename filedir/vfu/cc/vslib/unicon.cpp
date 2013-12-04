@@ -10,6 +10,7 @@
 
 #include "unicon.h"
 #include "locale.h"
+#include <stdio.h>
 
 /****************************************************************************
 **
@@ -344,14 +345,38 @@
     return(i);
   };
 
+  int dump( int i) {
+      return i;
+      FILE * a = fopen("/tmp/vf", "a");
+      fprintf( a, "%d\n", i);
+      fclose( a);
+      return i;
+    }
+
   int con_getch()
   {
     int i;
     i=wgetch(conio_scr);
     if (i==-1) i=0;
     if (i == 27)
-      if (con_kbhit())
+      if (con_kbhit()) {
         i = KEY_PREFIX + wgetch(conio_scr);
+
+        dump( i);
+        if (1091==i)
+            if (con_kbhit()) {
+            int j = wgetch(conio_scr);
+            dump( j);
+                if (con_kbhit()) {
+                int k = wgetch(conio_scr);
+                dump( k);
+                if ('~'==k) //126
+                   switch (j) {
+                    case '1': return KEY_HOME;
+                    case '4': return KEY_END;
+                   }
+            }}
+      }
     #ifndef _NO_ALT_ESCAPE_SAME_
     if (i == KEY_PREFIX + 27) i = 27;
     #endif
