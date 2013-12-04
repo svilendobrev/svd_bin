@@ -11,7 +11,7 @@ al a-delete a-remove
 al a-search 'yum search'
 al a-show   'yum info'
 al a-file0  'yum provides'
-al a-list   'yum list'
+al a-list   'rpm -ql'
 al a-all    'yum list'
 al a-all-inst   a-all installed
 #a-all-instsize()    { pacman -Qi "$@" | pacnamesize; } 
