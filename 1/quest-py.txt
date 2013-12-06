@@ -1,0 +1,17 @@
+1	- lists / tuples / sets
+1	- immutable / mutable
+1	- str+str / ''.join()
+1+	- == / is
+1+	- if then else / and or / then if else
+2	- if x / if x is True / if x == True
+2	- local / global / nonlocal
+2+ 	- zip / izip / izip_longest	
+2+	- namespaces creating - module, func, class=tmp, generator-expr
+3	- classmethod / staticmethod  ; 4: virtual-one
+3	- class-attr / visibility / access
+3	- partial() / callable-obj
+3	- properties
+3+	- dict.setdefault / dict.get / try dict[] except
+4	- __new__ / __init__
+4	- descriptors
+5	- metaclass

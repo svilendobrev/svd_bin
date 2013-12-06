@@ -1,0 +1,30 @@
+bash, some scripting, linux
+
+2 - $* vs $@ vs "$@"
+1 - > vs >> vs >& vs | vs |&
+1 - a && b || c vs if a ; then b ; else c ; fi
+2 - ( ls ; ps ) vs { ls ; ps ; }   = (subshell vs just group)
+2 - exec.files vs aliases vs funcs
+2 - X=5 command vs export X=5 ; command
+1 - what this will copy: cp dir/* out/
+1 - how to apply X to all files in dir ? and then recursively?
+1 - how do u check if shell is interactive (-n "$PS1" i.e. nonzero)
+3 - linux: sticky bits -t / and setuid setgid  -s
+
+2 - sayparams - how to find out what args some executable is called with by someone (if it fails starting)
+3 - envvar.SRC="c py pl sh java" - grep stuff through only such files
+3 - envvar.IGNORE="*.pyc *.so temp*" - diff input-directories ignoring any such files; (set -f; ... ; set +f)
+3 - dir-listing with dirs on top, all else below
+3 - filefinding script for multiple alternative names, see through symlinks: fff.sh "a*" "*b"
+#!/bin/sh -f
+#oooh
+#if no dbl quotes, a* is expanded on the find's line
+#if dbl quotes added (as \"), a* is passed as "a*" WITH the quotes
+#so use -f (or set -f, then +f) to avoid pathname expansion
+
+_f="-name $1" ; shift
+for a in "$@"; do _f="$_f -o -name $a"; done
+#echo "$_f"
+find . -follow \( -type f -o -type d \) \( $_f \)
+
+
