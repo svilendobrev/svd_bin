@@ -61,7 +61,7 @@ al top  'top -d 1'
 al sort 'LC_ALL=C sort'
 
 
-al psu  'ps -u $USER'   # BSD style; override if other layout
+al psu  'ps -u $USER --sort=start_time'   # BSD style; override if other layout
 test 0 == `id -u` && al psu  'ps ax'   # BSD style; override if other layout
 al psfu 'psu -f'
  # my processes, sorted by starttime+PID; or try PPID,PID (3 then 2)
@@ -70,6 +70,8 @@ al mi   'psfu ;jobs -l' # my processes and jobs
 al k9   'kill -9'
  #kill all processes matching pattern
 killalll()  { Z=`psfu | g "$1" | g -v grep | cut -c10-15` && test -n "$Z" && k9 $Z; } 
+al killl  killalll
+al killll killl
 #al wh   which
 al wh   type
 
@@ -195,7 +197,7 @@ al qiviw 'qiv -s -m -i -f -d 7'
 
 which apt-get >&/dev/null && so $_INIs/aliasi/apt.alias.bsh
 which pacman >&/dev/null  && so $_INIs/aliasi/pacman.alias.bsh
-which yum    >&/dev/null  && so $_INIs/aliasi/yum.alias
+which yum    >&/dev/null  && so $_INIs/aliasi/yum.alias.bsh
 so $_INIs/aliasi/audio.alias.bsh
 so $_INIs/aliasi/rename.alias.bsh
 so $_INIs/aliasi/cddvdrw.alias.bsh
@@ -240,7 +242,6 @@ al p3 py3
 al piplocal 'pip install --user'
 
 al maf 'make -f ~/src/bin/foto/makefile'
-al ema 'e ~/src/bin/audio/makefile'
 al emf 'e ~/src/bin/foto/makefile'
 
 which ncal >&/dev/null  && al cal 'ncal -M' || al cal '/usr/bin/cal -m'

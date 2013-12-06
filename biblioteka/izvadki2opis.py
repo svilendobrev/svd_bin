@@ -378,12 +378,15 @@ if __name__ == '__main__':
                 avtori  = dai( opis, 'автор', 'awtor')
                 izdanie = dai( opis, 'изд*ание', 'издания').lower()
                 izdaniecyr= l2c( izdanie.lower())
-                izdaniecyr= re.sub( 'б([аеоскхнт][анмк])', r'в\1', izdaniecyr)
-                izdanie = cyr2lat( izdaniecyr
-                    ).replace( 'v','b'
-                    ).replace( 'h','x'
-                    ).replace( 'n','h'
-                    )
+                izdaniecyr2= re.sub( '^б([аеоскхнт][анмк])', r'в\1', izdaniecyr)
+                if 'lat':
+                    izdanie = cyr2lat( izdaniecyr2)
+                    if izdaniecyr2 != izdaniecyr:
+                        izdanie = (izdanie
+                        ).replace( 'v','b'
+                        ).replace( 'h','x'
+                        ).replace( 'n','h'
+                        )
                 etik    = dai( opis, 'ет*икети') or ''
                 avtori = (avtori or '').split()
                 stihove = ime.lower() == 'стихове' or 'стих' in etik
@@ -413,6 +416,8 @@ if __name__ == '__main__':
                 if izdaniecyr:
                     fname     += '--'+izdaniecyr
                     fname_lat += '--'+izdanie #cyrre.sub( '--v([aeoskhnt]a)$','--b\1', fname_lat)
+                fname     = fname.replace( '?','')
+                fname_lat = fname_lat.replace( '?','')
                 print( ' ', fname_lat, '///', fname )
                 elementi = glob( join( d, '*.wav'))
                 if not elementi: elementi = glob( join( d, '*.mp3'))

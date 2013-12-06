@@ -8,12 +8,13 @@ date
 	--cron-fname-notime \
 	--cron-earlier-minutes=8 \
 	--cron-later-minutes=5 \
-	--cron-later-percent=50 \
+	--cron-later-percent=40 \
 	--save-plan=plan/p \
 	--save-input=in/i \
 	--nalichni-opisi='/zapisi/op/*/op/*' \
 	--force=hb-6:50-7:00-събуди_ме_с_пр \
  	--force=hb-18:20-18:30-време_за_пр \
+ 	--force=hb-21:20-21:30-ркц\
 	--channel=hristobotev \
 	--channel=varna \
 	--channel=horizont \

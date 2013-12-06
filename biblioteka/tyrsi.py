@@ -17,7 +17,28 @@ opts2 = DictAttr(
 #    debug='items',
 )
 
-if __name__ == '__main__':
+if 0:
+    from indexer import indexer, fields, AspectIndexer
+    ngram = indexer.ngram['ngram']
+    class schema:
+        avtor    = ngram
+        zaglavie = ngram
+        id = fields.ID( unique=True, stored=True)
+    class IX( AspectIndexer):
+        def get_alldata( me): ..
+        def get_value( me, a): return a
+        def fix_value( me, a): pass
+
+    index_dir = 'ixx'
+    if 1:
+        if os.path.exists( index_dir):
+            me.ix = index.open_dir( index_dir)
+        else:
+            os.makedirs( index_dir)
+            me.ix = index.create_in( index_dir, me.schema)
+        me.searcher = me.ix.searcher()
+
+if __name__ == '0__main__':
     from indexer import indexer
     indexer._aspect2fieldtype= dict(
         zaglavie= indexer.ngram, #text,
@@ -50,67 +71,73 @@ if __name__ == '__main__':
 
     if info.options.tyrsi:
         k,v = info.options.tyrsi.split('=')
-        idx = getattr( ix.indexes, k)
+        if k:
+            idx = getattr( ix.indexes, k)
+        else:
+            idx = ix
+            assert k
+
         #or use FuzzyTermPlugin
-        s = idx.searcher
+        with idx:
+            s = idx.searcher
 
-        MAXDIST = 2
-        PREFIX =  0
+            MAXDIST = 5
+            PREFIX =  0
 
-        #from whoosh import fields, index,
+            #from whoosh import fields, index,
 
-        from whoosh import query
-        #qparser.FuzzyTermPlugin hooks direct to query.FuzzyTerm, so replacing that is too late
-        qft__init__ = query.FuzzyTerm.__init__
-        def __init__(self, fieldname, text, boost=1.0, maxdist=1,
-                        prefixlength= PREFIX, constantscore=True):
-                 qft__init__( **locals())
-        query.FuzzyTerm.__init__ = __init__
+            from whoosh import query
+            #qparser.FuzzyTermPlugin hooks direct to query.FuzzyTerm, so replacing that is too late
+            qft__init__ = query.FuzzyTerm.__init__
+            def __init__(self, fieldname, text, boost=1.0, maxdist=1,
+                            prefixlength= PREFIX, constantscore=True):
+                     qft__init__( **locals())
+            query.FuzzyTerm.__init__ = __init__
 
-        from whoosh import qparser #  , analysis
-        #ocreate = qparser.FuzzyTermPlugin.create
-        def create(self, parser, match):
-                mdstr = match.group("maxdist")
-                maxdist = int(mdstr) if mdstr else MAXDIST
+            from whoosh import qparser #  , analysis
+            #ocreate = qparser.FuzzyTermPlugin.create
+            def create(self, parser, match):
+                    mdstr = match.group("maxdist")
+                    maxdist = int(mdstr) if mdstr else MAXDIST
 
-                pstr = match.group("prefix")
-                prefix = int(pstr) if pstr else PREFIX
+                    pstr = match.group("prefix")
+                    prefix = int(pstr) if pstr else PREFIX
 
-                #print( 111111, locals())
-                return self.FuzzinessNode(maxdist, prefix, match.group(0))
-        qparser.FuzzyTermPlugin.create = create
-
-
-        if 0:
-            class OrGroup( qparser.OrGroup):
-                def __init__( self, *a,**ka):
-                    #print ( 11111111111, a, ka)
-                    ka.setdefault( 'scale', 0.9)
-                    return super().__init__( *a,**ka)
-                    return super().__init__( scale= ka.pop( 'scale', 0.9), *a,**ka)
-
-            #FIX omissions:
-            from whoosh import matching
-            def _replacement(self, newchild):
-                return self.__class__(newchild, scale=self._scale)
-            matching.CoordMatcher._replacement = _replacement
+                    #print( 111111, locals())
+                    return self.FuzzinessNode(maxdist, prefix, match.group(0))
+            qparser.FuzzyTermPlugin.create = create
 
 
-        qp = qparser.QueryParser( 'value',
-        #p = qparser.MultifieldParser( ('value', 'ngram'),
-                schema= idx.ix.schema,
-                #group= qparser.OrGroup #.factory(0.9), # a b -> both a and b better than a and a
-            )
+            if 0:
+                class OrGroup( qparser.OrGroup):
+                    def __init__( self, *a,**ka):
+                        #print ( 11111111111, a, ka)
+                        ka.setdefault( 'scale', 0.9)
+                        return super().__init__( *a,**ka)
+                        return super().__init__( scale= ka.pop( 'scale', 0.9), *a,**ka)
 
-        qp.add_plugin( qparser.FuzzyTermPlugin())
-        #from whoosh.query import FuzzyTerm
-        #r = s.search( FuzzyTerm( 'value', v, maxdist=4, prefixlength=0 ), limit=None)
-        #r = idx.find( v, limit=None, exact=False, maxdist=3)
+                #FIX omissions:
+                from whoosh import matching
+                def _replacement(self, newchild):
+                    return self.__class__(newchild, scale=self._scale)
+                matching.CoordMatcher._replacement = _replacement
 
-        r = s.search( qp.parse( v ), limit=None)
-        #print( r)
-        print( ':::::::')
-        for l in r:
-            print( l.score, l.fields()['value'])
+
+            qp = qparser.QueryParser( 'value',
+            #p = qparser.MultifieldParser( ('value', 'ngram'),
+                    schema= idx.ix.schema,
+                    #group= qparser.OrGroup #.factory(0.9), # a b -> both a and b better than a and a
+                )
+
+            qp.add_plugin( qparser.FuzzyTermPlugin())
+            #from whoosh.query import FuzzyTerm
+            #r = s.search( FuzzyTerm( 'value', v, maxdist=4, prefixlength=0 ), limit=None)
+            #r = idx.find( v, limit=None, exact=False, maxdist=3)
+
+            r = s.search( qp.parse( v ), limit=None)
+            #print( r)
+            print( ':::::::')
+            for l in r:
+                print( l.score, l.fields()['value'])
 
 # vim:ts=4:sw=4:expandtab

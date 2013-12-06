@@ -83,6 +83,19 @@ rIme_= '([А-Я]([а-я]{0,2}\.|[а-я]+)_*)'
 rImeIme = rIme_ + '+([а-я]{1,3}_*){0,2}' + rIme +'+'
 reime = re.compile( rImeIme )
 
+def filt_er( x): return (x
+                    ).replace( '  ',' '
+                    ).replace( ' ', '_'
+                    ).replace( '..','.'
+                    ).replace( '__','_'
+                    ).replace( '.-','-'
+                    ).replace( '-.','-'
+                    ).replace( '_-','-'
+                    ).replace( '-_','-'
+                    ).replace( '_.','.'
+                    )
+
+
 def razglobi_imena( imena, rubrika, data, dirname):
     imena = (imena.replace( '\u2013','-')  #- = x2013
             .replace( '\xA0','_')
@@ -233,15 +246,7 @@ def razglobi_imena( imena, rubrika, data, dirname):
     avtor_kys = '-'.join( avtori_kysi)
 
     avtor_dylyg = '-'.join( avtori)
-    dirname_cyr = ('--'.join( a for a in [ ime, avtor_dylyg, 'радио'] if a )
-                    .replace(' ', '_')
-                    .replace( '..','.')
-                    .replace( '.-','-')
-                    .replace( '-.','-')
-                    .replace( '_-','-')
-                    .replace( '-_','-')
-                    .replace( '_.','.')
-                    )
+    dirname_cyr = filt_er( '--'.join( a for a in [ ime, avtor_dylyg, 'радио'] if a ))
     dirname = c2l( dirname_cyr)
 
 #    [0].upper()+a[1:]

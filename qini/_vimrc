@@ -629,6 +629,7 @@ scriptencoding utf8 "cp1251
 "cyrilic on cmd-line
 cabbrev е e
 cabbrev Е e
+cabbrev я q
 cabbrev цд cd
 cabbrev Цд cd
 cabbrev гр gr

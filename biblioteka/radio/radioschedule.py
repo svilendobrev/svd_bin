@@ -515,7 +515,6 @@ cron.d/crontab direct: # m h dom mon dow (user) command
                     #).replace('”',''
                     ).replace('Документално_студио','Док.ст.'
                     ).replace('Радиоколекция',      'Ркц'
-                    #).replace('„Радиотеатър”',      'Рт'
                     ).replace('Радиотеатър',        'Рт'
                     ).replace('Време_за_приказка',  'ВзаП'
                     ).replace('Ваканционна_програма',   'Вкц'
@@ -524,6 +523,7 @@ cron.d/crontab direct: # m h dom mon dow (user) command
                     ).replace('Запазена_марка',''
                     ).replace('фонда_на_редакция',''
                     ).replace('Семейно_радио', '' #Сем
+                    ).replace('Голямата_къща_на_смешните_хора', 'ГКСХ'
                     ).replace('Съвременна',     'Съвр.'
                     ).replace('Драматургични',  'драм.'
                     ).replace('драматургия',    'драм.'
@@ -591,9 +591,6 @@ cron.d/crontab direct: # m h dom mon dow (user) command
                 if isinstance( v,str) and v.isdigit(): v = int(v)
                 opis[ k ] = v
 
-        #pprint( danni)
-        #pprint( opis)
-
         def filtr( fname ):
             return ((fname
                     ).replace( '._', '.'
@@ -614,31 +611,21 @@ cron.d/crontab direct: # m h dom mon dow (user) command
                     #).replace( 1*rI+p,'.2'
                     ##).replace( '\xA0',' '
                     ))
-        if 0:
-            fname = filtr( fname)
-            fname = sykr( fname
-                        #).replace('Избрано_от_Златния_фонд', rec2dir.zlf
-                        #).replace('Избрано_от_фонда_на_редакция_„Хумор_и_сатира”', 'Избр.ХиС'
-                        ).replace('Незабравими_бълг._спектакли_във_фонда', 'бълг.др.'
-                        )
-            fname2 = fname[80:]
-            fname = fname[:80]
-            if o.save_text:
-                tx = x.get('text') or ''
-                if len(tx) > 50 or fname2 or dosave:
-                    with fopen( fname+ (dati not in fname and dati or '') +'.text') as f:
-                        if x.get('title'): print( '#'+x.title, file=f)
-                        print( tx, file=f)
-                        if dosave: pprint( opis, stream=f) #file=f
-                        #if dosave: pprint( danni, stream=f) #file=f
 
         dirname = fname_kanal+'/'+fname_kanal_vreme
         makedirs( dirname)
-        #ldirname = '--'.join( n for n in [z.get(k) for k in 'ime avtor_dylyg'.split()] if n.strip() )
         ldirname = z.get( 'dirname_cyr','').rsplit('--радио')[0]
         if ldirname in ('радио', danni.rubrika_kysa, danni.rubrika, danni.rubrika.replace(' ','_'), z.get('rubrika_') ):
             ldirname = ''
-        ldirname = fname_kanal_vreme + '+' + (danni.rubrika_kysa or x.get('ime') or '') + bool( ldirname)*'+' + ldirname[:60]
+        if danni.rubrika_kysa:
+            rubr = rec2dir.filt_er( danni.rubrika)
+            if ldirname.startswith( rubr):
+                ldirname = ldirname[ len( rubr):].lstrip('-')
+        print( '33333333333333333', ldirname, danni.rubrika, file= sys.stderr)
+        ldirname = '+'.join( n for n in [ fname_kanal_vreme,
+                danni.rubrika_kysa or x.get('ime'),
+                ldirname[:60] ]
+                if n )
 
         for d in glob.glob( fname_kanal_vreme+'*'):
             try: os.remove( d)
@@ -647,8 +634,9 @@ cron.d/crontab direct: # m h dom mon dow (user) command
             os.symlink( dirname, ldirname)
         except: pass
 
-        fname = dirname + '/' + (z.dirname or fname_kanal)[:60]
+        fname = (z.dirname or fname_kanal)[:60]
         fname = filtr( sykr( fname))
+        fname = dirname + '/' + fname
         usability.Dumper.force_block = '>'
         usability.Dumper.shorten_width = 15
         komentari = [ (k + ': ' +str(opis.pop(k))) for k in list( opis.keys()) if k[0]=='#' ]
