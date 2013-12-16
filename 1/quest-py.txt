@@ -1,6 +1,7 @@
 1	- lists / tuples / sets
 1	- immutable / mutable
 1	- str+str / ''.join()
+1	- what 'else' after 'for loop' means
 1+	- == / is
 1+	- if then else / and or / then if else
 2	- if x / if x is True / if x == True
