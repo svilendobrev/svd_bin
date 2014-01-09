@@ -115,16 +115,20 @@ if __name__ == '__main__':
         tyrsi = optz.tyrsi
 
     if tyrsi:
-        k,v = tyrsi.split('=')
-        if INFO:
-            if k:
-                idx = getattr( ix.indexes, k)
+        if '=' in tyrsi:
+            k,v = tyrsi.split('=')
+            if INFO:
+                if k:
+                    idx = getattr( ix.indexes, k)
+                else:
+                    idx = ix
+                    assert k
+                fieldname = 'value'
             else:
-                idx = ix
-                assert k
-            fieldname = 'value'
+                fieldname = k
         else:
-            fieldname = k
+            fieldname = 'zaglavie'
+            v = tyrsi
 
         #or use FuzzyTermPlugin
         with idx:
@@ -138,9 +142,11 @@ if __name__ == '__main__':
             from whoosh import query
             #qparser.FuzzyTermPlugin hooks direct to query.FuzzyTerm, so replacing that is too late
             qft__init__ = query.FuzzyTerm.__init__
-            def __init__(self, fieldname, text, boost=1.0, maxdist=1,
-                            prefixlength= PREFIX, constantscore=True):
-                     qft__init__( **locals())
+            #def __init__(self, fieldname, text, boost=1.0, maxdist=1,
+            #                prefixlength= PREFIX, constantscore=True):
+                     #qft__init__( self, **dict( (k,v) for k,v in locals().items() if k != 'self' ))
+            def __init__(self, *a,**ka):
+                     qft__init__( self, prefixlength= ka.pop('prefixlength',PREFIX), *a,**ka)
             query.FuzzyTerm.__init__ = __init__
 
             from whoosh import qparser #  , analysis
@@ -189,4 +195,11 @@ if __name__ == '__main__':
             for l in r:
                 print( l.score, l.fields() ) #['value'])
             #print( ixx.get_alldata())
+
+#   py t.py --tyrsi zaglavie=vor
+#   py t.py --tyrsi zaglavie=bab
+#   py t.py --tyrsi zaglavie=bab~1
+#   py t.py --tyrsi zaglavie:rbab
+#   py t.py --tyrsi 'zaglavie:rbab~1 avtor:ime'
+
 # vim:ts=4:sw=4:expandtab
