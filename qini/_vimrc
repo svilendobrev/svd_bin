@@ -11,6 +11,7 @@ set fileencodings=cp1251,ucs-bom,utf-8  "allow editing utf in cp1251 env
 "set fileencodings=ucs-bom,utf-8,cp1251  "allow editing utf in cp1251 env
 set fileencodings=utf-8,cp1251,ucs-bom  "allow editing utf in cp1251 env
 set fileencodings=ucs-bom,utf-8,cp1251
+"set encoding=utf8   "only when outside LANG is not properly set to ...utf8. better fix that if possible ; plugin/enc-utf
 
 "set mouse=a
 set nowrap      "plain Clipping view over the file
@@ -163,8 +164,8 @@ if version >= 700
 "   :NoMatchParen
 "   :DoMatchParen
 
-    set completeopt-=menu
-    set pumheight=10
+    set completeopt-=menu   "disable completion-popup-menu
+    set pumheight=10        "max completion-popup-menu
 endif
 
 """"""""""""""""" gui stuff

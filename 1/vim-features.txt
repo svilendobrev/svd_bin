@@ -1,0 +1,50 @@
+a 2+mode-editor
+viewing/walking
+ - nowrap, nostartofline, encodings
+ - walk words and other logical blocks
+ - buffers, windows
+ - position history - ctrl-o/i
+ - other histories - cmd-line, search, ..
+ - tags
+ - includes 
+ - statusline
+editing
+ - undo/redo history
+ - buffers - hidden, noautowrite
+ - tabs-expand
+ - autoindent 
+ - format para
+ - join. split? newline?
+modeline
+auto-complete/suggest - words, tags, filenames
+insert-buffer,filename,some-metainfo
+autocommands
+grepprg + walking the finds
+makeprg + errorformat + walking the errors
+syntax / sync
+folding
+diff 
+keyboard, mappings, abbrevs
+actions:
+ save
+ undo/redo
+ selection, copy, paste - words, line/s, block
+ delete - word-right,to-end-of-line,line
+ search prev/next/cur-word
+ join
+ auto-complete/suggest
+ walk words, other logical blocks
+ walk buffers,windows
+ walk errors/finds
+ tags
+
+
+useful generic editor features:
+ - multiple files - windows or not
+ - walking inside file - words, line, start/end, logicals, search
+ - walking around files - tags, greps, includes, search
+ - editing files - selection,copy,paste,delete
+ - undo/redo
+ - histories - undo, position, search, cmd-line, etc
+ - autocomplete/suggest - words, tags, filenames, ..
+ - syntax, diff, folding, building, debug
