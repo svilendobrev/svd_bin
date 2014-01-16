@@ -1,18 +1,20 @@
 1	- lists / tuples / sets
 1	- immutable / mutable
 1	- str+str / ''.join()
-1	- what 'else' after 'for loop' means
 1+	- == / is
 1+	- if then else / and or / then if else
 2	- if x / if x is True / if x == True
-2	- local / global / nonlocal
-2+ 	- zip / izip / izip_longest	
+2	- what 'else' after 'for loop' means
+2	- local / global / nonlocal / visibility - how to access/change things
+2	- namespaces/visibility: 'a=1  class X: a=2  def f(): a=3  def g(): print a'
 2+	- namespaces creating - module, func, class=tmp, generator-expr
-3	- classmethod / staticmethod  ; 4: virtual-one
-3	- class-attr / visibility / access
+2+	- class-attr vs inst-attr - access/visibility
+3-+	- methods: instance-/ class- / static- ; bound/unbound 
+2+ 	- zip / izip / izip_longest	
+3	- dict.setdefault / dict.get / try dict[] except
 3	- partial() / callable-obj
 3	- properties
-3+	- dict.setdefault / dict.get / try dict[] except
+4 	- virtual class/static methods
 4	- __new__ / __init__
 4	- descriptors
 5	- metaclass

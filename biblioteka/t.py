@@ -65,6 +65,11 @@ if 10:
             zaglavie= 'druga tvorba',
             id= '/pyt2/file',
             ),
+        DictAttr(
+            avtor   = 'drug avtor',
+            zaglavie= 'edna druga tvorbata mu',
+            id= '/pyt3/file',
+            ),
     ]
 
 if __name__ == '__main__':
@@ -104,6 +109,7 @@ if __name__ == '__main__':
         tyrsi = info.options.tyrsi
     else:
         optz,args = optz.get()
+        if not optz.tyrsi and args and args[0]: optz.tyrsi = args[0]
         idx = ixx
         if optz.novo:
             if parcheta:
