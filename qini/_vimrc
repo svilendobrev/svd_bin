@@ -11,7 +11,7 @@ set fileencodings=cp1251,ucs-bom,utf-8  "allow editing utf in cp1251 env
 "set fileencodings=ucs-bom,utf-8,cp1251  "allow editing utf in cp1251 env
 set fileencodings=utf-8,cp1251,ucs-bom  "allow editing utf in cp1251 env
 set fileencodings=ucs-bom,utf-8,cp1251
-"set encoding=utf8   "only when outside LANG is not properly set to ...utf8. better fix that if possible ; plugin/enc-utf
+"set encoding=utf8   "only when outside LANG is not properly set to ...utf8. better fix that if possible ; in _vim/plugin/enc-utf.vim
 
 "set mouse=a
 set nowrap      "plain Clipping view over the file
@@ -19,6 +19,7 @@ set noautowrite "dont save when switching buffers
 set noerrorbells
 set visualbell t_vb=
 
+"set exrc       "autoload ./.vimrc  ; in _vim/plugin/autoload_vimrc.vim
 set history=200
 set laststatus=2    "show status line always
 set ruler           "show cursor position

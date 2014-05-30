@@ -9,9 +9,7 @@
 ## all default to nothing
 
 ## unix does not want CRLF's - scripts, makefiles (gnumake also wants tabs), sources...
-## filter before sourcing, e.g. via $(CRLF2LF) (see defalias) or unzip -a
-## use makefile to generate bash's version of defalias anytime you change them
-## it is possible to source filtered online with alias/function, but... too slow
+## filter before sourcing, e.g. via $(CRLF2LF) (see defalias) 
 # some tcsh require some-keyboard mappings to be loaded twice in order to work (e.g. UP,DOWN)
 
 ######## structure:
@@ -34,15 +32,15 @@
 # - set misc paths, e.g. MANPATH
 # - use env vars to point to where some applic is on diff machines e.g. MAKE=...
 # - set default permissions: umask 002      # allow group write
-# - get a new beer
 ################
-# well, as a keyboard cmdline editor tcsh is still much superior to bash;
-# in bash, any aliases with arguments should be functions -- use al2func.pl
+# as a keyboard cmdline editor tcsh is still much superior to bash;
+# but better avoid programming in tcsh/csh.
+# sh functionality is MUCH better/wider/consistent e.g. quoting
+# in bash, any aliases with arguments should be functions 
 # whole .bashrc is read only for interactive scripts; use profile for non-interactive
-# for fast tcsh scripts, use tcsh -f, but IMHO, better avoid programming in tcsh.
-# sh functionality is MUCH better/wider
+# for fast tcsh scripts, use tcsh -f
 
-#common basic aliases/funcs expected to work
+#common basic aliases/funcs made to work same way for sh/tcsh
 # senv          set in env
 # _set          set localy
 # al            alias
@@ -50,7 +48,6 @@
 # _kbin         kbd-bind builtin-command-key, e.g. delete-char
 # _kcmd         kbd-bind string/command to execute immediately
 # _kstr         kbd-bind string
-# _setcdpath  #now commented
 # verbose/unverbose     show cmds prior to expanding/exec
 #
 ## extensibility:
@@ -61,6 +58,5 @@
 # -add other term's
 # -change the aliases/kbd-mappings/whatever
 # -try from scratch. may even try to incorporate 4dos aliases as well
-# +send me a beer ;-)
 
 # vim:ts=4:sw=4:expandtab
