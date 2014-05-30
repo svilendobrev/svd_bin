@@ -2,7 +2,7 @@
 from __future__ import print_function
 
 import sys
-from util import optz
+from svd_util import optz
 optz.usage( '%prog [opts] wavfile[s]' )
 optz.bool( 'verbose', '-v')
 optz.text( 'outfile', '-o', help= 'outfile, "-" for stdout')

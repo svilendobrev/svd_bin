@@ -18,5 +18,5 @@ for a in args or sys.stdin:
     if not f0: f0 = f
     print( '%d:%02d.%02d' % (m,ss,ff))
 
-#from util import minsec
+#from svd_util import minsec
 #for x in minsec.frame2minsec( args or sys.stdin, FS=FS): print x
