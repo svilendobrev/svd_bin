@@ -1,0 +1,2 @@
+perl -ne 'print if !/xml:lang="([ac-df-z]|be|e[a-mo-z])/' $@
+#freedesktop.org.xml >a.freedesktop.org.xml 

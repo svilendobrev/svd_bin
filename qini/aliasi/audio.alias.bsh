@@ -18,7 +18,7 @@ alf mp32wav     'lamev -S --decode'
 
 al wav2mp3if    'forallif wav mp3 wav2mp3'
 al wav2mp36if   'forallif wav mp3 wav2mp36'
-al mp32mp3if    'forallif mp3 mp3 wav2mp3'
+al mp32mp3if    'forallif mp3 mp3.mp3 wav2mp3'
 al mp32wavif    'forallif mp3 wav mp32wav'
 
 _stdin2mp3()    { wav2mp3 - "$1.mp3" ; }
@@ -36,9 +36,11 @@ wv2flac()       { wvunpack "$1" -o -| _stdin2flac "$1" ; }
 al wv2mp3if     'forallif wv mp3 wv2mp3'
 al wv2flacif    'forallif wv flac wv2flac'
 
-ape2wav()       { mac "$1" "$1".wav -d ; }
-ape2flac()      { mac "$1" - -d | _stdin2flac "$1" ; }
-ape2mp3()       { mac "$1" - -d | _stdin2mp3  "$1" ; }
+#ape2wav()       { mac "$1" "$1".wav -d ; }
+#ape2flac()      { mac "$1" - -d | _stdin2flac "$1" ; }
+ape2wav()       { avconv -i "$1" "$1".wav ; }
+ape2flac()      { avconv -i "$1" "$1".flac ; }
+ape2mp3()       { avconv -i "$1" -f wav pipe: | _stdin2mp3  "$1" ; }
 ape2mp3split()  { ape2mp3 "$1"; mp3splt -c "$2" "$1".mp3; }
 cuefix()        { grep -v "REM " | cuebreakpoints -i cue ; }
 CUEFILTER="cat"
@@ -199,12 +201,24 @@ al srec 'rec -r 44100 -b 16 -c 2 -s -S -t wav '
 al zrec srec
 #al rec1 'arec -d 1500 1.wav'
 #al rec2 'arec -d 1500 2.wav'
-r() { srec $1.wav trim 0 0:27:0; }
+r() { srec $1.wav trim 0 0:35:0; }
 al r1 'r 1'
 al r2 'r 2'
 al rec1 r1
 al rec2 r2
 
 al izz 'izvadki2opis.py --z .'
+
+########################
+
+### filmi
+al mp mplayer
+al mpeq     'mp -af equalizer=10:8:-2:0:0:0:0:0:0:0'
+al mpz      'mp -zoom -fs'  # -vf scale' -> into .conf
+al mpzmad   'mpz -ac mad'    #better audio/v sync/rates - for broken mp3 frames
+al mpsoft   'mp -softvol -softvol-max 2000'
+
+flv2mkv()   { ffmpeg -i "$1" -vcodec copy -acodec copy  "$1".mkv; }
+avi2mkv()   { mkvmerge -o "$1".mkv "$@"; }
 
 # vim:ts=4:sw=4:expandtab

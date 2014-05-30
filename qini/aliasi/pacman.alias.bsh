@@ -26,6 +26,8 @@ a-all-instsize() 	{ pacman -Qi "$@" | pacnamesize; }
 al a-upgradable-full 'pacman -Su -p | sort'
 al a-upgradable "a-upgradable-full | perl -ne 's,.*686/(.*?)-[0-9].*,\1,;print' | sort "
 
+al a-upgrade 'sudo pacman -Syu'
+
 al a-file    a-file0 
 #al a-repository 'sudo add-apt-repository'
 #al a-ppa a-repository

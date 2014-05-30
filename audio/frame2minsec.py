@@ -1,4 +1,5 @@
-#!/bin/env python
+#!/usr/bin/env python
+from __future__ import print_function
 FS=75
 import sys
 args=[]
@@ -15,7 +16,7 @@ for a in args or sys.stdin:
     m = int(s/60)
     ss = s-60*m
     if not f0: f0 = f
-    print '%d:%02d.%02d' % (m,ss,ff)
+    print( '%d:%02d.%02d' % (m,ss,ff))
 
 #from util import minsec
 #for x in minsec.frame2minsec( args or sys.stdin, FS=FS): print x

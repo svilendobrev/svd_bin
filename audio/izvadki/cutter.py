@@ -139,6 +139,7 @@ class Cutter:
             makedir = False,
             path    = '',
             ofile   = None,
+            ofile_as_sfx =None, #priority over ofile
             infile  = None,
             inpath  = '.',
             **kargs_ignore
@@ -176,6 +177,7 @@ class Cutter:
         ofile = basename( ofile or infile)    #no dirs
         for a in 'wav avi flac mp3'.split():
             if ofile.endswith( '.'+a): ofile = ofile[:-1-len(a)]
+        if ofile_as_sfx: ofile += ofile_as_sfx
         opath = options.path
         if opath:
             makedirs( opath)
@@ -212,7 +214,11 @@ class Cutter:
 
             if options.do_nothing and (not maketoc or fe <= p.nframes): continue
 
-            i.readframes( fs - cur) #skip
+            skip = fs-cur
+            while skip:
+                sk = min( 9*60, skip)    #11mb/min
+                i.readframes( sk)
+                skip -= sk
             data = i.readframes( fe - fs )
             assert data
             cur = fe

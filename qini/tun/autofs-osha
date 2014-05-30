@@ -1,0 +1,8 @@
+#fstab : nfs auto - mount fails in all variations for ... 0 2
+# XXX but works with ... 0 0 
+
+#maybe alternative, but not working 100% either:
+#install autofs
+/etc/autofs/auto.master:/-      /etc/autofs/auto.osha
+/etc/autofs/auto.osha:/media/osha  -fstype=nfs,rw,noatime,nodiratime,relatime,exec osha:/home/share
+/etc/nsswitch.conf:automount: files

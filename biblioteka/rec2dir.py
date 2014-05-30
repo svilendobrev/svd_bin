@@ -95,6 +95,11 @@ def filt_er( x): return (x
                     ).replace( '_.','.'
                     )
 
+slovom10 = 'първа втора трета четвърта пета шеста седма осма девета десета'.split()
+slovom10 = dict(
+    (x, i)
+    for i,x in enumerate( slovom10, 1)
+    )
 
 def razglobi_imena( imena, rubrika, data, dirname):
     imena = (imena.replace( '\u2013','-')  #- = x2013
@@ -186,7 +191,14 @@ def razglobi_imena( imena, rubrika, data, dirname):
 
     rchast = rlatcyr( '((част|епизод)и?|ч\.?)') #|глава
     rnomer = rim.re_nomer_extrafix
-    m = rextract( '(?P<nomer>('+rnomer+'_(и_)?)*' +rnomer+')_?'+rchast, ostatyk, flags= re.IGNORECASE)
+
+    rnomer = rnomer.replace( ')',
+        ''.join( '|'+slovom[:-1]+'[аи]'
+            for slovom in slovom10 #първ[аи] част/епизод
+            )
+            +')')
+
+    m = rextract( '(?P<nomer>_*('+rnomer+'_(и_)?)*' +rnomer+')_?'+rchast, ostatyk, flags= re.IGNORECASE)
     if m:
         m,ostatyk = m
         nomer = m.group( 'nomer')
@@ -196,9 +208,11 @@ def razglobi_imena( imena, rubrika, data, dirname):
             m,ostatyk = m
             nomer = m.group( 'nomer')
 
-
-    nomer = rim.rim2fix( nomer)
-    nomer = rim.rim2int( nomer,nomer)
+    n = slovom10.get( nomer)
+    if n: nomer = n
+    else:
+        nomer = rim.rim2fix( nomer)
+        nomer = rim.rim2int( nomer,nomer)
     #print( 333333333, ostatyk, nomer)
 
     ostatyk = ostatyk.strip( rend)

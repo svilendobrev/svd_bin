@@ -22,6 +22,9 @@ timeout = optz.timeout
 if hasattr( socket, 'setdefaulttimeout'):
     socket.setdefaulttimeout( timeout)
 
+def items( db): return db.items()
+def update( db, i): return db.update(i)
+
 hp = optz.cache.split('://')
 if hp[0]=='tt':
     from svd_util.ext import pytyrant3 as pytyrant
@@ -36,19 +39,26 @@ if hp[0]=='tt':
     tt = pytyrant.PyTyrant.open( **ka)
     cache = db = tt
 else:
-    import dbhash as adb
+    try:
+        import dbhash as adb
+    except:
+        import dbm as adb
+        def items( db):
+            for k in db.keys(): yield k,db[k]
+        def update( db, i):
+            for k,v in i: db[k] = v
     #import anydbm as adb
     db= adb.open( optz.cache, 'c')
     if optz.merge_caches:
         for a in args:
             if os.path.exists( a):
-                db.update( adb.open( a).iteritems())
+                update( db, items( adb.open( a)))
         raise SystemExit
     cache = {}  # loaded at start, saved at end
 
 cmiss = {}
 if cache is not db:
-    cache.update( db.iteritems() )
+    cache.update( items(db) )
     db.close()
 totals=0
 
@@ -94,7 +104,7 @@ for a in sys.stdin:
     if cache is not db:
         if not totals % 1024:
             db= adb.open( optz.cache, 'r')
-            cache.update( db.iteritems() )
+            cache.update( items(db) )
             db.close()
 
 
@@ -134,10 +144,9 @@ if cmiss and cache is not db:
 #    time.sleep( random.randint(0,9)/10.0)
     try:
         db= adb.open( optz.cache, 'c')
-        db.update( cmiss.items() )
     except Exception as e:
         lprint( 'errrr:', e)
         db= adb.open( optz.prefix +'.'+ optz.cache, 'c')
-        db.update( cmiss.items() )
+    update( db, cmiss.items() )
 
 # vim:ts=4:sw=4:expandtab

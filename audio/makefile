@@ -5,15 +5,19 @@ OPTS+=-m m
 endif
 %.flac: %.wav
 	flac --force -o "$@" "$<"
-LAME= lame --nohist -h -v -V 6 $(OPTS)
-%.mp3: %.wav
-	$(LAME) "$<" "$@"
+LAME= lame --nohist --disptime 2 -h -v -V 6 $(OPTS)
+
 %.mp36: %.mp3
 	$(LAME) "$<" "$@"
+#%.mp3: %.wav
+#	$(LAME) "$<" "$@"
+#%.mp3: %.flac
+#	flac -d "$<" -o - | $(LAME) - "$@"
+
 %.wav: %.flac
 	flac -d -o "$@" "$<"
 %.wav: %.mp3
-	lame --nohist -S --decode "$<" "$@"
+	lame --decode --nohist --quiet "$<" "$@"
 
 %.mkv: %.wmv
 	ffmpeg -i "$<" "$@"
@@ -48,18 +52,15 @@ wmv2mkv: $(patsubst %.wmv,%.mkv,$(wildcard *.wmv))
 mkv2avi: $(patsubst %.mkv,%.avi,$(wildcard *.mkv))
 avi2mkv: $(patsubst %.avi,%.mkv,$(wildcard *.avi))
 
-%.mp3: %.flac
-	flac -d "$<" -o - | $(LAME) - "$@"
-
 wavcat:
 	wavcat.py -o ooo.wav $(WAVs)
 
 SPLIT= $(wildcard $(SWILD))
-split: $(SPLIT:%=mm.%-001.mkv)
+split: $(SPLIT:%=./mm.%-001.mkv)
 
 T?=0:0:20 #,0:4:30
-mm.%-001.mkv: %
-	mkvmerge "$<" -o "mm.$*" --split timecodes:$T
+./mm.%-001.mkv: #./%
+	mkvmerge "$*" -o "mm.$*" --split timecodes:$T
 
 tags:
 	for a in *tags; do sh $$a; done
@@ -84,5 +85,9 @@ FILMs= $(wildcard $(SFILM))
 filmid: $(FILMs:%=%.filmid)
 %.filmid: %
 	filmid.sh "$<" >"$@"
+
+bz bz2: $(patsubst %,%.bz2,$(wildcard $(BZ)))
+%.bz2: %
+	bzip2 $<
 
 # vim:ts=4:sw=4:noexpandtab

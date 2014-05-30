@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #$Id: cvs-vim-all.py,v 1.4 2007-12-07 20:46:52 sdobrev Exp $
+from __future__ import print_function
 from svd_util import gencxx, optz
 optz.bool( 'head')
 optz,argz = optz.get()
@@ -31,10 +32,10 @@ for a in argz:
         try:
             w = file(a,'w')
         except IOError, e:
-            print 'cannot write', a, e
+            print( 'cannot write', a, e)
         else:
             try:
-                print 'w', a
+                print( 'w', a)
                 w.write( f)
             finally:
                 w.close()

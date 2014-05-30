@@ -8,12 +8,17 @@ class mp3times:
 
     @staticmethod
     def mp3info( fnames):
-        ee = [ 'mp3info', '-p', '%S %f\n' ] + fnames
+        ee = [ 'mp3info', '-r', 'a', '-p', '%S::%Q::%o::%r::%f\n' ] + fnames
         rr = execresult( ee )
         mtsec = {}
         for tf in rr.splitlines():
-            t,f = tf.split( ' ',1)
-            mtsec[ f] = int(t)
+            t,sampling,mode,kbitrate,f = tf.split( '::', 4)
+            mtsec[ f] = dict(
+                time= int(t),
+                mode= mode,
+                sampling= int(sampling),
+                kbitrate= kbitrate, #text!float
+                )
         return mtsec
 
     @staticmethod
@@ -48,6 +53,11 @@ apps = 'mp3info mad eyed3'.split()
 
 def ftime(f): return getmtime(f) #os.path.getctime) stat( f).st_mtime
 
+def sumer( durations_values):
+    return sum(
+        d['time'] if isinstance( d, dict) else d
+        for d in durations_values
+        )
 def durations( dirpath, fnames, cache_file =None, durations =None, durations_time =0, force_app =None):
     if not fnames: return 0, {}
     tsec = None
@@ -56,11 +66,12 @@ def durations( dirpath, fnames, cache_file =None, durations =None, durations_tim
             durations = eval( open( cache_file ).read().strip() )
         except: pass
         durations_time = ftime( cache_file)
+
     if durations and durations_time:
         if set( basename(f) for f in fnames) == set( durations.keys()):
             maxt = max( ftime( f ) for f in fnames)
             if durations_time >= maxt:
-                tsec = sum( durations.values())
+                tsec = sumer( durations.values())
 
     if force_app: assert force_app in apps
 
@@ -72,11 +83,15 @@ def durations( dirpath, fnames, cache_file =None, durations =None, durations_tim
             durations = func( fnames)
             if durations is None: continue
             assert len(durations) == len(fnames)
-            mtsec = sum( durations.values())
+            mtsec = sumer( durations.values())
             if tsec is None and cache_file:
                 tsec = mtsec
                 print( '>>', cache_file)
-                open( cache_file, 'w' ).write( '{' + ', '.join( '%r:%s' % kv for kv in sorted( durations.items()) )+'}' )
+                with open( cache_file, 'w' ) as of:
+                    of.write( '{' +
+                        ', '.join( '%r:%s' % kv
+                        for kv in sorted( durations.items()) )
+                        +'}' )
             elif abs(mtsec-tsec) > 9*len(fnames):
                 print( '! %(m)s.size %(mtsec)s != mp3.size %(tsec)s' % locals(), dirpath)
 

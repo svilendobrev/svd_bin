@@ -6,5 +6,8 @@ date
 ./radiorec.py --quiet-mplayer --seconds-extra 200 \
 	--exec 'flac --silent {}' \
 	--exec 'lame --quiet --nohist -h -v -V 6 {}' \
+	--exec '/usr/local/bin/wav44khz.py {}' \
+	--exec 'flac --silent {}.44100.wav' \
+	--exec 'lame --quiet --nohist -h -v -V 6 {}.44100.wav' \
 	"$@" 
 

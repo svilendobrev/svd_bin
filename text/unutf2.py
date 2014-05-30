@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 
 def unutf2( x, decode =True):
     if decode: x = x.decode( 'utf8')
@@ -14,7 +15,7 @@ if __name__ == '__main__':
 
     for l in sys.stdin:
         r = unutf2( l.rstrip())
-        print r
+        print( r)
         if optz.rename:
             os.rename( l, r)
 

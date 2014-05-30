@@ -164,7 +164,10 @@ def parse( r):
                 setattr( item, k, v )
 
         if item.empty():    #item.trash or
-            if item.parent: item.parent.items.remove( item)
+            if item.parent:
+                try:
+                    item.parent.items.remove( item)
+                except: pass
         else:
             allitems.append( item)
     return root

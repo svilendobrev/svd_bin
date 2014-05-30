@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 #$Id$
 
 import sys
@@ -24,7 +25,7 @@ for l in sys.stdin:
         nurl=0
     if dotree:
         l = (level+nurl)*4*' '+l
-    print l
+    print( l)
     level+=dl
     assert level>=0, prev+'\n'+l
     prev=l

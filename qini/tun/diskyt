@@ -1,0 +1,22 @@
+#!/bin/sh
+#_HD=/dev/sda
+_HD=$1
+
+#readahead
+HD="$HD -a 2048" 
+
+#spindown timeout
+#0: off
+#1-240: n*5sec
+#241-251: (n-240)*30min
+#252: 21min
+#HD1="$HD1 -S 241"
+HD="$HD -S ${SPIN:-60}"
+
+#acoustic:quiet
+#HD="$HD -M 128"
+
+echo $HD $_HD
+test -e "$_HD" && /sbin/hdparm $HD $_HD
+
+# vim:ts=4:sw=4:expandtab

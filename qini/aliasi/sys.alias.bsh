@@ -1,0 +1,29 @@
+
+##mount
+# see http://www.fuw.edu.pl/~pliszka/hints/dvd.html
+#al mud 'for a in ud1 ud2 usb; do mount /mnt/$a; done'
+#al umd  'for a in 0 1 2; do umount /mnt/ud$a; done'
+if which udevil >&/dev/null ; then
+ mm()     { udevil mount  /dev/sd"$1" ; }
+ uu()     { udevil umount /dev/sd"$1" ; }
+else #pmountm 
+ al pmount   'pmount --noatime'
+ al pm   pmount
+ mm()     { pmount /dev/sd"$1" ; }
+ uu()     { pumount /dev/sd"$1" ; }
+fi
+al mc1    'mm c1'
+al uc1    'uu c1'
+al umediat  'fusermount -u /media/t'
+
+#hw
+al diskstate 'sudo hdparm -C /dev/[hs]d?'
+al battery 'ibam -a'
+al ss  sensors
+#if which nvidia-settings >&/dev/null ; then
+# al gpu 'nvidia-settings -q GPUCoreTemp | grep Attri'
+# al ss  "gpu; sensors"
+#fi
+#al sss 'ss;hddtemp /dev/sda /dev/sdb'
+
+# vim:ts=4:sw=4:expandtab

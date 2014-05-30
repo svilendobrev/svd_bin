@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-#$Id$
+from __future__ import print_function
 
 import re
 
@@ -66,7 +66,7 @@ class Colorer:
         status = None
         m = me.regexp.match( line)
         if m:
-            #print `m.group(1)`, me.name
+            #print( `m.group(1)`, me.name)
             g = m.group(1)
             if me.whole:
                 status = me.table.get( g )
@@ -228,12 +228,14 @@ colorer = None
 if sys.argv[1:]:
     colorer = Colorer.all.get( sys.argv[1] )
     if not colorer:
-        print 'opa!', sys.argv[0], ': unknown type', repr( sys.argv[1])
+        print( 'opa!', sys.argv[0], ': unknown type', repr( sys.argv[1]))
 else: #if not colorer:
     ks = Colorer.all.keys(); ks.sort()
-    print '''usage: colorvcs.py type
-        where type can be:''', ' '.join( ks), '''
-    filters stdin to stdout'''
+    print( '''\
+usage: colorvcs.py <type>
+    filters stdin to stdout
+    <type> can be:''', ' '.join( ks)
+    )
 
     raise SystemExit, 1
 
@@ -241,8 +243,8 @@ for l in sys.stdin:
     l = l.rstrip()
     status = colorer and l.strip() and colorer.check( l)
     if status:
-        print clr( colors.get( status) ) + l + clr( None)
-    else: print l
-#print clr(None),'==='
+        print( clr( colors.get( status) ) + l + clr( None))
+    else: print( l)
+#print( clr(None),'===')
 
 # vim:ts=4:sw=4:expandtab

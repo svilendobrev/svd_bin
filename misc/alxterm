@@ -1,4 +1,10 @@
 #!/bin/sh
 export MY_TERM=xterm-vte
-lxterminal "$@" &
+A=
+case x$1 in
+ x) ;;
+ x-*) ;;
+ x*) A=-e ;;
+esac 
+lxterminal $A "$@" &
 #MY_TERM=xterm xterm -font Terminus-cp1251-bold-20 "$@"

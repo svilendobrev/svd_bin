@@ -8,7 +8,9 @@ optz.int( 'retry_n', default= 1 )
 optz.int( 'retry_delay_seconds', default= 20 )
 optz.int( 'minutes', '-m', default= 30 )
 optz.int( 'seconds_extra', default= 3 )
-optz.str( 'stream', default= 'http://streaming.bnr.bg/HristoBotev' )
+optz.str( 'stream', default= 'http://stream.bnr.bg:8003/botev.mp3'
+                #'http://streaming.bnr.bg/HristoBotev'
+            )
 #optz.str( 'stream', default= 'http://streaming.bnr.bg/Horizont' )
 optz.str( 'fname',  default= '' )
 optz.multi( 'exec',  default= [], help= 'in syntax of find - outfname is {} ; can be multiple times' )
@@ -81,10 +83,8 @@ def rec( o, *, fname, secs, mins, stream ):
 
         if o.exec:
             for exec in o.exec:
+                exec = exec.replace( '{}', ofname)
                 cmds = exec.split()
-                try:
-                    cmds[ cmds.index( '{}') ] = ofname
-                except ValueError: pass
                 with subprocess.Popen(  #needs python3.2 at least
                     cmds,
                     stderr= out,

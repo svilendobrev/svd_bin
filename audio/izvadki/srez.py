@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+#use: srez  a.wav 4.2 141.3
+#use: srez  a.wav 4.2 -5
+#use: srez  a.wav 4.2 0
+#use: srez  a.wav 0 -44
 import sys
 class DictAttr( dict):
     def __init__( me, *a, **k):
@@ -20,7 +24,7 @@ fs,fe = [sec2frames( float(x) ) for x in (ss,se) ]
 cur = 0
 ooname = 'cut.'+infile
 i.readframes( fs - cur) #skip
-data = i.readframes( fe - fs )
+data = i.readframes( (fe if fe>0 else p.nframes + fe) - fs )
 assert data
 o = wave.open( ooname, 'w')
 o.setparams( params)

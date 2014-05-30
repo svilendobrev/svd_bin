@@ -10,10 +10,10 @@ def optany( name, *short, **k):
 def optbool( name, *short, **k):
     return optany( name, action='store_true', *short, **k)
 optbool( 'nosize', default= bool( os.environ.get( 'NOSIZE')), help= 'ignore size diffs')
-optany(  'exclude', '-x', help= 'regexp to exclude/ignore files')
-optbool( 'same',        help= 'show same/similar things instead of differences')
-optbool( 'nosymlink',   help= 'dont follow symlink dirs')
-optbool( 'symtext',     help= 'compare symlinks as text, no dereference')
+optany(  'exclude', '-x',   help= 'regexp to exclude/ignore files')
+optbool( 'same',            help= 'show same/similar things instead of differences')
+optbool( 'nosymlink',       help= 'dont follow symlink dirs = no dereference')
+optbool( 'symtext', '-t',   help= 'compare symlinks as text, no dereference')
 optz,args = oparser.parse_args()
 if len(args)<2:
     oparser.error('compare what?')
@@ -27,6 +27,10 @@ if optz.exclude:
     print( 'excluding:', optz.exclude)
     ignore = re.compile( optz.exclude)
 
+def outsymlink( fp):
+    link = os.readlink( fp)
+    return '<>', fp.ljust(20) + ' -> ' + link
+
 from os.path import join, getsize, islink
 def files( root):
     c = os.getcwd()
@@ -38,23 +42,21 @@ def files( root):
             if ignore and ignore.search( fp): continue
             #fp = fp.decode( fenc)
             if optz.symtext and islink( fp):
-                sz = os.readlink( fp)
-                fp = sz,fp #'%16s ' % sz + fp
+                item = outsymlink( fp)
             elif not optz.nosize:
                 try:
                     sz = getsize( fp)
                 except Exception as e:
                     print( e)
                     sz = '##'
-                fp = sz,fp #'%16s ' % sz + fp
-            o.append( fp)
+                item = sz,fp #'%16s ' % sz + fp
+            o.append( item)
         dd = []
         for f in dirs:
             fp = join( root, f)
             if optz.symtext and islink( fp):
-                sz = os.readlink( fp)
-                fp = sz,fp #'%16s ' % sz + fp
-                o.append( fp)
+                item = outsymlink( fp)
+                o.append( item)
             else: dd.append(f)
         dirs[:] = dd
 

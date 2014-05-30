@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 #$Id: rnd.py,v 1.4 2008-01-07 09:05:34 sdobrev Exp $
+from __future__ import print_function
 
 import os.path,sys
 import random
@@ -11,6 +12,6 @@ else:
     r = os.listdir( sys.argv[1:] and sys.argv[1] or '.')
 random.shuffle( r)
 for a in r:
-    if not os.path.basename( a).startswith('.'): print a
+    if not os.path.basename( a).startswith('.'): print( a)
 
 # vim:ts=4:sw=4:expandtab

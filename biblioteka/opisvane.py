@@ -254,7 +254,7 @@ class info:
     #.rstoinosti: всичко към latinica/ключа отляво
     stoinosti0 = DictAttr(
         #само папката
-        prevodi     = 'парч*ета части превод*и',
+        prevodi     = 'пар*чета части превод*и',
         grupi       = 'групи',
         grupa       = 'група',
         grupa_i_nomer= 'група-номер',

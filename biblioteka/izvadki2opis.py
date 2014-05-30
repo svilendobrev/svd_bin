@@ -40,11 +40,12 @@ rename = obvivka( os.rename)
 remove = obvivka( os.remove)
 join = ospath.join
 basename = ospath.basename
+exists = ospath.exists
 
 class cyr:
     _parcheta = 'пар*чета части'.split()
     parcheta = _parcheta[0].replace('*','')
-    _srezove = 'срез*ове @@ cut*s'.split()    #свободни: $ ^
+    _srezove = 'срез*ове @@ cut*s срез0'.split()    #свободни: $ ^
     srezove = _srezove[0].replace('*','')
     otkyde = 'откъде'
     chast = 'част'
@@ -64,38 +65,51 @@ def diropis2srez( dirime, opis, optz):
     #    parcheta = opis.get(p)
     #    if parcheta: break
     if parcheta:
-        for fime, p in parcheta.items():
+        for fime, parche in parcheta.items():
             fime = str(fime)
-            s = dai_srezove( p)
-            if not s: continue
-            print( '  ', fime, s)
-            dirimena = [ dirime+'/'+fime, dirime+'/0/'+fime ]
-            for f in dirimena + multiglob( [ globescape( d)+'.*wav' for d in dirimena]):
-                if ospath.exists( f):
-                    try:
-                        nomer = razglobi_ime( fime).get('nomer')
-                    except:
-                        mnomer = re.search( '(\d+)', fime)
-                        if mnomer: nomer = int( mnomer.group(1) )
-                        else: nomer = fime
-                    dobavi( fime= f, srez= s, nomer= p.get( cyr.chast, nomer), ime= dai_ime( p) )
-                    break
-            else:
-                print( '! липсва парче:', fime)
+            pp = isinstance( parche, str) and [ dict(srez=parche) ] or not isinstance( parche, (list,tuple) ) and [ parche ] or parche
+            for n,p in enumerate( pp,1):
+                ss = dai_srezove( p, mnogo= True)
+                if not ss: continue
+                if not isinstance( ss, (list,tuple)): ss = [ss]
+                for s in ss:
+                    if not s: continue
+                    print( '  ', fime, s)
+                    dirimena = [ dirime+'/'+fime, dirime+'/0/'+fime ]
+                    fimena = dirimena + multiglob( [ globescape( d)+'.*wav' for d in dirimena])
+                    if len(pp)==1: n=None
+                    for f in fimena:
+                        if exists( f):
+                            try:
+                                nomer = razglobi_ime( fime).get('nomer')
+                            except:
+                                mnomer = re.search( '(\d+)', fime)
+                                if mnomer: nomer = int( mnomer.group(1) )
+                                else: nomer = fime
+                            ime = dai_ime(p)
+                            dobavi( fime= f,
+                                nomer= p.get( cyr.chast, nomer) or n,
+                                srez = ime and { ime: s } or s,
+                                )
+                            break
+                    else:
+                        print( '! липсва парче:', fime)
     else:
-        s = dai_srezove(opis)
-        if isinstance( s, dict):
-            for fime, srez in s.items():
+        ss = dai_srezove( opis, mnogo= True)
+        if isinstance( ss, dict):
+            for fime, srez in ss.items():
                 dobavi( fime= fime, srez= srez)
 
-        elif s:
+        elif ss:
+            if not isinstance( ss, (list,tuple)): ss = [ss]
             dirimena = [ globescape( dirime+ ex)+ '*wav' for ex in ['/', '/0/'] ]
             fimena = multiglob( dirimena )
             if len(fimena)==2:
                 if basename( fimena[0]).replace( '.1.c.wav', '.wav' ) == basename( fimena[-1]):
                     del fimena[0]
             if len( fimena) == 1:
-                dobavi( fime= fimena[0], srez= s)
+                for srez in ss:
+                    dobavi( fime= fimena[0], srez= srez)
             elif not fimena:
                 print( '! липсва', dirimena)
             else:
@@ -103,7 +117,7 @@ def diropis2srez( dirime, opis, optz):
                 for i in fimena: print( ' ?', i)
 
     for p in srezove:
-        assert ospath.exists( p.fime)
+        assert exists( p.fime)
         # ако срезове != стари срезове или звуковия файл е по-нов от дир/опис: режи, и парчетата към дир/
         if 1: #newer( fime, fopis):
             izvadi( p.fime, p.srez, fdirime, nomer= p.get('nomer'), ime= dai_ime(p))
@@ -149,7 +163,7 @@ def zapis2dir2srez2opis( fime, opis, optz):
 
         #if stari_srezove: print( 6666666, stari_srezove, srezove)
 
-    if ospath.exists( fime):
+    if exists( fime):
         # ако срезове != стари срезове или звуковия файл е по-нов от дир/опис: режи, и парчетата към дир/
         if 1: # stari_srezove != srezove or newer( fime, fopis):
             ime = isinstance( opis, dict) and dai_ime( opis)
@@ -195,14 +209,8 @@ def dai_opis( fopis):
     except IOError: pass
     return star_opis
 
-#s_srezove = 'srezove srez s срезове срез с @@ c cut cuts'.split()    #свободни: $ ^
-def dai_srezove( opis):
-    return dai( opis, *cyr._srezove)
-    srezove = ()
-    for k in s_srezove:
-        srez = opis.pop( k, None)
-        if srez is not None: srezove = srez
-    return srezove
+def dai_srezove( opis, **ka):
+    return dai( opis, *cyr._srezove, **ka) #, mnogo= True
 
 from instr import zaglavie
 def dai_ime( opis):
@@ -285,7 +293,7 @@ def premesti_v_0( fime, dirime):
     davai = optz.premesti
     for f in glob( globescape( bezext) +'.*'):
         of = join( dir, basename( f))
-        if not ospath.exists( of):
+        if not exists( of):
             if davai: rename( f, of)
             else: link( f, of)
         else:
@@ -310,8 +318,13 @@ def izvadi( fime, srezove, dirime, nomer =None, ime ='', opfx =''):
             c.add()
     else:
         assert 0, (srezove, fime)
+
     c.save( infile= fime, path= dirime,
-        ofile= '-'.join( str(f) for f in [opfx or dirime.rstrip('/'), fime, ime, nomer] if f),
+        ofile_as_sfx = ''.join( '-'+str(f) for f in [
+            #opfx or dirime.rstrip('/'),
+            #fime,
+            ime, nomer]
+            if f),
         do_nothing= not optz.zapis,
         #verbose= True
         )
@@ -335,18 +348,141 @@ def varianti( v):
             appendif( dd, d)
     appendif( dd, *[ v.replace('-','') for v in dd if '-' in v ])
     appendif( dd, *[ cyr2lat( v) for v in dd])
+    if v.isdigit(): appendif( dd, int(v))
     return dd
 
-def dai( o, *kk):
+def dai( o, *kk, **ka):
+    mnogo = ka.get('mnogo')
+    r = []
     for k in kk:
         for ki in k.split():
             for v in varianti( ki):
                 if v in o:
-                    return o[v]
+                    if mnogo: r.append( o[v])
+                    else: return o[v]
+    return r
+
+import datetime
+dnes = datetime.date.today().isoformat().replace('-','')
+
+def obnovi( pyt, opis):
+    cel = dai( opis, *'0 стар*о обнови цел замести вместо'.split())
+    assert cel
+    cel = cel.replace('/op/','/')
+    if not cel.endswith('.mp3'): cel+='.mp3'
+    assert exists( cel) and ospath.isfile( cel)
+    celpyt,celfile = ospath.split( cel)
+
+    elementi = []
+    for d in '','0':
+        elementi += glob( join( pyt, d, '*.mp3'))
+    if len(elementi)!=1:
+        print( ' ???', cel, '<<?', elementi)
+        return
+
+        #mv obnovi dir(obnovi)/0
+    rename( cel, join( celpyt, '0', '-'.join( ['старо', dnes, celfile]) ))
+
+        #mv d/*flac+wav dir(obnovi)/0
+        #mv d/0/*flac+wav dir(obnovi)/0
+    for ext in 'wav','flac':
+        for d in '','0':
+            for f in glob( join( pyt, d, '*.'+ext)):
+                rename( f, join( celpyt, '0', basename(f)))
+
+        #mv d/*mp3 obnovi ako e edin
+    rename( elementi[0], cel)
+    print( ' ok:', d, '->', cel)
+
+
+def gotovo( pyt, opis, kym =None, ime =None):
+    d = pyt
+    assert ospath.isdir( kym), kym
+    ime = ime or dai_ime( opis)
+    avtori  = dai( opis, 'ав*тор', 'awtor')
+    izdanie = dai( opis, 'изд*ание', 'издания').lower()
+    izdaniecyr= l2c( izdanie.lower())
+    izdaniecyr2= re.sub( '^б([аеоскхнт][анмк])', r'в\1', izdaniecyr)
+    if 'lat':
+        izdanie = cyr2lat( izdaniecyr2)
+        if izdaniecyr2 != izdaniecyr:
+            izdanie = (izdanie
+            ).replace( 'v','b'
+            ).replace( 'h','x'
+            ).replace( 'n','h'
+            )
+    etik    = dai( opis, 'ет*икети') or ''
+    avtori = (avtori or '').split()
+    stihove = ime.lower() == 'стихове' or 'стих' in etik
+    izp = []
+    if stihove:
+        izp = (dai( dai( opis, 'уч*астници') or opis, 'изп*ълнение') or ()) #.split()
+        if izp and isinstance( izp, str): izp = [ izp]
+        if len(izp)==1:
+            izp = [ i.rstrip('?') for i in izp ]
+            #avtori += [ i.rstrip('?') for i in izp ]
+        else: izp = []
+    from abbr import razdeli_kamila2
+    def imena( l):
+        return '-'.join( [ razdeli_kamila2(a).replace(' ','.') for a in l])
+
+    if stihove: # and izdaniecyr == 'радио':
+        fname = [ imena( avtori), ime, imena( izp) ]
+    else:
+        fname = [ ime, imena( avtori + izp) ]
+    fname = '--'.join( f.strip() for f in fname if f)
+    fname = fname.replace('..','.')
+    #mau ROOT=d/
+    fname = fname.replace(' ', '_')
+    fname = fname.replace('-_', '-')
+    fname = fname.replace('_-', '-')
+    fname_lat = cyr2lat( fname.lower())
+    if izdaniecyr:
+        fname     += '--'+izdaniecyr
+        fname_lat += '--'+izdanie #cyrre.sub( '--v([aeoskhnt]a)$','--b\1', fname_lat)
+    fname     = fname.replace( '?','')
+    fname_lat = fname_lat.replace( '?','')
+    print( ' ', fname_lat, '///', fname )
+
+    elementi = glob( join( d, '*.wav'))
+    if not elementi: elementi = glob( join( d, '*.mp3'))
+    if len(elementi)==1:
+        mkdir( join( d, '0'))
+        def kym0( e, d, fname, ext):
+            if exists( e+ext):
+                rename( e+ext, join( d, '0', fname+ext))
+        e,_ext = ospath.splitext( elementi[0])
+        kym0( e,d, fname, '.wav')
+        kym0( e,d, fname, '.flac')
+        rename( e+'.mp3', join( d, fname+'.mp3'))
+        print( 'ok:', join( d, fname+'.mp3'))
+    else:
+        print( ' ??', elementi)
+
+    cel = join( kym, fname_lat)
+    if d.rstrip('/') == '.':
+        print( 'md + mv * >>', cel)
+        makedirs( cel)
+        for g in glob( join( d, '*')):
+            if g == cel: continue
+            rename( g, join( cel, basename(g)))
+    else:
+        iztrij = None
+        if ospath.islink(d):
+            iztrij = d
+            d = ospath.realpath( d)
+        rename( d, cel)
+        if iztrij: remove( iztrij)
+    #cd ~/azcom/zdetski/`basename $gotovo`
+    #m lnfrom ; m sym2; m
+    #m zl
+    # . e3*
+    print( '')
 
 if __name__ == '__main__':
     optz.bool( 'zapis')
     optz.str( 'gotovo')
+    optz.bool( 'obnovi')
 
     optz.bool( 'opis')
     optz.bool( 'premesti')
@@ -361,96 +497,21 @@ if __name__ == '__main__':
     if optz.izvadki or ospath.isfile( args[0] ):
         izvadki2zapis2dir2srez2opis( args[0])
     else:
-        for d in args:
+        for d in appendif( [], *args):  #uniq
             assert ospath.isdir( d), d
             d = d.rstrip('/')
             fopis = d+'/opis'
-            if not ospath.exists( fopis): continue
+            if not exists( fopis): continue
             print( d)
             with open( fopis) as f:
                 opis = usability.load( f)
             ime = dai_ime( opis)
             print( ime)
-            if not optz.gotovo:
-                diropis2srez( d, opis, optz)
+
+            if optz.gotovo:
+                gotovo( d, opis, kym= optz.gotovo, ime=ime)
+            elif optz.obnovi:
+                obnovi( d, opis)
             else:
-                assert ospath.isdir( optz.gotovo), optz.gotovo
-                avtori  = dai( opis, 'автор', 'awtor')
-                izdanie = dai( opis, 'изд*ание', 'издания').lower()
-                izdaniecyr= l2c( izdanie.lower())
-                izdaniecyr2= re.sub( '^б([аеоскхнт][анмк])', r'в\1', izdaniecyr)
-                if 'lat':
-                    izdanie = cyr2lat( izdaniecyr2)
-                    if izdaniecyr2 != izdaniecyr:
-                        izdanie = (izdanie
-                        ).replace( 'v','b'
-                        ).replace( 'h','x'
-                        ).replace( 'n','h'
-                        )
-                etik    = dai( opis, 'ет*икети') or ''
-                avtori = (avtori or '').split()
-                stihove = ime.lower() == 'стихове' or 'стих' in etik
-                izp = []
-                if stihove:
-                    izp = (dai( dai( opis, 'уч*астници') or opis, 'изп*ълнение') or ()) #.split()
-                    if izp and isinstance( izp, str): izp = [ izp]
-                    if len(izp)==1:
-                        izp = [ i.rstrip('?') for i in izp ]
-                        #avtori += [ i.rstrip('?') for i in izp ]
-                    else: izp = []
-                from abbr import razdeli_kamila2
-                def imena( l):
-                    return '-'.join( [ razdeli_kamila2(a).replace(' ','.') for a in l])
-
-                if stihove: # and izdaniecyr == 'радио':
-                    fname = [ imena( avtori), ime, imena( izp) ]
-                else:
-                    fname = [ ime, imena( avtori + izp) ]
-                fname = '--'.join( f.strip() for f in fname if f)
-                fname = fname.replace('..','.')
-                #mau ROOT=d/
-                fname = fname.replace(' ', '_')
-                fname = fname.replace('-_', '-')
-                fname = fname.replace('_-', '-')
-                fname_lat = cyr2lat( fname.lower())
-                if izdaniecyr:
-                    fname     += '--'+izdaniecyr
-                    fname_lat += '--'+izdanie #cyrre.sub( '--v([aeoskhnt]a)$','--b\1', fname_lat)
-                fname     = fname.replace( '?','')
-                fname_lat = fname_lat.replace( '?','')
-                print( ' ', fname_lat, '///', fname )
-                elementi = glob( join( d, '*.wav'))
-                if not elementi: elementi = glob( join( d, '*.mp3'))
-                if len(elementi)==1:
-                    mkdir( join( d, '0'))
-                    def kym0( e, d, ext):
-                        if ospath.exists( e+ext):
-                            rename( e+ext, join( d, '0', fname+ext))
-                    e = ospath.splitext( elementi[0])[0]
-                    kym0( e,d, '.wav')
-                    kym0( e,d, '.flac')
-                    rename( e+'.mp3', join( d, fname+'.mp3'))
-                    print( 'ok:', join( d, fname+'.mp3'))
-                else:
-                    print( ' ??', elementi)
-
-                cel = join( optz.gotovo, fname_lat)
-                if d.rstrip('/') == '.':
-                    print( 'md + mv * >>', cel)
-                    makedirs( cel)
-                    for g in glob( join( d, '*')):
-                        if g == cel: continue
-                        rename( g, join( cel, basename(g)))
-                else:
-                    iztrij = None
-                    if ospath.islink(d):
-                        iztrij = d
-                        d = ospath.realpath( d)
-                    rename( d, cel)
-                    if iztrij: remove( iztrij)
-                #cd ~/azcom/zdetski/`basename $gotovo`
-                #m lnfrom ; m sym2; m
-                #m zl
-                # . e3*
-                print( '')
+                diropis2srez( d, opis, optz)
 # vim:ts=4:sw=4:expandtab

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 
 import sys
 from util import optz
@@ -7,6 +8,9 @@ optz.bool( 'verbose', '-v')
 optz.text( 'outfile', '-o', help= 'outfile, "-" for stdout')
 optz.int(  'maxsize', '-l', help= 'max size in MBs, per item')
 options,args = optz.get()
+
+def prn( *a):
+    print( *a, file=sys.stderr)
 
 import wave
 o = None
@@ -21,8 +25,7 @@ for a in args:
     iparams = params[:3]+params[4:]
     size = nframes/float(framerate)
     totals += size
-    print >>sys.stderr, '< %s: %.2f s' % (a, size,) ,
-    print >>sys.stderr, options.verbose and params or ''
+    prn( '< %s: %.2f s' % (a, size,) , options.verbose and params or '')
     if oparams:
         assert iparams == oparams, (oparams, iparams)
     oparams = iparams
@@ -33,11 +36,11 @@ for a in args:
         if o is None:
             o = wave.open( oname, 'w')
             o.setparams( params)
-            print >>sys.stderr, '>>', oname
+            prn( '>>', oname)
         o.writeframes( data)
         if sz is not None:
             sz-=1
             if not sz: break
 
-print >>sys.stderr, '>>', totals, 's'
+prn( '>>', totals, 's')
 # vim:ts=4:sw=4:expandtab

@@ -1,2 +1,2 @@
 #!/bin/sh
-for a in "$@"; do X=`ls -1 "$a" | ~/src/bin/urldecode.py `; mv -v "$a" "$X" ; done
+for a in "$@"; do X=`ls -1 "$a" | urldecode.py `; mv -v "$a" "$X" ; done

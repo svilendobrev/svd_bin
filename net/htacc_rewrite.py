@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+from __future__ import print_function
 '''
 301:
 dir/file  = dir2/file2  -> dir2/file2
@@ -22,6 +22,7 @@ dir/        -> dir/(.*).mp3->dir/the-single.mp3
 '''
 ext_equivs = 'mp3 wma ogg'.split()
 import sys
+def printerr(*a,**k): print( file= sys.stderr, *a,**k)
 from svd_util import optz
 optz.text( 'base', help= 'base url')
 optz.text( 'path', help= 'base filepath')
@@ -31,8 +32,8 @@ optz.bool( 'singles',   help= 'for all ./dirs that have single mp3 inside, route
 optz,args = optz.get()
 
 #RewriteEngine on
-if optz.on:   print 'RewriteEngine on'
-if optz.base: print 'RewriteBase', optz.base
+if optz.on:   print( 'RewriteEngine on')
+if optz.base: print( 'RewriteBase', optz.base)
 
 path = optz.path or ''
 
@@ -44,7 +45,7 @@ def ls( p, path =''):
     if isdir( pp):
         mp3s = glob( pp+'/*.mp3')
         assert len( mp3s)==1, 'multiple mp3s: '+p
-        #print >>sys.stderr, mp3s
+        #printerr( mp3s)
         return mp3s[0][ path and len(path.rstrip('/'))+1 or 0:]
 
 def singles( path =''):
@@ -62,8 +63,8 @@ def rule( l, r, code =301, flags ='', asfiles =True):
     r = esc(r)
     if flags: flags = ','+flags
     if asfiles and '.*' in l or '.+' in l or '?' in l:
-        print 'RewriteCond %{REQUEST_FILENAME} !-f'
-    print 'RewriteRule ^%(l)s %(r)s [R=%(code)d%(flags)s]' % locals()
+        print( 'RewriteCond %{REQUEST_FILENAME} !-f')
+    print( 'RewriteRule ^%(l)s %(r)s [R=%(code)d%(flags)s]' % locals())
 
 def manual( r):
     for a in 1,2,3,4,5:
@@ -73,7 +74,7 @@ def manual( r):
 def l_r( l,r, manual =False):
     #any -
     if r == '-':
-        #print 'RewriteRule ^%(l)s(.*) $1 [R=410]' % locals()
+        #print( 'RewriteRule ^%(l)s(.*) $1 [R=410]' % locals())
         rule( l+'(.*)', '$1', code=410, flags='L', asfiles= False)
         return
 
@@ -81,7 +82,7 @@ def l_r( l,r, manual =False):
     if '/' not in l or l.endswith('/'):
         l = l.rstrip('/')
         r = r.rstrip('/')
-        #print 'RewriteRule ^%(l)s($|/.*) %(r)s$1 [R=301]' % locals()
+        #print( 'RewriteRule ^%(l)s($|/.*) %(r)s$1 [R=301]' % locals())
         rule( l+'(|/.*)$', r+'$1', asfiles= False)
         return r,isdir
 
@@ -92,7 +93,6 @@ def l_r( l,r, manual =False):
         rr = ls( r, path)
         if rr:
             r = rr
-            #print >>sys.stderr, 444444
         else:
             #dir/file  file
             if '/' not in r: r = join( dirname( l), r)
@@ -101,7 +101,7 @@ def l_r( l,r, manual =False):
         lext = splitext( l)[1]
         rext = splitext( r)[1]
         if lext != rext: #dir/file.mp3  file
-            #print >>sys.stderr, lext, rext
+            #printerr( lext, rext)
             if lext[1:] not in ext_equivs or rext[1:] not in ext_equivs:
                 r = r + lext
     rule( l, r)
@@ -125,16 +125,16 @@ for a in sys.stdin:
         if dontcheck: l = l[1:].strip()
         else:
             dontcheck = manual(r)
-        #print >>sys.stderr, 111111, l, r, dontcheck
+        #printerr( 111111, l, r, dontcheck)
         try:
             x = l_r( l,r, dontcheck)
         except:
-            print >>sys.stderr, '!!!!!', l, r, dontcheck
+            printerr( '!!!!!', l, r, dontcheck)
             raise
         if x:
             r,checker = x
             if r.startswith('/') or dontcheck:
-                if not dontcheck: print >>sys.stderr, 'cant check', r
+                if not dontcheck: printerr( 'cant check', r)
             else:
                 #r+='4'
                 if path: r = join( path, r)
@@ -142,28 +142,28 @@ for a in sys.stdin:
         continue
 
     if not l.endswith('.mp3') and not l.endswith('/'):
-        print >>sys.stderr, '? ignore', l
+        printerr( '? ignore', l)
         continue
 
     if not optz.singles:
         #single wrong dir+filename, try guess
         p = dirname(l)
-        #print >>sys.stderr, p
+        #printerr( p)
         r = ls( p, path)
         if r:
             if l.endswith('/'):     #dir: route anything into the guess one
-                print 'RewriteCond %{REQUEST_FILENAME} !-f'
+                print( 'RewriteCond %{REQUEST_FILENAME} !-f')
                 l += '.+\.mp3'
             rule( l, r, flags='L')
             continue
 
-    print >>sys.stderr, '? wrong path', l
+    printerr( '? wrong path', l)
 
 if optz.singles:
     for m in singles( path):
         f = m[ len(path):].strip('/')
         p = dirname(f)
-        #print 'RewriteCond %{REQUEST_FILENAME} !-f'
+        #print( 'RewriteCond %{REQUEST_FILENAME} !-f')
         l = join( p, '.+\.mp3')
         rule( l, f, flags='L')
 

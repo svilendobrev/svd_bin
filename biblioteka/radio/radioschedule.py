@@ -13,16 +13,21 @@ da = DictAttr
 
 bnr_kanali = da(
     hristobotev = da(
-        weekly  = 'http://bnr.bg/sites/hristobotev/Pages/ProgramScheme.aspx',
-        daily   = 'http://bnr.bg/sites/hristobotev/Daily/Pages/{yymmdd}.aspx',
-        daily1  = 'http://bnr.bg/sites/hristobotev/Daily/Pages/{yymmdd}_1.aspx',
-        daily2  = 'http://bnr.bg/sites/hristobotev/Daily/Pages/{yymmdd}_izbrano.aspx',
-        stream  = 'http://streaming.bnr.bg/HristoBotev',
+        weekly  = None, #http://bnr.bg/hristobotev/page/sedmichna-programa XXX TODO
+        #weekly  = 'http://bnr.bg/sites/hristobotev/Pages/ProgramScheme.aspx',
+        #daily0  = 'http://bnr.bg/sites/hristobotev/Daily/Pages/{yymmdd}.aspx',
+        #daily1  = 'http://bnr.bg/sites/hristobotev/Daily/Pages/{yymmdd}_1.aspx',
+        #daily2  = 'http://bnr.bg/sites/hristobotev/Daily/Pages/{yymmdd}_izbrano.aspx',
+        daily   = 'http://bnr.bg/hristobotev/', #sites/hristobotev
+        stream  = 'http://stream.bnr.bg:8003/botev.mp3',
+            #'http://streaming.bnr.bg/HristoBotev',
         abbr = 'hb',
     ),
     horizont = da(
-        weekly  = 'http://bnr.bg/sites/horizont/Pages/ProgramScheme.aspx',
+        weekly  = None,
+        #weekly  = 'http://bnr.bg/sites/horizont/Pages/ProgramScheme.aspx',
         #daily   = 'http://bnr.bg/sites/horizont/Daily/Pages/{yymmdd}.aspx',
+        daily   = 'http://bnr.bg/sites/horizont/',
         stream  = 'http://streaming.bnr.bg/Horizont',
         abbr = 'hz',
     ),
@@ -92,9 +97,6 @@ def time4str( t): #hh:mm or hh.mm ...
     hm = x[1],(len(x)>3 and x[3] or 0)
     return tuple( int(a) for a in hm)
 
-PROGRAMS = kanal_default.weekly
-STREAM   = kanal_default.stream
-
 
 import sys
 from svd_util.html_visitor import visit
@@ -158,9 +160,9 @@ class bnr_weekly:
     weekdays = 'Понеделник Вторник Сряда Четвъртък Петък Събота Неделя'.lower().split()
 
     @classmethod
-    def filter( me, today, n =1, nofilter =False):
+    def filter( me, today, ndays =1, nofilter =False):
         todays = [ today + datetime.timedelta( days= dayofs )
-                    for dayofs in range( n) ]
+                    for dayofs in range( ndays) ]
 
         items = dictOrder()
         for d in me.days:
@@ -201,12 +203,12 @@ import traceback
 
 class bnr_weekly_sofia( bnr_weekly):
     '''
-		<tr valign="top">
-			<td width="5"><img src="/bnr/img/spacer.gif" width="5" height="1"></td>
-			<td width="60" class="programTXT">21:00</td>
-			<td class="programTXT">Радиотеатър</td>
-			<td width="5"><img src="/bnr/img/spacer.gif" width="5" height="1"></td>
-		</tr>
+        <tr valign="top">
+            <td width="5"><img src="/bnr/img/spacer.gif" width="5" height="1"></td>
+            <td width="60" class="programTXT">21:00</td>
+            <td class="programTXT">Радиотеатър</td>
+            <td width="5"><img src="/bnr/img/spacer.gif" width="5" height="1"></td>
+        </tr>
     '''
     def newday( me, tag, attrs):
         #if 'alt' not in attrs: return
@@ -231,7 +233,7 @@ class bnr_weekly_sofia( bnr_weekly):
     ]
     bnr_weekly.grammar_stack += grammar_stack
 
-class bnr_daily:
+class zbnr_daily:
     syntax = ''' ..
   <div class="accent">
     <div class="accent-info">
@@ -287,7 +289,7 @@ class bnr_daily:
         ''', re.X|re.DOTALL) #(<br>)?
     @classmethod
     def get( me, kanal, o, today):
-        for url in [ kanal.get('daily'), kanal.get('daily1'), kanal.get('daily2'), ]:
+        for url in [ kanal.get('daily0'), kanal.get('daily1'), kanal.get('daily2'), ]:
             if not url: continue
             yymmdd = today.strftime( '%y%m%d' )
             url = url.format( **locals() )
@@ -333,6 +335,157 @@ class bnr_daily:
         for i in me.today_items:
             if not nofilter:
                 if not title_match( i.title): continue
+            key = i.channel, i.today, i.time
+            items[ key ] = da( i, stream= i.stream, channel= i.channel )    #today= today,
+        return items
+
+class bnr_daily:
+    syntax1 = '''
+    <div class="row-fluid module span12 module_category module_category_titles" id="module_11_1">
+	    <div class="row-fluid module_main_header">
+            <div class="title"> byrabyra
+        <div class="row-fluid module_container">
+            <div class="title">
+                <a href="/hristobotev/post/100284716">Избрано от програмата на 14 януари</a>
+    '''
+    syntax2 = '''
+    <div class="news_title">
+        <div class="news_content clearfix">
+            <span itemprop="articleBody">
+                от 0.15 до 3.00 часа<br /><b>title...</b><br />• description1...;<br />• description2....<br /><br />от 5.00 до 5.30 часа<br /><b>title..</b><br />description..<br /><br />
+    '''
+    today_items = []
+    today_whole = []
+    anitem = da()
+    def newitem3( walker, tag, attrs):
+        a = da( bnr_daily.anitem)
+        a.url = attrs.get('href')
+        bnr_daily.today_whole.append( a)
+    def newitem():                  bnr_daily.today_whole.append( da( bnr_daily.anitem))
+    def save_lastitem_title( t):    bnr_daily.today_whole[-1].title = t
+
+    grammar_stack1= [
+        #da( tag= 'div', _id= 'module_12_1', subitems=[
+            da( tag= 'div', _class= 'row-fluid module_container', subitems=[
+                da( tag= 'div', _class= 'title', subitems=[
+                    da( tag='a', run3= newitem3,
+                        data= save_lastitem_title,
+                    ),
+                ]),
+            ]),
+        #]),
+    ]
+    grammar_stack2= [
+        da( tag= 'div', _class='news_title', subitems=[
+            da( tag= 'span', _itemprop= 'articleBody',
+                    run= newitem,
+                        data= save_lastitem_title,
+            ),
+        ]),
+    ]
+    re_titles = re.compile( '''
+        \s*
+        <br>
+        \s*
+        (?P<title>.*?)
+        \s*
+        <br>
+        \s*
+        (?P<text>.*)
+        ''', re.X|re.DOTALL) #(<br>)?
+    @classmethod
+    def get( me, kanal, o, today):
+        #me.today_whole = []
+        indata = dictOrder()
+        for url in [ kanal.get('daily') ]:
+            if not url: continue
+            print( '#...', url, file= sys.stderr)
+            me.anitem.update( today= today, stream= kanal.stream, channel= kanal.name)
+            try:
+                indata[''] = visit( url, me.grammar_stack1,
+                        #return_also_headers=True,
+                        data2text = slim,
+                        ienc= o.ienc, html_notfixed =o.html_notfixed, html_strict =o.html_strict,
+                        BR_as_data= '<br>'
+                        )
+            except urllib.error.HTTPError as e:
+                print( '  ?daily1', kanal.abbr, url, e, file= sys.stderr)
+                continue
+            #print( 4444444444444444444, me.today_whole)
+
+            #ден след
+            #днес
+            #ден преди
+            ndays=2
+            for dnes in [ today + datetime.timedelta( days= dayofs )
+                    for dayofs in range( ndays)
+                    ]:
+                url2 = None
+                for u in me.today_whole:
+                    if (u.channel == me.anitem.channel
+                        and
+                        bnr_weekly.months[ dnes.month-1 ] in u.title.lower()
+                        and
+                        str( dnes.day) in u.title.split()
+                        and
+                        u.get('url')
+                        ):
+                            url2 = u.url
+                            break
+                if not url2: continue
+                me.anitem.update( today= dnes)
+
+                if '://' in url:    #http
+                    url2 = urllib.parse.urljoin( url, url2)
+
+                print( '#....', url2, file= sys.stderr)
+                try:
+                    indata[ url2] = visit( url2, me.grammar_stack2,
+                            data2text = slim,
+                            ienc= o.ienc, html_notfixed =o.html_notfixed, html_strict =o.html_strict,
+                            BR_as_data= '<br>'
+                            )
+                except urllib.error.HTTPError as e:
+                    print( '  ?daily2', kanal.abbr, url2, e, file= sys.stderr)
+                    continue
+                #print( 5555555554444444444, me.today_items)
+
+                whole = me.today_whole[-1].title
+                whole = whole .replace( '\u2013','-'     #-
+                        )
+
+                tds = re.split( '([оo][тt] *\d+([.:]\d+)? *-? *([дd][оo]|-) *\d+([.:]\d+)? *часа)', whole, flags= re.IGNORECASE )
+                #print( '#...', len(tds), len(me.today_items) -m, file= sys.stderr)
+                #print( '##...', tds, file= sys.stderr)
+                allitems = [ (tds[ i], tds[i+3+1])
+                            for i in range( 1,len( tds),4+1) ]
+
+                #print( 22222222, allitems)
+                for times,data in allitems:
+                    times = re.split( '(\d+(.\d+)?)', times)
+                    m = me.re_titles.search( data)
+                    #print( 3333333, times, data, m.groups())
+                    title= m and m.group( 'title') or ''
+                    text = m and m.group( 'text') or ''
+                    me.today_items.append( da( bnr_daily.anitem,
+                        time    = time4str( times[1] ),
+                        endtime = time4str( times[4] ),
+                        title   = slim( title),
+                        text    = slim( text.replace('<br>','') ),
+                    ))
+                #print( 3333333, times, data, m.groups())
+        return indata
+
+    @classmethod
+    def filter( me, today, ndays =1, nofilter =False):
+        todays = [ today + datetime.timedelta( days= dayofs )
+                    for dayofs in range( ndays) ]
+
+        items = dictOrder()
+        for i in me.today_items:
+            if not nofilter:
+                if not title_match( i.title): continue
+                if i.today not in todays: continue
             key = i.channel, i.today, i.time
             items[ key ] = da( i, stream= i.stream, channel= i.channel )    #today= today,
         return items
@@ -433,13 +586,15 @@ else:
                     parcheta = opis.get( 'парчета')
                     if not parcheta: continue
                     for fnp,p in parcheta.items():
-                        if isinstance( p, str): ime = p
+                        if isinstance( p, str):
+                            ime = p
+                            avtor1 = avtor
                         else:
                             ime = p.get( 'име')
-                            avtor = kym_imeto( p) or avtor
+                            avtor1 = kym_imeto( p) or avtor
                         ime = ime and str(ime).strip()
                         ime = ime or l2c( fnp)
-                        ime += avtor
+                        ime += avtor1
                         dobavi( (ime, fn, fnp) )
             except IOError: pass
             except Exception:
@@ -621,7 +776,7 @@ cron.d/crontab direct: # m h dom mon dow (user) command
             rubr = rec2dir.filt_er( danni.rubrika)
             if ldirname.startswith( rubr):
                 ldirname = ldirname[ len( rubr):].lstrip('-')
-        print( '33333333333333333', ldirname, danni.rubrika, file= sys.stderr)
+        #print( '33333333333333333', ldirname, danni.rubrika, file= sys.stderr)
         ldirname = '+'.join( n for n in [ fname_kanal_vreme,
                 danni.rubrika_kysa or x.get('ime'),
                 ldirname[:60] ]
@@ -747,7 +902,8 @@ if __name__ == '__main__':
     optz.text(   'save_input', help= 'запис на входящите данни в ТОВА.wd.kanal.datetime' )
     optz.bool(   'save_text',  help= 'запис на текста отделно ако не се събира в името в име.text' )
     optz.bool(   'yesterday',  help= 'днеска е вчера' )
-    optz.bool(   'today_daily',  help= 'извлича датата от името на файла с дневното разписание' )
+    optz.bool(   'today_daily',     help= 'извлича датата от името на файла с дневното разписание' )
+    optz.str(    'channel_daily',   help= 'за кой канал е файла с дневното разписание' )
     optz.str(    'nalichni_opisi',  help= 'файлов-шаблон за достъп до наличните описи' )
     o,args = optz.get()
 
@@ -767,7 +923,11 @@ if __name__ == '__main__':
     import itertools
 
     kanali = []
-    kanali += [ da( name= None, weekly= w, stream= s, daily= d)
+    kanali += [ da(
+                    bnr_kanali.get( o.channel_daily) or
+                        da( name= None, abbr= 'oo', weekly= None, stream= None, daily= None),
+                    **dict( (k,v) for k,v in dict( weekly= w, stream= s, daily= d).items() if v)
+                    )
                 for w,s,d in itertools.zip_longest(
                         o.weekly or (), o.stream or (), o.daily or ())]
     kanali += [ bnr_kanali[k] for k in o.channel or () ]
@@ -788,7 +948,7 @@ if __name__ == '__main__':
             print( '  ??weekly', k, file= sys.stderr)
 
         today_daily = today
-        if o.today_daily:
+        if o.today_daily and k.get('daily'):
             m = re.search( '(\d+)(\.(\d+)\.(\d+))', k.daily or '')
             if m:
                 td = m.group(1)
@@ -806,15 +966,17 @@ if __name__ == '__main__':
         if o.save_input:
             for pfx,dta in [['w',wdta], ['d',ddta]]:
                 if not dta: continue
-                fn = '.'.join( [ o.save_input, pfx, k.abbr, pnow(), 'html' ])
-                with fopen( fn) as f:
-                    f.write( dta )
+                if not isinstance( dta, dict): dta = { '': dta}
+                for key,val in dta.items():
+                    fn = '.'.join( [ o.save_input, pfx, k.abbr, pnow(), key.rsplit('/',1)[-1], 'html' ])
+                    with fopen( fn) as f:
+                        f.write( val)
     if 0:
         for d in bnr_daily.today_items:
             print( '\n#...', d, file= sys.stderr)
 
-    rw = bnr_weekly.filter( today, n= o.days, nofilter= o.nofilter )
-    rd = bnr_daily.filter( nofilter= o.nofilter )
+    rw = bnr_weekly.filter( today, ndays= o.days, nofilter= o.nofilter )
+    rd = bnr_daily.filter(  today, ndays= o.days, nofilter= o.nofilter )
 
     r = rd
     for k,v in rw.items():

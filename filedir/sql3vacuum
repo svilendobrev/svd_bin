@@ -1,0 +1,5 @@
+#!/bin/sh
+for a in "$@"; do
+ echo "$a"
+ sqlite3 "$a" vacuum 
+done

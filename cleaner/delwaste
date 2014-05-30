@@ -1,0 +1,62 @@
+#!/bin/sh
+dellocale /usr/share/locale/
+rm='sudo rm -rf'
+
+P=/usr/bin/
+$rm $P/gtk*demo $P/demo*gtk* $P/x264
+$rm /usr/share/gtk*-doc
+
+P=/usr/lib/libreoffice/
+$rm $P/program/wizards/
+$rm $P/share/gallery/*/
+$rm $P/share/template/common/layout/
+$rm $P/share/template/common/wizard/
+$rm $P/share/template/wizard/
+$rm $P/LICENSE* $P/CREDIT
+$rm $P/share/config/images_hicontrast.zip
+
+P=/usr/lib/python*/
+$rm $P/test/ $P/idle*/ $P/tkinter/
+$rm $P/*/test/ $P/*/tests/ 
+$rm $P/site-packages/*/test/ 
+$rm $P/site-packages/*/tests/ 
+$rm $P/site-packages/*/SelfTest/
+$rm /usr/share/doc/python*/html/_sources/
+$rm /usr/share/doc/python*/html/genindex*
+$rm /usr/share/doc/python*/html/searchindex*
+
+
+V=/usr/share/vim/vim*/
+$rm $V/tutor $V/lang
+$rm $V/spell/*latin*
+$rm $V/doc/versio*
+$rm $V/syntax/xs.vim
+
+P=/usr/lib/qt4/bin/
+$rm $P/??c $P/assistant $P/l* $P/designer
+$rm /usr/share/qt4/translations/
+
+dellocale /usr/share/skype/lang/ skype_
+
+dellocale /usr/share/opera/locale/
+#$rm [acdf-z]* b[a-fh-z] e[a-mo-z]
+
+P=/usr/share/icons/
+$rm $P/*/512x*
+$rm $P/*/384x*
+$rm $P/*/256x*
+$rm $P/*/scalable*
+
+$rm /usr/share/licenses/
+
+$rm /usr/share/ghostscript/*/doc/
+$rm /usr/share/ghostscript/*/examples/
+
+$rm /usr/share/GeoIP/*v6*
+
+P=/usr/share/man
+$rm $P/man3/__gnu_*
+$rm $P/[acdf-ln-z]* $P/b[a-fh-z].* $P/e[a-mo-z].*
+
+#mesa-demos
+$rm /usr/bin/osdemo*

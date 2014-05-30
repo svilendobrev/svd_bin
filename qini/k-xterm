@@ -2,7 +2,7 @@
 #export PROMPT_COMMAND='echo -ne "\033]2;$LOGNAME@$HOSTNAME:$PWD\007\033]1;$LOGNAME@$HOSTNAME\007"'
 
 so $_INIs/kmap
-[ -n $_KMAP -a -f $_INIs/$_KMAP ] && . ${_INIs}$_KMAP
+[ -n "$_KMAP" -a -f $_INIs/"$_KMAP" ] && . ${_INIs}"$_KMAP"
 
 #_set _ESC         #esc, meta, ctl depends on shell
 _set _TAB=$_CTL"I"

@@ -10,7 +10,7 @@ endif
 
 if !exists('g:trv_prog')       "func/program( text) to exec
  " search phrase in dictionary, write result in temporary file
- function! g:trv_prog(str)
+ function! s:trv_prog(str)
     let s:tmpfile1= tempname()
     let s:tmpfile = tempname()
     let y = system( "echo \"".a:str."\" | enconv -x cp1251 > " . s:tmpfile1)

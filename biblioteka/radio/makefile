@@ -1,7 +1,8 @@
 export PYTHONPATH
 PYTHONPATH = $(HOME)/src/bin
 FILT=201310
-ALL=$(wildcard /osha/radio/in/i.d.hb.$(FILT)*.0?.*)
+#ALL=$(wildcard /osha/radio/in/i.d.hb.$(FILT)*.0?.*)
+ALL=$(wildcard /home/tmp/П*ml)
 a: $(ALL:%=tmp/%)
 #ARGS += --nalichni-opisi='/zapisi/op/*/op/*'
 
@@ -12,7 +13,7 @@ tmp/%:
 	@mkdir -p tmp/plan
 	-cd tmp; ../radioschedule.py --ienc=utf8 --daily=$* --today-daily --cron=rr --save-text --save-plan=plan/p $(ARGS)
 
-	mkdir -p $@
+#	mkdir -p $@
 
 mn:
 	$(PY) radioizv.py rm.izv.yaml  --save
