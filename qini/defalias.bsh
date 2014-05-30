@@ -97,9 +97,9 @@ al elbb 'e ~/.bashrc'
  #file compare ignoring whitespace
 al fc   'diff -btw'
  
-fcfile2dir()  { fc  "$1" "$2"/"$1"; }
+fcfile2dir()  { fc -r  "$1" "$2"/"$1"; }
 cpfile2dir()  { cp -vL "$1" "$2"/"$1"; }
-fcdir2file()  { fc  "$2" "$1"/"$2"; }
+fcdir2file()  { fc -r  "$2" "$1"/"$2"; }
 cpdir2file()  { cp -vL "$2" "$1"/"$2"; }
 
 ### filefind from current dir; (give wildcards in quotes)
@@ -173,25 +173,6 @@ calc()  { python -c "from math import *; print( $*)"; }
 #XXX arch
 addusergroup()  { u=$1; shift; usermod -a -G "$@" $u ; }
 
-##mount
-# see http://www.fuw.edu.pl/~pliszka/hints/dvd.html
-#al mud 'for a in ud1 ud2 usb; do mount /mnt/$a; done'
-#al umd  'for a in 0 1 2; do umount /mnt/ud$a; done'
-if which udevil >&/dev/null ; then
- al mc1    'udevil mount  /dev/sdc1'
- al uc1    'udevil umount /dev/sdc1'
-else #pmountm 
- al pmount   'pmount --noatime'
- al pm   pmount
- al pmc1  'pmount /dev/sdc1'
- al pmc2  'pmount /dev/sdc2'
- al puc1  'pumount /dev/sdc1'
- al puc2  'pumount /dev/sdc2'
- al mc1    pmc1
- al uc1    puc1
-fi
-al umediat  'fusermount -u /media/t'
-
 al qiv  'XLIB_SKIP_ARGB_VISUALS=1 qiv -l'
 al qiviw 'qiv -s -m -i -f -d 7'
 
@@ -201,23 +182,14 @@ which yum    >&/dev/null  && so $_INIs/aliasi/yum.alias.bsh
 so $_INIs/aliasi/audio.alias.bsh
 so $_INIs/aliasi/rename.alias.bsh
 so $_INIs/aliasi/cddvdrw.alias.bsh
-
-### filmi
-al mp mplayer
-al mpeq     'mp -af equalizer=10:8:-2:0:0:0:0:0:0:0'
-al mpz      'mp -zoom -fs'  # -vf scale' -> into .conf
-al mpzmad   'mpz -ac mad'    #better audio/v sync/rates - for broken mp3 frames
-al mpsoft   'mp -softvol -softvol-max 2000'
-
-flv2mkv()   { ffmpeg -i "$1" -vcodec copy -acodec copy  "$1".mkv; }
-avi2mkv()   { mkvmerge -o "$1".mkv "$@"; }
+so $_INIs/aliasi/sys.alias.bsh
 
 #net
 al bt       'btlaunchmanycurses.bittorrent . --max_rate_period 10 --display_interval 2' #--max_upload_rate 60' # --max_initiate 20 --min_peers 10 --max_uploads 3
 #al mulewait 'strings -n 20 ~/.aMule/Temp/*met | uniq'
 al tcpstat  'netstat -anp | g tcp'
 al netrestart  'sudo /etc/init.d/networking restart'
-al nct      'sudo netctl start'
+nct()   { sudo netctl $2start $1 ; }
 al nctlist  'sudo netctl list|sort'
 #eee/lapa
 al ww 'iw.py --crypto'
@@ -253,15 +225,5 @@ vdprev() {
 al i 'v i -m'
 al gp 'git push'
 al svn2git2path 'svn2git --no-minimize-url --rootistrunk'
-
-#hw
-al diskstate 'sudo hdparm -C /dev/[hs]d?'
-al battery 'ibam -a'
-al ss  sensors
-#if which nvidia-settings >&/dev/null ; then
-# al gpu 'nvidia-settings -q GPUCoreTemp | grep Attri'
-# al ss  "gpu; sensors"
-#fi
-#al sss 'ss;hddtemp /dev/sda /dev/sdb'
 
 # vim:ts=4:sw=4:expandtab

@@ -4,7 +4,7 @@
 import sys, re
 import os
 from os.path import join, isdir, splitext, basename, exists
-from util import lat2cyr
+from svd_util import lat2cyr
 def c2l( x): return lat2cyr.zvuchene.cyr2lat( x).lower()
 
 for a in sys.argv[1:]:

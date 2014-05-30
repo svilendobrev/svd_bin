@@ -11,7 +11,7 @@ def escape( x):
             ).replace( '\r', '\\r'
             )
 
-from util import lat2cyr
+from svd_util import lat2cyr
 l2c = lat2cyr.zvuchene.lat2cyr
 
 class Node:
@@ -177,7 +177,7 @@ def key4tree(x): return x.NAME #getattr( x, 'URL', '')
 def key4flat(x): return x.URL, x.NAME
 
 
-from util import optz
+from svd_util import optz
 optz.usage( '%prog [options] files')
 optz.bool( 'o2py' )
 optz.bool( 'py2o' )
@@ -189,7 +189,7 @@ options,args = optz.get()
 
 if options.nounique:
     ATTRS.remove( 'UNIQUEID')
-#from util.eutf import readlines
+#from svd_util.eutf import readlines
 
 #inp = codecs.getreader('utf-8')
 for a in args:

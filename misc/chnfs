@@ -1,3 +1,0 @@
-#!/bin/sh
-sudo chmod g+w,a+r -R "$@"
-sudo chown nobody:nogroup -R "$@"

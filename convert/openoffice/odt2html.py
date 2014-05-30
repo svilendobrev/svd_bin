@@ -21,7 +21,7 @@ def span( i):
         if 'Strong' in s: t = bold(t)
     return t + (i.tail or '')
 
-from util import optz
+from svd_util import optz
 optz,args = optz.get()
 d = ezodf.opendoc( args[0] )
 

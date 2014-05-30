@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from util import optz
-from util.struct import DictAttr
+from svd_util import optz
+from svd_util.struct import DictAttr
 optz.int( 'year', default= 2012)
 optz.bool( '2011', )
 

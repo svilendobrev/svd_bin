@@ -2,7 +2,7 @@
 
 import datetime, subprocess, sys, time
 import os.path
-from util import optz
+from svd_util import optz
 optz.int( 'seconds', '-s', default= 0 )
 optz.int( 'retry_n', default= 1 )
 optz.int( 'retry_delay_seconds', default= 20 )
@@ -17,7 +17,7 @@ optz.multi( 'exec',  default= [], help= 'in syntax of find - outfname is {} ; ca
 optz.str( 'logfname', )
 optz.bool( 'quiet_mplayer', )
 
-from util.py.wither import wither
+from svd_util.py.wither import wither
 
 def rec( o, *, fname, secs, mins, stream ):
     now = datetime.datetime.now().strftime( '%Y%m%d.%H.%M.%S')

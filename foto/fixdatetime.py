@@ -1,8 +1,7 @@
 import sys
 import datetime, calendar, time
 import os.path
-from util import optz
-from util import datetimez
+from svd_util import optz, datetimez
 optz.text( 'year')
 optz.text( 'hour')
 optz.bool( 'ilocal')

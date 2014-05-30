@@ -6,7 +6,7 @@ from sla import sla, DictAttr, State
 import lxml.etree
 import sys
 
-from util import optz
+from svd_util import optz
 optz.text( 'template')
 optz,args = optz.get()
 

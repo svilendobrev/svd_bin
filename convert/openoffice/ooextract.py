@@ -2,7 +2,7 @@
 # sdobrev 2006-2008-2012
 from __future__ import print_function
 import sys
-from util import optz
+from svd_util import optz
 import uno
 
 from unohelper import Base, systemPathToFileUrl, absolutize

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import os, sys, re
 import pprint
-from util import optz
+from svd_util import optz
 optz.bool( 'ednakvo_ime_razlika_razmer')
 optz.bool( 'samoime')
 optz.append( 'sravni')

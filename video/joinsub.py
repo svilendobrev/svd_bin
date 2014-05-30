@@ -5,8 +5,8 @@ import aeidon
 import sys
 import os.path as op
 
-from util import optz
-from util.osextra import execresult
+from svd_util import optz
+from svd_util.osextra import execresult
 
 optz.optany( 'framerate', type= float, default=25)
 optz,args = optz.get()
