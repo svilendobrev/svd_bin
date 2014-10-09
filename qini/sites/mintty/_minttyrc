@@ -1,0 +1,9 @@
+BoldAsFont=no
+FontSmoothing=full
+CopyAsRTF=no
+Columns=100
+Rows=66
+ScrollbackLines=40000
+Blue=127,127,255
+BoldBlue=127,127,255
+CursorType=block

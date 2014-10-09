@@ -32,6 +32,23 @@ echo -en "\033]0;$USER@$HOST\007"
 
 #xrdb -merge $_INIs/x/vtcolors.xrdb
 
+#from k-xterm-vte - for mintty/cygwin?
+keyarrows() {
+ _kesc $1UP$3    "$2"A
+ _kesc $1DN$3    "$2"B
+ _kesc $1LEFT$3  "$2"D
+ _kesc $1RIGHT$3 "$2"C
+}
+keyarrows c "[1;5"		#ctrl
+keyarrows s "[1;2"		#shift
+_kesc sTAB "[Z"
+#_kesc HOME "OH" vs [H
+#_kesc END  "OF" vs [F
+_kesc cPGUP "[5;5~"	#n-t
+_kesc cPGDN "[6;5~"	#n-t
+_kesc cDEL  "[3;5~"	#n-t
+
+
 #LANG=C xrdb -override - <<endkeymap 
 #!! VT100 term emulation (usual one)
 #xterm*translations: #override \n\

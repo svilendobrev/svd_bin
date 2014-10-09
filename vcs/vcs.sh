@@ -60,7 +60,7 @@ cmd=
 b=`basename $0`
 case $b in
     [raulid]|ii|dd) cmd=$b ;;
-    v) cmd=$1; shift ;;
+    v|vcs.sh) cmd=$1; shift ;;
 #    v-update|vvu) cmd=u ;;
 #    v-commit|vvi) cmd=i ;;
 #    v-diff|vvd)   cmd=d ;;

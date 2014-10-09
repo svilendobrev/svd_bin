@@ -1,5 +1,9 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 from __future__ import print_function
+qrint = print
+##for python 2.4:
+##import sys #has no print_function, print/exec are operators, cannot catch SyntaxError
+##def qrint(*a): sys.stdout.write( ' '.join(a)+'\n' )
 
 import re
 
@@ -66,7 +70,7 @@ class Colorer:
         status = None
         m = me.regexp.match( line)
         if m:
-            #print( `m.group(1)`, me.name)
+            #qrint( `m.group(1)`, me.name)
             g = m.group(1)
             if me.whole:
                 status = me.table.get( g )
@@ -228,23 +232,23 @@ colorer = None
 if sys.argv[1:]:
     colorer = Colorer.all.get( sys.argv[1] )
     if not colorer:
-        print( 'opa!', sys.argv[0], ': unknown type', repr( sys.argv[1]))
+        qrint( 'opa!', sys.argv[0], ': unknown type', repr( sys.argv[1]))
 else: #if not colorer:
-    ks = Colorer.all.keys(); ks.sort()
-    print( '''\
+    ks = list( Colorer.all.keys()); ks.sort()
+    qrint( '''\
 usage: colorvcs.py <type>
     filters stdin to stdout
     <type> can be:''', ' '.join( ks)
     )
 
-    raise SystemExit, 1
+    raise SystemExit( 1)
 
 for l in sys.stdin:
     l = l.rstrip()
     status = colorer and l.strip() and colorer.check( l)
     if status:
-        print( clr( colors.get( status) ) + l + clr( None))
-    else: print( l)
-#print( clr(None),'===')
+        qrint( clr( colors.get( status) ) + l + clr( None))
+    else: qrint( l)
+#qrint( clr(None),'===')
 
 # vim:ts=4:sw=4:expandtab
