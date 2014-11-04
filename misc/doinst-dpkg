@@ -1,0 +1,4 @@
+#!/bin/sh
+INST=inst.`uname -r`
+dpkg -l | grep ^ii > $INST
+cut -f -3 -d\  $INST >i.`uname -r`

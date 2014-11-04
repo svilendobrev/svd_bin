@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 
 from svd_util import optz
 from svd_util.struct import DictAttr
@@ -46,7 +47,7 @@ year = getattr( optz, '2011', None) and 2011 or optz.year
 shema = all[ year]
 sup = x / (1+shema.superannuation) * shema.superannuation
 x -= sup
-print "superann {shema.superannuation} /{sup} = {x}".format( **locals() )
+print( "superann {shema.superannuation} /{sup} = {x}".format( **locals() ))
 
 def banded( bands, x):
     tax = 0
@@ -67,13 +68,13 @@ for typ,l in shema.levy.items():
         lv = banded( l, x)
     else:
         lv = l * x
-    print ' levy', typ, l, lv
+    print( ' levy', typ, l, lv)
     levy+= lv
 tax += levy
 
 x -= tax
 x12 = x/12.0
 x52 = x/52.0
-print  "tax: {tax:.2f}; clear: {x:.2f}; /12: {x12:.2f}; /52: {x52:.2f}".format( **locals())
+print( "tax: {tax:.2f}; clear: {x:.2f}; /12: {x12:.2f}; /52: {x52:.2f}".format( **locals()))
 
 # vim:ts=4:sw=4:expandtab

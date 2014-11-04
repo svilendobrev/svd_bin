@@ -35,9 +35,7 @@ fo = codecs.getwriter( e_to)( stdout, errors='replace')
 
 for l in fi:
     if optz.reverse:
-        a = list(l)
-        a.reverse()
-        l = ''.join(a)
+        l = ''.join( reversed(l))
     fo.write( l)
 
 # vim:ts=4:sw=4:expandtab
