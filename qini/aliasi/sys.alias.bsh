@@ -3,27 +3,42 @@
 # see http://www.fuw.edu.pl/~pliszka/hints/dvd.html
 #al mud 'for a in ud1 ud2 usb; do mount /mnt/$a; done'
 #al umd  'for a in 0 1 2; do umount /mnt/ud$a; done'
-if which udevil >&/dev/null ; then
- mm()     { udevil mount  /dev/sd"$1" ; }
- uu()     { udevil umount /dev/sd"$1" ; }
-else #pmountm 
+if which pmount >&/dev/null ; then
+ #pmountm 
  al pmount   'pmount --noatime'
  al pm   pmount
  mm()     { pmount /dev/sd"$1" ; }
  uu()     { pumount /dev/sd"$1" ; }
+else #udevil
+ mm()     { udevil mount  /dev/sd"$1" ; }
+ uu()     { udevil umount /dev/sd"$1" ; }
 fi
 al mc1    'mm c1'
 al uc1    'uu c1'
 al umediat  'fusermount -u /media/t'
 
 #hw
-al diskstate 'sudo hdparm -C /dev/[hs]d?'
+al diskstate 'hdparm -C /dev/[hs]d?'
+_CHMOD_S="$_CHMOD_S hdparm"
+
 al battery 'ibam -a'
-al ss  sensors
-#if which nvidia-settings >&/dev/null ; then
-# al gpu 'nvidia-settings -q GPUCoreTemp | grep Attri'
-# al ss  "gpu; sensors"
-#fi
+_SS='sensors| grep -Ev " V( |$)"'
+al ss  "$_SS"
+
+if which nvidia-settings >&/dev/null ; then
+ al gpu 'nvidia-settings -q GPUCoreTemp | grep Attri'
+ al ss  "gpu; $_SS"
+fi
 #al sss 'ss;hddtemp /dev/sda /dev/sdb'
+
+al freq0 'cpupower -c all frequency-info'
+al freq  'freq0 | grep urrent'
+_CHMOD_S="$_CHMOD_S cpupower"
+
+#cpulimit/set process affinity to cpu
+al taskset_cpu0 'taskset -c 0'
+al taskset_cpu0_pid 'taskset -c -p 0'
+#also see /proc/PID/cpuset
+#also see /proc/PID/status | grep allowed
 
 # vim:ts=4:sw=4:expandtab

@@ -52,3 +52,5 @@ AddressFamily inet
 
 #nfs mount umask follows mounpoint?? e.g. to get g+w by default:
 chmod g+w /media/themount
+
+skype 4.3 + : install pulseaudio ; moveout ~/.Skype/shared.xml

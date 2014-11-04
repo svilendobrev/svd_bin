@@ -20,8 +20,8 @@ fi
 
 #_SITEs=__sis
 [ -f ${_INIs}_bashrc ] && . ${_INIs}_bashrc
-senv CVSEDITOR vim
-senv CVS_RSH ssh
+senv EDITOR vim
+#senv CVS_RSH ssh
 #senv VIMINIT "set runtimepath+=$_INIs/_vim,$_INIs/_vim/after | so $_INIs/_vimrc"
 
 #if [ -f ${_INIs}_bashrc ]; then 

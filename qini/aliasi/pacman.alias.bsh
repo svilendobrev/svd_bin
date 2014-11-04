@@ -29,6 +29,9 @@ al a-upgradable "a-upgradable-full | perl -ne 's,.*686/(.*?)-[0-9].*,\1,;print' 
 al a-upgrade 'sudo pacman -Syu'
 
 al a-file    a-file0 
+al a-manual  'pacman -Qm'
+al a-foreign a-manual
+
 #al a-repository 'sudo add-apt-repository'
 #al a-ppa a-repository
 

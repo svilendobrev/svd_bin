@@ -1,6 +1,7 @@
 #al so   source
 #bash stuff
 
+_CHMOD_S=
 #########
  # -L to follow a link2dir instead of showing the link itself
  # -d to see the link and not to follow
@@ -29,6 +30,7 @@ d2()    { d --color "$@" | _d2; } #force coloring
 al eng  'env | g'
 al seg  'set | g -A 5'
 al alg  'alias | g'
+asg()  { alg "$@" ; seg "^\S*$1\S* \(\)" ; }
 
 al up   'cd ..'
 al md   mkdir
@@ -57,9 +59,9 @@ al em   'e [Mm]akefile'
 al renl renl.py   
 al renu renu.py   
 al ren_ 'rename.pl y/\ /_/'
-al top  'top -d 1'
 al sort 'LC_ALL=C sort'
 
+al top  'top -d 1'
 
 al psu  'ps -u $USER --sort=start_time'   # BSD style; override if other layout
 test 0 == `id -u` && al psu  'ps ax'   # BSD style; override if other layout
@@ -67,11 +69,16 @@ al psfu 'psu -f'
  # my processes, sorted by starttime+PID; or try PPID,PID (3 then 2)
 #al mi   'psfu |sort -k 5,5 -k 2;jobs -l'
 al mi   'psfu ;jobs -l' # my processes and jobs
-al k9   'kill -9'
  #kill all processes matching pattern
-killalll()  { Z=`psfu | g "$1" | g -v grep | cut -c10-15` && test -n "$Z" && k9 $Z; } 
+if which pkill >&/dev/null ; then
+ al killalll 'pkill -f'  
+ al pgrep    'pgrep -f -a'  #search+list full cmd line
+else
+ _killalll()  { Z=`psfu | g "$1" | g -v grep | cut -c10-15` && test -n "$Z" && kill -9 $Z; } 
+ al killalll _killalll
+fi 
 al killl  killalll
-al killll killl
+al killll killalll
 #al wh   which
 al wh   type
 
@@ -88,10 +95,7 @@ al elb  'elxtr _bashrc'
 al elv  'elxtr _vimrc'
 al elbb 'e ~/.bashrc'
 
-#use the ~/bin/vcs named as 'v'
-#al cu  'cvs up -dP'
-#al cvi 'cvs ci'
-#al cvd 'cvs diff -bw'
+_CHMOD_S="$_CHMOD_S loadkeys"
 
 ############ find, grep, diff, rm
  #file compare ignoring whitespace
@@ -166,34 +170,29 @@ al f vfu
 #l calc 'echo "\!#:*" |bc'
 #calc()  { echo print "$@" | python ; } 
 calc()  { python -c "from math import *; print( $*)"; } 
+which ncal >&/dev/null  && al cal 'ncal -M' || al cal '/usr/bin/cal -m'
 
 #addusergroup()  { usermod -G `id -Gn "$1" | sed "s/ /,/g"`,"$2" "$1"; } 
+if which adduser >&/dev/null ; then
 #XXX ubuntu
-#al addusergroup  useradd 
-#XXX arch
-addusergroup()  { u=$1; shift; usermod -a -G "$@" $u ; }
+ al addusergroup  adduser #useradd 
+else
+ #XXX arch etc
+ addusergroup()  { u=$1; shift; usermod -a -G "$@" $u ; }
+fi
 
 al qiv  'XLIB_SKIP_ARGB_VISUALS=1 qiv -l'
 al qiviw 'qiv -s -m -i -f -d 7'
 
-which apt-get >&/dev/null && so $_INIs/aliasi/apt.alias.bsh
-which pacman >&/dev/null  && so $_INIs/aliasi/pacman.alias.bsh
-which yum    >&/dev/null  && so $_INIs/aliasi/yum.alias.bsh
-so $_INIs/aliasi/audio.alias.bsh
-so $_INIs/aliasi/rename.alias.bsh
-so $_INIs/aliasi/cddvdrw.alias.bsh
-so $_INIs/aliasi/sys.alias.bsh
-
 #net
 al bt       'btlaunchmanycurses.bittorrent . --max_rate_period 10 --display_interval 2' #--max_upload_rate 60' # --max_initiate 20 --min_peers 10 --max_uploads 3
-#al mulewait 'strings -n 20 ~/.aMule/Temp/*met | uniq'
 al tcpstat  'netstat -anp | g tcp'
 al netrestart  'sudo /etc/init.d/networking restart'
 nct()   { sudo netctl $2start $1 ; }
 al nctlist  'sudo netctl list|sort'
 #eee/lapa
 al ww 'iw.py --crypto'
-al nn 'sudo dhclient eth0'
+#al nn 'sudo dhclient eth0'
 
 #--content-disposition 
 al wgetrnp 'wget -r -np --restrict-file-names=nocontrol --trust-server-names'
@@ -205,25 +204,32 @@ al wgetcd 'wget --content-disposition'
 cbedic() { `which cbedic` `echo $@ | utf2win ` | win2utf; }
 xxall() { for a in "$@"; do xx "$a"; done }
 
-so $_INIs/aliasi/wrongisright.alias.bsh
-
 al py python 
 al py2 python2
 al py3 python3
 al p3 py3
 al piplocal 'pip install --user'
+al pip2local 'pip2 install --user'
+al pip3local 'pip3 install --user'
 
 al maf 'make -f ~/src/bin/foto/makefile'
 al emf 'e ~/src/bin/foto/makefile'
 
-which ncal >&/dev/null  && al cal 'ncal -M' || al cal '/usr/bin/cal -m'
+which apt-get >&/dev/null && so $_INIs/aliasi/apt.alias.bsh
+which pacman >&/dev/null  && so $_INIs/aliasi/pacman.alias.bsh
+which yum    >&/dev/null  && so $_INIs/aliasi/yum.alias.bsh
+so $_INIs/aliasi/audio.alias.bsh
+so $_INIs/aliasi/rename.alias.bsh
+so $_INIs/aliasi/cddvdrw.alias.bsh
+so $_INIs/aliasi/sys.alias.bsh
+so $_INIs/aliasi/vcs.alias.bsh
+so $_INIs/aliasi/wrongisright.alias.bsh
 
-#vcs
-vdprev() {
-    v d "$1" -r `v l -l 2 "$1" | perl -ne 'print if s/revno: *//' | tail -1`
-}    
-al i 'v i -m'
-al gp 'git push'
-al svn2git2path 'svn2git --no-minimize-url --rootistrunk'
+chmod_s() {
+ for f in $_CHMOD_S ; do 
+  F=`which $f` && sudo chmod +s $F
+  #?? ln -f $F ${F}__ && chmod +s ${F}__
+ done 
+}
 
 # vim:ts=4:sw=4:expandtab

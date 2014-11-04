@@ -38,16 +38,28 @@ al wv2flacif    'forallif wv flac wv2flac'
 
 #ape2wav()       { mac "$1" "$1".wav -d ; }
 #ape2flac()      { mac "$1" - -d | _stdin2flac "$1" ; }
-ape2wav()       { avconv -i "$1" "$1".wav ; }
-ape2flac()      { avconv -i "$1" "$1".flac ; }
-ape2mp3()       { avconv -i "$1" -f wav pipe: | _stdin2mp3  "$1" ; }
+#avconv=ffmpeg
+ape2wav()       { ffmpeg -i "$1" -ar 44100 "$1".wav ; }
+ape2flac()      { ffmpeg -i "$1" "$1".flac ; }
+ape2mp3()       { ffmpeg -i "$1" -f wav pipe: | _stdin2mp3  "$1" ; }
 ape2mp3split()  { ape2mp3 "$1"; mp3splt -c "$2" "$1".mp3; }
 cuefix()        { grep -v "REM " | cuebreakpoints -i cue ; }
 CUEFILTER="cat"
-any2wavsplit()  { echo "$1"--"$2"; cat "$2" | grep -v "REM " | $CUEFILTER | shnsplit -o ${ext:-wav}  -t '%n. %t'  "$1"; }
+any2wavsplit()  { 
+    echo "$1"--"$2"
+    cat "$2" | grep -v "REM " | $CUEFILTER | shnsplit -o ${ext:-wav} -t '%n. %t'  "$1" ;
+}
 cue-noframes()  { CUEFILTER='perl -ne s/:[0-9][0-9]\s*$/\n/;print' ; }  #wholly shit
 any2flacsplit() { ext=flac any2wavsplit "$@" ; }
-al ape2flacsplit any2flacsplit
+any2flacsplit_forall() { for a in "$@"; do cd "$a"; any2flacsplit *.$IN *.cue ; cd - ; done ; }
+
+#no, ffmpeg pipe omits wav-length header
+#al shnsplit 'shnsplit -i "ape ffmpeg -i %f -f wav pipe:" 
+
+ape2flacsplit() {
+    ape2wav  "$1"
+    any2flacsplit "$1".wav  "$2"
+}    
 al ape2mp3if    'forallif ape mp3 ape2mp3'
 al ape2flacif   'forallif ape flac ape2flac'
 
@@ -175,7 +187,7 @@ ffmpeg2wavany() {
 
 # stream 2:  -map 0.2
 ffmpeg2wav() { 
-    ffmpeg2wavany "$@" -ac 2
+    ffmpeg2wavany "$@" -ac 2 -ar 44100
 }
 
 mkv2extract() {
