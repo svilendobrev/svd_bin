@@ -6,15 +6,15 @@ date
 ./radioschedule.py --oenc=utf-8 --days=2 \
 	--cron="`pwd`/radiorec --retry_delay_seconds=25 --retry_n=12" \
 	--cron-fname-notime \
-	--cron-earlier-minutes=7 \
-	--cron-later-minutes=5 \
-	--cron-later-percent=20 \
+	--cron-earlier-minutes=5 \
+	--cron-later-minutes=2 \
+	--cron-later-percent=25 \
 	--save-plan=plan/p \
 	--save-input=in/i \
 	--nalichni-opisi='/home/svilen/azcom/detski/zvuk/*/op/*' \
-	--force=hb-6:50-7:00-събуди_ме_с_пр \
- 	--force=hb-18:20-18:30-време_за_пр \
- 	--force=hb-21:20-21:30-ркц\
+	--force=hb-6:50-7:00/1:5-събуди_ме_с_пр \
+ 	--force=hb-18:20-18:30/1:5-време_за_пр \
+ 	--force=hb-21:20-21:30/1:5-ркц \
 	--channel=varna \
 	--channel=hristobotev "$@" \
 		>radiorec-crontab && crontab -u svilen radiorec-crontab

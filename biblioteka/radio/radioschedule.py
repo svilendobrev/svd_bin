@@ -7,6 +7,7 @@
 2. /etc/cron.d/radiorec: съдържа редове пускащи radiorec в съответното време
 '''
 import pprint
+from time import sleep
 from svd_util.struct import DictAttr, attr2item
 from svd_util.osextra import makedirs#, save_if_diff
 da = DictAttr
@@ -628,6 +629,17 @@ cron.d/crontab direct: # m h dom mon dow (user) command
         else: sizemins = ''
         t = datetime.datetime( x.today.year, x.today.month, x.today.day, h,m)
 
+        dni = x.get('dni')
+        if dni: #a,b,c-f
+            r = set()
+            for d in dni.split(','):
+                dd = d.split('-')
+                if len(dd)==2:
+                    r.update( range( int(dd[0]), int(dd[1])+1) )
+                else: r.add( int(d))
+            if t.weekday()+1 not in r:
+                continue    #skip
+
         channel = x.channel
         if not channel:
             if x.stream:
@@ -703,7 +715,7 @@ cron.d/crontab direct: # m h dom mon dow (user) command
         danni.rubrika_kysa = sykr( danni.rubrika)
         z = danni.razglobeno = rec2dir.razglobi_imena(
             imena= danni.opisanie.replace(' ','_'),
-            rubrika= danni.rubrika,
+            rubrika= danni.rubrika or x.get('ime') or '',
             #rubrika_kysa = danni.rubrika_kysa,
             data = danni.data,
             dirname = None
@@ -747,7 +759,7 @@ cron.d/crontab direct: # m h dom mon dow (user) command
                 opis[ k ] = v
 
         def filtr( fname ):
-            return ((fname
+            return ''.join((fname
                     ).replace( '._', '.'
                     ).replace( '__', '_'
                     ).replace( '+_', '+'
@@ -765,7 +777,7 @@ cron.d/crontab direct: # m h dom mon dow (user) command
                     #).replace( 2*rI+p,'.2'
                     #).replace( 1*rI+p,'.2'
                     ##).replace( '\xA0',' '
-                    ))
+                    ).split())
 
         dirname = fname_kanal+'/'+fname_kanal_vreme
         makedirs( dirname)
@@ -939,38 +951,53 @@ if __name__ == '__main__':
     now = datetime.datetime.now()
     def pnow(): return now.strftime( '%Y%m%d.%H.%M') #.%S')
 
-    for k in kanali:
-        wdta = ddta = None
-        try:
-            wdta = bnr_weekly.get( k, o)
-        except:
-            traceback.print_exc( file= sys.stderr)
-            print( '  ??weekly', k, file= sys.stderr)
+    retry = 3
+    while retry:
+        kanali_neuspeh = []
+        for k in kanali:
+            wdta = ddta = None
+            neuspeh = None
+            try:
+                wdta = bnr_weekly.get( k, o)
+            except:
+                traceback.print_exc( file= sys.stderr)
+                print( '  ??weekly', k, file= sys.stderr)
+                neuspeh= True
 
-        today_daily = today
-        if o.today_daily and k.get('daily'):
-            m = re.search( '(\d+)(\.(\d+)\.(\d+))', k.daily or '')
-            if m:
-                td = m.group(1)
-                today_daily = datetime.date( year= int(td[:4]), month= int(td[4:6]), day= int(td[6:]))
-                if m.group(3):
-                    now = datetime.datetime.combine( today_daily,
-                                datetime.time( hour= int(m.group(3)), minute= int(m.group(4)) ))
-                today = today_daily   #HACK
-        try:
-            ddta = bnr_daily.get( k, o, today_daily)
-        except:
-            traceback.print_exc( file= sys.stderr)
-            print( '  ??daily', k, file= sys.stderr)
+            today_daily = today
+            if o.today_daily and k.get('daily'):
+                m = re.search( '(\d+)(\.(\d+)\.(\d+))', k.daily or '')
+                if m:
+                    td = m.group(1)
+                    today_daily = datetime.date( year= int(td[:4]), month= int(td[4:6]), day= int(td[6:]))
+                    if m.group(3):
+                        now = datetime.datetime.combine( today_daily,
+                                    datetime.time( hour= int(m.group(3)), minute= int(m.group(4)) ))
+                    today = today_daily   #HACK
+            try:
+                ddta = bnr_daily.get( k, o, today_daily)
+            except:
+                traceback.print_exc( file= sys.stderr)
+                print( '  ??daily', k, file= sys.stderr)
+                neuspeh= True
 
-        if o.save_input:
-            for pfx,dta in [['w',wdta], ['d',ddta]]:
-                if not dta: continue
-                if not isinstance( dta, dict): dta = { '': dta}
-                for key,val in dta.items():
-                    fn = '.'.join( [ o.save_input, pfx, k.abbr, pnow(), key.rsplit('/',1)[-1], 'html' ])
-                    with fopen( fn) as f:
-                        f.write( val)
+            if neuspeh: kanali_neuspeh.append( k)
+
+            if o.save_input:
+                for pfx,dta in [['w',wdta], ['d',ddta]]:
+                    if not dta: continue
+                    if not isinstance( dta, dict): dta = { '': dta}
+                    for key,val in dta.items():
+                        fn = '.'.join( [ o.save_input, pfx, k.abbr, pnow(), key.rsplit('/',1)[-1], 'html' ])
+                        with fopen( fn) as f:
+                            f.write( val)
+
+        retry -=1
+        if kanali_neuspeh and retry:
+            kanali = kanali_neuspeh
+            sleep(7)
+
+
     if 0:
         for d in bnr_daily.today_items:
             print( '\n#...', d, file= sys.stderr)
@@ -989,8 +1016,12 @@ if __name__ == '__main__':
         tday = today + datetime.timedelta( days= dayofs )
         for k_ot_do_ime in nasila:
             k,ot,do,*ime = k_ot_do_ime
+            if '/' in do:
+                do,dni = do.split('/')
+                dni = dni.replace( ':', '-')
+            else: dni = None
             kk = bnr_kanali[k]
-            i = da( channel= kk.name, time= time4str( ot), endtime= time4str( do), stream= kk.stream)
+            i = da( channel= kk.name, time= time4str( ot), endtime= time4str( do), stream= kk.stream, dni= dni)
             for a in r.values():
                 if (a.today, a.stream, a.channel) != (tday, i.stream, i.channel):
                     continue
