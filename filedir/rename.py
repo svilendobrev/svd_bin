@@ -51,8 +51,11 @@ def doit(a):
         a = os.readlink( a )
     b = func(a)
     if b != a:
-        print( a, '->', b)
-        if not optz.dont:
+        print( *[ x for x in [
+                org!=a and org+'->',
+                a, ':>', b
+                ] if x])
+        if not optz.fake:
             if optz.insymlink:
                 os.remove( org)
                 os.symlink( b, org)

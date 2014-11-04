@@ -12,18 +12,26 @@ optz.bool( 'delete', '-f', help='delete before acting')
 optz.bool( 'quiet', '-q', )
 optz,args = optz.get()
 optz.verbose = not optz.quiet
-if len(args)==1 or not os.path.isdir( args[-1] ):
+if len(args)==1:
+    raise RuntimeError( 'last arg must be target dir/filename')
+dest = args.pop()
+destdir = os.path.isdir( dest )
+if len(args)>2 and not destdir:
     raise RuntimeError( 'last arg must be dir')
 
-dest = args[-1]
 func = optz.mv and os.rename or os.link
 for a in args:
     if not issymlink( a):
-        #if optz.verbose: print( '-non-symlink', a)
+        #if optz.verbose:
+        print( '... non-symlink', a)
         continue
     f = realpath(a)
-    destname = basename( a )
-    destfull = join( dest, destname)
+    if destdir:
+        destname = basename( a )
+        destfull = join( dest, destname)
+    else:
+        destfull = dest
+
     if exists( destfull) and not issymlink( destfull) and f == realpath( destfull):
         if optz.verbose: print( '-same', a)
         continue
