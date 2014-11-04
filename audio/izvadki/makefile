@@ -103,10 +103,10 @@ ok/aristocats.en: wav/aristocats.en.wav txt/aristocats.txt
 	mplayer -vc null -vo null -ao pcm:fast:file="$@" "$<"
 
 whole.anlz:
-	rm $@
-	for a in wav/*wav; do ecasound -i:$$a -o:null -ev | grep gain >>$@; done
+	rm -f $@
+	for a in wav/*wav; do echo $$a `ecasound -i:$$a -o:null -ev | grep gain` >>$@; done
 parts.anlz:
-	rm $@
+	rm -f $@
 	for a in out/*; do wavcat.py -o $$a/all $$a/*wav done
 	for a in out/*; do ecasound -i:typeselect,.wav,$$a/all -o:null -ev | grep gain >>$@; done
 	rm out/*/all
@@ -117,6 +117,11 @@ parts.gain:
 	mkdir -p outgain
 	cd out; for a in *; do mkdir -p ../outgain/$$a; done
 	$(PY) gain.py 'out/%(name)s/*.wav' 'outgain/%(name)s/*.wav' < gains
+
+wav/ampl/%.wav: wav/%.wav #gains
+	grep ^$* gains | $(PY) gain.py
+
+all.gain: $(patsubst wav/%.wav,wav/ampl/%.wav,$(wildcard wav/*wav))
 
 tar zip:
 	ls -alF --color=none avi/ >avi.list

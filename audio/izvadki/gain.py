@@ -2,12 +2,14 @@
 '''for each (directory gain-percent) tuple in input file,
    apply gain for files matching ipath into opath'''
 
+from __future__ import print_function
 import sys, subprocess, glob, re, os
 def opt(x):
     try: sys.argv.remove( x ); return True
     except ValueError: return None
 dbg = opt( '-debug')
 fake= opt( '-fake')
+col1= opt( '-column1')
 
 from eca import eca
 def ampl( name, koef, ipath, opath):
@@ -18,17 +20,17 @@ if __name__ == '__main__':
 
     ipath = 'wav/%(name)s.wav'
     if args: ipath = args[0]
-    opath = 'wav/ampl.%(name)s.wav'
+    opath = 'wav/ampl/%(name)s.wav'
     if args[1:]: opath = args[1]
 
     for l in sys.stdin:
         l=l.strip()
         if not l or l.startswith('#'): continue
         x= l.split()
-        name = x[0]
+        name = x[ col1 and 1 or 0 ]
         koef0 = x[-1]
         koef = float(koef0)#/2
-        print int(100*koef), name
+        print( int(100*koef), name)
         if '*' in ipath:
             ip = ipath % locals()
             ipr = re.compile( ip.replace( '*','(.*?)') )

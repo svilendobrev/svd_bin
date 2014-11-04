@@ -55,12 +55,15 @@ avi2mkv: $(patsubst %.avi,%.mkv,$(wildcard *.avi))
 wavcat:
 	wavcat.py -o ooo.wav $(WAVs)
 
-SPLIT= $(wildcard $(SWILD))
+SPLIT= $(wildcard $(WILD)$(SWILD))
 split: $(SPLIT:%=./mm.%-001.mkv)
 
 T?=0:0:20 #,0:4:30
 ./mm.%-001.mkv: #./%
 	mkvmerge "$*" -o "mm.$*" --split timecodes:$T
+
+#export MKVTOOLNIX_OPTIONS=".. .."
+# mkvmerge --disable-track-statistics-tags
 
 tags:
 	for a in *tags; do sh $$a; done
@@ -75,8 +78,25 @@ tags:
 #удължаване: PERC<100.0
 #скъсяване : PERC>100.0
 %.pitch.wav : %.wav
-	ecasound -i:$< -o $@ -ei:$(PERC)
+	ecasound -i:"$<" -o "$@" -ei:$(PERC)
 .PRECIOUS: %.pitch.wav
+
+#RESAMPLE=1
+_RESAMPLE = resample,auto,
+_MONO2STEREO = -chcopy 1,2
+mono2stereo.%:
+	ecasound -i:"$(if $(RESAMPLE),$(_RESAMPLE))$*" -o "$@" $(_MONO2STEREO)
+eca.%:
+	ecasound -i:"$(if $(RESAMPLE),$(_RESAMPLE))$*" -o "$@" $(if $(PERC),-ei:$(PERC)) $(if $(MONO2STEREO)$(STEREO),$(_MONO2STEREO))
+
+#!!без , ( ) в имената..
+mono2stereo: $(patsubst %.wav,mono2stereo.%.wav,$(wildcard $(WILD)*.wav))
+#	echo "$+"
+eca: $(patsubst %.wav,eca.%.wav,$(wildcard $(WILD)*.wav))
+#	echo "$+"
+2x44: stereo-resample
+stereo-resample: mono2stereo
+stereo-resample: RESAMPLE=1
 
 izv:
 	$(PY) ~/src/bin/audio/izvadki/wavspl.py *izv*
