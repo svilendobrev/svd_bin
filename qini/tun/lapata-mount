@@ -1,1 +1,0 @@
-sudo sshfs user@eee:${1:-/home} /media/eee -o allow_other $2 $3 $4 $5
