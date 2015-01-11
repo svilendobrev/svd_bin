@@ -309,6 +309,7 @@ class Screensaver(xbmcgui.WindowXMLDialog):
         if self.slideshow_random == 'true':
             random.shuffle(items, random.random)
             if 'svd':
+                items.reverse()
                 random.seed()
                 random.shuffle(items, random.random)
         return items
