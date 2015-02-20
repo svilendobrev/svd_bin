@@ -3,6 +3,6 @@ X=${1:-locale}
 PFX=$2
 echo "$X" $PFX
 # !(bg|en)
-sudo rm -rf "$X"/${PFX}[acdf-z]*/
-sudo rm -rf "$X"/${PFX}b[a-fh-z]*/
-sudo rm -rf "$X"/${PFX}e[a-mo-z]*/
+sudo rm -rf "$X"/${PFX}[acdf-z]*
+sudo rm -rf "$X"/${PFX}b[a-fh-z]*
+sudo rm -rf "$X"/${PFX}e[a-mo-z]*

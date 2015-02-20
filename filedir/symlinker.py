@@ -53,8 +53,10 @@ def match( f, patterns):
         if match1( f, p): return True
 
 def included( a, inc, exc):
-    if inc and not match( a, inc): return
-    if exc and match( a, exc): return
+    #print( 444444, a, inc, exc)
+    fa = basename(a)
+    if inc and not match( fa, inc): return
+    if exc and match( fa, exc): return
     return a
 
 def levels( d): return d.strip('/').split('/')

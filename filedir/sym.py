@@ -6,6 +6,7 @@ import os
 from os.path import *
 issymlink = islink
 
+optz.description( 'move/link real-target-of-symlink into elsewhere')
 optz.bool( 'mv', help='do move, default is (hard)link')
 optz.bool( 'fake',   '-n', help='do nothing')
 optz.bool( 'delete', '-f', help='delete before acting')

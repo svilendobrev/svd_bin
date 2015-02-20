@@ -9,6 +9,7 @@ if [ `basename $0` == xx ]; then A=x T=x Z= D=-x Z7=x; else A=v T=t Z=-v D=-c Z7
 lowcase=`echo $1 | LANG=C tr '[:upper:]' '[:lower:]'`
 case "x$lowcase" in
  x*.tar )                   tar  ${T}vf "$@" ;;#$A   tar  $Tvf
+ x*.txz|x*.tar.xz )         tar J${T}vf "$@" ;;#xz$A tar J$Tvf
  x*.tbz*|x*.tar.bz* )  		tar j${T}vf "$@" ;;#bz$A tar j$Tvf
  x*.tgz|x*.tar.gz )         tar z${T}vf "$@" ;;#gz$A tar z$Tvf
  x*.tar.z|x*.tar.Z )        tar Z${T}vf "$@" ;;#z$A  tar Z$Tvf

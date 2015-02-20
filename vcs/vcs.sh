@@ -46,6 +46,7 @@ else
         if test -d $d.bzr; then  what=bzr; break;
         elif test -d $d.hg; then  what=hg; break;
         elif test -d $d.git; then  what=git; break;
+        elif test -f $d.svn/entries ; then  what=svn
         fi
         d=../$d
     done

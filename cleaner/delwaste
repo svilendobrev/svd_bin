@@ -60,3 +60,5 @@ $rm $P/[acdf-ln-z]* $P/b[a-fh-z].* $P/e[a-mo-z].*
 
 #mesa-demos
 $rm /usr/bin/osdemo*
+
+$rm /usr/sbin/osd_login
