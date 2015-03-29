@@ -1,0 +1,6 @@
+al sysctl-stop    'sudo systemctl stop'
+al sysctl-start   'sudo systemctl start'
+al sysctl-enable  'sudo systemctl enable'
+al sysctl-disable 'sudo systemctl disable'
+al sysctl-status  'systemctl status'
+al sysctl-journal 'journalctl -xe'
