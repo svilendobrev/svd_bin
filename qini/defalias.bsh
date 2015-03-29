@@ -188,7 +188,7 @@ al qiviw 'qiv -s -m -i -f -d 7'
 al bt       'btlaunchmanycurses.bittorrent . --max_rate_period 10 --display_interval 2' #--max_upload_rate 60' # --max_initiate 20 --min_peers 10 --max_uploads 3
 al tcpstat  'netstat -anp | g tcp'
 al netrestart  'sudo /etc/init.d/networking restart'
-nct()   { sudo netctl $2start $1 ; }
+nct()   { sudo netctl restart $1 ; }
 al nctlist  'sudo netctl list|sort'
 #eee/lapa
 al ww 'iw.py --crypto'
@@ -215,9 +215,10 @@ al pip3local 'pip3 install --user'
 al maf 'make -f ~/src/bin/foto/makefile'
 al emf 'e ~/src/bin/foto/makefile'
 
-which apt-get >&/dev/null && so $_INIs/aliasi/apt.alias.bsh
-which pacman >&/dev/null  && so $_INIs/aliasi/pacman.alias.bsh
-which yum    >&/dev/null  && so $_INIs/aliasi/yum.alias.bsh
+which apt-get   >&/dev/null && so $_INIs/aliasi/apt.alias.bsh
+which pacman    >&/dev/null && so $_INIs/aliasi/pacman.alias.bsh
+which yum       >&/dev/null && so $_INIs/aliasi/yum.alias.bsh
+which systemctl >&/dev/null && so $_INIs/aliasi/systemctl.alias.bsh
 so $_INIs/aliasi/audio.alias.bsh
 so $_INIs/aliasi/rename.alias.bsh
 so $_INIs/aliasi/cddvdrw.alias.bsh

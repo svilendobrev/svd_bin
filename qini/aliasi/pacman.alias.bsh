@@ -5,6 +5,7 @@ al pacnamesize "perl -ne 's/,00//; print \$1 if s/^Name *: *(\S+)//; print if s/
 #|sort -n -k 2
 
 al a-install 'sudo pacman -S'
+al a-installfile 'sudo pacman -U'
 #al a-installre 'a-install --reinstall'
 al a-update 'sudo pacman -Syy'
 #al a-source 'cd /usr/src/; apt-get source'  #install source

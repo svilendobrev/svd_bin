@@ -3,10 +3,7 @@
 from __future__ import print_function
 
 import sys
-suma   = float(sys.argv[1])
-godini = float(sys.argv[2])
-god_procent= float(sys.argv[3])
-
+suma, godini, god_procent= [float(x) for x in sys.argv[1:4]]
 
 #http://krediten-kalkulator.bghot.com/
 meseci = godini*12

@@ -570,7 +570,7 @@ function! HEADsetup()
  endif
 
  if &filetype =='python'
-  "exe append( 1, '# -*- coding: cp1251 -*-' )
+  exe append( 0, 'from __future__ import print_function #,unicode_literals' )
   exe append( 0, '# -*- coding: utf-8 -*-' )
   exe append( 0, '#!/usr/bin/env python' )
  endif
