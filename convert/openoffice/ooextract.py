@@ -51,7 +51,7 @@ optz.bool( 'stdout',    help= 'Redirect output to stdout. has priority over --ou
 optz.text( 'connect',
     help= 'The part of uno url needed to drive OpenOffice. default: %default',
     default= cfg.connect )
-optz.bool( 'office',
+optz.text( 'office',
     help= 'what to execute to start OpenOffice, default: %default',
     default= cfg.office )
 optz.int( 'wait',
