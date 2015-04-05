@@ -51,7 +51,7 @@ optz.bool( 'stdout',    help= 'Redirect output to stdout. has priority over --ou
 optz.text( 'connect',
     help= 'The part of uno url needed to drive OpenOffice. default: %default',
     default= cfg.connect )
-optz.bool( 'office',
+optz.text( 'office',
     help= 'what to execute to start OpenOffice, default: %default',
     default= cfg.office )
 optz.int( 'wait',
@@ -91,7 +91,7 @@ try:
             os.system( cmd)
             ctx = resolver.resolve( url)
         except:
-            print >> sys.stderr, 'wait to start: ', cmd
+            print( 'wait to start: ', cmd, file= sys.stderr)
             import time
             time.sleep( opts.wait)
             ctx = resolver.resolve( url)
@@ -133,7 +133,7 @@ try:
             doc.dispose()
 
 except UnoException as e:
-    print >> sys.stderr, 'Error ('+repr(e.__class__)+') :' + e.Message
+    print( 'Error ('+repr(e.__class__)+') :' + e.Message, file= sys.stderr)
     retVal = 1
 
 raise SystemExit( retVal)
