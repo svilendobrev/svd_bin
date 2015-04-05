@@ -27,6 +27,28 @@ VQ=-sameq
 %.mkv: %.avi
 	mkvmerge $< -o $@
 
+#XXX sox is much better quality resampler than ffmpeg
+%-$(RATE).ff.wav: %
+	ffmpeg -i $< -ar $(RATE) $(if $(MONO),-ac 1) $@
+ffres: $(patsubst %,%-$(RATE).ff.wav,$(wildcard $(INPUTS)))
+
+%-$(RATE).sox.wav: %
+	sox $<  -e signed-integer -t wav $@ $(if $(MONO),channels 1) rate -m -I -b 80 $(RATE)
+soxres: $(patsubst %,%-$(RATE).sox.wav,$(wildcard $(INPUTS)))
+#rate
+# -s: steep filter
+# -M/-I/-L     Phase response = minimum/intermediate/linear
+# -a           Allow aliasing/imaging above the pass-band
+# -b 74-99.7   passband-width %
+# -p 0-100     phase response (0 = minimum, 25 = intermediate,50 = linear, 100 = maximum
+#     Quality  Bandwidth  Rej dB   Typical Use
+#-q     quick     n/a    ≈30 @Fs/4     playback on ancient hardware
+#-l      low      80%     100     playback on old hardware
+#-m    medium     95%     100     audio playback
+#-h     high      95%     125     16-bit mastering (use with dither)
+#-v   very high   95%     175     24-bit mastering
+#sox -V  show auto-added processing
+#sox -D  no auto-dither
 
 ROOT=./
 WAVs = $(wildcard $(ROOT)*.wav)
@@ -109,5 +131,8 @@ filmid: $(FILMs:%=%.filmid)
 bz bz2: $(patsubst %,%.bz2,$(wildcard $(BZ)))
 %.bz2: %
 	bzip2 $<
+
+orgaudio:
+	for a in *avi; do mkvmerge -o "$a.x.mkv" -D "$a" -A "$a...mkv"  ; done
 
 # vim:ts=4:sw=4:noexpandtab

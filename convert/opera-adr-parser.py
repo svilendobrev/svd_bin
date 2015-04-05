@@ -14,6 +14,10 @@ def escape( x):
 from svd_util import lat2cyr
 l2c = lat2cyr.zvuchene.lat2cyr
 
+def h(x):  return '<'+x+'>'
+def h_(x): return '</'+x+'>'
+def hh(x,y): return h(x) + y + h_(x)
+
 class Node:
     def __init__( me, parent =None, NAME =None, URL =None, items =None, bgNAME =None, UNIQUEID =None, trash =False):
         me.parent = parent
@@ -51,6 +55,27 @@ class Node:
             if o.items: print()
             print( pfx + str( o))
         def leave( me, o, pfx): pass
+
+    class htmler:
+        indent = 2
+        def __init__( me, **kargs):
+            me.__dict__.update( kargs)
+        def enter( me, o, pfx):
+            if o.URL:
+                print( pfx, h('li'), h('a href="'+o.URL+'"') , o.NAME,
+                        #':', o.URL,
+                        h_('a') )
+            elif o.NAME and o.items:    #no empty folders
+                print( pfx , h_('li') )
+                print( pfx + hh( 'b', o.NAME ) )
+            if o.items: print( pfx + h('ul') )
+        def leave( me, o, pfx):
+            #if not o.URL:
+            if o.items:
+                print( pfx + h_('ul') )
+            #else:
+            #    print( pfx , h_('li') )
+
 
     def dump( me, level=0, dumper =None ):
         if not dumper: dumper = me.dumper()
@@ -183,6 +208,7 @@ optz.bool( 'o2py' )
 optz.bool( 'py2o' )
 optz.bool( 'align' )
 optz.bool( 'o2flat' )
+optz.bool( 'py2html' )
 optz.bool( 'nounique', help= 'ignore UNIQUEID' )
 optz.bool( 'notrash',  help= 'ignore trash' )
 options,args = optz.get()
@@ -203,6 +229,12 @@ for a in args:
         root.opera( align= options.align, notrash= options.notrash )
         continue
 
+    if options.py2html:
+        root = eval( r, dict(dict=Node) )
+        root.sort( key= key4tree)
+        root.dump( dumper= Node.htmler())
+        continue
+
     root = parse( r)
     root.sort( key=key4tree)
 
@@ -216,6 +248,8 @@ for a in args:
         for i in root.allitems:
             print( repr(i))
 
+    #elif options.html:
+    #    root.dump( dumper= Node.htmler())
     else:
         root.dump()
 

@@ -12,8 +12,9 @@ $rm $P/share/gallery/*/
 $rm $P/share/template/common/layout/
 $rm $P/share/template/common/wizard/
 $rm $P/share/template/wizard/
-$rm $P/LICENSE* $P/CREDIT
+$rm $P/LICENSE* $P/CREDIT*
 $rm $P/share/config/images_hicontrast.zip
+$rm $P/help
 
 P=/usr/lib/python*/
 $rm $P/test/ $P/idle*/ $P/tkinter/
@@ -31,9 +32,15 @@ $rm $V/tutor $V/lang
 $rm $V/spell/*latin*
 $rm $V/doc/versio*
 $rm $V/syntax/xs.vim
+$rm $V/syntax/muttrc.vim
+$rm $V/syntax/pfmain.vim
+$rm $V/syntax/baan.vim
+$rm $V/syntax/redif.vim
+$rm $V/autoload/phpcomplete.vim
+
 
 P=/usr/lib/qt4/bin/
-$rm $P/??c $P/assistant $P/l* $P/designer
+$rm $P/??c $P/assistant $P/l* $P/designer $P/qdoc*
 $rm /usr/share/qt4/translations/
 
 dellocale /usr/share/skype/lang/ skype_
@@ -56,9 +63,21 @@ $rm /usr/share/GeoIP/*v6*
 
 P=/usr/share/man
 $rm $P/man3/__gnu_*
+$rm $P/man3/gnutls*
+$rm $P/man3/*.3ssl*
+$rm $P/man3/SDL*
+$rm $P/man3/DSA*
+$rm $P/man3/ASN*
+$rm $P/man3/SSL*
+$rm $P/man3/Fc*
+$rm $P/man3/CURL*
 $rm $P/[acdf-ln-z]* $P/b[a-fh-z].* $P/e[a-mo-z].*
 
 #mesa-demos
 $rm /usr/bin/osdemo*
-
 $rm /usr/sbin/osd_login
+
+P=/usr/lib/modules/*/kernel
+$rm $P/drivers/staging/lustre $P/drivers/staging/comedi
+$rm $P/drivers/isdn
+

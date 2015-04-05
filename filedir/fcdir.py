@@ -107,8 +107,9 @@ if not optz.convert:
     else:
         diff = difflib.unified_diff
         for l in diff( f1,f2, a1,a2, lineterm=''):
-            print( l)
-
+            try:
+                print( l)
+            except: print( repr(l))
 else:
     ypaths = set()
     for name,x in sorted( f1.items()): #, key= lambda i: i[0].path):
