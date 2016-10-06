@@ -14,7 +14,7 @@ da = DictAttr
 
 bnr_kanali = da(
     hristobotev = da(
-        weekly  = None, #http://bnr.bg/hristobotev/page/sedmichna-programa XXX TODO
+        weekly  = None ,#'http://bnr.bg/hristobotev/page/sedmichna-programa', #XXX TODO
         #weekly  = 'http://bnr.bg/sites/hristobotev/Pages/ProgramScheme.aspx',
         #daily0  = 'http://bnr.bg/sites/hristobotev/Daily/Pages/{yymmdd}.aspx',
         #daily1  = 'http://bnr.bg/sites/hristobotev/Daily/Pages/{yymmdd}_1.aspx',
@@ -65,6 +65,7 @@ from svd_util.txt import strip, slim
 #документално студио
 INTITLES = strip('''
 Радиотеат
+Радотеат
 театър
 театр
 за деца
@@ -142,6 +143,35 @@ class bnr_weekly:
                 ]),
             ]),
         ])
+    ]
+    syntax = '''
+    <div class="news_title">
+        <h3>Седмична програма</h3>
+    </div>
+    <div class="news_content">
+      <p><br /></p>
+      <module id="m243">
+        <div class="module span12 module_schedule ">
+          <h2>02 октомври 2016, неделя</h2>
+          <div>
+            <div class="time_box">00:15</div>
+                        Концерт
+          </div>
+          <div>
+            <div class="time_box">03:00</div>
+                        <a href="/hristobotev/evroklasik/broadcast">Еврокласик ноктюрно</a>
+          </div>
+          ...
+          <h2>03 октомври 2016, понеделник</h2>
+          ...
+    '''
+    grammar_stack= [
+        da( tag= 'div', _class= 'module', subitems=[
+            da( tag= 'h2', run= newday, data= save_lastday_date, ),
+            da( tag= 'div', run= newitem, data= save_lastitem_time, subitems=[
+                da( tag= 'div', _class='time_box', data= save_lastitem_time ),
+            ]),
+        ]),
     ]
     @classmethod
     def get( me, kanal, o):
@@ -343,7 +373,7 @@ class zbnr_daily:
 class bnr_daily:
     syntax1 = '''
     <div class="row-fluid module span12 module_category module_category_titles" id="module_11_1">
-	    <div class="row-fluid module_main_header">
+        <div class="row-fluid module_main_header">
             <div class="title"> byrabyra
         <div class="row-fluid module_container">
             <div class="title">
@@ -377,12 +407,12 @@ class bnr_daily:
         #]),
     ]
     grammar_stack2= [
-        da( tag= 'div', _class='news_title', subitems=[
+        #da( tag= 'div', _class='news_content', subitems=[
             da( tag= 'span', _itemprop= 'articleBody',
                     run= newitem,
                         data= save_lastitem_title,
             ),
-        ]),
+        #]),
     ]
     re_titles = re.compile( '''
         \s*
@@ -499,114 +529,67 @@ l2c = rec2dir.lat2cyr.zvuchene.lat2cyr
 import difflib
 
 def junk( x): return not x.isalpha()
-if 0:
-    def tyrsi_podobni( ime, nalichni, dai_ime =lambda x: x, min_ratio =0.7, quick =0):
+def tyrsi_podobni( ime, nalichni, min_ratio =0.7):
+    podobni = [ (not s.set_seq1( ime.lower()) and 1-s._ratio(), s._item )
+        for s in nalichni
+        ]
+    podobni.sort()
+    min_ratio1 = 1-min_ratio
+    return [ (r,i) for r,i in podobni if r <= min_ratio1 ]
+
+def nalichni_imena( o, quick =0):
+    if not o.nalichni_opisi: return
+    nalichni_imena = [] #s(ime).(ime,dir,file)
+    def dobavi( x):
         s = difflib.SequenceMatcher( junk )
         if not quick:  ratio = s.ratio
         elif quick==2: ratio = s.real_quick_ratio
         else:          ratio = s.quick_ratio
+        s._ratio = ratio
+        s._item = x
+        s.set_seq2( x[0].lower() )
+        nalichni_imena.append( s)
 
-        s.set_seq2( ime.lower() )
-        podobni = [ (not s.set_seq1( dai_ime( i).lower()) and 1-ratio(), i )
-            for i in nalichni
-            ]
-        podobni.sort()
-        min_ratio1 = 1-min_ratio
-        return [ (r,i) for r,i in podobni if r <= min_ratio1 ]
-
-    def nalichni_imena( o):
-        if not o.nalichni_opisi: return
-        nalichni_imena = [] #ime,dir,file
-        for fn in glob.glob( o.nalichni_opisi):
-            try:
-                with open( fn) as f:
-                    opis = dict( usability.load( f ) )
-                    ime = opis.get( 'име')
-                    ime = ime and str(ime)
-                    if not ime or not ime.strip('?'):
-                        ime = l2c( os.path.basename( fn))
-                    nalichni_imena.append( (ime, fn))
-                    parcheta = opis.get( 'парчета')
-                    if not parcheta: continue
-                    for fnp,p in parcheta.items():
-                        if isinstance( p, str): ime = p
-                        else: ime = p.get( 'име')
-                        ime = ime and str(ime)
-                        ime = ime or l2c( fnp)
-                        nalichni_imena.append( (ime, fn, fnp) )
-            except IOError: pass
-            except Exception:
-                print( fn)
-                raise
-        print( '#налични описи:', len( nalichni_imena))
-        def dai_ime_nalichno( x): return x[0]
-        def tyrsach( ime):
-            return tyrsi_podobni( ime, nalichni_imena, dai_ime_nalichno,
-                    min_ratio= 0.7 )
-        o.tyrsach = tyrsach
-        return tyrsach
-else:
-    def tyrsi_podobni( ime, nalichni, min_ratio =0.7):
-        podobni = [ (not s.set_seq1( ime.lower()) and 1-s._ratio(), s._item )
-            for s in nalichni
-            ]
-        podobni.sort()
-        min_ratio1 = 1-min_ratio
-        return [ (r,i) for r,i in podobni if r <= min_ratio1 ]
-
-    def nalichni_imena( o, quick =0):
-        if not o.nalichni_opisi: return
-        nalichni_imena = [] #s(ime).(ime,dir,file)
-        def dobavi( x):
-            s = difflib.SequenceMatcher( junk )
-            if not quick:  ratio = s.ratio
-            elif quick==2: ratio = s.real_quick_ratio
-            else:          ratio = s.quick_ratio
-            s._ratio = ratio
-            s._item = x
-            s.set_seq2( x[0].lower() )
-            nalichni_imena.append( s)
-
-        def kym_imeto( opis):
-            avtor = opis.get( 'автор')
-            if avtor:
-                if isinstance( avtor, (list,tuple)): avtor = ' '.join( avtor)
-                avtor = avtor.strip()
-            return avtor and ' : '+avtor or ''
-        for fn in glob.glob( o.nalichni_opisi):
-            try:
-                with open( fn) as f:
-                    opis = dict( usability.load( f ) )
-                    ime = opis.get( 'име')
+    def kym_imeto( opis):
+        avtor = opis.get( 'автор')
+        if avtor:
+            if isinstance( avtor, (list,tuple)): avtor = ' '.join( avtor)
+            avtor = avtor.strip()
+        return avtor and ' : '+avtor or ''
+    for fn in glob.glob( o.nalichni_opisi):
+        try:
+            with open( fn) as f:
+                opis = dict( usability.load( f ) )
+                ime = opis.get( 'име')
+                ime = ime and str(ime).strip()
+                if not ime or not ime.strip('?'):
+                    ime = l2c( os.path.basename( fn))
+                avtor = kym_imeto( opis)
+                ime += avtor
+                dobavi( (ime, fn))
+                parcheta = opis.get( 'парчета')
+                if not parcheta: continue
+                for fnp,p in parcheta.items():
+                    if isinstance( p, str):
+                        ime = p
+                        avtor1 = avtor
+                    else:
+                        ime = p.get( 'име')
+                        avtor1 = kym_imeto( p) or avtor
                     ime = ime and str(ime).strip()
-                    if not ime or not ime.strip('?'):
-                        ime = l2c( os.path.basename( fn))
-                    avtor = kym_imeto( opis)
-                    ime += avtor
-                    dobavi( (ime, fn))
-                    parcheta = opis.get( 'парчета')
-                    if not parcheta: continue
-                    for fnp,p in parcheta.items():
-                        if isinstance( p, str):
-                            ime = p
-                            avtor1 = avtor
-                        else:
-                            ime = p.get( 'име')
-                            avtor1 = kym_imeto( p) or avtor
-                        ime = ime and str(ime).strip()
-                        ime = ime or l2c( fnp)
-                        ime += avtor1
-                        dobavi( (ime, fn, fnp) )
-            except IOError: pass
-            except Exception:
-                print( fn)
-                raise
-        print( '#налични описи:', len( nalichni_imena))
-        def tyrsach( ime):
-            return tyrsi_podobni( ime, nalichni_imena,
-                    min_ratio= 0.7 )
-        o.tyrsach = tyrsach
-        return tyrsach
+                    ime = ime or l2c( fnp)
+                    ime += avtor1
+                    dobavi( (ime, fn, fnp) )
+        except IOError: pass
+        except Exception as e:
+            print( fn, ':', str(e), file= sys.stderr)
+            raise
+    print( '#налични описи:', len( nalichni_imena), file= sys.stderr)
+    def tyrsach( ime):
+        return tyrsi_podobni( ime, nalichni_imena,
+                min_ratio= 0.7 )
+    o.tyrsach = tyrsach
+    return tyrsach
 
 def cron( items, o ):
     '''
@@ -650,7 +633,7 @@ cron.d/crontab direct: # m h dom mon dow (user) command
 
         fname = str( channel)
         fname_kanal = fname
-        dati = '-{t.month:02d}{t.day:02d}-{t.hour:02d}{t.minute:02d}'.format( **locals())
+        dati = '{t.year:04d}-{t.month:02d}{t.day:02d}-{t.hour:02d}{t.minute:02d}'.format( **locals())
         if not o.cron_fname_notime: fname += dati
         fname_kanal_vreme = fname + dati
 
@@ -683,15 +666,19 @@ cron.d/crontab direct: # m h dom mon dow (user) command
                     ).replace('Документално_студио','Док.ст.'
                     ).replace('Радиоколекция',      'Ркц'
                     ).replace('Радиотеатър',        'Рт'
+                    ).replace('радиотеатър',        'Рт'
                     ).replace('Радотеатър',         'Рт'
                     ).replace('Време_за_приказка',  'ВзаП'
                     ).replace('Ваканционна_програма',   'Вкц'
-                    ).replace('Избрано_от_',        '' #Избр.'
+                    ).replace('Избрано_от_', ''
+                    ).replace('фонда_на_редакция',''
+                    ).replace('фонда_на_',   ''
                     ).replace('_на_БНР',''
                     ).replace('Запазена_марка',''
-                    ).replace('фонда_на_редакция',''
+                    ).replace('Запазна_марка',''
                     ).replace('Семейно_радио', '' #Сем
                     ).replace('Голямата_къща_на_смешните_хора', 'ГКСХ'
+                    ).replace('Салон_за_класифицирана_словесност', 'Салон_словесност'
                     ).replace('Съвременна',     'Съвр.'
                     ).replace('Драматургични',  'драм.'
                     ).replace('драматургия',    'драм.'
@@ -997,11 +984,17 @@ if __name__ == '__main__':
         if kanali_neuspeh and retry:
             kanali = kanali_neuspeh
             sleep(7)
+        else: break
 
 
+    if 10:
+        print( '\n#ww...', file= sys.stderr)
+        for d in bnr_weekly.days:
+            print( '\n#w...', d, file= sys.stderr)
     if 0:
+        print( '\n#dd...', file= sys.stderr)
         for d in bnr_daily.today_items:
-            print( '\n#...', d, file= sys.stderr)
+            print( '\n#d...', d, file= sys.stderr)
 
     rw = bnr_weekly.filter( today, ndays= o.days, nofilter= o.nofilter )
     rd = bnr_daily.filter(  today, ndays= o.days, nofilter= o.nofilter )

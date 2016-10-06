@@ -1,5 +1,6 @@
 #!/bin/sh
-dellocale /usr/share/locale/
+dellocale /usr/share/locale/ "" /
+dellocale /usr/share/i18n/locales/
 rm='sudo rm -rf'
 
 P=/usr/bin/
@@ -22,9 +23,18 @@ $rm $P/*/test/ $P/*/tests/
 $rm $P/site-packages/*/test/ 
 $rm $P/site-packages/*/tests/ 
 $rm $P/site-packages/*/SelfTest/
-$rm /usr/share/doc/python*/html/_sources/
-$rm /usr/share/doc/python*/html/genindex*
-$rm /usr/share/doc/python*/html/searchindex*
+$rm $P/site-packages/bzrlib/plugins/*/test*
+$rm $P/site-packages/numpy/*/tests
+$rm $P/site-packages/mercurial/locale/*
+$rm $P/site-packages/pygame/examples
+$rm $P/site-packages/pygame/docs
+
+P=/usr/share/doc
+$rm $P/python*/html/_sources/
+$rm $P/python*/html/{gen,search}index*
+
+$rm $P/[a-oq-zA-Z]*
+$rm $P/p[a-xzA-Z]*
 
 
 V=/usr/share/vim/vim*/
@@ -47,12 +57,10 @@ dellocale /usr/share/skype/lang/ skype_
 
 dellocale /usr/share/opera/locale/
 #$rm [acdf-z]* b[a-fh-z] e[a-mo-z]
+$rm /usr/share/xml/docbook/xsl-stylesheets-*/common/{zh,sr,pt,bn}_*
 
 P=/usr/share/icons/
-$rm $P/*/512x*
-$rm $P/*/384x*
-$rm $P/*/256x*
-$rm $P/*/scalable*
+$rm $P/*/{512x,384x,256x,scalable}*
 
 $rm /usr/share/licenses/
 
@@ -62,22 +70,92 @@ $rm /usr/share/ghostscript/*/examples/
 $rm /usr/share/GeoIP/*v6*
 
 P=/usr/share/man
+$rm $P/man3/*.3{perl,pn,ssl}.*
+$rm $P/man3/{ASN,CURL,DSA,Fc,SDL,SSL,Tcl}*
+#$rm $P/man3/X*
 $rm $P/man3/__gnu_*
-$rm $P/man3/gnutls*
-$rm $P/man3/*.3ssl*
-$rm $P/man3/SDL*
-$rm $P/man3/DSA*
-$rm $P/man3/ASN*
-$rm $P/man3/SSL*
-$rm $P/man3/Fc*
-$rm $P/man3/CURL*
-$rm $P/[acdf-ln-z]* $P/b[a-fh-z].* $P/e[a-mo-z].*
+$rm $P/man3/{ber_,fribidi_,gnutls,ldap_,ldns_,libssh}*
+$rm $P/man3/{pam,pcap,pcre,sd_,sem_}*
+$rm $P/man3/{slk,udev,xdr_}*
+$rm $P/man3/xcb*
+$rm $P/[acdf-ln-z]* $P/b[a-fh-z].* $P/e[a-mo-z].* $P/b[a-fh-z] $P/e[a-mo-z]
+$rm $P/man1/perl*delta*
+
+$rm /usr/share/perl5/core_perl/pod/
+$rm /usr/bin/core_perl/pod*
+$rm /usr/*bin/pod2*
 
 #mesa-demos
 $rm /usr/bin/osdemo*
 $rm /usr/sbin/osd_login
 
 P=/usr/lib/modules/*/kernel
-$rm $P/drivers/staging/lustre $P/drivers/staging/comedi
-$rm $P/drivers/isdn
+$rm $P/drivers/staging/{lustre,comedi,speakup,rtl*}
+$rm $P/drivers/{isdn,infiniband}
+$rm $P/drivers/media/dvb-*
+$rm $P/drivers/media/tuners
+$rm $P/drivers/media/pci/{bt8,ttpci,saa,cx,ivtv}*
+#$rm $P/drivers/media/usb/{gspca,dvb*,cx*,em*,tm*,go7007}
+$rm $P/drivers/scsi/{aic*,bnx*,megaraid,mpt3*,lpfc,bfa,qla*}
+$rm $P/drivers/gpu/drm/{radeon,amd*}
 
+P=/usr/lib/firmware
+$rm $P/{ti-connectivity,liquidio}
+$rm $P/bnx2*
+$rm $P/{mrvl,ar3k,slicoss,go7007,emi*,qca}
+$rm $P/{libertas,carl9170fw,mwl*,moxa,vxge,qed,cxgb4,ueagle-atm}
+$rm $P/{iwlwifi*,myri*,phan*,ct*fw*,qat*,i2400*,i6050*,cbfw*,s5*}
+$rm $P/{brcm,radeon,amdgpu}
+
+$rm /usr/share/help/*
+
+P=/usr/include
+for a in `cat <<HHHHHHHH
+wine
+php
+subversion*
+poppler
+openssl
+mozjs-* js-*
+claws-mail libetpan
+qt4
+wx-*
+gstreamer*
+CLucene
+epoxy
+ImageMagick
+gimp
+HHHHHHHH
+`; do $rm $P/$a; done
+
+P=/usr/lib
+$rm $P/libmupdf.a
+$rm $P/libLL*.a
+$rm $P/libeca*.a
+$rm $P/libruby*.a
+$rm $P/libQt*.a
+
+P=/usr/share/terminfo
+$rm $P/w
+$rm $P/d/d[0-9]*
+$rm $P/a/att*
+$rm $P/n/ncr*
+$rm $P/t/tvi*
+
+P=/usr/share/liblouis/tables/
+$rm $P/*{hu,ko,de,zh,pl,fr,Fr,cs,sv,it,gr,pt,no,nl,da}[-_]*
+
+P=/usr/share/SFML/
+$rm $P/doc
+$rm $P/examples
+
+P=/usr/share/gimp/*/
+$rm $P/dynamics/
+$rm $P/tips
+$rm $P/patterns
+$rm $P/gimpressionist
+$rm $P/brushes/{Texture,Media,Splatters,*obsolet*}
+
+
+$rm /var/log/journal/*/system@*
+$rm /var/log/journal/*/user-*@*

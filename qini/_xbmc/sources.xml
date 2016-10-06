@@ -5,7 +5,7 @@
     <video>
         <default pathversion="1"></default>
         <source>
-            <name>filmi</name>
+            <name>филми</name>
             <path pathversion="1">/home/xbmc/filmi/</path>
         </source>
         <source>
@@ -20,14 +20,14 @@
     <music>
         <default pathversion="1"></default>
         <source>
-            <name>zvuk</name>
+            <name>звук</name>
             <path pathversion="1">/home/xbmc/zvuk/</path>
         </source>
     </music>
     <pictures>
         <default pathversion="1"></default>
         <source>
-            <name>snimki</name>
+            <name>снимки</name>
             <path pathversion="1">/home/xbmc/snimki/</path>
         </source>
     </pictures>

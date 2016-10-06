@@ -9,10 +9,10 @@ XTerm*cursorColor:  rgb:e000/a000/5000
 !!XTerm*pointerColor:   blue
 !XTerm*background:  rgb:5000/4a00/4000
 XTerm*background:   black
-!XTerm*foreground:   gray50
+XTerm*foreground:   gray50
 XTerm*saveLines:    99999
 
-XTerm*font: terminus-bold-20
+XTerm*font: -*-terminus-bold-*-*-*-20-*-*-*-*-*-iso10646-*
 ! terminus-bold-20
 ! terminus-cp1251-bold-20
 !XTerm*font: -xos4-terminus-bold-*-*-*-20-*-*-*-*-*-*-cp1251

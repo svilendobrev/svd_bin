@@ -65,6 +65,8 @@ ren6:
 	rename.pl 'y/A-Z/a-z/+s/img_9/i6c09/+s/img_/i6c1/' $(ROOT)*.JPG $(ROOT)*.jpg
 ren6v:
 	rename.pl 'y/A-Z/a-z/+s/mvi_9/v6c09/+s/mvi_/v6c1/' $(ROOT)*.MOV* $(ROOT)*.mov*
+datev:
+	for a in *.mov ; do touch -r $$a $$a*.mkv ; done
 
 diffix:
 	diff -btw index.html .. | perl -ne 'print if s/.*"(.*)".*/$$1 /' > ../rmm
@@ -79,4 +81,6 @@ view:
 dati:
 	find . -type d -exec sh -c 'jhead -ft "{}"/*jpg' \;
 
+png2jpg:
+	for a in *.png; do echo "$$a" ; convert "$$a" "$$a.jpg" ; done
 # vim:ts=4:sw=4:noexpandtab

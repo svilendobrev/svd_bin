@@ -36,6 +36,8 @@ al a-foreign a-manual
 #al a-repository 'sudo add-apt-repository'
 #al a-ppa a-repository
 
+al a-makepkg "makepkg -sri" #after dloading+extracting PKGBUILD/
+
 #    1  pacman -Qe
 #    2  pacman -Qet
 #   13  pacman -Qei| perl -ne 's/,00//; print $1 if s/^Name *: (\S+)//; print if s/^Installed Size *:/\t/' |sort -n -k 2

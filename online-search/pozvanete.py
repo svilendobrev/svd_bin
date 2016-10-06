@@ -2,21 +2,31 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function #,unicode_literals
 
+import re
 import pyquery
 from pyquery.openers import url_opener
 FILE = 'file://'
-def opener( url, ienc =None, **ka):
+def opener( url, ienc =None, save=None, **ka):
     if url.startswith( FILE):
         url = url[ len(FILE): ]
+        import io
+        d = io.open( url, 'rb').read()
+        if not ienc:
+            import chardet  #chardet.feedparser.org, python3-chardet, python-chardet
+            ienc = chardet.detect( d)[ 'encoding']   #.confidence
     else:
-        return url_opener( url, ka)
+        ienc = None
+        r = url_opener( url, ka)
+        d = r.read()
+        r.close()
+        if save:
+            open( url.replace('/','__'), 'wb').write( d)
 
-    import io
-    d = io.open( url, 'rb').read()
-    if not ienc:
-        import chardet  #chardet.feedparser.org, python3-chardet, python-chardet
-        ienc = chardet.detect( d)[ 'encoding']   #.confidence
-    d = d.decode( ienc)
+    #remove hanging open <
+    d = re.sub( b'<([^>]*?<)', rb'\1', d)
+    #if d!=d1: print( 2222222)
+
+    if ienc: d = d.decode( ienc)
     return d
 
 
@@ -28,11 +38,16 @@ optz.list( 'includes_info', )
 optz.list( 'excludes_name', )
 optz.bool( 'load')
 optz.bool( 'save')
+optz.bool( 'cache')
 optz.bool( 'io', help='load+save')
 optz.text( 'fload', default ='danni.pozv', help= '[%default]')
 optz.text( 'fsave', default ='danni.pozv', help= '[%default]')
-optz.bool( 'allprn', '-a', help ='всички, а не само новите')
+optz.bool( 'allprn',        help ='покажи всички въобще, а не само новите')
+optz.bool( 'curprn',        help ='покажи всички сега-прочетени, а не само новите')
 optz.text( 'merge',  help ='смеси тези данни')
+optz.bool( 'podrobno', '-v', help ='видимост!')
+optz.bool( 'prezapis', help ='презаписва дори и да няма нужда')
+optz.bool( 'debug',    help ='само гледа входа')
 
 def oprosti( t):
     return tuple( t.replace(',',' ').lower().split() )
@@ -42,11 +57,15 @@ neinfo = set(['гр.'])
 def get( url, info_includes, text_excludes, ienc ='utf-8', ads =None):
     if ads is None: ads = {}
     n=0
+    url0 = None
     for i in range( optz.pages):
         #p = pyquery.PyQuery( url= url % i , ienc= enc)
-        print( url.format( npage= i))
+        url1 = url.format( npage= i)
+        if url1 == url0: break
+        url0 = url1
+        print( url1)
         try:
-            p = pyquery.PyQuery( url= url.format( npage= i), opener= opener, ienc= ienc)
+            p = pyquery.PyQuery( url= url1, opener= opener, ienc= ienc, save=optz.cache)
         except Exception as e:
             print( e)
             break
@@ -55,6 +74,13 @@ def get( url, info_includes, text_excludes, ienc ='utf-8', ads =None):
             for li in ul.items( 'li'):
                 #print( li)
                 n+=1
+                def totxt(items):
+                    if not items: return ''
+                    return (items[0].text() or '').replace('\xA0', ' ').strip()
+                if optz.debug:
+                    print( [ totxt( list(li.items( 'div.offline-list-' +a)) )
+                            for a in 'name info phones'.split() ] )
+                    continue
                 ad = DictAttr( (a, (list(li.items( 'div.offline-list-' +a))[0].text() or '').replace('\xA0', ' ').strip() )
                         for a in 'name info phones'.split()
                         )
@@ -79,7 +105,9 @@ def merge1( ads, ad, name):
 def merge( ads, adsi):
     novi = []
     for name, ad in adsi.items():
-        if merge1( ads, ad, name): continue
+        if merge1( ads, ad, name):
+            if optz.podrobno: print( '++', ' '.join(name) )
+            continue
         novi.append( ad)
     return novi
 
@@ -139,14 +167,27 @@ def prn( ads, novi, lastdate =None):
 
 import datetime, time
 import pprint, sys, os
+def fmtsave( ads): return sorted( ads.values(), key= lambda x: x['name'])
+sets = 'info phones'.split()
+def list2set(ads):
+    for ad in ads:
+        for k in sets:
+            ad[k] = set( ad[k])
+def set2list(ads):
+    for ad in ads.values():
+        for k in sets:
+            ad[k] = sorted( ad[k])
+
 def save( ads, fname):
+    set2list( ads)
     if os.path.exists( optz.fsave):
         os.rename( optz.fsave, optz.fsave+'.1')
     print( '>', fname, file=sys.stderr)
-    pprint.pprint( dict( v=list( ads.values()), t=datetime.datetime.now().isoformat() ), stream= open( fname, 'w') )
+    pprint.pprint( dict( v= fmtsave(ads), t=datetime.datetime.now().isoformat() ), stream= open( fname, 'w') )
 
 def load( fname):
     r = eval( open( fname).read() )['v']
+    list2set( r)
     return dict( (oprosti( ad['name']), DictAttr( ad)) for ad in r )
 
 def textlist( tlist, default = ()):
@@ -170,20 +211,23 @@ def main( info_includes =None, text_excludes =None):
                     text_excludes = text_excludes,
                     ) or {}
     ads = optz.load and load( optz.fload) or {}
-    ads0 = pprint.pformat( ads)
+    ads0 = fmtsave(ads)
     for a in ads, adsnovi:
         clean( a,
-                    info_includes = info_includes,
-                    text_excludes = text_excludes,
+                info_includes = info_includes,
+                text_excludes = text_excludes,
         )
     novi = merge( ads, adsnovi)
-    if ads0 != pprint.pformat( ads) and optz.save:
+    if optz.save and (ads0 != fmtsave( ads) or optz.prezapis):
         save( ads, optz.fsave)
 
     infos = set()
     for a in ads.values(): infos.update( a.info )
     last = infos and max( info2dati( infos )) or None
-    prn( optz.allprn and ads, novi, lastdate=last)
+    allads = None
+    if optz.curprn: allads = adsnovi
+    if optz.allprn: allads = ads
+    prn( allads, novi, lastdate=last)
 
 if __name__ == '__main__':
     main()

@@ -1,0 +1,29 @@
+al()    { alias  $1="$2"; }     #no parameters allowed!
+#alias al=alias
+al d    'ls -laF'
+al up   "cd .."
+al md   mkdir
+al rd   rmdir
+al l    less
+al t    cat
+al e    vi
+nd()    { md -p "$1" ; cd "$1"; } 
+al mv   'mv -i'
+al g    'grep -E'
+al zap  "rm -rf"
+al fc   "diff -btw"
+
+al h    "hexdump -C"
+al hex  h
+
+ffl()   { find . -${II}name "$@"; } 
+ #-follow sym-links
+fff()   { find . -follow -${II}name "$@"; } 
+ff()    { fff "$@" -exec ls -doF '{}' ';'; } 
+
+al ffi  "II=i ff"
+al fffi "II=i fff"
+al ffli "II=i ffl"
+# !!! for any other * finds use fff.sh !
+
+# vim:ts=4:sw=4:expandtab

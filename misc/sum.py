@@ -4,28 +4,27 @@ from __future__ import print_function
 
 import sys
 s=0
-n=0
+
+def around(x): return round(x,5)
 
 try:
-    f = file( sys.argv[1] )
+    f = open( sys.argv[1] )
 except IndexError:
     f = sys.stdin
 
 for line in f:
-    lr = line.strip().split('#',2)
+    lr = line.strip().split('#',1)
     x = lr[0].strip()
     if not x:
         continue
     if x=='eof': break
     if '=' in x:
-        if n: print( s)
+        if s: print( around(s), '=', x.split('=',1)[-1], '\n')
         s = 0
-        n=0
     else:
-        e = eval(x)
-        print( ':',x,'=',e, lr[-1])
+        e = around(eval(x))
+        print( ':',x,'\t=',e, ':', ''.join( lr[1:]))
         s+= e
-        n+=1
-if n: print( s)
+if s: print( around(s) )
 
 # vim:ts=4:sw=4:expandtab

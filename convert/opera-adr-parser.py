@@ -58,24 +58,36 @@ class Node:
 
     class htmler:
         indent = 2
-        def __init__( me, **kargs):
-            me.__dict__.update( kargs)
+        def __init__( me, rootname =None):
+            me.rootname = rootname
+            me.on = False
         def enter( me, o, pfx):
+            if not me.on:
+                if not me.rootname or me.rootname == o.NAME:
+                    me.on = True
             if o.URL:
-                print( pfx, h('li'), h('a href="'+o.URL+'"') , o.NAME,
+                if me.on: print( pfx, h('li'), h('a href="'+o.URL+'"') , o.NAME,
                         #':', o.URL,
                         h_('a') )
             elif o.NAME and o.items:    #no empty folders
-                print( pfx , h_('li') )
-                print( pfx + hh( 'b', o.NAME ) )
-            if o.items: print( pfx + h('ul') )
+                if me.on: print( pfx , h_('li') )
+                if me.on: print( pfx + hh( 'b', o.NAME ) )
+            if o.items:
+                if me.on: print( pfx + h('ul') )
         def leave( me, o, pfx):
             #if not o.URL:
             if o.items:
-                print( pfx + h_('ul') )
+                if me.on: print( pfx + h_('ul') )
             #else:
             #    print( pfx , h_('li') )
+            if me.on and me.rootname and me.rootname == o.NAME:
+                me.on = False
 
+    def find( me, name =None):
+        if not name or me.NAME == name: return me
+        for i in me.items:
+            r = i.find( name)
+            if r: return r
 
     def dump( me, level=0, dumper =None ):
         if not dumper: dumper = me.dumper()
@@ -206,9 +218,11 @@ from svd_util import optz
 optz.usage( '%prog [options] files')
 optz.bool( 'o2py' )
 optz.bool( 'py2o' )
+optz.bool( 'ipy' )
 optz.bool( 'align' )
-optz.bool( 'o2flat' )
-optz.bool( 'py2html' )
+optz.bool( 'flat' )
+optz.bool( 'html', )
+optz.text( 'root', )
 optz.bool( 'nounique', help= 'ignore UNIQUEID' )
 optz.bool( 'notrash',  help= 'ignore trash' )
 options,args = optz.get()
@@ -222,34 +236,33 @@ for a in args:
     #r = '\n'.join( readlines( open( a )))
     r = open( a, encoding='utf-8').read().strip()
 
-    if options.py2o:
+    if options.ipy or options.py2o:
         root = eval( r, dict(dict=Node) )
-        #o.dump()
-        root.sort( key= key4tree)
-        root.opera( align= options.align, notrash= options.notrash )
-        continue
+    else:
+        root = parse( r)
 
-    if options.py2html:
-        root = eval( r, dict(dict=Node) )
-        root.sort( key= key4tree)
-        root.dump( dumper= Node.htmler())
-        continue
-
-    root = parse( r)
     root.sort( key=key4tree)
 
+    if options.root:
+        root = root.find( options.root) or Node()
+        #print( root , root.NAME)
+
+    if options.py2o:
+        root.opera( align= options.align, notrash= options.notrash )
+        continue
+    if options.html:
+        root.dump( dumper= Node.htmler())
+        continue
 
     if options.o2py:
         print( '# -*- coding: utf-8 -*-')
         root.py()
 
-    elif options.o2flat:
+    elif options.flat:
         root.allitems.sort( key=key4flat)
         for i in root.allitems:
             print( repr(i))
 
-    #elif options.html:
-    #    root.dump( dumper= Node.htmler())
     else:
         root.dump()
 

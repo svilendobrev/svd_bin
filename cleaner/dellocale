@@ -1,8 +1,11 @@
 #!/bin/sh
 X=${1:-locale}
 PFX=$2
-echo "$X" $PFX
+SFX=$3
+echo "$X" --$PFX-- --$SFX--
 # !(bg|en)
-sudo rm -rf "$X"/${PFX}[acdf-z]*
-sudo rm -rf "$X"/${PFX}b[a-fh-z]*
-sudo rm -rf "$X"/${PFX}e[a-mo-z]*
+sudo rm -rf "$X"/${PFX}[acdf-z]*$SFX
+sudo rm -rf "$X"/${PFX}b[a-fh-z]*$SFX
+sudo rm -rf "$X"/${PFX}e[a-mo-z]*$SFX
+sudo rm -rf "$X"/${PFX}en_[A-TV-Z]*$SFX
+sudo rm -rf "$X"/${PFX}en@*$SFX

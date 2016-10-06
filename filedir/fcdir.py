@@ -17,11 +17,12 @@ def optbool( name, *short, **k):
     return optany( name, action='store_true', *short, **k)
 optbool( 'nosize', default= bool( os.environ.get( 'NOSIZE')), help= 'ignore size diffs')
 optbool( 'byname',  help= 'sort by name, not dir')
-optbool( 'convert', help= 'show moves/deletes to convert dir1 to dir2, by-name')
+optbool( 'convert', help= 'show moves/deletes needed to convert dir1 to dir2, by-name')
 optany(  'exclude', '-x',   help= 'regexp to exclude/ignore files')
 optbool( 'same',            help= 'show same/similar things instead of differences')
 optbool( 'nosymlink',       help= 'dont follow symlink dirs = no dereference')
 optbool( 'symtext', '-t',   help= 'compare symlinks as text, no dereference')
+optbool( 'timestamps'   ,   help= 'compare timestamps too')
 optz,args = oparser.parse_args()
 if len(args)<2:
     oparser.error('compare what?')
@@ -41,6 +42,9 @@ def outsymlink( fp,f):
 
 from os.path import join, getsize, islink, dirname
 
+if optz.timestamps:
+    os.stat_float_times( False)
+
 def files( root):
     c = os.getcwd()
     os.chdir( root )
@@ -57,6 +61,8 @@ def files( root):
                 if not optz.nosize:
                     try: sz = getsize( fp)
                     except Exception as e: print( e)
+                if optz.timestamps:
+                    sz = (sz, os.stat( fp).st_mtime)
                 item = DictAttr( size= sz, path= fp, name= f)
             o.append( item)
         dd = []

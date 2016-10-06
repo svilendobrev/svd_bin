@@ -2,13 +2,26 @@
 from __future__ import print_function
 import os, os.path
 import subprocess, wave
+
 class config:
     verbose = False
     mp3info = False
     bytesize = False
+    noffprobe = False
+
+import sys#,locale
+v3 = sys.version_info[0]>=3
+#locale/stdout may fail on virtual terminals e.g. vim's output
+#os.environ.get( 'LANG', '')
+ENC = sys.stdout.encoding # locale.getpreferredencoding() or '',
 
 def output( *args):
-    return subprocess.Popen( args, stdout=subprocess.PIPE).communicate()[0]
+    try:
+        r = subprocess.check_output( args, stderr=subprocess.STDOUT )
+    except subprocess.CalledProcessError:
+        return None
+    if v3: r = r.decode( ENC)
+    return r
 
 def minsec( s):
     m = int(s/60)
@@ -20,20 +33,7 @@ def bytesize( size, show =True):
     if not show: return ''
     return '%5dM' % (size//1024//1024)
 
-def filesize( fn, curdir =None, config =config):
-    duration = 0
-    name,ext = os.path.splitext(fn)
-    ext = ext[1:].lower()
-    fp = curdir and os.path.join( curdir, fn) or fn
-    #if config.verbose>1: print( 'ext:', ext)
-    try:
-        sz = os.path.getsize( fp)
-    except Exception as e:
-        sz = None
-        fn += ' : ' + str(e)
-    if not sz:
-        print( '? 0', fn)
-        return 0,0
+def fileduration( fp, ext =None):
     if ext == 'flac':
         samples = output( 'metaflac', '--show-total-samples', fp)
         rate = output( 'metaflac', '--show-sample-rate', fp)
@@ -91,9 +91,17 @@ def filesize( fn, curdir =None, config =config):
                     break
             else:
                 assert 0, 'cant find duration of '+fn
+    else:
+        r = output( 'ffprobe', '-hide_banner', fp)
+        if not r: duration=0
+        else:
+            duration = r.split( 'Duration:')[-1].split(',')[0].strip()
+            h,m,s = duration.split(':')
+            duration = float(s) + 60*int(m) + 60*60*int(h)
+          #Duration: 00:22:23.41, start: 0.000000, bitrate: 773 kb/s
 
-    elif ext in 'mpegaudio mpc wma'.split():
-        out = output( 'filmid.sh', fp)
+    if 0: #ext in 'mpegaudio mpc wma'.split():
+        out = output( 'filmid.sh', fp) #mplayer -vo null -ao null -frames 0 -msglevel identify=4 "$@" 2>/dev/null
         for l in out.split('\n'):
             if 'ID_LENGTH' in l:
                 duration = float(l.split('=')[1].strip())
@@ -101,6 +109,23 @@ def filesize( fn, curdir =None, config =config):
         else:
             assert 0, 'cant find duration of '+fn
 
+    return duration
+
+def filesize( fn, curdir =None, config =config):
+    duration = 0
+    name,ext = os.path.splitext(fn)
+    ext = ext[1:].lower()
+    fp = curdir and os.path.join( curdir, fn) or fn
+    #if config.verbose>1: print( 'ext:', ext)
+    try:
+        sz = os.path.getsize( fp)
+    except Exception as e:
+        sz = None
+        fn += ' : ' + str(e)
+    if not sz:
+        print( '? 0', fn)
+        return 0,0
+    duration = fileduration( fp, config.noffprobe and ext or None)
     size = os.path.getsize( fp)
     if duration:
         if config.verbose:
@@ -135,6 +160,7 @@ if __name__ == '__main__':
     def optbool( name, *short, **k):
         return optany( name, action='store_true', *short, **k)
     optany( 'verbose',  '-v', action='count', help= 'multiple to increase verbosity')
+    optbool( 'noffprobe', help= 'dont use ffprobe for all')
     optbool( 'mp3info', '-3', help= 'force use mp3info (instead of mad)')
     optbool( 'bytesize', '-s', help= 'show also bytesize')
     options,args = oparser.parse_args()

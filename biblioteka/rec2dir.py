@@ -83,6 +83,8 @@ rIme_= '([А-Я]([а-я]{0,2}\.|[а-я]+)_*)'
 rImeIme = rIme_ + '+([а-я]{1,3}_*){0,2}' + rIme +'+'
 reime = re.compile( rImeIme )
 
+regodishnina = re.compile( '(?P<godini>\d+_години)_(след_)?(?P<avtor>[^:]+):_(?P<ime>.*)' )
+
 def filt_er( x): return (x
                     ).replace( '  ',' '
                     ).replace( ' ', '_'
@@ -121,6 +123,10 @@ def razglobi_imena( imena, rubrika, data, dirname):
             avtor_ot_opisanie = m.group(0)
         ime = zlf
         bez_ime = True
+    elif regodishnina.search( imena):
+        m = regodishnina.search( imena)
+        ime = m.group('ime')
+        avtor = m.group('avtor')
     elif rerubrika.search( rubrika ):
         opisanie = imena
         ime = rubrika_
@@ -242,7 +248,7 @@ def razglobi_imena( imena, rubrika, data, dirname):
 
     avtor = spc( avtor)
     avtori = re.split( ' и ', avtor)
-    avtori = [ re.sub( '(.+?)((народна|приказка|радиоадаптация|премиера)[_ \.]?)+', r'\1',
+    avtori = [ re.sub( '(по )?(.+?)((народна|приказка|радиоадаптация|премиера)[ \.]?)+', r'\2',
                 a.strip().strip('()'), re.IGNORECASE )
                     .replace( '[]','')
                     .strip()

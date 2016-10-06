@@ -60,6 +60,8 @@ al renl renl.py
 al renu renu.py   
 al ren_ 'rename.pl y/\ /_/'
 al sort 'LC_ALL=C sort'
+al hex  'hexdump -C'
+al h    hex  
 
 al top  'top -d 1'
 

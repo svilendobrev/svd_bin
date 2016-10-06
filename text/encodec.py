@@ -6,6 +6,7 @@ optz.help( '''use as filter: enc2enc [options] input_encoding output_encoding <i
     use utf2 as special input_encoding to double decode utf8
 ''' )
 optz.bool( 'reverse')
+#optz.bool( 'unicodeio', help= 'i/o is utf, but encode2input+decode2output')
 optz, argz = optz.get()
 
 import codecs

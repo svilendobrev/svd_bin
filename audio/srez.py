@@ -3,6 +3,8 @@
 #use: srez  a.wav 4.2 -5
 #use: srez  a.wav 4.2 0
 #use: srez  a.wav 0 -44
+#use: srez  a.wav 25 +70  ->  25..95
+
 import sys
 class DictAttr( dict):
     def __init__( me, *a, **k):
@@ -18,9 +20,13 @@ params = (p.nchannels, p.sampwidth, p.framerate, p.nframes, p.comptype, p.compna
 #print nframes, framerate
 #if verbose: print( '%sHz %s x %sbit' % (p.framerate, p.nchannels, p.sampwidth*8))
 def sec2frames(sec):
-    return int(sec * p.framerate)
+    if ':' in sec:
+        min,sec = sec.split(':')
+        sec = float(sec) + 60*float(min)
+    return int( float(sec) * p.framerate)
 
-fs,fe = [sec2frames( float(x) ) for x in (ss,se) ]
+fs,fe = [sec2frames(x) for x in (ss,se) ]
+if se[0]=='+': fe += fs
 cur = 0
 ooname = 'cut.'+infile
 i.readframes( fs - cur) #skip

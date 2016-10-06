@@ -1054,7 +1054,10 @@ class info:
                 return not fake and condition
 
             if dali( src, dst, 'linktree'+ (_root and '/R' or ''), not isdir( dst)):
-                os.makedirs( dst)
+                os.makedirs( dst, exist_ok=True)
+                stat = os.stat( src)
+                tms =  stat.st_atime, stat.st_mtime
+                os.utime( dst, tms)
 
             errors = []
             for name in names:

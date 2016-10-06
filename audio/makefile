@@ -1,23 +1,27 @@
 all: mp3 flac
 
+ifneq ($(WAV2FLAC),)
+%.flac: %.wav
+	flac --force -o "$@" "$<"
+endif
 ifneq ($(MONO),)
 OPTS+=-m m
 endif
-%.flac: %.wav
-	flac --force -o "$@" "$<"
 LAME= lame --nohist --disptime 2 -h -v -V 6 $(OPTS)
 
 %.mp36: %.mp3
 	$(LAME) "$<" "$@"
 #%.mp3: %.wav
 #	$(LAME) "$<" "$@"
-#%.mp3: %.flac
-#	flac -d "$<" -o - | $(LAME) - "$@"
+%.mp3: %.flac
+	flac -d "$<" -o - | $(LAME) - "$@"
 
+ifneq ($(TOWAV),)
 %.wav: %.flac
 	flac -d -o "$@" "$<"
 %.wav: %.mp3
 	lame --decode --nohist --quiet "$<" "$@"
+endif
 
 %.mkv: %.wmv
 	ffmpeg -i "$<" "$@"
@@ -27,14 +31,16 @@ VQ=-sameq
 %.mkv: %.avi
 	mkvmerge $< -o $@
 
+
+
 #XXX sox is much better quality resampler than ffmpeg
 %-$(RATE).ff.wav: %
 	ffmpeg -i $< -ar $(RATE) $(if $(MONO),-ac 1) $@
-ffres: $(patsubst %,%-$(RATE).ff.wav,$(wildcard $(INPUTS)))
+ffres: $(patsubst %,%-$(RATE).ff.wav,$(wildcard $(WILD)))
 
 %-$(RATE).sox.wav: %
-	sox $<  -e signed-integer -t wav $@ $(if $(MONO),channels 1) rate -m -I -b 80 $(RATE)
-soxres: $(patsubst %,%-$(RATE).sox.wav,$(wildcard $(INPUTS)))
+	sox "$<" -b 16 -e signed-integer -t wav "$@" $(if $(STEREO),channels 2) $(if $(MONO),channels 1) rate -m -I -b 80 $(RATE)
+soxres: $(patsubst %,%-$(RATE).sox.wav,$(wildcard $(WILD)))
 #rate
 # -s: steep filter
 # -M/-I/-L     Phase response = minimum/intermediate/linear
@@ -56,6 +62,7 @@ MP3s = $(wildcard $(ROOT)*.mp3)
 FLACs = $(wildcard $(ROOT)*.flac)
 flac: $(WAVs:%.wav=%.flac)
 mp3 : $(WAVs:%.wav=%.mp3)
+mp3 : $(FLACs:%.flac=%.mp3)
 mp36: mp3mp3
 mp3mp3 : $(patsubst %.mp3,%.mp36,$(wildcard $(ROOT)*.mp3))
 363:
@@ -106,13 +113,13 @@ tags:
 #RESAMPLE=1
 _RESAMPLE = resample,auto,
 _MONO2STEREO = -chcopy 1,2
-mono2stereo.%:
+mono2stereo.%.wav:
 	ecasound -i:"$(if $(RESAMPLE),$(_RESAMPLE))$*" -o "$@" $(_MONO2STEREO)
-eca.%:
+eca.%.wav:
 	ecasound -i:"$(if $(RESAMPLE),$(_RESAMPLE))$*" -o "$@" $(if $(PERC),-ei:$(PERC)) $(if $(MONO2STEREO)$(STEREO),$(_MONO2STEREO))
 
 #!!без , ( ) в имената..
-mono2stereo: $(patsubst %.wav,mono2stereo.%.wav,$(wildcard $(WILD)*.wav))
+mono2stereo: $(patsubst %,mono2stereo.%.wav,$(wildcard $(WILD)))
 #	echo "$+"
 eca: $(patsubst %.wav,eca.%.wav,$(wildcard $(WILD)*.wav))
 #	echo "$+"
@@ -134,5 +141,8 @@ bz bz2: $(patsubst %,%.bz2,$(wildcard $(BZ)))
 
 orgaudio:
 	for a in *avi; do mkvmerge -o "$a.x.mkv" -D "$a" -A "$a...mkv"  ; done
+
+%.soxcut.wav: %.wav
+	sox "$<" "$@" trim =$(FROM) =$(TO)
 
 # vim:ts=4:sw=4:noexpandtab

@@ -1,0 +1,4 @@
+only link what's needed from here, 
+or 
+copy -rs this/_vim ~/.vim
+then remove what is not needed

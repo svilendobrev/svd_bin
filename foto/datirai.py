@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 'apply timestamps from orig.files into tree of renamed files'
 import sys
 import datetime

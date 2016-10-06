@@ -59,7 +59,7 @@ date >> $LOG
 #disk1
 #crawl / /home &
 #disk2
-crawl /media/na/ &
+#crawl /media/na/ &
 #alllll
 #crawl /media/z &
 #crawl /media/na &

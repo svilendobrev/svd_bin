@@ -12,9 +12,9 @@ if which pmount >&/dev/null ; then
 else #udevil
  mm()     { udevil mount  /dev/sd"$1" ; }
  uu()     { udevil umount /dev/sd"$1" ; }
+ cdrom()  { udevil mount  /dev/cdrom "$@" ; }
+ ucdrom() { udevil umount /dev/cdrom "$@" ; }
 fi
-al mc1    'mm c1'
-al uc1    'uu c1'
 al umediat  'fusermount -u /media/t'
 
 #hw
@@ -40,5 +40,9 @@ al taskset_cpu0 'taskset -c 0'
 al taskset_cpu0_pid 'taskset -c -p 0'
 #also see /proc/PID/cpuset
 #also see /proc/PID/status | grep allowed
+
+#al poweroff '/usr/bin/poweroff -d --no-wall'
+al ciao '/usr/bin/xfce4-session-logout --fast --halt'
+
 
 # vim:ts=4:sw=4:expandtab
