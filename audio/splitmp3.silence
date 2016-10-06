@@ -1,0 +1,6 @@
+test -n "$NT" && pNT=,nt=$NT || pNT=
+test -n "$RM" && pRM=,rm || pRM=
+test -n "$OFS" && pOFS=,off=$OFS || pOFS=
+echo ...mp3splt -s -p min=${MIN:-1},th=-${TH:-50}$pNT$pRM$pOFS "$@"
+#!1.5 not 1,5
+LANG=C mp3splt -s -p th=-${TH:-50},min=${MIN:-1}$pNT$pRM$pOFS "$@"
