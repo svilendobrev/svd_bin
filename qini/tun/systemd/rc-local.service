@@ -1,0 +1,18 @@
+# /usr/lib/systemd/system/rc-local.service
+# systemctl enable rc-local
+# >>>> /etc/systemd/system/rc-local.service
+# /etc/rc.local - executable!
+
+[Unit]
+Description=/etc/rc.local Compatibility
+
+[Service]
+Type=oneshot # is forking instead of oneshot needed here?
+ExecStart=/etc/rc.local
+TimeoutSec=0
+#StandardInput=tty
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+

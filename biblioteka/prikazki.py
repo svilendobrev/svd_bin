@@ -1892,7 +1892,7 @@ def html4index( x):
     if x.tip == tipove.prikazki and 'приказк' not in h.title.lower(): h.title += '/приказки'
 
     return (info.options.html_pred or '''\
-<script language="php">
+<?php
 $title="%(title)s за слушане - Грамофонче";
 $lang='bg';
 $keywords='mp3 слушане детски приказки театър стихове песнички';
@@ -1904,7 +1904,7 @@ $head="
 ";
 
 $bodycolor='ddddc0';
-include( $_SERVER['DOCUMENT_ROOT'].'/ezik.php' ); </script>
+include( $_SERVER['DOCUMENT_ROOT'].'/ezik.php' ); ?>
 
 %(razdeli)s
 <?php echo $header; ?>

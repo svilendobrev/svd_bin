@@ -1,9 +1,5 @@
 all: mp3 flac
 
-ifneq ($(WAV2FLAC),)
-%.flac: %.wav
-	flac --force -o "$@" "$<"
-endif
 ifneq ($(MONO),)
 OPTS+=-m m
 endif
@@ -15,13 +11,6 @@ LAME= lame --nohist --disptime 2 -h -v -V 6 $(OPTS)
 #	$(LAME) "$<" "$@"
 %.mp3: %.flac
 	flac -d "$<" -o - | $(LAME) - "$@"
-
-ifneq ($(TOWAV),)
-%.wav: %.flac
-	flac -d -o "$@" "$<"
-%.wav: %.mp3
-	lame --decode --nohist --quiet "$<" "$@"
-endif
 
 %.mkv: %.wmv
 	ffmpeg -i "$<" "$@"
@@ -57,14 +46,38 @@ soxres: $(patsubst %,%-$(RATE).sox.wav,$(wildcard $(WILD)))
 #sox -D  no auto-dither
 
 ROOT=./
-WAVs = $(wildcard $(ROOT)*.wav)
-MP3s = $(wildcard $(ROOT)*.mp3)
-FLACs = $(wildcard $(ROOT)*.flac)
+WILD?=*
+WAVs = $(wildcard $(ROOT)$(WILD).wav)
+MP3s = $(wildcard $(ROOT)$(WILD).mp3)
+FLACs= $(wildcard $(ROOT)$(WILD).flac)
+ifneq ($(WAV2FLAC),)
 flac: $(WAVs:%.wav=%.flac)
+%.flac: %.wav
+	flac --no-preserve-modtime --force --keep-foreign-metadata $(ARGS) -o "$@" "$<"
+outflac: $(WAVs:%.wav=%.out.flac)
+%.out.flac: %.wav
+	/usr/local/bin/wavres44khz.py "$<" --otype flac
+else
+flac outflac:
+	$(MAKE) -f $(firstword $(MAKEFILE_LIST)) WAV2FLAC=1 $@
+endif
+
+ifneq ($(TOWAV),)
+wav: $(FLACs:%.flac=%.wav) $(MP3s:%.mp3=%.wav)
+
+%.wav: %.flac
+	flac -d --no-preserve-modtime --force --keep-foreign-metadata -o "$@" "$<"
+%.wav: %.mp3
+	lame --decode --nohist --quiet "$<" "$@"
+else
+wav:
+	$(MAKE) -f $(firstword $(MAKEFILE_LIST)) TOWAV=1 $@
+endif
+
 mp3 : $(WAVs:%.wav=%.mp3)
 mp3 : $(FLACs:%.flac=%.mp3)
 mp36: mp3mp3
-mp3mp3 : $(patsubst %.mp3,%.mp36,$(wildcard $(ROOT)*.mp3))
+mp3mp3 : $(patsubst %.mp3,%.mp36,$(wildcard $(ROOT)$(WILD).mp3))
 363:
 	rename.pl s/mp36/mp3/ *mp36
 
@@ -73,7 +86,6 @@ flac2mp3: $(FLACs:%.flac=%.mp3)
 mp3wav : $(MP3s:%.mp3=%.wav)
 flac2wav: flacwav
 mp32wav:  mp3wav
-wav: $(FLACs:%.flac=%.wav) $(MP3s:%.mp3=%.wav)
 
 #WMVs= $(wildcard *.wmv)
 #wmv2mkv: $(WMVs:%.wmv=%.mkv)

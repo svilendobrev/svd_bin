@@ -7,6 +7,7 @@ optz.bool( 'link', help= 'link instead of move/rename')
 optz.bool( 'dirfiles', '-r', help= 'dir and then files inside') #?
 optz.bool( 'upper', '-u', help= 'just upper-case, all args are filepaths')
 optz.bool( 'lower', '-l', help= 'just lower-case, all args are filepaths')
+optz.str(  'movepath',  help= 'rename and move into')
 optz.bool( 'insymlink', help= 'rename inside symlinks-text, ignore non-symlinks')
 optz.help( '''
 %prog [options] regexp subst filepaths
@@ -43,6 +44,10 @@ if optz.insymlink:
     print( '# inside symlinks')
 
 def doit(a):
+    if optz.movepath == a:
+        print( '!ignore movepath target', a)
+        return
+
     org = a
     if optz.insymlink:
         if not os.path.islink( a):
@@ -51,6 +56,8 @@ def doit(a):
         a = os.readlink( a )
     b = func(a)
     if b != a:
+        if optz.movepath:
+            b = os.path.join( optz.movepath, b)
         print( *[ x for x in [
                 org!=a and org+'->',
                 a, ':>', b

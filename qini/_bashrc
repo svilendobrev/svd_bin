@@ -49,7 +49,7 @@ if [ -n "$PS1" ]; then #interactivestuff
   _set _wordF=forward-word
   _set _completeF=menu-complete   # new versions have this; but now list is gone
   #_set _completeF=complete
-  _set _completeB=complete        # eh, no backwards :(
+  _set _completeB=menu-complete-backward    # was = complete if no backwards :(
   _set _completelist=possible-completions
   _set _expand=insert-completions
   _kesc() {

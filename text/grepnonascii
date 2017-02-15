@@ -1,0 +1,2 @@
+#!/bin/sh
+LC_ALL=C grep -P '[\x80-\xff]' --color "$@"

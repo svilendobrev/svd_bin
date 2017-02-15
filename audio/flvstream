@@ -1,0 +1,9 @@
+#!/bin/sh
+
+flvstreamer -V -r rtmp://pri.cdn.bg:2003/fms/ -y "mp3:fms/audio/Karaliichev/$1" -s http://www.binar.bg/dalet/player.swf -p http://www.binar.bg -o "$1.flv" -f "LNX 10,3,183,19" "$2" "$3" "$4" "$5"
+#html.js, търси flashvars
+# -r се взема от streamer: ...
+# -y се взема от file: .. като a/b/c.mp3 става mp3:a/b/c
+# -s  е адреса на .swf скрипта
+# -p  е адреса на страницата
+#ако увисва, пробвай -m 1  :  timeout 1sec ; и/или -e  : resume

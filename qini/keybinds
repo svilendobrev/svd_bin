@@ -51,8 +51,8 @@ _kbin $_k_cEND      kill-line
  # tab walk through list of choices (to show it: use ^d or tab-tab or ctrlTAB)
  # shift-tab do it backward
 _kbin $_TAB         $_completeF
-#_kbin $_k_sTAB      $_completeB	#tcsh
-_kbin $_k_sTAB     "\e-$_TAB"		#bash: arg- then complete
+_kbin $_k_sTAB      $_completeB	 #tcsh+bash4
+#_kbin $_k_sTAB     "\e-$_TAB"		#bash: arg- then complete
 _kbin $_k_cTAB      $_completelist
  #in tcsh this is glob-expand; in bash this is tab-expand
 _kbin $_CTL"G"      $_expand

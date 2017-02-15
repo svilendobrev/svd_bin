@@ -23,12 +23,13 @@ _CHMOD_S="$_CHMOD_S hdparm"
 
 al battery 'ibam -a'
 _SS='sensors| grep -Ev " V( |$)"'
-al ss  "$_SS"
+al sens  "$_SS"
 
 if which nvidia-settings >&/dev/null ; then
  al gpu 'nvidia-settings -q GPUCoreTemp | grep Attri'
- al ss  "gpu; $_SS"
+ al sens  "gpu; $_SS"
 fi
+al s sens
 #al sss 'ss;hddtemp /dev/sda /dev/sdb'
 
 al freq0 'cpupower -c all frequency-info'

@@ -1,6 +1,61 @@
 ## these -> 127.0.0.1
 #127.0.0.1 www.facebook.com
-#127.0.0.1 connect.facebook.net
+127.0.0.1 platform.twitter.com
+127.0.0.1 connect.facebook.net
+127.0.0.1 metrika.yandex.ua
+127.0.0.1 mc.yandex.ru
+127.0.0.1 share.yandex.net
+127.0.0.1 sitehelp.im
+#127.0.0.1 sitecheck2.opera.com
+#127.0.0.1 skm102.hostsila.org
+#127.0.0.1 mx.inkiev.net
+#127.0.0.1 srv85-165-240-87.vk.com
+#127.0.0.1 
+127.0.0.1 servicer.marketgid.com
+127.0.0.1 cm.marketgid.com
+127.0.0.1 jsc.marketgid.com
+127.0.0.1 www.acint.net
+127.0.0.1 ad.mail.ru
+127.0.0.1 www.tns-counter.ru
+127.0.0.1 ssp-rtb.sape.ru
+127.0.0.1 cache.betweendigital.com
+127.0.0.1 ads.betweendigital.com
+127.0.0.1 counter.yadro.ru
+127.0.0.1 rutrk.org
+127.0.0.1 cdn-rtb.sape.ru
+127.0.0.1 vogo-vogo.ru
+127.0.0.1 c.luxup.ru
+127.0.0.1 betsonsport.ru
+127.0.0.1 www.betsonsport.ru
+127.0.0.1 wlneteller.adsrv.eacdn.com
+127.0.0.1 openstat.net
+127.0.0.1 ad.adriver.ru
+127.0.0.1 www.marathonbet.com
+127.0.0.1 www.pinbet.ru
+127.0.0.1 ssum-sec.casalemedia.com
+127.0.0.1 creativecdn.com
+127.0.0.1 static2.t-ru.org
+
+127.0.0.1 logws1349.ati-host.net
+127.0.0.1 tracking.olx-st.com
+127.0.0.1 ninja.onap.io
+127.0.0.1 dmp.adform.net
+127.0.0.1 csi.gstatic.com
+127.0.0.1 www.googletagmanager.com
+127.0.0.1 www.googletagservices.com
+127.0.0.1 www8.smartadserver.com
+127.0.0.1 securepubads.g.doubleclick.net
+127.0.0.1 secure-ams.adnxs.com
+127.0.0.1 ib.adnxs.com
+127.0.0.1 gum.criteo.com
+127.0.0.1 cdn.optimizely.com
+127.0.0.1 cdn.mxpnl.com
+127.0.0.1 api.mixpanel.com
+
+127.0.0.1 www.bet365.com
+127.0.0.1 b.codeonclick.com
+127.0.0.1 sync.teads.tv
+127.0.0.1 us-u.openx.net
 
 127.0.0.1 1.adbrite.com
 127.0.0.1 2.adbrite.com
@@ -27,6 +82,8 @@
 127.0.0.1 ad6.bannerbank.ru
 127.0.0.1 adbg.hit.gemius.pl
 127.0.0.1 adcz.hit.gemius.pl
+127.0.0.1 ls.hit.gemius.pl
+127.0.0.1 olx.hit.gemius.pl
 127.0.0.1 adidnes2.bbmedia.cz
 127.0.0.1 adocean.pl
 127.0.0.1 ads.adbrite.com

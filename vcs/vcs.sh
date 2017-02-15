@@ -42,7 +42,7 @@ elif test -f .svn/entries ; then  what=svn
 else
     ## these once in root of repository
     d=./
-    for ((a=9;a--;)) do
+    for ((a=19;a--;)) do
         if test -d $d.bzr; then  what=bzr; break;
         elif test -d $d.hg; then  what=hg; break;
         elif test -d $d.git; then  what=git; break;

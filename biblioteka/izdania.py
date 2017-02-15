@@ -306,4 +306,59 @@ def koi_nositel4fname( fname, media, izdanie):
         if izdanie in vv: return k
     return ''
 
+if __name__ == '__main__':
+    #плочи по номера
+    import sys
+    from svd_util.yamls import usability
+    from svd_util.struct import DictAttr
+
+    def dai_izdania( fopisi):
+        for fopis in fopisi:
+            opis = DictAttr( usability.load( open( fopis) ) )
+            izdania = opis.get( 'издания')
+            if izdania: yield (izdania, opis, fopis)
+            for i,p in (opis.get( 'парчета') or {}).items():
+                if not isinstance( p, dict): continue
+                try:
+                    izdania = p.get( 'издания')
+                except:
+                    print( fopis, p)
+                    raise
+                if izdania: yield (izdania, p, fopis)
+
+    ploci = []
+    for izdania,opis,fopis in dai_izdania( sys.argv[1:]):
+        #if ploca not in koi_nositel( izdania): continue
+        for izdanie in izdania.lower().split():
+            #if ploca not in koi_nositel( izdanie): continue
+            izd = izdanie_razglobi( izdanie)
+            if ploca not in izd.nositel: continue
+            nomer = izd.nomer
+            avt = opis.get( 'автор') or ''
+            if not avt:
+                uu = opis.get( 'участници')
+                if uu:
+                    avt = uu.get( 'изпълнение') or ''
+                    if avt:
+                        if isinstance( avt, (dict, usability.dictOrder) ):
+                            avt = ', '.join( avt)#.keys()
+                        elif isinstance( avt, (tuple,list)):
+                            avt = ', '.join( ' '.join( a) if isinstance( a,(dict,usability.dictOrder)) else a
+                                                for a in avt)
+                        else: assert isinstance( avt, str), avt
+            ime = opis[ 'име']
+            ploci.append( [ nomer, izdanie, ime, avt, fopis ])
+
+    def bnomer( nomer):
+        nomera = bton_nomer2godina( nomer)
+        if not nomera: return -1
+        try:
+            nom = int( nomera[-1].split(',')[0])
+        except:
+            print( nomer, nomera)
+            raise
+        return nom
+    for nomer,izdanie,ime,avt,fopis in sorted( ploci, key= lambda kv: bnomer(kv[0]) ):
+        print( izdanie, '::', ime, ':', avt, '=', fopis)#'; '.join( ' : '.join( str(x) for x in imeavt) for imeavt in imeavti))
+
 # vim:ts=4:sw=4:expandtab

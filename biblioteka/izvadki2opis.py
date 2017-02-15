@@ -3,20 +3,22 @@
 
 from svd_util.yamls import usability
 from svd_util.struct import DictAttr
-from svd_util import dbg, optz, lat2cyr
+from svd_util import dbg, lat2cyr
 cyr2lat = lat2cyr.zvuchene.cyr2lat
 l2c     = lat2cyr.zvuchene.lat2cyr
-
 from svd_util.osextra import save_if_different, globescape, makedirs
 
 import rec2dir
 
-from distutils.dep_util import newer
+#from distutils.dep_util import newer
 
 import os, re
 from glob import glob
 import os.path as ospath
 import operator, functools
+
+class optz: #default if imported
+    log=0
 
 def log( bez_localz =False ):
     if not optz.log: return
@@ -480,6 +482,7 @@ def gotovo( pyt, opis, kym =None, ime =None):
     print( '')
 
 if __name__ == '__main__':
+    from svd_util import optz
     optz.bool( 'zapis')
     optz.str( 'gotovo')
     optz.bool( 'obnovi')

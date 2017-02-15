@@ -33,7 +33,7 @@ keyarrows() {
 }
 
 #mode1
-if (ls -lF /usr/lib/libvte.so.9 | grep 9.1.6 > /dev/null); then	#old 9.1.6.hack
+if (ls -lF /usr/lib/libvte.so.9 | grep 9.1.6 ) &> /dev/null; then	#old 9.1.6.hack
  _OLDHACK=1
  keyarrows c "[5"		#ctrl
 else
@@ -41,6 +41,7 @@ else
 fi
 keyarrows s "[1;2"		#shift
 #keyarrows c "[1;6"	#ctrl+shift
+#xfce: before ver 0.8, scroll= shift+up/dn/pgup/pgdn ; after: ctrl+shift+up/dn/pgup/pgdn , shift+pgup/pgdn
 
 #mode2: vim-etc ??
 keyarrows c "O1;5" 2 	#ctrl
@@ -49,8 +50,12 @@ keyarrows s "O1;2" 2	#shift
 
 #_kesc cTAB ????	#non-termcap
 _kesc sTAB "[Z"
-_kesc HOME "OH"
-_kesc END  "OF"
+_kesc HOME2 "OH"
+_kesc END2  "OF"
+_kesc HOME  "[H"
+_kesc END   "[F"
+_kesc cHOME	"[1;5"H
+_kesc cEND 	"[1;5"F
 #_kesc cHOME		#non-termcap
 #_kesc cEND 		#n-t
 _kesc cPGUP "[5;5~"	#n-t
@@ -58,12 +63,12 @@ _kesc cPGDN "[6;5~"	#n-t
 _kesc cDEL  "[3;5~"	#n-t
 
 keyfuncs() { 
- _kesc $1F1  "O$3$2P"
- _kesc $1F2  "O$3$2Q"
- _kesc $1F3  "O$3$2R"
+ _kesc $1F1  "$L$3$2P"
+ _kesc $1F2  "$L$3$2Q"
+ _kesc $1F3  "$L$3$2R"
  x=$2
  test -z "$2" || x=";$2"
- _kesc $1F4  "O$3$2S"
+ _kesc $1F4  "$L$3$2S"
  _kesc $1F5  "[15$x~"
  _kesc $1F6  "[17$x~"
  _kesc $1F7  "[18$x~"
@@ -74,7 +79,9 @@ keyfuncs() {
  _kesc $1F12 "[24$x~"
 }
 
+L=O
 keyfuncs 
+L="["
 if test -n "$_OLDHACK"; then
  keyfuncs c "5" 
  keyfuncs s "2" 

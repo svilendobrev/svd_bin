@@ -16,11 +16,6 @@ bg_BG CP1251
 
 
 ###################
-getty3 -> /etc/event.d/getty3
-
-###################
-/etc/X11/Xsession.d/20slim_locale
-. /etc/environment
 
 /etc/default/transmission-daemon:
 OPTIONS="--config-dir $CONFIG_DIR  -c /home/get  -w /home/get  --no-auth   "
@@ -29,11 +24,6 @@ OPTIONS="--config-dir $CONFIG_DIR  -c /home/get  -w /home/get  --no-auth   "
 mozilla:
 pref.js / about:
 user_pref("intl.locale.matchOS", false);
-
-/etc/init/mountall.conf:
-exec mountall --daemon $MOUNTALLDBG  $force_fsck $fsck_fix 
-/etc/default/rcS:
-#MOUNTALLDBG=--debug
 
 grub: 
 kernel.....
@@ -54,3 +44,7 @@ AddressFamily inet
 chmod g+w /media/themount
 
 skype 4.3 + : install pulseaudio ; moveout ~/.Skype/shared.xml
+
+firefox+microphone:
+  media.navigator.audio.full_duplex = false at about:config, then restart
+  https://wiki.archlinux.org/index.php/firefox

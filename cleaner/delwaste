@@ -16,6 +16,7 @@ $rm $P/share/template/wizard/
 $rm $P/LICENSE* $P/CREDIT*
 $rm $P/share/config/images_hicontrast.zip
 $rm $P/help
+$rm $P/sdk/
 
 P=/usr/lib/python*/
 $rm $P/test/ $P/idle*/ $P/tkinter/
@@ -90,22 +91,22 @@ $rm /usr/bin/osdemo*
 $rm /usr/sbin/osd_login
 
 P=/usr/lib/modules/*/kernel
-$rm $P/drivers/staging/{lustre,comedi,speakup,rtl*}
-$rm $P/drivers/{isdn,infiniband}
-$rm $P/drivers/media/dvb-*
-$rm $P/drivers/media/tuners
-$rm $P/drivers/media/pci/{bt8,ttpci,saa,cx,ivtv}*
-#$rm $P/drivers/media/usb/{gspca,dvb*,cx*,em*,tm*,go7007}
-$rm $P/drivers/scsi/{aic*,bnx*,megaraid,mpt3*,lpfc,bfa,qla*}
-$rm $P/drivers/gpu/drm/{radeon,amd*}
+# $rm $P/drivers/staging/{lustre,comedi,speakup,rtl*}
+# $rm $P/drivers/{isdn,infiniband}
+# $rm $P/drivers/media/dvb-*
+# $rm $P/drivers/media/tuners
+# $rm $P/drivers/media/pci/{bt8,ttpci,saa,cx,ivtv}*
+# #$rm $P/drivers/media/usb/{gspca,dvb*,cx*,em*,tm*,go7007}
+# $rm $P/drivers/scsi/{aic*,bnx*,megaraid,mpt3*,lpfc,bfa,qla*}
+# $rm $P/drivers/gpu/drm/{radeon,amd*}
 
 P=/usr/lib/firmware
-$rm $P/{ti-connectivity,liquidio}
-$rm $P/bnx2*
-$rm $P/{mrvl,ar3k,slicoss,go7007,emi*,qca}
-$rm $P/{libertas,carl9170fw,mwl*,moxa,vxge,qed,cxgb4,ueagle-atm}
-$rm $P/{iwlwifi*,myri*,phan*,ct*fw*,qat*,i2400*,i6050*,cbfw*,s5*}
-$rm $P/{brcm,radeon,amdgpu}
+# $rm $P/{ti-connectivity,liquidio}
+# $rm $P/bnx2*
+# $rm $P/{mrvl,ar3k,slicoss,go7007,emi*,qca}
+# $rm $P/{libertas,carl9170fw,mwl*,moxa,vxge,qed,cxgb4,ueagle-atm}
+# $rm $P/{iwlwifi*,myri*,phan*,ct*fw*,qat*,i2400*,i6050*,cbfw*,s5*}
+# $rm $P/{brcm,radeon,amdgpu}
 
 $rm /usr/share/help/*
 

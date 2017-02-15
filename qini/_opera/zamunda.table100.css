@@ -25,6 +25,8 @@ table.test {
 *[title~="Пайнер"] { display : none }
 *[title~="Payner"] { display : none }
 *[title~="Голые"] { display : none }
+*[title~="такъми"] { display : none }
+
 
 *#div1 { display : none }
 iframe { display : none }

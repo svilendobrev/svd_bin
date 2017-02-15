@@ -6,11 +6,11 @@ _CHMOD_S=
  # -L to follow a link2dir instead of showing the link itself
  # -d to see the link and not to follow
  # ls without .*; -o w/o groups; -g w/o owner
-al d    'ls --color -ogF'
+al d    'ls --color=auto -ogF'
 al d1   'ls -1'
 al da   'ls -lF'
  # ls with .*
-al d.   'ls --color -alF'
+al d.   'ls --color=auto -alF'
  # ls .* only; -d is to avoid recursive ls of directories
 al d..  'd -d .*'
  # ls executables only
@@ -234,5 +234,9 @@ chmod_s() {
   #?? ln -f $F ${F}__ && chmod +s ${F}__
  done 
 }
+
+al amx alsamixer
+#hardlink, ignore hardlinked, sort-size
+al rmli 'rmlint -c sh:link -L -y s -p -T duplicates'
 
 # vim:ts=4:sw=4:expandtab

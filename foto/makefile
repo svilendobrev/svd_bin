@@ -1,7 +1,7 @@
 ROOT ?= ./
 
 all:
-	@echo i3c ? i6c ? ren6v ? opt ? optjpg ? autorot ?autodate
+	@echo i6c ? ren6v ? datev ? opt ? optjpg ? autorot ?autodate
 
 BIN = $(dir $(MAKEFILE_LIST))
 
@@ -18,13 +18,16 @@ autodate:
 	jhead -ft $(ROOT)*.jpg
 
 OPTs=$(wildcard $(ROOT)*.jpg)
+OPTes=$(wildcard $(ROOT)*.jpeg)
 OPTs1=$(wildcard $(ROOT)*.JPG)
 
-jpg2opt: $(OPTs:%.jpg=%.opt) $(OPTs1:%.JPG=%.opt)
+jpg2opt: $(OPTs:%.jpg=%.opt) $(OPTs1:%.JPG=%.opt) $(OPTes:%.jpeg=%.opt)
 opt: jpg2opt
 	$(MAKE) -f $(MAKEFILE_LIST) opt1jpg
 
 %.opt: %.jpg
+	jhead "$<" | grep -i progressive || jpegtran -optimize -progressive -copy all -outfile "$@" "$<"
+%.opt: %.jpeg
 	jhead "$<" | grep -i progressive || jpegtran -optimize -progressive -copy all -outfile "$@" "$<"
 %.opt: %.JPG
 	jhead "$<" | grep -i progressive || jpegtran -optimize -progressive -copy all -outfile "$@" "$<"
@@ -63,8 +66,9 @@ optjpg:
 	$(MAKE) -f $(MAKEFILE_LIST) autodate
 ren6:
 	rename.pl 'y/A-Z/a-z/+s/img_9/i6c09/+s/img_/i6c1/' $(ROOT)*.JPG $(ROOT)*.jpg
-ren6v:
+v6 6v ren6v:
 	rename.pl 'y/A-Z/a-z/+s/mvi_9/v6c09/+s/mvi_/v6c1/' $(ROOT)*.MOV* $(ROOT)*.mov*
+	@echo ".mov -> .mkv ; maf datev !!"
 datev:
 	for a in *.mov ; do touch -r $$a $$a*.mkv ; done
 
@@ -80,6 +84,8 @@ view:
 
 dati:
 	find . -type d -exec sh -c 'jhead -ft "{}"/*jpg' \;
+optall:
+	find . -type d -exec make -f $(MAKEFILE_LIST) opt -C {} \;
 
 png2jpg:
 	for a in *.png; do echo "$$a" ; convert "$$a" "$$a.jpg" ; done

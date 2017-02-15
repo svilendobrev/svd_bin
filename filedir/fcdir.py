@@ -68,6 +68,7 @@ def files( root):
         dd = []
         for f in dirs:
             fp = join( root, f)
+            if ignore and ignore.search( fp): continue
             if optz.symtext and islink( fp):
                 item = outsymlink( fp,f)
                 o.append( item)

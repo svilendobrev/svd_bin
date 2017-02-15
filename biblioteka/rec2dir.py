@@ -12,7 +12,7 @@ from glob import glob
 import datetime
 
 def c2l( x): return lat2cyr.zvuchene.cyr2lat( x).lower()
-def spc(x): return x.replace( '_', ' ').strip()
+def spc(x): return x.replace( '_', ' ').replace('  ',' ').strip()
 lc = 'oо aа eе cс'.split()
 def rlatcyr( x, idx =1):
     for a in lc:
@@ -80,7 +80,7 @@ reteatyr_ime = re.compile( rlatcyr( '(_театър_)'+requo + '('+rnquo+'+)' + 
 
 rIme = '([А-Я][а-я]+_*)'
 rIme_= '([А-Я]([а-я]{0,2}\.|[а-я]+)_*)'
-rImeIme = rIme_ + '+([а-я]{1,3}_*){0,2}' + rIme +'+'
+rImeIme = rIme_ + '*([а-я]{1,3}_*){0,2}' + rIme +'+'
 reime = re.compile( rImeIme )
 
 regodishnina = re.compile( '(?P<godini>\d+_години)_(след_)?(?P<avtor>[^:]+):_(?P<ime>.*)' )
@@ -95,6 +95,7 @@ def filt_er( x): return (x
                     ).replace( '_-','-'
                     ).replace( '-_','-'
                     ).replace( '_.','.'
+                    ).replace( '_:',':'
                     )
 
 slovom10 = 'първа втора трета четвърта пета шеста седма осма девета десета'.split()
@@ -107,6 +108,7 @@ def razglobi_imena( imena, rubrika, data, dirname):
     imena = (imena.replace( '\u2013','-')  #- = x2013
             .replace( '\xA0','_')
             .replace( ' ','_')
+            .replace( '__','_')
             )
 
     dok = False
@@ -116,6 +118,8 @@ def razglobi_imena( imena, rubrika, data, dirname):
     bez_ime = False
     for q in rquo: rubrika = rubrika.replace( q, '')
     rubrika_ = rubrika.replace(' ','_')
+    imena = re.sub( '^Предаването.е.посветено.на', '', imena, re.IGNORECASE)
+    imena = re.sub( '^Гост:', '', imena, re.IGNORECASE)
     if rezlf.search( rubrika_ ):
         opisanie = imena
         m = reime.search( imena)
@@ -139,14 +143,17 @@ def razglobi_imena( imena, rubrika, data, dirname):
         #imena > ime + (tip) + avtor.opis
         #imena = imena.lstrip( rquo+rend)
         imena = imena.strip( rend)
+        if 'СКЛСЛ' in imena: rubrika = 'СКЛСЛ'
         tipove= 'документална_радиопиеса драматизация документално_студио'.replace(' ','|')
         razdelitel = rlatcyr( '_(от|по|на)_')
         ss = re.split( requo, imena)
-        if len(ss)>1:
-            avtor = ss.pop(-1).strip( rend)
+        #print('#',5555555, ss)
+        if len(ss)>1:   #nonquoted quoted nonquoted [quoted nonquoted]...
+            avtor = ss.pop( len(ss)>2 and 2 or -1).strip( rend)
             if len(ss)>1: opisanie = ss.pop(0).strip( rend)
             ime = '_'.join( ss)
-            razdelitel = razdelitel.lstrip('_')
+            razdelitel = '_?'+razdelitel.lstrip('_')
+            #print( 3333, avtor, opisanie, ime)
             if opisanie:
                 #... в романа на ... ; панорама на ...
                 #Механизмът на едиквоси, разтълкуван от ... в
@@ -160,14 +167,14 @@ def razglobi_imena( imena, rubrika, data, dirname):
                         if m:
                             m,_ostavi = m
                             avtor_ot_opisanie = m.group( 1)
-
         elif '-' in imena:
             ime,avtor = imena.split('-',1)
         else:
             ime = ''
             avtor = imena
-
+        #print( 4444, avtor)
         m = re.match( '(?P<ime>.*?)'+razdelitel+'(?P<avtor>'+rImeIme+ ')(?P<ost>.*)', avtor)
+        #print( 4444, m)
         if m:
             avtor = m.group( 'avtor').strip( rend)
             ostatyk = m.group( 'ost').strip( rend)
@@ -182,9 +189,7 @@ def razglobi_imena( imena, rubrika, data, dirname):
             avtor = ''
 
     ime = ime.strip( rquo+rend)
-    ime = (spc( ime)
-            .replace( '  ',' ')
-            )
+    ime = spc( ime)
     if not ime:
         ime = rubrika
         bez_ime = True
@@ -266,7 +271,8 @@ def razglobi_imena( imena, rubrika, data, dirname):
     avtor_kys = '-'.join( avtori_kysi)
 
     avtor_dylyg = '-'.join( avtori)
-    dirname_cyr = filt_er( '--'.join( a for a in [ ime, avtor_dylyg, 'радио'] if a ))
+    ime4dir = '' if 'еко-ехо' in rubrika.replace(' ','').lower() else ime
+    dirname_cyr = filt_er( '--'.join( a for a in [ ime4dir, avtor_dylyg, 'радио'] if a ))
     dirname = c2l( dirname_cyr)
 
 #    [0].upper()+a[1:]
@@ -378,12 +384,15 @@ if __name__ == '__main__':
     optz.bool( 'link',    help= 'само връзка към новото име')
     optz.bool( 'nomove',  help= 'не мести към .../0/, а направи връзка')
     optz.str( 'where',  default= '.', help= '[%default]')    #'/zapisi/novo/'
+    optz.str( 'test',  help= 'пуска eval( този-текст)')
 
     optz,argz = optz.get()
-    command = optz.link and os.link
-
-    for fime in argz:
-        print( fime)
-        go( fime, optz.where, nedei= optz.nothing, command= command, move= not optz.nomove, decode= optz.decode)
+    if optz.test:
+        print( eval( optz.test))
+    else:
+        command = optz.link and os.link
+        for fime in argz:
+            print( fime)
+            go( fime, optz.where, nedei= optz.nothing, command= command, move= not optz.nomove, decode= optz.decode)
 
 # vim:ts=4:sw=4:expandtab

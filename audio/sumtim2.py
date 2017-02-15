@@ -23,10 +23,11 @@ def output( *args):
     if v3: r = r.decode( ENC)
     return r
 
+DIGITS = 0
 def minsec( s):
     m = int(s/60)
     ss = s-m*60
-    return '%(m)3d:%(ss)02.0f' % locals()
+    return '{m:2d}:{ss:0{w}.{p}f}'.format( p=DIGITS, w=2+bool(DIGITS)+DIGITS, **locals())
     return '%(m)2d:%(ss)4.1f = %(s).1fs ' % locals()
 
 def bytesize( size, show =True):
@@ -93,12 +94,21 @@ def fileduration( fp, ext =None):
                 assert 0, 'cant find duration of '+fn
     else:
         r = output( 'ffprobe', '-hide_banner', fp)
-        if not r: duration=0
-        else:
-            duration = r.split( 'Duration:')[-1].split(',')[0].strip()
-            h,m,s = duration.split(':')
-            duration = float(s) + 60*int(m) + 60*60*int(h)
+        duration = 0
+        if r:
+            for l in r.splitlines():
+                l = l.strip()
+                if 'Duration:' in l:
+                    duration = l.split( 'Duration:')[-1].split(',')[0].strip()
+                if l.startswith( 'Stream ') and ' Audio: ' in l: break
+            else:
+                duration = 0
+            if duration and ':' in duration:
+                h,m,s = duration.split(':')
+                duration = float(s) + 60*int(m) + 60*60*int(h)
+            else: duration=0
           #Duration: 00:22:23.41, start: 0.000000, bitrate: 773 kb/s
+          #Duration: N/A, bitrate: 773 kb/s
 
     if 0: #ext in 'mpegaudio mpc wma'.split():
         out = output( 'filmid.sh', fp) #mplayer -vo null -ao null -frames 0 -msglevel identify=4 "$@" 2>/dev/null
@@ -163,8 +173,9 @@ if __name__ == '__main__':
     optbool( 'noffprobe', help= 'dont use ffprobe for all')
     optbool( 'mp3info', '-3', help= 'force use mp3info (instead of mad)')
     optbool( 'bytesize', '-s', help= 'show also bytesize')
+    optany( 'rounddigits', type= int, default=0, help= 'digits after . in (sub)seconds')
     options,args = oparser.parse_args()
-
+    DIGITS = options.rounddigits
     total_time = total_size = 0
     for curdir in (args or [os.getcwd()]):
         time, size = dirsize( curdir, config= options)
