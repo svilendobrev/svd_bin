@@ -1,8 +1,0 @@
-cd ~/.xbmc/addons/screensaver.xbmc.slideshow/resources/lib/
-ln -sf /home/qini/_xbmc/screensaver.xbmc.slideshow/gui.py 
-ln -sf /home/qini/_xbmc/screensaver.xbmc.slideshow/lat2cyr.py
-cd -
-cd ~/.xbmc/addons/screensaver.xbmc.slideshow/resources/skins/default/720p/
-ln -sf /home/qini/_xbmc/screensaver.xbmc.slideshow/script-python-slideshow.xml 
-cd -
-ls lat2cyr.py
