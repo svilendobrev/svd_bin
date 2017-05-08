@@ -1,6 +1,7 @@
 #!/bin/sh
 dellocale /usr/share/locale/ "" /
 dellocale /usr/share/i18n/locales/
+dellocale /usr/lib/chromium/locales/ 
 rm='sudo rm -rf'
 
 P=/usr/bin/
@@ -69,6 +70,7 @@ $rm /usr/share/ghostscript/*/doc/
 $rm /usr/share/ghostscript/*/examples/
 
 $rm /usr/share/GeoIP/*v6*
+$rm /usr/share/fonts/OTF/
 
 P=/usr/share/man
 $rm $P/man3/*.3{perl,pn,ssl}.*

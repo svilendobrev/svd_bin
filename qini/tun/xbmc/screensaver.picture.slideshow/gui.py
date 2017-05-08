@@ -13,49 +13,34 @@
 # *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 # *  http://www.gnu.org/copyleft/gpl.html
 
-import random
+import random, copy, threading
 import xbmcgui, xbmcaddon
 import EXIFvfs
 from iptcinfovfs import IPTCInfo
 from XMPvfs import XMP_Tags
 from xml.dom.minidom import parse
 from utils import *
-if sys.version_info < (2, 7):
-    import simplejson
-else:
-    import json as simplejson
+import json
+from lat2cyr import zvuchene    #svd
 
-__addon__    = sys.modules[ '__main__' ].__addon__
-__addonid__  = sys.modules[ '__main__' ].__addonid__
-__cwd__      = sys.modules[ '__main__' ].__cwd__
-__skindir__  = xbmc.getSkinDir().decode('utf-8')
-__skinhome__ = xbmc.translatePath( os.path.join( 'special://home/addons/', __skindir__, 'addon.xml' ).encode('utf-8') ).decode('utf-8')
-__skinxbmc__ = xbmc.translatePath( os.path.join( 'special://xbmc/addons/', __skindir__, 'addon.xml' ).encode('utf-8') ).decode('utf-8')
+ADDON    = sys.modules[ '__main__' ].ADDON
+ADDONID  = sys.modules[ '__main__' ].ADDONID
+CWD      = sys.modules[ '__main__' ].CWD
+SKINDIR  = xbmc.getSkinDir().decode('utf-8')
 
 # images types that can contain exif/iptc data
 EXIF_TYPES  = ('.jpg', '.jpeg', '.tif', '.tiff')
 
 # random effect list to choose from
-if xbmcaddon.Addon(id='xbmc.addon').getAddonInfo('version') == '12.0.0':
-    EFFECTLIST = ["('effect=zoom start=100 end=400 center=auto time=%i condition=true', 'conditional'),",
-                 "('effect=slide start=1280,0 end=-1280,0 time=%i condition=true', 'conditional'), ('effect=zoom start=%i end=%i center=auto time=%i condition=true', 'conditional')",
-                 "('effect=slide start=-1280,0 end=1280,0 time=%i condition=true', 'conditional'), ('effect=zoom start=%i end=%i center=auto time=%i condition=true', 'conditional')",
-                 "('effect=slide start=0,720 end=0,-720 time=%i condition=true', 'conditional'), ('effect=zoom start=%i end=%i center=auto time=%i condition=true', 'conditional')",
-                 "('effect=slide start=0,-720 end=0,720 time=%i condition=true', 'conditional'), ('effect=zoom start=%i end=%i center=auto time=%i condition=true', 'conditional')",
-                 "('effect=slide start=1280,720 end=-1280,-720 time=%i condition=true', 'conditional'), ('effect=zoom start=%i end=%i center=auto time=%i condition=true', 'conditional')",
-                 "('effect=slide start=-1280,720 end=1280,-720 time=%i condition=true', 'conditional'), ('effect=zoom start=%i end=%i center=auto time=%i condition=true', 'conditional')",
-                 "('effect=slide start=1280,-720 end=-1280,720 time=%i condition=true', 'conditional'), ('effect=zoom start=%i end=%i center=auto time=%i condition=true', 'conditional')",
-                 "('effect=slide start=-1280,-720 end=1280,720 time=%i condition=true', 'conditional'), ('effect=zoom start=%i end=%i center=auto time=%i condition=true', 'conditional')"]
-else:
-    EFFECTLIST = ["('conditional', 'effect=zoom start=100 end=400 center=auto time=%i condition=true'),",
-                 "('conditional', 'effect=slide start=1280,0 end=-1280,0 time=%i condition=true'), ('conditional', 'effect=zoom start=%i end=%i center=auto time=%i condition=true')",
-                 "('conditional', 'effect=slide start=-1280,0 end=1280,0 time=%i condition=true'), ('conditional', 'effect=zoom start=%i end=%i center=auto time=%i condition=true')",
-                 "('conditional', 'effect=slide start=0,720 end=0,-720 time=%i condition=true'), ('conditional', 'effect=zoom start=%i end=%i center=auto time=%i condition=true')",
-                 "('conditional', 'effect=slide start=0,-720 end=0,720 time=%i condition=true'), ('conditional', 'effect=zoom start=%i end=%i center=auto time=%i condition=true')",
-                 "('conditional', 'effect=slide start=1280,720 end=-1280,-720 time=%i condition=true'), ('conditional', 'effect=zoom start=%i end=%i center=auto time=%i condition=true')",
-                 "('conditional', 'effect=slide start=-1280,720 end=1280,-720 time=%i condition=true'), ('conditional', 'effect=zoom start=%i end=%i center=auto time=%i condition=true')",
-                 "('conditional', 'effect=slide start=1280,-720 end=-1280,720 time=%i condition=true'), ('conditional', 'effect=zoom start=%i end=%i center=auto time=%i condition=true')",
-                 "('conditional', 'effect=slide start=-1280,-720 end=1280,720 time=%i condition=true'), ('conditional', 'effect=zoom start=%i end=%i center=auto time=%i condition=true')"]
+EFFECTLIST = ["('conditional', 'effect=zoom start=100 end=400 center=auto time=%i condition=true'),",
+              "('conditional', 'effect=slide start=1280,0 end=-1280,0 time=%i condition=true'), ('conditional', 'effect=zoom start=%i end=%i center=auto time=%i condition=true')",
+              "('conditional', 'effect=slide start=-1280,0 end=1280,0 time=%i condition=true'), ('conditional', 'effect=zoom start=%i end=%i center=auto time=%i condition=true')",
+              "('conditional', 'effect=slide start=0,720 end=0,-720 time=%i condition=true'), ('conditional', 'effect=zoom start=%i end=%i center=auto time=%i condition=true')",
+              "('conditional', 'effect=slide start=0,-720 end=0,720 time=%i condition=true'), ('conditional', 'effect=zoom start=%i end=%i center=auto time=%i condition=true')",
+              "('conditional', 'effect=slide start=1280,720 end=-1280,-720 time=%i condition=true'), ('conditional', 'effect=zoom start=%i end=%i center=auto time=%i condition=true')",
+              "('conditional', 'effect=slide start=-1280,720 end=1280,-720 time=%i condition=true'), ('conditional', 'effect=zoom start=%i end=%i center=auto time=%i condition=true')",
+              "('conditional', 'effect=slide start=1280,-720 end=-1280,720 time=%i condition=true'), ('conditional', 'effect=zoom start=%i end=%i center=auto time=%i condition=true')",
+              "('conditional', 'effect=slide start=-1280,-720 end=1280,720 time=%i condition=true'), ('conditional', 'effect=zoom start=%i end=%i center=auto time=%i condition=true')"]
 
 # get local dateformat to localize the exif date tag
 DATEFORMAT = xbmc.getRegion('dateshort')
@@ -78,47 +63,56 @@ class Screensaver(xbmcgui.WindowXMLDialog):
         speedup = 1 / float(effectslowdown)
         self.adj_time = int(101000 * speedup)
         # get the images
-        items = self._get_items()
-        if items:
+        self._get_items()
+        if self.slideshow_type == '2' and self.slideshow_random == 'false' and self.slideshow_resume == 'true':
+            self._get_offset()
+        if self.items:
             # hide startup splash
             self._set_prop('Splash', 'hide')
             # start slideshow
-            self._start_show(items)
+            self._start_show(copy.deepcopy(self.items))
 
     def _get_vars(self):
         # get the screensaver window id
-        self.winid   = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
+        self.winid    = xbmcgui.Window(xbmcgui.getCurrentWindowDialogId())
         # init the monitor class to catch onscreensaverdeactivated calls
-        self.Monitor = MyMonitor(action = self._exit)
-        self.stop    = False
-        self.startup = True
+        self.Monitor  = MyMonitor(action = self._exit)
+        self.stop     = False
+        self.startup  = True
+        self.offset   = 0
 
     def _get_settings(self):
         # read addon settings
-        self.slideshow_type   = __addon__.getSetting('type')
-        self.slideshow_path   = __addon__.getSetting('path')
-        self.slideshow_effect = __addon__.getSetting('effect')
-        self.slideshow_time   = int(__addon__.getSetting('time'))
+        self.slideshow_type   = ADDON.getSetting('type')
+        self.slideshow_path   = ADDON.getSetting('path')
+        self.slideshow_effect = ADDON.getSetting('effect')
+        self.slideshow_time   = int(ADDON.getSetting('time'))
         # convert float to hex value usable by the skin
-        self.slideshow_dim    = hex(int('%.0f' % (float(100 - int(__addon__.getSetting('level'))) * 2.55)))[2:] + 'ffffff'
-        self.slideshow_random = __addon__.getSetting('random')
-        self.slideshow_scale  = __addon__.getSetting('scale')
-        self.slideshow_name   = __addon__.getSetting('label')
-        self.slideshow_date   = __addon__.getSetting('date')
-        self.slideshow_iptc   = __addon__.getSetting('iptc')
-        self.slideshow_music  = __addon__.getSetting('music')
-        self.slideshow_cache  = __addon__.getSetting('cache')
+        self.slideshow_dim    = hex(int('%.0f' % (float(100 - int(ADDON.getSetting('level'))) * 2.55)))[2:] + 'ffffff'
+        self.slideshow_random = ADDON.getSetting('random')
+        self.slideshow_resume = ADDON.getSetting('resume')
+        self.slideshow_scale  = ADDON.getSetting('scale')
+        self.slideshow_name   = ADDON.getSetting('label')
+        self.slideshow_date   = ADDON.getSetting('date')
+        self.slideshow_iptc   = ADDON.getSetting('iptc')
+        self.slideshow_music  = ADDON.getSetting('music')
+        self.slideshow_bg     = ADDON.getSetting('background')
         # select which image controls from the xml we are going to use
         if self.slideshow_scale == 'false':
             self.image1 = self.getControl(1)
             self.image2 = self.getControl(2)
             self.getControl(3).setVisible(False)
             self.getControl(4).setVisible(False)
+            if self.slideshow_bg == 'true':
+                self.image3 = self.getControl(5)
+                self.image4 = self.getControl(6)
         else:
             self.image1 = self.getControl(3)
             self.image2 = self.getControl(4)
             self.getControl(1).setVisible(False)
             self.getControl(2).setVisible(False)
+            self.getControl(5).setVisible(False)
+            self.getControl(6).setVisible(False)
         if self.slideshow_name == '0':
             self.getControl(99).setVisible(False)
         else:
@@ -130,20 +124,34 @@ class Screensaver(xbmcgui.WindowXMLDialog):
         # show music info during slideshow if enabled
         if self.slideshow_music == 'true':
             self._set_prop('Music', 'show')
+        # show background if enabled
+        if self.slideshow_bg == 'true':
+            self._set_prop('Background', 'show')
 
     def _start_show(self, items):
+        # we need to start the update thread after the deep copy of self.items finishes
+        thread = img_update(data=self._get_items)
+        thread.start()
         # start with image 1
         cur_img = self.image1
         order = [1,2]
         # loop until onScreensaverDeactivated is called
-        while (not xbmc.abortRequested) and (not self.stop):
+        while (not self.Monitor.abortRequested()) and (not self.stop):
+            # keep track of image position, needed to save the offset
+            self.position = self.offset
             # iterate through all the images
-            for img in items:
+            for img in items[self.offset:]:
                 # cache file may be outdated
-                if self.slideshow_type == '2' and self.slideshow_cache == 'true' and not xbmcvfs.exists(img[0]):
+                if self.slideshow_type == '2' and not xbmcvfs.exists(img[0]):
                     continue
                 # add image to gui
                 cur_img.setImage(img[0],False)
+                # add background image to gui
+                if self.slideshow_scale == 'false' and self.slideshow_bg == 'true':
+                    if order[0] == 1:
+                        self.image3.setImage(img[0],False)
+                    else:
+                        self.image4.setImage(img[0],False)
                 # give xbmc some time to load the image
                 if not self.startup:
                     xbmc.sleep(1000)
@@ -180,6 +188,7 @@ class Screensaver(xbmcgui.WindowXMLDialog):
                                             datetime = date[2] + '-' + date[1] + '-' + date[0] + '  ' + time
                                         else:
                                             datetime = date[0] + '-' + date[1] + '-' + date[2] + '  ' + time
+                                        datetime = datetime.split()[0]  #svd date only
                                     except:
                                         pass
                                     exif = True
@@ -224,7 +233,9 @@ class Screensaver(xbmcgui.WindowXMLDialog):
                     self.datelabel.setVisible(False)
                 # display iptc data if we have any
                 if iptc_ti or iptc_de or iptc_ke:
-                    self.textbox.setText(title + '[CR]' + description + '[CR]' + keywords)
+                    self.textbox.setText(
+                        '[CR]'.join([title, keywords] if title == description
+                                    else [title, description, keywords]))
                     self.textbox.setVisible(True)
                 else:
                     self.textbox.setVisible(False)
@@ -237,15 +248,25 @@ class Screensaver(xbmcgui.WindowXMLDialog):
                             NAME = img[1]
                     elif self.slideshow_name == '2':
                         if 'svd':
-                            pp = os.path.dirname( img[0]).split('/')
-                            qq = pp[-2:]
-                            if qq[0].isdigit(): qq = pp[-3:]
+                            ff = img[0].replace(':','/')
+                            pp = ff.split('/')[:-1]
+                            start = len( self.slideshow_path.split('/'))
+                            qq = pp[max( start, len(pp) - 3):]
+                            if qq[0].isdigit():
+                                qq = pp[max( start, len(pp) - 4):]
                             NAME = ' / '.join( qq)
-                            #ROOT2, NAME2 = os.path.split(ROOT)
-                            #NAME = NAME2+' / '+NAME
+                            NAME = zvuchene.lat2cyr( NAME.decode('utf8'))
                         else:
                             ROOT, NAME = os.path.split(os.path.dirname(img[0]))
-                    self.namelabel.setLabel('[B]' + NAME + '[/B]')
+                    elif self.slideshow_name == '3':
+                        if self.slideshow_type == '2':
+                            ROOT, FOLDER = os.path.split(os.path.dirname(img[0]))
+                            FILE, EXT = os.path.splitext(os.path.basename(img[0]))
+                            NAME = FOLDER + ' / ' + FILE
+                        else:
+                            ROOT, FOLDER = os.path.split(os.path.dirname(img[0]))
+                            NAME = FOLDER + ' / ' + img[1]
+                    self.namelabel.setLabel('[B]' + NAME + '[/B]')  #svd
                 # set animations
                 if self.slideshow_effect == '0':
                     # add slide anim
@@ -259,6 +280,10 @@ class Screensaver(xbmcgui.WindowXMLDialog):
                     # add fade anim, used for both fade and slide/zoom anim
                     self._set_prop('Fade%d' % order[0], '0')
                     self._set_prop('Fade%d' % order[1], '1')
+                # add fade anim to background images
+                if self.slideshow_bg == 'true':
+                    self._set_prop('Fade1%d' % order[0], '0')
+                    self._set_prop('Fade1%d' % order[1], '1')
                 # define next image
                 if cur_img == self.image1:
                     cur_img = self.image2
@@ -269,50 +294,77 @@ class Screensaver(xbmcgui.WindowXMLDialog):
                 # slideshow time in secs (we already slept for 1 second)
                 count = self.slideshow_time - 1
                 # display the image for the specified amount of time
-                while (not xbmc.abortRequested) and (not self.stop) and count > 0:
+                while (not self.Monitor.abortRequested()) and (not self.stop) and count > 0:
                     count -= 1
                     xbmc.sleep(1000)
                 # break out of the for loop if onScreensaverDeactivated is called
-                if  self.stop or xbmc.abortRequested:
+                if  self.stop or self.Monitor.abortRequested():
                     break
+                self.position += 1
+            self.offset = 0
+            items = copy.deepcopy(self.items)
 
-    def _get_items(self):
-	# check if we have an image folder, else fallback to video fanart
+    def _get_items(self, update=False):
+        self.slideshow_type   = ADDON.getSetting('type')
+        log('slideshow type: %s' % self.slideshow_type)
+	    # check if we have an image folder, else fallback to video fanart
         if self.slideshow_type == '2':
-            if self.slideshow_cache == 'true':
-                hexfile = checksum(self.slideshow_path)
-                if not xbmcvfs.exists(CACHEFILE % hexfile):
-                    create_cache()
-                items = self._read_cache(hexfile)
-            else:
-                items = walk(self.slideshow_path)
-            if not items:
+            hexfile = checksum(self.slideshow_path) # check if path has changed, so we can create a new cache at startup
+            log('image path: %s' % self.slideshow_path)
+            log('update: %s' % update)
+            if (not xbmcvfs.exists(CACHEFILE % hexfile)) or update: # create a new cache if no cache exits or during the background scan
+                log('create cache')
+                create_cache(self.slideshow_path, hexfile)
+            self.items = self._read_cache(hexfile)
+            log('items: %s' % len(self.items))
+            if not self.items:
                 self.slideshow_type = '0'
-	# video fanart
+                # delete empty cache file
+                if xbmcvfs.exists(CACHEFILE % hexfile):
+                    xbmcvfs.delete(CACHEFILE % hexfile)
+	    # video fanart
         if self.slideshow_type == '0':
             methods = [('VideoLibrary.GetMovies', 'movies'), ('VideoLibrary.GetTVShows', 'tvshows')]
-	# music fanart
+	    # music fanart
         elif self.slideshow_type == '1':
             methods = [('AudioLibrary.GetArtists', 'artists')]
         # query the db
         if not self.slideshow_type == '2':
-            items = []
+            self.items = []
             for method in methods:
                 json_query = xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "' + method[0] + '", "params": {"properties": ["fanart"]}, "id": 1}')
                 json_query = unicode(json_query, 'utf-8', errors='ignore')
-                json_response = simplejson.loads(json_query)
+                json_response = json.loads(json_query)
                 if json_response.has_key('result') and json_response['result'] != None and json_response['result'].has_key(method[1]):
                     for item in json_response['result'][method[1]]:
                         if item['fanart']:
-                            items.append([item['fanart'], item['label']])
+                            self.items.append([item['fanart'], item['label']])
         # randomize
         if self.slideshow_random == 'true':
-            random.shuffle(items, random.random)
+            random.seed()
+            random.shuffle(self.items, random.random)
             if 'svd':
-                items.reverse()
+                self.items.reverse()
                 random.seed()
-                random.shuffle(items, random.random)
-        return items
+                random.shuffle(self.items, random.random)
+
+    def _get_offset(self):
+        try:
+            offset = xbmcvfs.File(RESUMEFILE)
+            self.offset = int(offset.read())
+            offset.close()
+        except:
+            self.offset = 0
+
+    def _save_offset(self):
+        if not xbmcvfs.exists(CACHEFOLDER):
+            xbmcvfs.mkdir(CACHEFOLDER)
+        try:
+            offset = xbmcvfs.File(RESUMEFILE, 'w')
+            offset.write(str(self.position))
+            offset.close()
+        except:
+            log('failed to save resume point')
 
     def _read_cache(self, hexfile):
         images = ''
@@ -353,14 +405,12 @@ class Screensaver(xbmcgui.WindowXMLDialog):
 
     def _get_animspeed(self):
         # find the skindir
-        if xbmcvfs.exists( __skinxbmc__ ):
-            # xbmc addon dir
-            skinxml = __skinxbmc__
-        elif xbmcvfs.exists( __skinhome__ ):
-            # user addon dir
-            skinxml = __skinhome__
-        else:
-            return
+        json_query = xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Addons.GetAddonDetails", "params": {"addonid": "%s", "properties": ["path", "extrainfo"]}, "id": 1}' % SKINDIR)
+        json_query = unicode(json_query, 'utf-8', errors='ignore')
+        json_response = json.loads(json_query)
+        if json_response.has_key('result') and (json_response['result'] != None) and json_response['result'].has_key('addon') and json_response['result']['addon'].has_key('path'):
+            skinpath = json_response['result']['addon']['path']
+        skinxml = xbmc.translatePath( os.path.join( skinpath, 'addon.xml' ).encode('utf-8') ).decode('utf-8')
         try:
             # parse the skin addon.xml
             self.xml = parse(skinxml)
@@ -389,10 +439,39 @@ class Screensaver(xbmcgui.WindowXMLDialog):
         self._clear_prop('Slide2')
         self._clear_prop('Fade1')
         self._clear_prop('Fade2')
+        self._clear_prop('Fade11')
+        self._clear_prop('Fade12')
         self._clear_prop('Dim')
         self._clear_prop('Music')
         self._clear_prop('Splash')
+        self._clear_prop('Background')
+        # save the current position  to file
+        if self.slideshow_type == '2' and self.slideshow_random == 'false' and self.slideshow_resume == 'true':
+            self._save_offset()
         self.close()
+
+
+class img_update(threading.Thread):
+    def __init__( self, *args, **kwargs ):
+        self._get_items =  kwargs['data']
+        threading.Thread.__init__(self)
+        self.stop = False
+        self.Monitor = MyMonitor(action = self._exit)
+
+    def run(self):
+        while (not self.Monitor.abortRequested()) and (not self.stop):
+            # create a fresh index as quickly as possible after slidshow started
+            self._get_items(True)
+            count = 0
+            while count != 3600: # check for new images every hour
+                xbmc.sleep(1000)
+                count += 1
+                if self.Monitor.abortRequested() or self.stop:
+                    return
+
+    def _exit(self):
+        # exit when onScreensaverDeactivated gets called
+        self.stop = True
 
 class MyMonitor(xbmc.Monitor):
     def __init__( self, *args, **kwargs ):

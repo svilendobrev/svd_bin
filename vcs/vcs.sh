@@ -123,6 +123,7 @@ bzr_v='revert'
 hg_u='pull -u'
 hg_uu='update'
 hg_i='commit'
+hg_p='push'
 #hg_i_pipe='&& hg push'
 hg_ii='resolve -m'    #??? after conflct, before commit + needs another commit
 hg_d='diff --nodates'

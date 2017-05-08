@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import print_function #,unicode_literals
+'print groups of argfiles of same size'
 import sys, os.path
 all = {}
 for a in sys.argv[1:]:

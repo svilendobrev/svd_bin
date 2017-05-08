@@ -157,4 +157,7 @@ orgaudio:
 %.soxcut.wav: %.wav
 	sox "$<" "$@" trim =$(FROM) =$(TO)
 
+#.raw+.cue -> wav
+# $bchunk .raw .cue -w xyz
+
 # vim:ts=4:sw=4:noexpandtab

@@ -1,5 +1,5 @@
 vdprev() {
-    v d "$1" -r `v l -l 2 "$1" | perl -ne 'print if s/revno: *//' | tail -1`
+    v d "$1" -r `v l -l 2 "$1" | perl -ne 'print if s/(revno: *|changeset: *\d+:)//' | tail -1`
 }    
 al i 'v i -m'
 

@@ -1,20 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-#from __future__ import print_function #,unicode_literals
-'apply moves-around-dirs/deletes from template/ into .'
+from __future__ import print_function
 
 import os
 join = os.path.join
 
 from svd_util import optz
+optz.help( 'apply moves-around-dirs/deletes from template/ into .')
 optz.bool( 'real', '-y', )
-optz.append( 'exclude', help='dirs', default= [] )
-optz.append( 'ignore' , help='file-names', default= [])
+optz.list( 'exclude', help= 'dirs', default= [] )
+optz.list( 'ignore' , help= 'file-names', default= [])
+optz.bool( 'dup2ignore' , help= 'ignore duplicates')
 optz,args = optz.get()
 none = not optz.real
 
 template = args[0].rstrip('/')
 
+from collections import defaultdict
 tree = {}
 paths = set()
 
@@ -22,7 +24,7 @@ try: os.mkdir( 'del')
 except Exception as e: print( e)
 
 optz.exclude = [ a.rstrip('/') for a in optz.exclude ]
-
+errdup = set()
 for path, dirs, files in os.walk( template ):
     subpath = path[ len(template): ].lstrip('/').split( '/')
     p = join( *subpath[:] )
@@ -30,11 +32,30 @@ for path, dirs, files in os.walk( template ):
         dirs[:] = []
         continue
     paths.add( p)
+    dirs.sort()
+    files.sort()
     for name in files:
         if name in optz.ignore: continue
-        assert name not in tree, (name, path)
-        tree[ name] = p
+        if name in tree:
+            print( '=', name, path, tree[ name])
+            errdup.add( name)
+        #assert name not in tree, (name, path, tree[ name])
+        if 0:
+            tp = tree.setdefault( name, [])
+            tp.append( p )
+            if len(tp)>1:
+                lcur = os.path.getsize( join( path, name) )
+                lprev = os.path.getsize( join( template, tp[-2], name) )
+                assert lcur==lprev, (lcur, lprev)
+        else:
+            tree[ name] = p
         #print( pp,name)
+
+errdup = sorted( errdup)
+if optz.dup2ignore:
+    optz.ignore += errdup
+else:
+    assert not errdup, errdup
 
 if not none:
     for p in paths:
@@ -51,6 +72,8 @@ for path, dirs, files in os.walk( '.' ):
         if p in optz.exclude:
             dirs[:] = []
             continue
+    dirs.sort()
+    files.sort()
     for name in files:
         if name in optz.ignore: continue
         if name not in tree:

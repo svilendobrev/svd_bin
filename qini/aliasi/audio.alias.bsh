@@ -45,21 +45,30 @@ ape2mp3()       { ffmpeg -i "$1" -f wav pipe: | _stdin2mp3  "$1" ; }
 ape2mp3split()  { ape2mp3 "$1"; mp3splt -c "$2" "$1".mp3; }
 cuefix()        { grep -v "REM " | cuebreakpoints -i cue ; }
 CUEFILTER="cat"
-any2wavsplit()  { 
+any2wavsplit()  {
     echo "$1"--"$2"
-    cat "$2" | grep -v "REM " | $CUEFILTER | shnsplit -o ${ext:-wav} -t '%n. %t'  "$1" ;
+    cat "$2" | grep -v "REM " | $CUEFILTER | shnsplit -O never -o ${ext:-wav} -t '%n. %t'  "$1" ;
 }
 cue-noframes()  { CUEFILTER='perl -ne s/:[0-9][0-9]\s*$/\n/;print' ; }  #wholly shit
 any2flacsplit() { ext=flac any2wavsplit "$@" ; }
-any2flacsplit_forall() { for a in "$@"; do cd "$a"; any2flacsplit *.$IN *.cue ; cd - ; done ; }
+any2flacsplit_forall() {
+    shopt -s nullglob
+    for a in "$@"; do
+     cd "$a" ; pwd
+     test -n "$IN" && any2flacsplit *.$IN *.cue
+     test -z "$IN" && any2flacsplit *.{flac,ape,wv} *.cue
+     cd - > /dev/null
+    done
+    shopt -u nullglob
+    }
 
 #no, ffmpeg pipe omits wav-length header
-#al shnsplit 'shnsplit -i "ape ffmpeg -i %f -f wav pipe:" 
+#al shnsplit 'shnsplit -i "ape ffmpeg -i %f -f wav pipe:"
 
 ape2flacsplit() {
     ape2wav  "$1"
     any2flacsplit "$1".wav  "$2"
-}    
+}
 al ape2mp3if    'forallif ape mp3 ape2mp3'
 al ape2flacif   'forallif ape flac ape2flac'
 
@@ -73,9 +82,9 @@ _name2title() {
     done
 }
 
-_flac2tag() { 
+_flac2tag() {
     metaflac --show-tag=$1  "$2"| tail -1 |sed -s 's/[^=]*=//'
-}   
+}
 
 tag1-flac2name() {
     t=`_flac2tag Title  "$1"`
@@ -162,11 +171,11 @@ any2split() {
 }
 
 ren-flac-as-mp3() {
-  for a in "$@"; do 
+  for a in "$@"; do
     X=`echo "$a"| perl -ne 's/.*- (\d+) -.*/\1/;print'`
     #D=`dirname "$a"`
     $E mv "${D:-.}"/split*$X*flac "$a".flac
-  done 
+  done
 }
 
 
@@ -181,12 +190,12 @@ anyinfo() {
 al mau 'make -f ~/src/bin/audio/makefile'
 al ema 'e ~/src/bin/audio/makefile'
 
-ffmpeg2wavany() { 
-    ffmpeg -i "$@"  "$1".wav 
+ffmpeg2wavany() {
+    ffmpeg -i "$@"  "$1".wav
 }
 
 # stream 2:  -map 0.2
-ffmpeg2wav() { 
+ffmpeg2wav() {
     ffmpeg2wavany "$@" -ac 2 -ar 44100
 }
 
@@ -195,7 +204,7 @@ mkv2extract() {
 }
 
 qcut() {
-    qwavcut "$1" -o cut"$1" -B $2 -E $3 
+    qwavcut "$1" -o cut"$1" -B $2 -E $3
     chmod a+r cut"$1"
 }
 

@@ -48,6 +48,10 @@ set tabstop=4 shiftwidth=4
 "set textwidth=75   "plain text only?
 set autoindent
 
+"TODO try these
+"se virtualedit - allows positioning the cursor where no actual character.
+" selectmode+=key keymodel+=startsel
+
 set hlsearch    "highlight the last used search pattern
 if version >= 600
     set fillchars="vert:|"
@@ -68,7 +72,7 @@ autocmd FileType c,cpp          setl cindent ts=4 sw=4 expandtab
 "autocmd BufEnter /usr/*,/tmp/*     setl noexpandtab ts=8 sw=8
 "autocmd FileType c,cpp          setl tags-=/usr/include/tags tags+=/usr/include/tags
 "autocmd FileType c,cpp          setl tags-=$PYinc/tags tags+=$PYinc/tags
-autocmd FileType python         setl tags-=$PYlib/tags tags+=$PYlib/tags
+"autocmd FileType python         setl tags-=$PYlib/tags tags+=$PYlib/tags
 "autocmd FileType python,c,cpp   setl tags-=$WXinc/wx/tags tags+=$WXinc/wx/tags
 "autocmd FileType python,c,cpp   setl path-=$PYinc path+=$PYinc
   let python_highlight_builtins = 1
@@ -126,7 +130,9 @@ augroup END
 let gr_any0="grep\ -Ens\ --exclude-dir=.svn --exclude-dir=CVS --exclude-dir=.bzr \"$*\""
 " -r : no symlinks
 " -R: with symlinks
-let gr_any=gr_any0 . "\ -R\ ."
+let gr_any_withLinks=gr_any0 . "\ -R\ ."
+let gr_any_noLinks=gr_any0 . "\ -r\ ."
+let gr_any=gr_any_noLinks
 let gr_mak="\ --include=[mM]ake\\*"
 let gr_cfg="\ --include=\\*.inc\ --include=\\*.cfg"
 let gr_xml="\ --include=\\*.xml"
@@ -477,7 +483,7 @@ inoremap <s-F10> <c-o>:bn!<CR>
 noremap  <F9>       :bN!<CR>
 inoremap <F9>  <c-o>:bN!<CR>
 
-"copy to/from X-clipboard - see [help x11-selection]; to X-selection is "*y
+"copy to/from X-clipboard - see [x11-selection]; to X-selection is "*y ; needs compiled with [+xterm_clipboard]
 vnoremap <c-C> "*y
 vnoremap <c-Y> "+y
 noremap  <c-Q> "+p

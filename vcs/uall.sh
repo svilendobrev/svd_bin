@@ -1,12 +1,12 @@
 #!/bin/sh
 export VS=`echo $VS$0.$1|grep vs`
-for a in ${@:-*}; do
+for a in ${@:-./*}; do
  test -d $a || continue
  if test ! -L "$a" -o -n "$LINKSuall" -o `basename "$0"` = "luall.sh" -o -f .LINKSuall; then
   cd "$a"
   if test -f ignore-uall ; then echo '** ignored' `pwd`
   else
-    H=">>> $a"
+    H=" >>> $a"
     #`pwd`'---'
     if test -n "$VS" ; then
         echo "$H"

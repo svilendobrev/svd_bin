@@ -6,9 +6,19 @@ USE_XLRD=0
 if USE_XLRD:
     import xlrd
     #this puts ints as floats :/ and formatting_info is not there yet
+    import xlrd.xlsx
+    def letter2index0( a):
+        r = xlrd.xlsx._UPPERCASE_1_REL_INDEX[a]
+        assert r>0
+        return r-1
 else:
     import openpyxl
     #if 123 is formatted under 0000 -> manual reformat-to-text
+    import openpyxl.utils
+    def letter2index0( a):
+        r = openpyxl.utils.column_index_from_string( a)
+        assert r>0
+        return r-1
 
 ALLSHEETS = object()
 def read( fname, sheets =[], as_sheet =False):
@@ -53,30 +63,64 @@ def read( fname, sheets =[], as_sheet =False):
         yield sname.strip(), ws
 
 
-def strip( array):
-    #right
-    maxw = 0
-    for row in array:
+def strip( array, where =[]): #top =False, left =False, right =True, bottom =True):
+    minx= miny= 0
+    maxw= maxh = -1
+    if 'top' in where:
         i=0
-        for i,cell in enumerate( row[::-1]):
-            if cell is not None: break
-        w = len(row)-i
-        maxw = max( maxw, w)
+        for i,row in enumerate( array):
+            if any( cell is not None for cell in row): break
+        miny = i
+        array[ :i] = []
+
+    if 'left' in where:
+        minx = 0
+        for row in array:
+            i=0
+            for i,cell in enumerate( row):
+                if cell is not None: break
+            minx = min( minx, i)
+        for row in array:
+            row[ :minx] = []
+
+    if 'right' in where:
+        maxw = 0
+        for row in array:
+            i=0
+            for i,cell in enumerate( row[::-1]):
+                if cell is not None: break
+            w = len(row)-i
+            maxw = max( maxw, w)
+        for row in array:
+            row[ maxw:] = []
+
+    if 'bottom' in where:
+        i=0
+        for i,row in enumerate( array[::-1]):
+            if any( cell is not None for cell in row): break
+        maxh = len(array)-i
+        array[ maxh:] = []
+
+    print( 'x', minx, 'y', miny, 'w', maxw, 'h', maxh)
+    return array
+
+def select_columns( array, columns =()):
+    if not columns: return
+    onlythese = columns
+    #needs_names = not columns[0].isdigit()
+    #if not needs_names:
+    onlythese = [ int(i) if i.isdigit() else letter2index0(i) for i in onlythese ]
+    print( onlythese )
+
     for row in array:
-        row[ maxw:] = []
-
-    #bottom
-    i=0
-    for i,row in enumerate( array[::-1]):
-        if any( cell is not None for cell in row): break
-    maxh = len(array)-i
-    array[ maxh:] = []
-
-    print( 'w', maxw, 'h', maxh)
+        #if needs_names:
+        #    needs_names = False
+        #    onlythese = [ i for i,c in enumerate( row) if c in onlythese ]
+        if onlythese: row[:] = [ row[i] for i in onlythese ]
     return array
 
 import csv
-def write( fname, array):
+def write( fname, array, delimiter =None):
     #with open( fname, 'wb') as f: nonono
     try:
         f = open( fname, 'x', newline='')
@@ -85,7 +129,7 @@ def write( fname, array):
         return
     print( '>', fname)
     with f: #open( fname, 'w', newline='') as f:
-        c = csv.writer(f)
+        c = csv.writer(f, **(delimiter and dict( delimiter=delimiter) or {}))
         for row in array:
             c.writerow( row )
 
@@ -103,7 +147,10 @@ args-in-any-order: file.xlsx [sheetname] [sheetname] ..
     optz.str( 'path',       help= 'output path, default is whereever .xls is')
     optz.bool( 'allsheets', help= 'save all sheets, named csvname.sheetname.csv')
     optz.bool( 'dir_from_name',  help= 'create outname as folder, i.e. csvname/sheetname.csv')
-    optz.bool( 'nostrip',   help= 'do not strip empty columns/rows at right/bottom')
+#    optz.bool( 'nostrip',   help= 'do not strip empty columns/rows at right/bottom - see also --strip_top_left')
+    optz.str( 'strip',      help= 'strip empty columns/rows at where - left,top,bottom,right, comma separated; default [%default]', default= 'right,bottom')
+    optz.str( 'columns',    help= 'columns to extract, comma separated (index-0-based, or excel letter A-...) ; default to all')  #name if first row of result .csv contain names) ; may be multiple
+    optz.str( 'delimiter',  help= '.csv column delimiter, default is comma ","')
     oparser = optz.oparser
     optz,argz = optz.get()
     fcsv = optz.csv
@@ -132,10 +179,11 @@ args-in-any-order: file.xlsx [sheetname] [sheetname] ..
     if optz.dir_from_name:
         osextra.makedirs( fcsv)
     for sheetname, data in read( fxls, sheets):
-        if not optz.nostrip: data = strip( data)
+        if optz.strip:      strip( data, optz.strip.split(',') )
+        if optz.columns:    select_columns( data, optz.columns.split(','))
         afcsv = fcsv
         if sheets:
             afcsv += ('/' if optz.dir_from_name else '.') + sheetname
-        write( afcsv + '.csv', data)
+        write( afcsv + '.csv', data, delimiter= optz.delimiter)
 
 # vim:ts=4:sw=4:expandtab

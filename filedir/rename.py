@@ -38,7 +38,7 @@ else:
     repl = re.compile( regexp)
     def func( x):
         return repl.sub( subst, x)
-    print( '#', regexp, '=>', subst)
+    print( '#', repr(regexp), '=>', repr(subst))
 
 if optz.insymlink:
     print( '# inside symlinks')

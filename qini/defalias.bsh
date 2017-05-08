@@ -18,7 +18,8 @@ al dx   'd | g "^[^d]..(x|...x|......x)"'
  # ls directories only
 ddir()  { d "$@" | grep ^d; } 
 dfile() { d "$@" | grep -v ^d; } 
-al dlinkbroken 'find . -type l -exec ls -alF --color {} \; | grep "31;1" '
+#al dlinkbroken 'find . -type l -exec ls -alF --color {} \; | grep "31;1" '
+al dlinkbroken 'find -L . -type l '
 al df   'LANG=C df -h'
  # ls directories; then files - choose which version is faster: 2x ls+grep or 1x ls+perl
 #al d2   'ddir \!#:* ; dfile \!#:*'
@@ -58,7 +59,7 @@ al em   'e [Mm]akefile'
 #al renu 'rename.pl y/a-z/A-Z/'
 al renl renl.py   
 al renu renu.py   
-al ren_ 'rename.pl y/\ /_/'
+al ren_ 'rename.py " " _'
 al sort 'LC_ALL=C sort'
 al hex  'hexdump -C'
 al h    hex  
@@ -149,8 +150,8 @@ grimport()  { gr "(import.*$1|$1.*import)"; }
 senv FCSRC  'CVS* *.pyc *.so *.[oa] *.exe *.proj .snprj *.dep *.req _obj *.gen _*.fsm *.ok *.xx *.result *.tmp _allin1* .#* *.jar *.bin dependencies objects *.class .cvsignore .svn tags .bzr .hg .hgtags .git'
 fcsrc()     { set -f; fc -r -I "\$Id.*\$" -I "\$Rev.*\$" `for a in $FCSRC; do echo -x "$a"; done ` "$@"; set +f; } 
 
-al rmpyc    'find . -follow -name \*.pyc -exec rm {} \;'
-al rmpycl   'find . -name \*.pyc -exec rm {} \;'
+al rmpyc    'find . -depth -follow -name \*.pyc -exec rm {} \; -o -name __pycache__ -exec rm -rf {} \;'
+al rmpycl   'find . -depth         -name \*.pyc -exec rm {} \; -o -name __pycache__ -exec rm -rf {} \;'
 
 ### file sizes
 al dm       'du -m --total'
@@ -205,6 +206,8 @@ al wgetcd 'wget --content-disposition'
 
 cbedic() { `which cbedic` `echo $@ | utf2win ` | win2utf; }
 xxall() { for a in "$@"; do xx "$a"; done }
+#xxxall() { for a in "$@"; do nd ":${a//\//:}" && xx "$a" && cd .. ; done }
+xxxall() { for a in "$@"; do nd `basename "$a" .zip` && pwd && xx "$a" && cd .. ; done }
 
 al py python 
 al py2 python2

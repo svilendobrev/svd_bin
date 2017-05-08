@@ -216,15 +216,15 @@ def key4flat(x): return x.URL, x.NAME
 
 from svd_util import optz
 optz.usage( '%prog [options] files')
-optz.bool( 'o2py' )
-optz.bool( 'py2o' )
-optz.bool( 'ipy' )
-optz.bool( 'align' )
-optz.bool( 'flat' )
-optz.bool( 'html', )
-optz.text( 'root', )
-optz.bool( 'nounique', help= 'ignore UNIQUEID' )
-optz.bool( 'notrash',  help= 'ignore trash' )
+optz.bool( 'o2py' , help= 'in=.adr out=python')
+optz.bool( 'py2o' , help= 'in=python out=.adr')
+optz.bool( 'ipy'  , help= 'in=python')
+optz.bool( 'flat' , help= 'dump')
+optz.bool( 'html',  help= 'out=html')
+optz.text( 'root',  help= 'root from here')
+optz.bool( 'nounique',  help= 'ignore UNIQUEID' )
+optz.bool( 'align',     help= '(for out=.adr)')
+optz.bool( 'notrash',   help= 'ignore trash (for out=.adr)' )
 options,args = optz.get()
 
 if options.nounique:
