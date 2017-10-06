@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=kpie
+Exec=zzkpie
+Terminal=false
+Type=Application
+StartupNotify=true

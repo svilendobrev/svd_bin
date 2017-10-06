@@ -1,7 +1,0 @@
-
-[Desktop Entry]
-Type=Application
-Name=xkd-bg
-Exec=/home/qini/x/setxkb-bgphonetic.sh
-StartupNotify=false
-Terminal=false
