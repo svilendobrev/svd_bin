@@ -4,7 +4,10 @@ A=
 case x$1 in
  x) ;;
  x-*) ;;
- x*) A=-x ;;
+ x*) #A="-x bash -ic 'echo $1 $2 ; sleep 3' " ;;
+   exec xfce4-terminal -x bash -ic '"$@"' zzzz "$@"	#zzzz : избутва арументите
+   return
+   ;;
 esac 
 xfce4-terminal $A "$@" &
 #MY_TERM=xterm xterm -font Terminus-cp1251-bold-20 "$@"

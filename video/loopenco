@@ -4,7 +4,7 @@ enco() {
     echo 'xxx' $a $oSIZE
     test -e "$a" || return
     if [ -f "$a" ]; then
-        echo "$a" | grep -iE '\.(avi|iso|m2ts|ts|mkv|mp4|mov|mpg|mpeg|wmv|flv|fli|asf|m4v|webm)$' || return
+        echo "$a" | grep -iE '\.(avi|iso|m2ts|ts|mkv|mp4|mov|mpg|mpeg|wmv|flv|fli|asf|m4v|webm|3gp)$' || return
     fi
 
     for TITLE in `test -f "$a".izbor && cat "$a".izbor || echo "z"`; do 

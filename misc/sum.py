@@ -2,10 +2,14 @@
 #$Id: sum.py,v 1.2 2006-09-27 12:54:13 sdobrev Exp $
 from __future__ import print_function
 
-import sys
+import sys,os
 s=0
-
-def around(x): return round(x,5)
+ROUND = os.environ.get('ROUND', '')
+try: ROUND=int(ROUND)
+except: ROUND=3
+def around(x):
+    if not ROUND: return int(x)
+    return round(x,ROUND)
 
 try:
     f = open( sys.argv[1] )
@@ -23,7 +27,7 @@ for line in f:
         s = 0
     else:
         e = around(eval(x))
-        print( ':',x,'\t=',e, ':', ''.join( lr[1:]))
+        print( ':',x.ljust(15),'=', e, ':', ''.join( lr[1:]))
         s+= e
 if s: print( around(s) )
 

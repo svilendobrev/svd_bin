@@ -33,8 +33,9 @@ al s sens
 #al sss 'ss;hddtemp /dev/sda /dev/sdb'
 
 al freq0 'cpupower -c all frequency-info'
-al freq  'freq0 | grep urrent'
+al freq  'freq0 | grep urrent.*Hz'
 _CHMOD_S="$_CHMOD_S cpupower"
+al freqset  'sudo cpupower -c all frequency-set -g powersave --max '
 
 #cpulimit/set process affinity to cpu
 al taskset_cpu0 'taskset -c 0'

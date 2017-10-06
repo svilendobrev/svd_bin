@@ -5,6 +5,8 @@ fi
 #aac,
 oAUDIO="--aencoder copy  --audio-copy-mask ac3,mp3  --audio-fallback ffac3"
 oVIDEO="--vfr"
+oVIDEO="-r 25 --pfr"
+##XXX -r 25 --pfr	#variable but <= -r
 #oQUALITY="-vb 2000"
 oQUALITY="-q ${QUALITY:-20}"
 test -n "$P720" && oSIZE="-w 1280"

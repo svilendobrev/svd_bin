@@ -66,8 +66,10 @@ optjpg:
 	$(MAKE) -f $(MAKEFILE_LIST) autodate
 ren6:
 	rename.pl 'y/A-Z/a-z/+s/img_9/i6c09/+s/img_/i6c1/' $(ROOT)*.JPG $(ROOT)*.jpg
-v6 6v ren6v:
+DTFMT = %Y.%m.%d-%H:%M
+v6 6v ren6v v6c:
 	rename.pl 'y/A-Z/a-z/+s/mvi_9/v6c09/+s/mvi_/v6c1/' $(ROOT)*.MOV* $(ROOT)*.mov*
+	for a in *.mov ; do date -r $$a +$(DTFMT) > $$a.dt ; done
 	@echo ".mov -> .mkv ; maf datev !!"
 datev:
 	for a in *.mov ; do touch -r $$a $$a*.mkv ; done
@@ -82,11 +84,17 @@ view:
 %.ffmpeg.mkv: %.mov
 	ffmpeg -i $< -sameq $@
 
-dati:
+jpgdati:
 	find . -type d -exec sh -c 'jhead -ft "{}"/*jpg' \;
+videodati dati dates:
+	for a in `find . -name \*.dt` ; do F=`dirname $$a`/`basename $$a .dt` ; test -e $$F && $$E touch -c -d `cat $$a` $$F $$a || echo $$F '??' ; done
+
+#	find -name видео-всички -prune -o -name \*.[ma][kv][vi] -printf "%TY.%Tm.%Td-%TH:%TM %p\n"
+#	#find . -name \*.mkv -print -exec date -r {} \;
 optall:
 	find . -type d -exec make -f $(MAKEFILE_LIST) opt -C {} \;
 
 png2jpg:
 	for a in *.png; do echo "$$a" ; convert "$$a" "$$a.jpg" ; done
+
 # vim:ts=4:sw=4:noexpandtab

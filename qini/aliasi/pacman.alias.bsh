@@ -10,19 +10,27 @@ al a-installfile 'sudo pacman -U'
 al a-update 'sudo pacman -Syy'
 #al a-source 'cd /usr/src/; apt-get source'  #install source
 al a-remove 'sudo pacman --remove'
+al a-remove-deps 'a-remove -s'
+# -s with-deps
 al a-delete a-remove
+al a-delete-deps a-remove-deps
 #al a-purge  dpkg-purge
 al a-autoremove 'sudo pacman -S --clean'
 al a-autoclean a-autoremove
 al a-autoclean2 'a-autoclean --clean'
 a-search() { pacman -S --search "$@" | pac1line; } 
 al a-show    'pacman -S --info'
+al a-showlocal 'pacman -Q --info'
 al a-file0   'pacman -Q --owns'
 al a-list    'pacman -Q --list'
 a-all()         	{ pacman -S --list "$@" | pac1line; }   #??
 a-all-inst()    	{ pacman -Qs "$@" | pac1line; } 
 a-all-instsize() 	{ pacman -Qi "$@" | pacnamesize; } 
+a-all-instsize-sorted() { pacman -Qi "$@" | pacnamesize | grep MiB | sort -n -k 2; } 
 # -e explicit
+a-all-unneeded() 	{ pacman -Qdti "$@" | pacnamesize; } 
+al a-remove-force  'a-remove -dd'
+al a-delete-force a-remove-force
 
 al a-upgradable-full 'pacman -Su -p | sort'
 al a-upgradable "a-upgradable-full | perl -ne 's,.*686/(.*?)-[0-9].*,\1,;print' | sort "

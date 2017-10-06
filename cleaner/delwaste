@@ -72,15 +72,27 @@ $rm /usr/share/ghostscript/*/examples/
 $rm /usr/share/GeoIP/*v6*
 $rm /usr/share/fonts/OTF/
 
+P=/usr/share/man/man3
+$rm $P/*.3perl.*
+$rm $P/*.3p[nm].*
+$rm $P/*.3ssl.*
+$rm $P/{ASN,CURL,DSA,Fc,SDL,SSL,Tcl}*
+$rm $P/*_sp.*
+$rm $P/Xkb*
+$rm $P/Xt* $P/X[GS]et* $P/Xcurs* $P/Xcms* $P/Xdb* $P/Xmb* $P/Xrm*
+$rm $P/XCreate* $P/XChange* $P/XDraw* $P/XAllo* $P/XFree* $P/XShap* $P/XScreen*
+$rm $P/__gnu_*
+$rm $P/SVN*
+$rm $P/TIFF*
+$rm $P/{ber_,fribidi_,gnutls,ldap_,ldns_,libssh}*
+$rm $P/{pam,pcap,pcre,sd_,sem_}*
+$rm $P/{slk,udev,xdr_}*
+$rm $P/xcb*
+$rm $P/pipe[cl]* $P/secc* 
+$rm $P/set_* $P/zip_*
+$rm $P/SD_* $P/SLIST* $P/LIST* $P/STAIL* $P/TAIL*
+
 P=/usr/share/man
-$rm $P/man3/*.3{perl,pn,ssl}.*
-$rm $P/man3/{ASN,CURL,DSA,Fc,SDL,SSL,Tcl}*
-#$rm $P/man3/X*
-$rm $P/man3/__gnu_*
-$rm $P/man3/{ber_,fribidi_,gnutls,ldap_,ldns_,libssh}*
-$rm $P/man3/{pam,pcap,pcre,sd_,sem_}*
-$rm $P/man3/{slk,udev,xdr_}*
-$rm $P/man3/xcb*
 $rm $P/[acdf-ln-z]* $P/b[a-fh-z].* $P/e[a-mo-z].* $P/b[a-fh-z] $P/e[a-mo-z]
 $rm $P/man1/perl*delta*
 
@@ -93,9 +105,9 @@ $rm /usr/bin/osdemo*
 $rm /usr/sbin/osd_login
 
 P=/usr/lib/modules/*/kernel
-# $rm $P/drivers/staging/{lustre,comedi,speakup,rtl*}
+# $rm $P/drivers/staging/{lustre,comedi,speakup}
 # $rm $P/drivers/{isdn,infiniband}
-# $rm $P/drivers/media/dvb-*
+## $rm $P/drivers/media/dvb-*
 # $rm $P/drivers/media/tuners
 # $rm $P/drivers/media/pci/{bt8,ttpci,saa,cx,ivtv}*
 # #$rm $P/drivers/media/usb/{gspca,dvb*,cx*,em*,tm*,go7007}
@@ -103,7 +115,7 @@ P=/usr/lib/modules/*/kernel
 # $rm $P/drivers/gpu/drm/{radeon,amd*}
 
 P=/usr/lib/firmware
-# $rm $P/{ti-connectivity,liquidio}
+# $rm $P/{ti-connectivity,liquidio,netronome}
 # $rm $P/bnx2*
 # $rm $P/{mrvl,ar3k,slicoss,go7007,emi*,qca}
 # $rm $P/{libertas,carl9170fw,mwl*,moxa,vxge,qed,cxgb4,ueagle-atm}
@@ -162,3 +174,5 @@ $rm $P/brushes/{Texture,Media,Splatters,*obsolet*}
 
 $rm /var/log/journal/*/system@*
 $rm /var/log/journal/*/user-*@*
+
+#$rm /usr/bin/smbtorture /usr/bin/php

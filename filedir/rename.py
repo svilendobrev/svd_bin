@@ -8,6 +8,7 @@ optz.bool( 'dirfiles', '-r', help= 'dir and then files inside') #?
 optz.bool( 'upper', '-u', help= 'just upper-case, all args are filepaths')
 optz.bool( 'lower', '-l', help= 'just lower-case, all args are filepaths')
 optz.str(  'movepath',  help= 'rename and move into')
+optz.str(  'command',   help= 'exec this with 2 args instead of os.rename/os.link')
 optz.bool( 'insymlink', help= 'rename inside symlinks-text, ignore non-symlinks')
 optz.help( '''
 %prog [options] regexp subst filepaths
@@ -66,6 +67,10 @@ def doit(a):
             if optz.insymlink:
                 os.remove( org)
                 os.symlink( b, org)
+            elif optz.command:
+                import subprocess
+                print( optz.command, a, b)
+                subprocess.call( optz.command.split() + [ a, b] )
             else:
                 (optz.link and os.link or os.rename)( a,b)
     return b

@@ -28,6 +28,8 @@
 #  $ v l ... does log
 #  $ v n ... does info, e.g. repository urls, revisions, etc
 #  $ v v ... does revert -- this one asks for confirmation - happened to kill a file
+#  $ v p ... does push
+#  $ v m ... does merge
 #
 # there are also other naming schemes below (e.g. can be linked as v-status or vvs) but of no use..
 
@@ -86,6 +88,8 @@ cvs_r='rm -f'
 cvs_s='stat'
 cvs_n='stat'
 cvs_v='up -C'
+#no merge
+#no push
 
 svn_u='update'
 svn_i='ci'
@@ -99,6 +103,8 @@ svn_r='rm'
 svn_s='stat'
 svn_n='info'
 svn_v='revert'
+svn_m='merge'
+#no push
 
 svn_s_pipe="| grep -vE '(Performing status on external item at|^$)'"
 svn_u_pipe="| grep -viE '(external |^$)'"
@@ -119,12 +125,15 @@ bzr_ss="status"
 bzr_n='info'
 bzr_n_pipe='; bzr revno'
 bzr_v='revert'
+bzr_m='merge'
 
 hg_u='pull -u'
 hg_uu='update'
 hg_i='commit'
 hg_p='push'
 #hg_i_pipe='&& hg push'
+hg_io='in ; hg out'
+hg_oi='in ; hg out'
 hg_ii='resolve -m'    #??? after conflct, before commit + needs another commit
 hg_d='diff --nodates'
 hg_dd='diff -Bbw'
@@ -136,6 +145,7 @@ hg_s_pipe='&& (hg resolve -l | sed -e "s/^R /OK /" )'
 hg_n='identify -n -i -b -t' #hg branch ; hg log -l 1 --template "{rev}\n";
 hg_n_pipe='; hg showconfig | grep paths.default='
 hg_v='revert'
+hg_m='merge'
 
 # git config --get remote.origin.url
 git_n='remote -v'
@@ -155,6 +165,8 @@ git_a='add'
 git_l='log'
 git_r='rm'
 git_v='checkout --'
+git_m='merge' #?
+git_p='push' #?
 
 #to turn checkout into bare:
 #git config --bool core.bare true

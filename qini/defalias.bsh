@@ -34,6 +34,8 @@ al alg  'alias | g'
 asg()  { alg "$@" ; seg "^\S*$1\S* \(\)" ; }
 
 al up   'cd ..'
+al .. up   
+al ...  'cd ../..'
 al md   mkdir
 al rd   rmdir
 nd()    { md -p "$1" ; cd "$1"; } 
@@ -49,6 +51,7 @@ al t    cat
 al g    'grep -E'
 al tm   date
 al qt   date
+al q    date
 al zap  'rm -rf'
 al e    'vim -n -X'    #no swap - memonly  ; no X server
 al vimdiff    'e -d'   
@@ -147,7 +150,7 @@ grimport()  { gr "(import.*$1|$1.*import)"; }
 
 #see fff.sh for quote troubles
 #diff dirs ignoring these
-senv FCSRC  'CVS* *.pyc *.so *.[oa] *.exe *.proj .snprj *.dep *.req _obj *.gen _*.fsm *.ok *.xx *.result *.tmp _allin1* .#* *.jar *.bin dependencies objects *.class .cvsignore .svn tags .bzr .hg .hgtags .git'
+senv FCSRC  'CVS* *.pyc __pycache__ *.so *.[oa] *.exe *.proj .snprj *.dep *.req _obj *.gen _*.fsm *.ok *.xx *.result *.tmp _allin1* .#* *.jar *.bin dependencies objects *.class .cvsignore .svn tags .bzr .hg .hgtags .git'
 fcsrc()     { set -f; fc -r -I "\$Id.*\$" -I "\$Rev.*\$" `for a in $FCSRC; do echo -x "$a"; done ` "$@"; set +f; } 
 
 al rmpyc    'find . -depth -follow -name \*.pyc -exec rm {} \; -o -name __pycache__ -exec rm -rf {} \;'

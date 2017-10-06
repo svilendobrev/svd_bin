@@ -28,7 +28,8 @@ def read( fname, sheets =[], as_sheet =False):
     else:
         wb = openpyxl.load_workbook( filename= fname,
                     read_only= True,
-                    guess_types=False,
+                    guess_types= False,
+                    data_only= True,    #no formulas
                     )
         wsnames = wb.get_sheet_names()
 
@@ -157,7 +158,7 @@ args-in-any-order: file.xlsx [sheetname] [sheetname] ..
     sheets = []
     fxls = None
     for a in argz:
-        if a.endswith( '.xls') or a.endswith( '.xlsx'):
+        if a.lower().endswith( '.xls') or a.lower().endswith( '.xlsx'):
             fxls = a
         else: sheets.append( a )
 
@@ -170,9 +171,9 @@ args-in-any-order: file.xlsx [sheetname] [sheetname] ..
 
     from os.path import join,basename
     if not fcsv:
-        fcsv = osextra.withoutext( fxls, '.xlsx', '.xls')
+        fcsv = osextra.withoutext( fxls, '.xlsx', '.xls', ignorecase=True)
     else:
-        fcsv = osextra.withoutext( fcsv, '.csv')
+        fcsv = osextra.withoutext( fcsv, '.csv', ignorecase=True)
     if optz.path:
         osextra.makedirs( optz.path)
         fcsv = join( optz.path, basename( fcsv))
