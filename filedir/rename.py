@@ -2,14 +2,19 @@
 # -*- coding: utf-8 -*-
 import os,sys,re
 from svd_util import optz
-optz.bool( 'fake', help= 'do nothing')
+optz.bool( 'fake', '-n', help= 'do nothing')
 optz.bool( 'link', help= 'link instead of move/rename')
 optz.bool( 'dirfiles', '-r', help= 'dir and then files inside') #?
 optz.bool( 'upper', '-u', help= 'just upper-case, all args are filepaths')
 optz.bool( 'lower', '-l', help= 'just lower-case, all args are filepaths')
 optz.str(  'movepath',  help= 'rename and move into')
 optz.str(  'command',   help= 'exec this with 2 args instead of os.rename/os.link')
-optz.bool( 'insymlink', help= 'rename inside symlinks-text, ignore non-symlinks')
+optz.bool( 'insymlink', help= 'rename inside symlinks (text it points to), ignore non-symlinks')
+optz.bool( 'outsymlink', help= 'if --insymlink, also rename/cmd actual symlinked-path')
+optz.bool( 'thesymlink', help= 'if --insymlink, also rename/cmd the symlink itself')
+optz.bool( 'noerror',   help= 'skip errors')
+optz.bool( 'abssymlink', help= 'rename symlinks to point to abs-full-path, ignore non-symlinks')
+optz.bool( 'quiet', )
 optz.help( '''
 %prog [options] regexp subst filepaths
    subst can also use $1..$6 for groups
@@ -31,6 +36,7 @@ if prg.startswith( 'renl'): optz.lower = True
 
 if   optz.upper: func = lambda x: renul(x,True)
 elif optz.lower: func = lambda x: renul(x,False)
+elif optz.abssymlink: func = os.path.realpath
 else:
     regexp = argz.pop(0)
     subst  = argz.pop(0)
@@ -39,9 +45,9 @@ else:
     repl = re.compile( regexp)
     def func( x):
         return repl.sub( subst, x)
-    print( '#', repr(regexp), '=>', repr(subst))
+    if not optz.quiet: print( '#', repr(regexp), '=>', repr(subst))
 
-if optz.insymlink:
+if optz.insymlink and not optz.quiet:
     print( '# inside symlinks')
 
 def doit(a):
@@ -50,29 +56,43 @@ def doit(a):
         return
 
     org = a
+    orgb = org
     if optz.insymlink:
         if not os.path.islink( a):
             print( '!ignore non-symlink', a)
             return a
         a = os.readlink( a )
+        if optz.thesymlink:
+            orgb = func( org)
     b = func(a)
-    if b != a:
-        if optz.movepath:
-            b = os.path.join( optz.movepath, b)
-        print( *[ x for x in [
-                org!=a and org+'->',
-                a, ':>', b
-                ] if x])
-        if not optz.fake:
-            if optz.insymlink:
-                os.remove( org)
-                os.symlink( b, org)
-            elif optz.command:
-                import subprocess
-                print( optz.command, a, b)
-                subprocess.call( optz.command.split() + [ a, b] )
-            else:
+    if b == a: return b
+    if optz.movepath:
+        b = os.path.join( optz.movepath, b)
+
+    if not optz.quiet or optz.fake:
+        print( *( (org!=a) * [ org+'->', ] + [ a, ] ))
+        print( ':>', *( (orgb!=a) * [ orgb+'->', ] + [ b ] ))
+        if optz.insymlink and optz.outsymlink:
+            print( a, )
+            print( ':>', b )
+    if optz.fake: return b
+
+    if optz.insymlink:
+        os.remove( org)
+        os.symlink( b, orgb)
+    if not optz.insymlink or optz.outsymlink:
+        if optz.command:
+            import subprocess
+            print( optz.command, a, b)
+            subprocess.call( optz.command.split() + [ a, b] )
+        else:
+            #print( a,':>',b)
+            try:
                 (optz.link and os.link or os.rename)( a,b)
+            except Exception as e:
+                if optz.noerror:
+                    print( '??', e )
+                else: raise
     return b
 
 import glob
