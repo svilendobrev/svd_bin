@@ -13,23 +13,40 @@ set visible-stats on
 set keymap emacs
 set editing-mode emacs
 
-#this must be generated!
+#this must be generated! $if term=... or $include ???
+#also see $if appname
+#or better map all the possibles i.e "\e[1;5C" and "\e[5C" and \e{c 
 "\e[1~": beginning-of-line
 "\e[4~": end-of-line
 "\e[5~": history-search-backward
 "\e[6~": history-search-forward
 "\e[3~": delete-char
 "\e[2~": overwrite-mode
-"\e{c": forward-word
+#c-left/right
 "\e{d": backward-word
-
+"\e{c": forward-word
+"\e[1;5D": backward-word
+"\e[1;5C": forward-word
+"\e[5D": backward-word
+"\e[5C": forward-word
+#c-home/end
 "\e{h": backward-kill-line
 "\e{e": kill-line
+"\e[1;5H": backward-kill-line
+"\e[1;5F": kill-line
+"\e[5H": backward-kill-line
+"\e[5F": kill-line
+#s-tab
+"\e[Z": menu-complete-backward
+"\e]t": menu-complete-backward
+#c-tab
+"\e{t": possible-completions
+#and so on
+
 C-L:	backward-kill-word
 C-R:	kill-word
 
 TAB: menu-complete
-"\e{t": possible-completions
 C-G:	insert-completions
 
  #ESC twice - clear the line = undo, go end of history, clear (not kill-whole-line!)
@@ -38,14 +55,10 @@ C-G:	insert-completions
 $if 0
 
 # for linux console and RH/Debian xterm
-"\e[1~": beginning-of-line
-"\e[4~": end-of-line
 "\e[5~": beginning-of-history
 "\e[6~": end-of-history
 "\e[3~": delete-char
 "\e[2~": quoted-insert
-"\e[5C": forward-word
-"\e[5D": backward-word
 "\e\e[C": forward-word
 "\e\e[D": backward-word
 
