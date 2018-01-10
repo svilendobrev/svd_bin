@@ -2,13 +2,19 @@
 [ -f /etc/bashrc ] && . /etc/bashrc	# Source global definitions
 [ -f ~/empty_bashrc ] && return
 
+#XXX /etc/profile is not always sourced (e.g. interactive non-login shell)
+umask 002
+
 export _INIs=/home/qini/
 
 unset LC_ALL
-#export LANG=bg_BG.UTf-8
+#export LANG=bg_BG.UTF-8
 #export LANG=bg_BG.CP1251
 #export LANG=bg_BG
 export LC_COLLATE=C
+
+#alias xmodmap=true
+#alias xset=true
 
 #no echo's if non-interactive, e.g. scp
 _noECho()	{ :; }
@@ -39,3 +45,4 @@ else
 	test -f ~/_myalias && . ~/_myalias
 fi
 
+#XXX see ~/.profile adding another ~/bin
