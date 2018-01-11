@@ -43,8 +43,8 @@ al mv   'mv -i'
 al _h   'cd ~'          # goto homedir
 al _g   'so .go'
 
-#-i: smart case-nonsensitive search; -S: don't wrap long lines; -X: disable init screen save/restore
-senv    LESS '-i -S -X'
+#-i: smart case-nonsensitive search; -S: don't wrap long lines; -X: disable init screen save/restore ; -R raw ansi/color
+senv    LESS '-i -S -X -R'
 al l    less
 
 al t    cat
