@@ -1,0 +1,2 @@
+#!/bin/sh
+find . -type f -size 0 -exec ln -f nula {} \;

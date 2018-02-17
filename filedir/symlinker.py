@@ -29,21 +29,27 @@ ops = {
     os.rename : 'mv move',
     os.link   : 'ln link',
 #   os.link   : 'cp copy',
-    None:       'print'
+    None:       'print',
 }
 op2op = {}
 for op,names in ops.items():
     for n in names.split():
         op2op[n] = op
 
-optz.text( 'op', type= 'choice', choices= ' '.join( sorted( ops.values())).split(),
-    help= 'operation: ln/link mv/move cp/copy, default: print')
+import subprocess
+def extern( s,t):
+    subprocess.call( [optz.op, s, t ] )
+
+def getop( optz):
+    return op2op.get( optz.op, extern)
+
+optz.text( 'op', #type= 'choice', #choices= ' '.join( sorted( ops.values())).split(),
+    default= 'print',
+    help= 'operation: ln/link mv/move cp/copy print, anyother - exec it; default: print')
 
 optz,argz = optz.get()
 
 target = argz.pop( -1)
-
-ops = []
 
 def match1( f, p):
     return fnmatch.fnmatch( f,p)
@@ -62,8 +68,13 @@ def included( a, inc, exc):
 def levels( d): return d.strip('/').split('/')
 
 def walk( argz, target, followlinks =True):
+    selfreplace= False
     if not exists( target): yield None, target
-    else: assert isdir( target)
+    else:
+        if argz == [ target]:
+            selfreplace = True
+            target = dirname( target)
+        assert isdir( target)
     for isrc in argz:
         src = realpath( isrc)
         if not isdir( src):
@@ -87,7 +98,7 @@ def walk( argz, target, followlinks =True):
                         mkdir = True
                     yield fsrc, join( targdeeper, f )
 
-op = op2op.get( optz.op)
+op = getop( optz)
 for s,t in walk( argz, target):
     try:
         if not s:
