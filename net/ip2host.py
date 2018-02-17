@@ -38,6 +38,19 @@ if hp[0]=='tt':
     if p: ka['port'] = int(p)
     tt = pytyrant.PyTyrant.open( **ka)
     cache = db = tt
+if hp[0]=='redis':
+    import redis
+    #   redis://[:password]@localhost:6379/0
+    #   unix://[:password]@/path/to/socket.sock?db=0
+    rd = redis.Redis.from_url( optz.cache) #Redis(host='localhost', port=6379, db=0)
+    cache = db = rd
+    _dbname = 'ip2host'
+    if not rd.dbsize():
+        rd[ '_dbname'] = _dbname
+    else:
+        dbname = rd.get( '_dbname')
+        if dbname is not None: dbname = dbname.decode( 'utf8')
+        assert dbname == _dbname, dbname
 else:
     try:
         import dbhash as adb
@@ -94,7 +107,7 @@ for a in sys.stdin:
         if host is None:
             if optz.verbose: lprint( 'mis:', ip)
             host = func( ip2host, [ip])
-            #print >>sys.stderr, 'fin:', ip, host
+            if optz.verbose: lprint( 'fin:', ip, repr(host) )
             cmiss[ip] = host
             if cache is not db:
                 cache[ ip] = host
@@ -113,9 +126,9 @@ lprint( 'misses:', len(cmiss), ' totals:', totals, optz.prefix)
 n=0
 pp=0
 for ip,host,r in rr:
-    if not isinstance( host, str):
+    if not isinstance( host, (str,bytes)):
         h = cmiss[ip]
-        if isinstance( h, str): host = h
+        if isinstance( h, (str,bytes)): host = h
         else:
             c = cache.get(ip)
             if c is not None and c is not h:
@@ -133,6 +146,9 @@ for ip,host,r in rr:
                 lprint( p, optz.prefix)
                 pp = p
             #if not (((100*n)//len(cmiss)) % 10): lprint( n, optz.prefix)
+    if isinstance( host, bytes):    #WTF with redis
+        #print( 'by', repr(host))
+        host = host.decode( 'utf8')
     r = host + ' ' + r
     if optz.ipprefix: r = ip + '= ' + r
     if optz.prefix: r = optz.prefix + r

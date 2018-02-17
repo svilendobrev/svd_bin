@@ -12,8 +12,10 @@ def opt( *xx):
     return None
 
 o_utf8 = opt('-8', '--utf', '--utf8')
+i_utf8 = opt('-i8', '--iutf', '--iutf8')
+nodecode = opt('-D', '--no-decode')     # in very rare cases, e.g. msoffice-created-mail
 
-ENC = 'cp1251'
+ENC = i_utf8 and 'utf8' or 'cp1251'
 def enc( s,e):
     if not isinstance( s, unicode):
         if not e or e=='ascii': e=ENC
@@ -40,7 +42,7 @@ for m in posti:
 
     for m in m.walk():
         e = m.get_charset() or m.get_charsets()[0]
-        txt = m.get_payload( decode=1)
+        txt = m.get_payload( decode= not nodecode)
         if txt: print( enc( txt, e))
 
 # vim:ts=4:sw=4:expandtab

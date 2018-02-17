@@ -97,6 +97,7 @@ svn_il='ci'
 svn_ii='resolved'    #after conflct, before commit + needs another commit
 svn_d='diff'
 svn_dd='diff --diff-cmd diff -x -btwU3'
+svn_dprev='diff -r PREV'
 svn_l='log'
 svn_a='add'
 svn_r='rm'
@@ -115,6 +116,7 @@ bzr_il='commit --local'
 bzr_ii='resolve'    #after conflct, before commit + needs another commit
 bzr_d='diff'
 bzr_dd='diff --diff-options=-btwU3'
+bzr_dprev='diff -r -2'
 bzr_l='log'
 bzr_a='add'
 bzr_r='rm'
@@ -126,6 +128,9 @@ bzr_n='info'
 bzr_n_pipe='; bzr revno'
 bzr_v='revert'
 bzr_m='merge'
+#bzr_p='push'    #not needed, plain commit does it
+bzr_io='missing'    #needs pull-branch remembered
+bzr_oi='missing'    #needs pull-branch remembered
 
 hg_u='pull -u'
 hg_uu='update'
@@ -137,6 +142,7 @@ hg_oi='in ; hg out'
 hg_ii='resolve -m'    #??? after conflct, before commit + needs another commit
 hg_d='diff --nodates'
 hg_dd='diff -Bbw'
+hg_dprev='diff -r .^1'
 hg_l='log'
 hg_a='add'
 hg_r='rm'
@@ -156,6 +162,7 @@ git_n_pipe='; git branch'
 git_s='status -s'
 git_d='diff'
 git_dd='diff -b'
+git_dprev='diff -r @{1}'
 git_u='pull'
 git_i='commit'
 git_i_pipe='; git push'
@@ -203,7 +210,7 @@ test -z "$NOCOLOR" -a -t 1 -a "$cmd" != i && clrvcs=`which colorvcs.py`
 CMD="$what ${!x} ${!a} "'"$@"'" ${!p}"
 if test -n "$clrvcs"; then  #-a ($cmd == 'u' -o $cmd == 's')
  #for all cmds or only for upd and stat??
- test $cmd = d -o $cmd = dd && what=diffU
+ test $cmd = d -o $cmd = dd -o $cmd = dprev && what=diffU
  CMD="( $CMD ) 2>&1 | $clrvcs $what 2>&1"
 fi
 $E bash -c "$CMD" anything_as_argv0 "$@"

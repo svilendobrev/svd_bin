@@ -68,8 +68,7 @@ else:   #'x'
 
         #file( '/tmp/xxx', 'w').write( '\n'.join( [name, os.getcwd()] ) )
 
-        o = file( name, 'w')
-        o.write( z.read( name) )
-        o.close()
+        with open( name, 'w') as o:
+            o.write( z.read( name) )
 
 # vim:ts=4:sw=4:expandtab:ft=python

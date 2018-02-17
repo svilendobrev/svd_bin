@@ -6,19 +6,21 @@ for a in ${@:-./*}; do
   cd "$a"
   if test -f ignore-uall ; then echo '** ignored' `pwd`
   else
-    H=" >>> $a"
+    BWD=$a
+    test -n "$UWD" && BWD=$UWD/${a#./}
+    H=" >>> $BWD"
     #`pwd`'---'
     if test -n "$VS" ; then
         echo "$H"
         test -x ./vs && CMD=./vs || test -x ./u && CMD=./u || CMD="v s"
-        $E $CMD
+        UWD=$BWD $E $CMD
     else
       test -x ./u && CMD=./u || CMD="v u"
       if test -z $UPARAL ; then
         echo "$H"
-        $E $CMD
+        UWD=$BWD $E $CMD
       else
-        $E $CMD | nl -s "$a	" - | cut -c7- &
+        UWD=$BWD $E $CMD |& nl -s "$BWD	" - | cut -c1-5,7- &
       fi
     fi
   fi
