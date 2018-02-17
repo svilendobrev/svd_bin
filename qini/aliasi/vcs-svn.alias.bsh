@@ -1,0 +1,9 @@
+al svn2git2path 'svn2git --no-minimize-url --rootistrunk'
+al svnempty 'u --set-depth empty' #or immediates
+al svnimmed 'u --set-depth immediates'
+al svninf   'u --set-depth infinity'
+
+svnmerge() {
+   svn merge "$1/$3" "$2/$3" "$3"
+}
+

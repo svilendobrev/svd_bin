@@ -1,7 +1,4 @@
 
-#ren-cyr2lat() 	{ for a in "$@"; do n=`echo "$a"|cyr2lat.pl $ARGS`; mv "$a" "$n" ; done; }
-#ren-cyr2lat() 	{ for a in "$@"; do n=`echo "$a"|lat2cyr.py -c2l $ARGS`; mv "$a" "$n" ; done; }
-#ren-lat2cyr() 	{ for a in "$@"; do n=`echo "$a"|lat2cyr.py $ARGS`; mv "$a" "$n" ; done; }
 al ren-cyr2lat "lat2cyr.py --c2l --utf --org --rename"
 al ren-lat2cyr "lat2cyr.py --l2c --utf --org --rename"
 #ren-866to1251() { for a in "$@"; do n=`echo "$a"|encodec.py -cp866 -cp1251`; mv "$a" "$n" ; done; }

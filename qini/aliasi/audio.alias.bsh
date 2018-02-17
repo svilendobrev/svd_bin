@@ -102,13 +102,23 @@ mp3-artist()    { A="$1"; shift; mp3info -a "$A" "$@"; }
 mp3-title()     { A="$1"; shift; mp3info -t "$A" "$@"; }
 mp3-comment()   { A="$1"; shift; mp3info -c "$A" "$@"; }
 
+mp3-rename-by-tags() { meyeD3 --rename '$artist--$album-$best_date:year--$track:num-$title' "$@"; }
+mp3-dump-tags2stdout() { stagger --dump "$1"; } #> "$1".tag 
+mp3-load-tags4stdin()  { stagger --load "$1"; } #< "$1".tag 
+
 al flac-name2title  '_name2title flac-title'
 al flac-removeall   'metaflac --remove-all-tags'
 al flac-show        'metaflac --export-tags-to=-'
+flac-copytags() {
+    flac-copytagsmetaflac --export-tags-to=- "$1" | metaflac --import-tags-from=- "$2"
+}    
+
 flac-album()    { A="$1"; shift; metaflac --remove-tag=Album  --set-tag="Album=$A"  "$@" ;}
 flac-artist()   { A="$1"; shift; metaflac --remove-tag=Artist --set-tag="Artist=$A" "$@" ;}
 flac-title()    { A="$1"; shift; metaflac --remove-tag=Title  --set-tag="Title=$A"  "$@" ;}
-flac-number()   { A="$1"; shift; metaflac --remove-tag=Tracknumber --set-tag="Tracknumber=$A"  "$@" ;}
+flac-year()     { A="$1"; shift; metaflac --remove-tag=Year   --set-tag="Year=$A"  "$@" ;}
+flac-number()   { A="$1"; shift; metaflac --remove-tag=Tracknumber --remove-tag=Track --set-tag="Track=$A"  "$@" ;}
+al flac-del-image   'metaflac --remove --block-type=PICTURE'
 
 tag1-flac2mp3() {
     t=`metaflac --show-tag=Title  "$1"| tail -1 |sed -s 's/[^=]*=//'`; mp3-title "$t"  "$2"

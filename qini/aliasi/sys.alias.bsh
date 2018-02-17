@@ -17,8 +17,12 @@ else #udevil
 fi
 al umediat  'fusermount -u /media/t'
 
+al mmna 'mount /media/na'
+al uuna 'umount /media/na'
+
 #hw
 al diskstate 'hdparm -C /dev/[hs]d?'
+al disks diskstate
 _CHMOD_S="$_CHMOD_S hdparm"
 
 al battery 'ibam -a'

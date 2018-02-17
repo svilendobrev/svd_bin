@@ -1,0 +1,5 @@
+#!/bin/sh
+#a=`echo $1 | sed s/flac/mp3/`
+#echo touch ${@%.flac}.mp3 #"$a"
+touch ${@//.flac/.mp3}
+

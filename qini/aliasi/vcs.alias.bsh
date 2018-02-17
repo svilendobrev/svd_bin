@@ -1,8 +1,11 @@
-vdprev() {
-    v d "$1" -r `v l -l 2 "$1" | perl -ne 'print if s/(revno: *|changeset: *\d+:)//' | tail -1`
-}    
+#vdprev() {
+#    v d "$1" -r `v l -l 2 "$1" | perl -ne 'print if s/(revno: *|changeset: *\d+:)//' | tail -1`
+#}
+#git: v d "$1" -r `v l -n 2 "$1" | perl -ne 'print if s/commit //' | tail -1`
+#svn: v d "$1" -r PREV
+#git: v d "$1" -r @{1}
+#hg : v d "$1" -r .^-1
+#bzr: v d "$1" -r -2
+al vdprev 'v dprev'
 al i 'v i -m'
-
-al gp 'git push'
-al svn2git2path 'svn2git --no-minimize-url --rootistrunk'
 

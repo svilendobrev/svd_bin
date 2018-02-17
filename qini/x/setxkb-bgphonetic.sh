@@ -12,7 +12,14 @@ grep -q 'Module kbd: vendor' /var/log/Xorg.0.log && RUL=xorg || RUL=evdev
   #try one of these
   echo $RUL
   #-v 5
-  setxkbmap -rules $RUL -model pc105 -layout "en_US,bg" -variant ",phonetic" -option "grp:alt_shift_toggle,grp_led:scroll,grp:sclk_toggle"
+
+  if test -e /usr/share/X11/xkb/symbols/bg_ltgt ; then
+    setxkbmap -rules $RUL -model pc105 -layout "en_US,bg_ltgt" -variant ",phonetic_ltgt" -option "grp:alt_shift_toggle,grp_led:scroll,grp:sclk_toggle"
+  elif test -e /home/qini/x/symbols/bg_ltgt ; then
+    setxkbmap -rules $RUL -model pc105 -layout "en_US,bg_ltgt" -variant ",phonetic_ltgt" -option "grp:alt_shift_toggle,grp_led:scroll,grp:sclk_toggle" -print | xkbcomp -w 3 -I/home/qini/x/ - $DISPLAY
+  else
+    setxkbmap -rules $RUL -model pc105 -layout "en_US,bg" -variant ",phonetic" -option "grp:alt_shift_toggle,grp_led:scroll,grp:sclk_toggle"
+  fi
   	##&& break
 		#also caps_toggle menu_toggle ... /usr/share/X11/xkb/rules/base.lst
 	#-print | xkbcomp - $DISPLAY

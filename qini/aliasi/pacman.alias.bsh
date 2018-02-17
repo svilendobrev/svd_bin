@@ -1,7 +1,7 @@
 ### pacman
 #al()  { alias  $1="$2"; }  #no parameters allowed!
 al pac1line "perl -e 'undef $/; while(<>) { s/\n  /\t/g; print; }'"
-al pacnamesize "perl -ne 's/,00//; print \$1 if s/^Name *: *(\S+)//; print if s/^Installed Size *:/\t/' "
+al pacnamesize "perl -ne 's/,00//; printf \"%-30s\",\$1 if s/^Name *: *(\S+)//; printf \"%7s : <%s> %s\", \$1, \$req, \$des if /^Installed Size *: *([\d,. KM]+)/; \$des= \$_ if s/^Description *: *//; \$req=\$_ if s/^Required By *: (None)?(.*)\s*$/\2/' "
 #|sort -n -k 2
 
 al a-install 'sudo pacman -S'

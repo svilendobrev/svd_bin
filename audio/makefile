@@ -10,7 +10,7 @@ LAME= lame --nohist --disptime 2 -h -v -V 6 $(OPTS)
 #%.mp3: %.wav
 #	$(LAME) "$<" "$@"
 %.mp3: %.flac
-	flac -d "$<" -o - | $(LAME) - "$@"
+	flac -s -c -d "$<" | $(LAME) - "$@"
 
 %.mkv: %.wmv
 	ffmpeg -i "$<" "$@"
@@ -60,6 +60,9 @@ outflac: $(WAVs:%.wav=%.out.flac)
 else
 flac outflac:
 	$(MAKE) -f $(firstword $(MAKEFILE_LIST)) WAV2FLAC=1 $@
+outflac2: $(FLACs:%.flac=%.out.flac)
+%.out.flac: %.flac
+	/usr/local/bin/wavres44khz.py "$<" --otype flac
 endif
 
 ifneq ($(TOWAV),)

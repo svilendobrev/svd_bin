@@ -1,0 +1,3 @@
+#!/bin/sh
+a=`echo $1 | sed s/mp3/flac/`
+test -f "$a" && > "$1" || echo ne-"$1"

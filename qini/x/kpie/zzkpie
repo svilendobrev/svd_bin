@@ -1,6 +1,6 @@
 #!/bin/sh
-for a in a b c d; do
+for a in a b c d e f g h; do
 	#use ~/.kpie.lua .. link it to /home/qini/start.kpie.lua
 	kpie --single >/tmp/dvs
-	sleep 3
+	sleep 1
 done

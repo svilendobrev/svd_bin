@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 #$Id: fit2print.py,v 1.8 2008-02-15 09:29:28 sdobrev Exp $
 

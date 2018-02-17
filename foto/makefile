@@ -67,12 +67,30 @@ optjpg:
 ren6:
 	rename.pl 'y/A-Z/a-z/+s/img_9/i6c09/+s/img_/i6c1/' $(ROOT)*.JPG $(ROOT)*.jpg
 DTFMT = %Y.%m.%d-%H:%M
-v6 6v ren6v v6c:
+
+ren6v:
 	rename.pl 'y/A-Z/a-z/+s/mvi_9/v6c09/+s/mvi_/v6c1/' $(ROOT)*.MOV* $(ROOT)*.mov*
-	for a in *.mov ; do date -r $$a +$(DTFMT) > $$a.dt ; done
-	@echo ".mov -> .mkv ; maf datev !!"
+v6 6v v6c:
+	$(MAKE) -f $(MAKEFILE_LIST) ren6v
+	$(MAKE) -f $(MAKEFILE_LIST) mov2dt
+	@echo ".mov -> .mkv ; maf dt2mkv !!"
+
+mov2dt:
+	for a in $(ROOT)*.mov ; do $E $(BIN)/vdater.py $$a $${a%.mov}.dt ; done
+dt2mkv:
+	rename.py mov...mkv mkv *.mov...mkv
+	for a in $(ROOT)*.dt  ; do $E $(BIN)/vdater.py $$a $${a%.dt}.mkv ; done
+mkv4dt:
+	for a in $(ROOT)*.mkv ; do $E $(BIN)/vdater.py $${a%.mkv}.dt $$a ; done
+	#shopt -s extglob ; for a in $(ROOT)*.mkv; do $E $(BIN)/vdater.py $${a%%?(.mov)+(.)mkv}*.dt $$a ; done
+dt2avi:
+	for a in $(ROOT)*.dt  ; do $E $(BIN)/vdater.py $$a $${a%.dt}.avi ; done
+avi4dt:
+	for a in $(ROOT)*.avi ; do $E $(BIN)/vdater.py $${a%.avi}.dt $$a ; done
+movdate2dt:
+	for a in $(ROOT)*.mov ; do date -r $$a +$(DTFMT) > $$a.dt ; done
 datev:
-	for a in *.mov ; do touch -r $$a $$a*.mkv ; done
+	for a in $(ROOT)*.mov ; do touch -r $$a $$a*.mkv ; done
 
 diffix:
 	diff -btw index.html .. | perl -ne 'print if s/.*"(.*)".*/$$1 /' > ../rmm
@@ -96,5 +114,15 @@ optall:
 
 png2jpg:
 	for a in *.png; do echo "$$a" ; convert "$$a" "$$a.jpg" ; done
+
+ren-mkv-dt:
+	PATH=${PATH#.:} find . -name *.mkv -execdir rename.py  '\.[^/]*mkv$' '.mkv' {} +
+	PATH=${PATH#.:} find . -name *.dt  -execdir rename.py  '\.[^/]*dt$' '.dt' {} +
+video-vse:
+	find ../ -name skuka -prune -o -type f -a \( -name *.avi -o -name *.mkv -o -name *.3gp \) -exec ln -s {} . \;
+
+last posledni:
+	find /snimki/ -name i6c\*.jpg | sed s,.*/,, | sort | tail -5
+	find /snimki/ -name v6c\*.mkv | sed s,.*/,, | sort | tail -5
 
 # vim:ts=4:sw=4:noexpandtab

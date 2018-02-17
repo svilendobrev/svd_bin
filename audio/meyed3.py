@@ -1,8 +1,16 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function #,unicode_literals
 '''
 link into ~/.eyeD3/plugins/
 maybe ~/.eyeD3/config.ini : default/plugin
 '''
+
+if 0*'v1:0.8-python-v2':
+    #inside eyed3.main.main()
+    #XXX HACK
+    import pathlib
+    pathlib._py2_fs_encoding = args.fs_encoding #'utf8'
+
 
 class ed3:
     from eyed3.id3 import tag, frames, ID3_V1, ID3_V2
@@ -10,14 +18,28 @@ _Tag = ed3.tag.Tag
 
 import os
 import argparse
-
+try:
+    unicode
+except:
+    unicode = str
 class enco( unicode):
     encoding1 = 'latin_1'
+    on = False
+    def __new__( me, *a,**ka):
+        if not me.on or (not a[1:] and not ka):
+            return unicode.__new__( me, *a,**ka)
+        try:
+            return unicode.__new__( me, a[0], me.encoding1)
+        except:
+            print( (me, a,k))
+            raise
     def encode( me, *a,**k):
+        if not me.on:
+            return unicode.encode( me, *a,**k)
         try:
             return unicode.encode( me, me.encoding1)
         except:
-            print `me`
+            print( repr(me))
             raise
 
 if 'new':
@@ -36,16 +58,23 @@ if 'new':
     може enco да поправи и конструктора / latin_1
     може enco да сработва само при искан latin_1
         '''
-    def nene_loadV1Tag( me, fp):
+    _Tag__loadV1Tag = _Tag._loadV1Tag
+    def _loadV1Tag( me, fp):
         ed3.tag.unicode = enco
-        r = _Tag._loadV1Tag( me, fp)
+        enco.on = True
+        r = _Tag__loadV1Tag( me, fp)
         ed3.tag.unicode = unicode
+        enco.on = False
         return r
-    #тези май стигат за да работи писането в.1 _saveV1Tag
+    if 1:
+        _Tag._loadV1Tag = _loadV1Tag
+
+    #тези (+enco.encode) стигат за да работи писането в.1 _saveV1Tag
     o_getTitle  = _Tag._getTitle
     o_getArtist = _Tag._getArtist
     o_getAlbum  = _Tag._getAlbum
-    def _getTitle(  me): return enco( o_getTitle( me))
+    def _getTitle(  me):
+        return enco( o_getTitle( me))
     def _getArtist( me): return enco( o_getArtist( me))
     def _getAlbum(  me): return enco( o_getAlbum( me))
     _Tag._getTitle  = _getTitle
@@ -67,15 +96,18 @@ if 'new':
     _save = _Tag.save
     def save( me, version=None, **ka):
         version = version if version else me.version
-        print 'save', version, _Tag.v12 and '+v12' or ''
+        print( 'save', version, _Tag.v12 and '+v12' or '')
         #me.fake1 = version & ed3.ID3_V1 #allow own v1 Encoding
         r = _save( me, version=version, **ka)
         if _Tag.v12 and version[0] == ed3.ID3_V2[0]:   #allow v1 additional to v2
-            print 'extra-v1'
+            print( 'extra-v1')
             #me.fake1 = True
             ka[ 'backup' ] = None     #сакън не пак
+            enco.on = True
             r = _save( me, version=ed3.ID3_V1, **ka)
+            enco.on = False
         #me.fake1 = False
+        me.msaved = True
         return r
     _Tag.save = save
 
@@ -103,6 +135,18 @@ if 'new':
                 action= Action2,
                 nargs=0,
                 )
+
+        def handleFile( self, f):
+            classic.ClassicPlugin.handleFile( self, f)
+            if not _Tag.v12: return
+            if self.audio_file.tag.version[0] == ed3.ID3_V1[0]: return
+            if self.args.rename_pattern: return
+            if getattr( self, 'msaved', False): return
+            if self.args.remove_all or self.args.remove_v1 or self.args.remove_v2: return
+            #again
+            super(classic.ClassicPlugin, self).handleFile( f, tag_version= ed3.ID3_V1)
+            self.printTag( self.audio_file.tag)
+
     #classic.ClassicPlugin = ClassicPlugin
 
 
@@ -115,8 +159,8 @@ if 0:
             if me.IMAGE_AUTOSCALE:    #max 1Kx1K, non-progressive
                 front = image_file_path+'.mp3.jpg'
                 if not os.path.exists( front):
-                    print 'autoscale', front
-                    print os.system( 'djpeg "%(image_file_path)s" | pnmscale -pixels 1050000 | cjpeg -q 75 -optimize > /tmp/meyd3tmp.jpg' % locals() )
+                    print( 'autoscale', front)
+                    print( os.system( 'djpeg "%(image_file_path)s" | pnmscale -pixels 1050000 | cjpeg -q 75 -optimize > /tmp/meyd3tmp.jpg' % locals() ))
                     import shutil
                     #os.rename( '/tmp/meyd3tmp.jpg', front )
                     shutil.move( '/tmp/meyd3tmp.jpg', front )
@@ -129,12 +173,12 @@ if 0:
                 if image_frame: #compare
                     for a in 'description mimeType imageData'.split():  #encoding being set afterwards?
                         if getattr( i, a) != getattr( image_frame, a):
-                            print 'diff', a, image_file_path
-                            if a!='imageData': print `getattr( i, a)`, `getattr( image_frame, a)`
+                            print( 'diff', a, image_file_path)
+                            if a!='imageData': print( repr( getattr( i, a)), repr( getattr( image_frame, a)))
                             break   #diff
                     else:
                         image_frame = None
-                        print 'same', type, image_file_path
+                        print( 'same', type, image_file_path)
                         continue   #same
                 me.frames.remove(i)
 
@@ -144,9 +188,9 @@ if 0:
 ########### dont save if same tags
     f1 = f2 = None
     def __saveV2Tag( me, v):
-        #print 2222222221, object.__repr__(me)
+        #print( 2222222221, object.__repr__(me))
         fnew = [ f.__dict__.copy() for f in me.frames ]
-        if me.f2 == fnew: print 222222222, 'same frames'
+        if me.f2 == fnew: print( 222222222, 'same frames')
         else: _Tag.__saveV2Tag( me,v)
 
     def __loadV2Tag( me, f):
@@ -159,11 +203,11 @@ if 0:
         return r
 
     def __saveV1Tag( me, v):
-        #print 111111111, object.__repr__(me)
+        #print( 111111111, object.__repr__(me))
         fnew = me.getv1data( enc= True)
-        #print 'old', ' '.join( str(s) for s in me.f1.items())
-        #print 'new', ' '.join( str(s) for s in fnew.items())
-        if me.f1 == fnew: print 111111111, 'same frames'
+        #print( 'old', *me.f1.items())
+        #print( 'new', *fnew.items())
+        if me.f1 == fnew: print( 111111111, 'same frames')
         else: _Tag.__saveV1Tag( me,v)
 
 
