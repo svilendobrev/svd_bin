@@ -130,9 +130,9 @@ augroup END
 let gr_any0="grep\ -Ens\ --exclude-dir=.svn --exclude-dir=CVS --exclude-dir=.bzr \"$*\""
 " -r : no symlinks
 " -R: with symlinks
-let gr_any_withLinks=gr_any0 . "\ -R\ ."
-let gr_any_noLinks=gr_any0 . "\ -r\ ."
-let gr_any=gr_any_noLinks
+let gr_withLinks="\ -R\ ."
+let gr_noLinks="\ -r\ ."
+let gr_any=gr_any0
 let gr_mak="\ --include=[mM]ake\\*"
 let gr_cfg="\ --include=\\*.inc\ --include=\\*.cfg"
 let gr_xml="\ --include=\\*.xml"
@@ -149,7 +149,7 @@ let grepprg0=gr_any . gr_all . gr_nosrc_
 let grepprg2=gr_any . gr_all . gr_noalt . gr_noold
 let grepprg1=gr_any0 . gr_all ."\ *"
 let grepprgno0=grepprg0 . gr_no0
-let &grepprg=grepprg0
+let &grepprg=grepprg0.gr_noLinks
 
 let gr_html="\ --include=\\*.htm\\* "
 let grephtml="grep\ -Ens $* `find . -type f -name \\*.htm\\*`"
@@ -483,7 +483,8 @@ inoremap <s-F10> <c-o>:bn!<CR>
 noremap  <F9>       :bN!<CR>
 inoremap <F9>  <c-o>:bN!<CR>
 
-"copy to/from X-clipboard - see [x11-selection]; to X-selection is "*y ; needs compiled with [+xterm_clipboard]
+"copy to/from X-clipboard - see [x11-selection]; to X-selection is "*y ; needs compiled with [+xterm_clipboard] (arch: install gvim but use vim), and run without -X !
+"note: set clipboard=unnamedplus  makes the usual y work as well
 vnoremap <c-C> "*y
 vnoremap <c-Y> "+y
 noremap  <c-Q> "+p
@@ -584,10 +585,12 @@ function! HEADsetup()
 endf
 command! HEADsetup call HEADsetup()
 
-function! VIMTAILsetup()
+function! TAILsetup()
  let comment_pfx = (&filetype=='cpp' || &filetype=='c' || &filetype=='cfg' || &filetype=='java') ? '//' : '#'
  if &filetype =='xml' || &filetype=='html'
   let comment_pfx = '<!--'
+ else  
+  exe append( line("$"), '')
  endif
 
  let no_exp_tab  = (&filetype=='make') ? 'no' : ''
@@ -598,9 +601,9 @@ function! VIMTAILsetup()
  endif
 
 endf
-command! VIMTAILsetup call VIMTAILsetup()
+command! TAILsetup call TAILsetup()
 
-command! HEADTAILsetup call HEADsetup()|call VIMTAILsetup()
+command! HEADTAILsetup call HEADsetup()|call TAILsetup()
 
 "opposite of :diffthis
 command! Undiffthis set nodiff|set foldcolumn=0|set noscrollbind
@@ -701,5 +704,9 @@ iabbrev ЪЕ Э
 iabbrev ье э
 iabbrev ЬЕ Э
 scriptencoding
+
+
+map <c-F2> :call mkdir( "./ok/okk", "p", 0775)<CR>
+imap <c-F2> <c-o>:call mkdir( "./ok/okk", "p", 0775)<CR>
 
 " vim:ts=4:sw=4:expandtab
