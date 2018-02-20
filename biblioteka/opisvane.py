@@ -119,7 +119,9 @@ def save_if_diff( fname, r, naistina =False, enc ='utf8', podrobno =True, makedi
         if isinstance( r, str): r = r.strip().split( '\n')
         r = [ x.rstrip() for x in r ]
         if prepend_py_enc:
-            r = [ '# -*- coding: {enc} -*-'.format( **locals()) ] + r
+            tenc = '# -*- coding: {enc} -*-'.format( **locals())
+            if tenc not in r[:2]:
+                r.insert( 0, tenc )
         txt = '\n'.join( r)
 
         if exists( fname):
@@ -272,10 +274,10 @@ class info:
         opisanie    = 'опис*ание',
         sydyrzhanie = 'съд*ържание',
         simvoli     = 'ет*икети символ*и',
-        zvuk        = 'звук zwuk език',
+        zvuk        = 'зв*ук zw*uk zv*uk  език',
         original    = 'оригинал',
         #за/от елементите и в папка
-        avtor       = 'автор awtor author',
+        avtor       = 'ав*тор aw*tor auth*or',
         godina      = 'година г год year y',
         sfx         = 'наставка',
         ########

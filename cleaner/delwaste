@@ -1,12 +1,28 @@
 #!/bin/sh
+# path PFX SFX PFX2
 dellocale /usr/share/locale/ "" /
 dellocale /usr/share/i18n/locales/
+dellocale /usr/share/kbd/locale/
 dellocale /usr/lib/chromium/locales/ 
+dellocale /usr/lib/opera/localization/
+dellocale /usr/share/lxpanel/images/xkb-flags/ '' .png
+dellocale /usr/share/libexttextcat/ '' .lm
+
+dellocale /usr/share/tuxpaint/locale/ '' .ttf
+dellocale /usr/share/tuxpaint/locale/ '' _docs
+find /usr/share/tuxpaint/ -type d -exec dellocale {} '*_desc_' .ogg '.*_' \;
+
 rm='sudo rm -rf'
 
 P=/usr/bin/
-$rm $P/gtk*demo $P/demo*gtk* $P/x264
+$rm $P/gtk*demo* $P/demo*gtk* $P/x264
 $rm /usr/share/gtk*-doc
+
+#openmotif
+$rm /usr/share/Xm
+$rm /usr/share/man/man3/Xm*
+
+$rm /usr/share/guile
 
 P=/usr/lib/libreoffice/
 $rm $P/program/wizards/
@@ -24,6 +40,7 @@ $rm $P/test/ $P/idle*/ $P/tkinter/
 $rm $P/*/test/ $P/*/tests/ 
 $rm $P/site-packages/*/test/ 
 $rm $P/site-packages/*/tests/ 
+$rm $P/site-packages/*/*/tests/ 
 $rm $P/site-packages/*/SelfTest/
 $rm $P/site-packages/bzrlib/plugins/*/test*
 $rm $P/site-packages/numpy/*/tests
@@ -37,7 +54,7 @@ $rm $P/python*/html/{gen,search}index*
 
 $rm $P/[a-oq-zA-Z]*
 $rm $P/p[a-xzA-Z]*
-
+$rm $P/python-* $P/python?-*
 
 V=/usr/share/vim/vim*/
 $rm $V/tutor $V/lang
@@ -100,6 +117,8 @@ $rm /usr/share/perl5/core_perl/pod/
 $rm /usr/bin/core_perl/pod*
 $rm /usr/*bin/pod2*
 
+$rm /usr/share/gir-1.0 /usr/share/gir-1.0--
+
 #mesa-demos
 $rm /usr/bin/osdemo*
 $rm /usr/sbin/osd_login
@@ -115,11 +134,11 @@ P=/usr/lib/modules/*/kernel
 # $rm $P/drivers/gpu/drm/{radeon,amd*}
 
 P=/usr/lib/firmware
-# $rm $P/{ti-connectivity,liquidio,netronome}
-# $rm $P/bnx2*
-# $rm $P/{mrvl,ar3k,slicoss,go7007,emi*,qca}
+$rm $P/{ti-connectivity,liquidio,netronome}
+$rm $P/bnx2*
+$rm $P/{mrvl,ar3k,slicoss,go7007,emi*,qca}
 # $rm $P/{libertas,carl9170fw,mwl*,moxa,vxge,qed,cxgb4,ueagle-atm}
-# $rm $P/{iwlwifi*,myri*,phan*,ct*fw*,qat*,i2400*,i6050*,cbfw*,s5*}
+$rm $P/{iwlwifi*,myri*,phan*,ct*fw*,qat*,i2400*,i6050*,cbfw*,s5*}
 # $rm $P/{brcm,radeon,amdgpu}
 
 $rm /usr/share/help/*

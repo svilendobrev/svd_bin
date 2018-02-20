@@ -2,10 +2,7 @@
 X=${1:-locale}
 PFX=$2
 SFX=$3
-echo "$X" --$PFX-- --$SFX--
-# !(bg|en)
-sudo rm -rf "$X"/${PFX}[acdf-z]*$SFX
-sudo rm -rf "$X"/${PFX}b[a-fh-z]*$SFX
-sudo rm -rf "$X"/${PFX}e[a-mo-z]*$SFX
-sudo rm -rf "$X"/${PFX}en_[A-TV-Z]*$SFX
-sudo rm -rf "$X"/${PFX}en@*$SFX
+PFX2=${4:-$PFX}
+echo "$X" --$PFX-- --$SFX-- --$PFX2--
+#ls -1d "$X"/${PFX}*$SFX 2>/dev/null | grep -Ev "^$X/$PFX2(bg|en[_-]US|en[_-]GB|i18n|iso14651_t1(_common|$)|translit)" 
+sudo $E rm -rf ` ls -1d "$X"/${PFX}*$SFX 2>/dev/null | grep -Ev "^$X/$PFX2(bg|en|us|en[_-]US|en[_-]GB|i18n|iso14651_t1(_common|$)|translit)" `
