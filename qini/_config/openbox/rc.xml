@@ -179,19 +179,19 @@
         <desktop>3</desktop>
       </action>
     </keybind>
-    <keybind key="c-s-1">
+    <keybind key="c-a-1">
       <action name="SendToDesktop">
         <desktop>1</desktop>
         <follow>yes</follow>
       </action>
     </keybind>
-    <keybind key="c-s-2">
+    <keybind key="c-a-2">
       <action name="SendToDesktop">
         <desktop>2</desktop>
         <follow>yes</follow>
       </action>
     </keybind>
-    <keybind key="c-s-3">
+    <keybind key="c-a-3">
       <action name="SendToDesktop">
         <desktop>3</desktop>
         <follow>yes</follow>
@@ -252,6 +252,11 @@
       </action>
     </keybind>
     <!-- Keybindings for running applications -->
+    <keybind key="c-F1">
+      <action name="Execute">
+        <command>kodi</command>
+      </action>
+    </keybind>
     <keybind key="W-e">
       <action name="Execute">
         <command>pcmanfm</command>
@@ -277,16 +282,6 @@
         <command>claws-mail</command>
       </action>
     </keybind>
-    <keybind key="c-a-s">
-      <action name="Execute">
-        <command>skype</command>
-      </action>
-    </keybind>
-    <keybind key="c-a-y">
-      <action name="Execute">
-        <command>sudo synaptic</command>
-      </action>
-    </keybind>
     <keybind key="c-a-o">
       <action name="Execute">
         <command>opera</command>
@@ -294,7 +289,7 @@
     </keybind>
     <keybind key="c-a-f">
       <action name="Execute">
-        <command>iceweazel</command>
+        <command>firefox</command>
       </action>
     </keybind>
     <keybind key="c-a-n">

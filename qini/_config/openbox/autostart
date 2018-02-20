@@ -1,7 +1,16 @@
 xsetroot -solid black
-/home/qini/x/setxkb-bgphonetic.sh &
 lxpanel & 
+#x-terminal-emulator &
 xtermutf &
-/home/qini/_devilspie/delayrun.sh 1 /home/qini/_devilspie/startup-maxfull.ds &
+
 opera &
 claws-mail &
+/home/qini/x/kpie/zzkpie &	#assign screens
+
+#screesaver off
+#xset -dpms
+#xset s off
+
+/home/qini/x/setxkb-bgphonetic.sh &
+#xcalib.sh
+#kodi &

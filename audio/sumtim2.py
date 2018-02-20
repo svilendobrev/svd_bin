@@ -20,7 +20,8 @@ def output( *args):
         r = subprocess.check_output( args, stderr=subprocess.STDOUT )
     except subprocess.CalledProcessError:
         return None
-    if v3: r = r.decode( ENC)
+    #if v3: r = r.decode( ENC)  #bytes in v3.. so what
+    if v3: r = r.decode( 'cp1251', errors='replace')  #does not matter, just not bytes
     return r
 
 DIGITS = 0

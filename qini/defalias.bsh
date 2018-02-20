@@ -49,9 +49,10 @@ al l    less
 
 al t    cat
 al g    'grep -E'
-al tm   date
-al qt   date
-al q    date
+#al tm   date
+al tm   'date "+%R %a %x"'
+al qt   tm
+al q    qt
 al zap  'rm -rf'
 al e    'vim -n -X'    #no swap - memonly  ; no X server
 al vimdiff    'e -d'   
