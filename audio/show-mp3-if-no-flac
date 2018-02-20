@@ -1,0 +1,4 @@
+#!/bin/sh
+a=`echo $1 | sed s/mp3/flac/`
+test -f "$a" || echo "$1"
+

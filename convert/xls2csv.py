@@ -3,36 +3,41 @@
 from __future__ import print_function #,unicode_literals
 
 USE_XLRD=0
-if USE_XLRD:
-    import xlrd
-    #this puts ints as floats :/ and formatting_info is not there yet
+
+#this puts ints as floats :/ and formatting_info is not there yet
+def letter2index0_openpyxl( a):
     import xlrd.xlsx
-    def letter2index0( a):
-        r = xlrd.xlsx._UPPERCASE_1_REL_INDEX[a]
-        assert r>0
-        return r-1
-else:
-    import openpyxl
-    #if 123 is formatted under 0000 -> manual reformat-to-text
+    r = xlrd.xlsx._UPPERCASE_1_REL_INDEX[a]
+    assert r>0
+    return r-1
+
+#if 123 is formatted under 0000 -> manual reformat-to-text
+def letter2index0_xlrd( a):
     import openpyxl.utils
-    def letter2index0( a):
-        r = openpyxl.utils.column_index_from_string( a)
-        assert r>0
-        return r-1
+    r = openpyxl.utils.column_index_from_string( a)
+    assert r>0
+    return r-1
 
 ALLSHEETS = object()
 def read( fname, sheets =[], as_sheet =False):
-    if USE_XLRD:
-        wb = xlrd.open_workbook( filename= fname, formatting_info= True )   # no formatting_info yet :(
-        wsnames = wb.sheet_names()
-    else:
+    use_xlrd = USE_XLRD
+    if not use_xlrd:
+      try:
+        import openpyxl
         wb = openpyxl.load_workbook( filename= fname,
                     read_only= True,
                     guess_types= False,
                     data_only= True,    #no formulas
                     )
         wsnames = wb.get_sheet_names()
-
+        letter2index0 = letter2index0_openpyxl
+      except openpyxl.utils.exceptions.InvalidFileException:
+        use_xlrd = 1
+    if use_xlrd:
+        import xlrd
+        wb = xlrd.open_workbook( filename= fname, formatting_info= True )   # no formatting_info yet :(
+        wsnames = wb.sheet_names()
+        letter2index0 = letter2index0_xlrd
     if not sheets:
         if len(wsnames) >1:
             print( 'cannot choose, more than one available sheets:')
@@ -45,7 +50,7 @@ def read( fname, sheets =[], as_sheet =False):
 
     for sname in wsnames:
         def value( cell): return cell.value
-        if USE_XLRD:
+        if use_xlrd:
             ws = wb.sheet_by_name( sname)
             rows = ws.get_rows()
         else:
