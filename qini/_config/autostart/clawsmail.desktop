@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Name=claws-mail
+Comment=
+Exec=claws-mail
+StartupNotify=false
+Terminal=false
+
