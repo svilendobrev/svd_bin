@@ -37,13 +37,5 @@ for l in sys.stdin:
 total = sumstotal['total']
 for k,v in sorted( sumstotal.items()):
     print( f'{k:10}{v:-10,}', unit, total and f'{v/total:.2f}', 'n=', counts[k], )
-#print( counts)
-#import pprint
-#pprint.pprint( sumstotal)
-
-for k,v in sorted( sums.items()):
-    if k[0] != '/': continue
-    if len( v) <=2:
-        print( k[1:], v)
 
 # vim:ts=4:sw=4:expandtab
