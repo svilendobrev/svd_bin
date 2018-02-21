@@ -158,7 +158,7 @@ j2j: $(patsubst %,%.$(Jsfx).jpg,$(shell $(Jall4shell)))
 #	@echo total: `perl -ne 'print if s/^(\d+).*/\1/' jstatall | sum.py | grep -v :`
 
 jall:
-	du -a -k | $(BIN)/du2sum.py k
+	du -a -k | $(BIN)/du2sum.py kb
 
 QIVIW=XLIB_SKIP_ARGB_VISUALS=1 qiv -l -s -m -i -f
 jviw jview jqiv: WILD=*[0123456789][0123456789][0123456789]

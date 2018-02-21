@@ -11,7 +11,7 @@ sumstotal = defaultdict( int )
 counts = defaultdict( int)
 
 unit = sys.argv and sys.argv[1]
-if unit not in 'kmb': unit = ''
+if unit.lower() not in 'b k kb m mb g gb': unit = ''
 
 import re
 for l in sys.stdin:
@@ -43,7 +43,7 @@ for k,v in sorted( sumstotal.items()):
 
 for k,v in sorted( sums.items()):
     if k[0] != '/': continue
-    if len( v) <=3:
+    if len( v) <=2:
         print( k[1:], v)
 
 # vim:ts=4:sw=4:expandtab
