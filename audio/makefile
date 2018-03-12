@@ -1,4 +1,12 @@
+#XXX wtf.. targets (like filenames) cannot have space AND colon, errors like:
+#	missing target pattern.
+#	multiple target patterns.
+#	target pattern contains no `%'.
+#	mixed implicit and static pattern rules.
+
 all: mp3 flac
+
+_WILDS=$(wildcard $(WILD))
 
 ifneq ($(MONO),)
 OPTS+=-m m
@@ -25,11 +33,11 @@ VQ=-sameq
 #XXX sox is much better quality resampler than ffmpeg
 %-$(RATE).ff.wav: %
 	ffmpeg -i $< -ar $(RATE) $(if $(MONO),-ac 1) $@
-ffres: $(patsubst %,%-$(RATE).ff.wav,$(wildcard $(WILD)))
+ffres: $(patsubst %,%-$(RATE).ff.wav,$(_WILDS)))
 
 %-$(RATE).sox.wav: %
 	sox "$<" -b 16 -e signed-integer -t wav "$@" $(if $(STEREO),channels 2) $(if $(MONO),channels 1) rate -m -I -b 80 $(RATE)
-soxres: $(patsubst %,%-$(RATE).sox.wav,$(wildcard $(WILD)))
+soxres: $(patsubst %,%-$(RATE).sox.wav,$(_WILDS))
 #rate
 # -s: steep filter
 # -M/-I/-L     Phase response = minimum/intermediate/linear
@@ -45,11 +53,14 @@ soxres: $(patsubst %,%-$(RATE).sox.wav,$(wildcard $(WILD)))
 #sox -V  show auto-added processing
 #sox -D  no auto-dither
 
+REMAKE = $(MAKE) -f $(firstword $(MAKEFILE_LIST))
+#TOWAV=$(TOWAV) WAV2FLAC=$(WAV2FLAC)
+
 ROOT=./
 WILD?=*
-WAVs = $(wildcard $(ROOT)$(WILD).wav)
-MP3s = $(wildcard $(ROOT)$(WILD).mp3)
-FLACs= $(wildcard $(ROOT)$(WILD).flac)
+WAVs = $(wildcard $(WILD).wav)
+MP3s = $(wildcard $(WILD).mp3)
+FLACs= $(wildcard $(WILD).flac)
 ifneq ($(WAV2FLAC),)
 flac: $(WAVs:%.wav=%.flac)
 %.flac: %.wav
@@ -59,14 +70,14 @@ outflac: $(WAVs:%.wav=%.out.flac)
 	/usr/local/bin/wavres44khz.py "$<" --otype flac
 else
 flac outflac:
-	$(MAKE) -f $(firstword $(MAKEFILE_LIST)) WAV2FLAC=1 $@
+	$(REMAKE) WAV2FLAC=1 $@
 outflac2: $(FLACs:%.flac=%.out.flac)
 %.out.flac: %.flac
 	/usr/local/bin/wavres44khz.py "$<" --otype flac
 endif
 
 ifneq ($(TOWAV),)
-wav: $(FLACs:%.flac=%.wav) $(MP3s:%.mp3=%.wav)
+wav: flacwav mp3wav #$(FLACs:%.flac=%.wav) $(MP3s:%.mp3=%.wav)
 
 %.wav: %.flac
 	flac -d --no-preserve-modtime --force --keep-foreign-metadata -o "$@" "$<"
@@ -80,7 +91,7 @@ endif
 mp3 : $(WAVs:%.wav=%.mp3)
 mp3 : $(FLACs:%.flac=%.mp3)
 mp36: mp3mp3
-mp3mp3 : $(patsubst %.mp3,%.mp36,$(wildcard $(ROOT)$(WILD).mp3))
+mp3mp3 : $(MP3s:%.mp3=%.mp36)
 363:
 	rename.pl s/mp36/mp3/ *mp36
 
@@ -90,17 +101,15 @@ mp3wav : $(MP3s:%.mp3=%.wav)
 flac2wav: flacwav
 mp32wav:  mp3wav
 
-#WMVs= $(wildcard *.wmv)
-#wmv2mkv: $(WMVs:%.wmv=%.mkv)
-wmv2mkv: $(patsubst %.wmv,%.mkv,$(wildcard *.wmv))
-mkv2avi: $(patsubst %.mkv,%.avi,$(wildcard *.mkv))
-avi2mkv: $(patsubst %.avi,%.mkv,$(wildcard *.avi))
+wmv2mkv: $(patsubst %.wmv,%.mkv,$(wildcard $(WILD).wmv))
+mkv2avi: $(patsubst %.mkv,%.avi,$(wildcard $(WILD).mkv))
+avi2mkv: $(patsubst %.avi,%.mkv,$(wildcard $(WILD).avi))
 
 wavcat:
 	wavcat.py -o ooo.wav $(WAVs)
 
-SPLIT= $(wildcard $(WILD)$(SWILD))
-split: $(SPLIT:%=./mm.%-001.mkv)
+#EXT=mkv
+split: $(_WILDS:%=./mm.%-001.mkv)
 
 T?=0:0:20 #,0:4:30
 ./mm.%-001.mkv: #./%
@@ -134,9 +143,9 @@ eca.%.wav:
 	ecasound -i:"$(if $(RESAMPLE),$(_RESAMPLE))$*" -o "$@" $(if $(PERC),-ei:$(PERC)) $(if $(MONO2STEREO)$(STEREO),$(_MONO2STEREO))
 
 #!!без , ( ) в имената..
-mono2stereo: $(patsubst %,mono2stereo.%.wav,$(wildcard $(WILD)))
+mono2stereo: $(_WILDS:%=mono2stereo.%.wav)
 #	echo "$+"
-eca: $(patsubst %.wav,eca.%.wav,$(wildcard $(WILD)*.wav))
+eca: $(WAVs:%.wav=eca.%.wav)
 #	echo "$+"
 2x44: stereo-resample
 stereo-resample: mono2stereo
@@ -145,12 +154,11 @@ stereo-resample: RESAMPLE=1
 izv:
 	$(PY) ~/src/bin/audio/izvadki/wavspl.py *izv*
 
-FILMs= $(wildcard $(SFILM))
-filmid: $(FILMs:%=%.filmid)
+filmid: $(_WILDS:%=%.filmid)
 %.filmid: %
 	filmid.sh "$<" >"$@"
 
-bz bz2: $(patsubst %,%.bz2,$(wildcard $(BZ)))
+bz bz2: $(_WILDS:%=%.bz2)
 %.bz2: %
 	bzip2 $<
 
@@ -162,5 +170,42 @@ orgaudio:
 
 #.raw+.cue -> wav
 # $bchunk .raw .cue -w xyz
+
+######
+#generic jobs
+
+JOBS ?= $(_WILDS)
+cdjob:  WILD=*/
+cdjob:  $(JOBS:%=%/cdjob)
+argjob: $(JOBS:%=%.argjob)
+
+#to use aliases:
+#BASH_ENV=~/.bashrc make cdjob JOB='cmd with args...'
+ifneq ($(BASH_ENV),)
+SHELL=bash
+export ALIASYT=1
+endif
+
+%/cdjob:
+	cd "$*" && $(JOB)
+%.argjob:
+	$(JOB) "$*"
+
+##########
+
+CUE=*.[Cc][Uu][eE]
+#EXT=
+cuetags: cdjob
+cuetags: EXT?=flac
+cuetags: JOB=cuetag.sh $(CUE) *.$(EXT)
+#or
+cue2tags: $(_WILDS:%=%._cue)
+cue2tags: EXT?=flac
+%._cue: EXT?=flac
+%._cue: CUEITEMS?=[0-9]
+%._cue:
+	cd "$*" && cuetag.sh $(CUE) $(CUEITEMS)*.$(EXT)
+
+cuetag1: .._cue		#in current dir
 
 # vim:ts=4:sw=4:noexpandtab

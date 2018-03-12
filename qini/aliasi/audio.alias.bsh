@@ -47,7 +47,7 @@ cuefix()        { grep -v "REM " | cuebreakpoints -i cue ; }
 CUEFILTER="cat"
 any2wavsplit()  {
     echo "$1"--"$2"
-    cat "$2" | grep -v "REM " | $CUEFILTER | shnsplit -O never -o ${ext:-wav} -t '%n. %t'  "$1" ;
+    cat "$2" | grep -v "REM " | $CUEFILTER | shnsplit -O never -o ${ext:-wav} -t '%n. %t' -m '/-' -x 1-99  "$1" ;
 }
 cue-noframes()  { CUEFILTER='perl -ne s/:[0-9][0-9]\s*$/\n/;print' ; }  #wholly shit
 any2flacsplit() { ext=flac any2wavsplit "$@" ; }

@@ -1,12 +1,19 @@
 #$Id: _bashrc,v 1.13 2008-06-18 10:59:20 sdobrev Exp $
-### bash
-## ! bash2.0 needs ending ; before } in func defs
-## !! non-interactive shells need 'shopt -s expand_aliases' to turn on aliases!
+### bash-ing
 
-## setenv _INIs=path-to-these-files before sourcing this
-# ALL this is interactive anyway
-## cmd-line editor settings - only via .inputrc ; $INPUTRC is for later progs
-## PATH setting is moved after term-guessing (dos uses ; as delimiter)
+## usage: setenv _INIs=path-to-these-files before sourcing this
+
+## ! bash2.0 needs ending ; before } in func defs
+## XXX non-interactive (scripts or -c):
+##  ! to use any aliases, bash needs 'shopt -s expand_aliases' (may go in .bashrc - if it is loaded)
+##  - to load these at all, setenv BASH_ENV=the-bashrc-file before bash
+##  - these are done:
+### -- few basic aliases
+### -- PATH setting/funcs
+### -- loading _SITEs extra-rcs
+##  - setenv ALIASYT=1 to also load all the aliases
+## the rest is interactive-only
+## - cmd-line editor settings - only via .inputrc ; $INPUTRC is for later progs
 
 set +u          #using unset vars is not error
 ## default root/.bash_profile sets BASH_ENV=$HOME/.bashrc -> always comes here!
@@ -20,61 +27,19 @@ al so .
 #sos()  { echo --"$@"; so "$@"; }
 sosi()  { echo --${_INIs}"$1"; so ${_INIs}"$1"; }
 
-if [ -n "$PS1" ]; then #interactivestuff
-  if [ "x$1" != "xkeys" ]; then   # if this is at the top, so is not aliased
-    al wh     type    # -path'
-    al rehash 'hash -r'
-    al z    'fg %vi'        #pop up last suspended vi* job (ctrl-Z doesnt work)
+if [ "x$1" != "xkeys" ]; then   # if this is at the top, so is not aliased
+  test -n "$PS1" && echo "ahaaaa-$0"
+
+  ## aliases
+  if [ -n "$PS1" -o -n "$ALIASYT" ]; then
     test -z "$_EXT" && _EXT=.bsh
-
-    ####### interactive only:
-    echo "ahaaaa-$0"
-
-    al verbose     "set -vx"
-    al unverbose   "set +vx"
-    #al _setcdpath "senv CDPATH"
-
-    _kbin()   { test -n "$1" -a -n "$2" && bind '"'"$1"'"':"$2"; }             #builtin editfunc
-    _kcmd()   { test -n "$1" -a -n "$2" && bind '"'"$1"'"':'"'"$2"\\C-J'"'; }    #with "" and Enter
-    _kstr()   { test -n "$1" -a -n "$2" && bind '"'"$1"'"':'"'"$2"'"'; }         #with ""
     sosi defalias$_EXT
-    al lko  'so ${_INIs}_bashrc keys'
-  fi # non-keys
+  fi
 
-
-  _set _ESC='\e'
-  _set _CTL='\C-'
-  _set _delwordB=backward-kill-word
-  _set _delwordF=kill-word
-  _set _wordF=forward-word
-  _set _completeF=menu-complete   # new versions have this; but now list is gone
-  #_set _completeF=complete
-  _set _completeB=menu-complete-backward    # was = complete if no backwards :(
-  _set _completelist=possible-completions
-  _set _expand=insert-completions
-  _kesc() {
-    if test -n "$1" -a -n "$2" -a -n "$_ESC"; then
-      export _K_$1="$2"
-      export _k_$1=$_ESC"$2"
-    else echo "!_kesc empty 1=$1 2=$2 esc=$_ESC"
-    fi
-  }
-fi  #interactivestuff
-
-# be careful, two commands cannot be bound to same key !!
-# [up] cant be both up-history and search-up-history
-# no such thing as replace mode
-# no backward completion
-########
-
-if [ "x$1" != "xkeys" ]; then
+  ## paths
   _DLM=":"
-
   case "x$OSTYPE" in
-    xMSDOS*|xmsdos*) _set TERM=dosbsh
-      unalias e
-      _DLM=";"
-   ;;
+    xMSDOS*|xmsdos*) unalias e ; _DLM=";" ;;
   esac
 
   pathfind() {
@@ -93,12 +58,49 @@ if [ "x$1" != "xkeys" ]; then
   test "$USER" == "root" && U=/root || U=/home/$USER
   for x in /home/_bin $U/bin . ; do
       [ -d $x ] && pathadd $x
-  done  
+  done
 fi  #non-keys
 
 
 if [ -n "$PS1" ]; then #interactivestuff
-  T="${MY_TERM:-$TERM}" 
+  if [ "x$1" != "xkeys" ]; then   
+    al verbose     "set -vx"
+    al unverbose   "set +vx"
+    #al _setcdpath "senv CDPATH"
+
+    _kbin()   { test -n "$1" -a -n "$2" && bind '"'"$1"'"':"$2"; }             #builtin editfunc
+    _kcmd()   { test -n "$1" -a -n "$2" && bind '"'"$1"'"':'"'"$2"\\C-J'"'; }    #with "" and Enter
+    _kstr()   { test -n "$1" -a -n "$2" && bind '"'"$1"'"':'"'"$2"'"'; }         #with ""
+
+    al lko  'so ${_INIs}_bashrc keys'
+  fi # non-keys
+
+  _set _ESC='\e'
+  _set _CTL='\C-'
+  _set _delwordB=backward-kill-word
+  _set _delwordF=kill-word
+  _set _wordF=forward-word
+  _set _completeF=menu-complete   # new versions have this; but now list is gone
+  #_set _completeF=complete
+  _set _completeB=menu-complete-backward    # was = complete if no backwards :(
+  _set _completelist=possible-completions
+  _set _expand=insert-completions
+  _kesc() {
+    if test -n "$1" -a -n "$2" -a -n "$_ESC"; then
+      export _K_$1="$2"
+      export _k_$1=$_ESC"$2"
+    else echo "!_kesc empty 1=$1 2=$2 esc=$_ESC"
+    fi
+  }
+
+# be careful, two commands cannot be bound to same key !!
+# [up] cant be both up-history and search-up-history
+
+  case "x$OSTYPE" in
+    xMSDOS*|xmsdos*) _set TERM=dosbsh
+   ;;
+  esac
+  T="${MY_TERM:-$TERM}"
   case "x$T" in
    xlinux|xxterm|xdosbsh|xxterm-vte) sosi k-$T;;
    xkonsole*) sosi k-konsole ;;
@@ -154,12 +156,12 @@ if [ "x$1" != "xkeys" ]; then
   if [ -n "$PS1" ]; then #interactivestuff
     tm
     test -x $_INIs/dircolor.py && senv LS_COLORS `$_INIs/dircolor.py -ls`
-    which lesspipe >&/dev/null && eval "$(lesspipe)" 
-  fi  #interactivestuff  
+    which lesspipe >&/dev/null && eval "$(lesspipe)"
+  fi  #interactivestuff
 fi #non-keys
 # eof .bashrc
 
-## en_US bg_BG etc locales collate like AaBb..Zz / aAbB..zZ 
+## en_US bg_BG etc locales collate like AaBb..Zz / aAbB..zZ
 #so [A-Z] is NOT_AT_ALL what u think! put this also in etc/profile
 senv LC_COLLATE C
 

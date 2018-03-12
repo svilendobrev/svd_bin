@@ -11,13 +11,14 @@ def around(x):
     if not ROUND: return int(x)
     return round(x,ROUND)
 
+HASH= os.environ.get('HASH', '')
 try:
     f = open( sys.argv[1] )
 except IndexError:
     f = sys.stdin
 
 for line in f:
-    lr = line.strip().split('#',1)
+    lr = line.strip().split( '#' if HASH else None, 1)
     x = lr[0].strip()
     if not x:
         continue

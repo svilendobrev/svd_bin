@@ -4,4 +4,4 @@ test -z "$NOSUDO" && _SUDO=sudo
 #echo $_SUDO
 $_SUDO chown nobody:nobody -R "$@"
 $_SUDO chmod ug+w,a+r -R "$@"
-$_SUDO find "$@" -type d -exec chmod a+x {} \;
+$_SUDO find "$@" -type d -exec chmod a+x,g+s {} \;

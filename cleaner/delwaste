@@ -1,4 +1,7 @@
 #!/bin/sh
+#set -x
+rm='sudo rm -rf'
+
 # path PFX SFX PFX2
 dellocale /usr/share/locale/ "" /
 dellocale /usr/share/i18n/locales/
@@ -7,12 +10,18 @@ dellocale /usr/lib/chromium/locales/
 dellocale /usr/lib/opera/localization/
 dellocale /usr/share/lxpanel/images/xkb-flags/ '' .png
 dellocale /usr/share/libexttextcat/ '' .lm
+dellocale /usr/share/gnupg/ help. .txt
+$rm /usr/share/owncloud/i18n/
+dellocale /usr/share/gitk/lib/msgs/
+dellocale /usr/share/git-gui/lib/msgs/
 
 dellocale /usr/share/tuxpaint/locale/ '' .ttf
 dellocale /usr/share/tuxpaint/locale/ '' _docs
+$rm /usr/share/tuxpaint/fonts/locale/
 find /usr/share/tuxpaint/ -type d -exec dellocale {} '*_desc_' .ogg '.*_' \;
 
-rm='sudo rm -rf'
+$rm /usr/share/etr/music/{freez,calm,spun,start1,options1}*.ogg
+
 
 P=/usr/bin/
 $rm $P/gtk*demo* $P/demo*gtk* $P/x264
@@ -23,6 +32,7 @@ $rm /usr/share/Xm
 $rm /usr/share/man/man3/Xm*
 
 $rm /usr/share/guile
+$rm /usr/lib/guile/*/ccache
 
 P=/usr/lib/libreoffice/
 $rm $P/program/wizards/
@@ -52,8 +62,8 @@ P=/usr/share/doc
 $rm $P/python*/html/_sources/
 $rm $P/python*/html/{gen,search}index*
 
-$rm $P/[a-oq-zA-Z]*
-$rm $P/p[a-xzA-Z]*
+$rm $P/[a-oq-zA-Z0-9]*
+$rm $P/p[a-xzA-Z0-9]*
 $rm $P/python-* $P/python?-*
 
 V=/usr/share/vim/vim*/
@@ -96,18 +106,25 @@ $rm $P/*.3ssl.*
 $rm $P/{ASN,CURL,DSA,Fc,SDL,SSL,Tcl}*
 $rm $P/*_sp.*
 $rm $P/Xkb*
-$rm $P/Xt* $P/X[GS]et* $P/Xcurs* $P/Xcms* $P/Xdb* $P/Xmb* $P/Xrm*
-$rm $P/XCreate* $P/XChange* $P/XDraw* $P/XAllo* $P/XFree* $P/XShap* $P/XScreen*
+$rm $P/X{t,curs,cms,db,mb,rm,au,ine,utf,v,wc}*
+#$rm $P/X{Add,Create,Change,Draw,Allo,Free,Shap,Screen}*
+$rm $P/X[A-Z]*
 $rm $P/__gnu_*
 $rm $P/SVN*
 $rm $P/TIFF*
 $rm $P/{ber_,fribidi_,gnutls,ldap_,ldns_,libssh}*
 $rm $P/{pam,pcap,pcre,sd_,sem_}*
 $rm $P/{slk,udev,xdr_}*
+$rm $P/xcb_[a-h]*
+$rm $P/xcb_[i-t]*
+$rm $P/xcb_[t-z]*
 $rm $P/xcb*
 $rm $P/pipe[cl]* $P/secc* 
 $rm $P/set_* $P/zip_*
 $rm $P/SD_* $P/SLIST* $P/LIST* $P/STAIL* $P/TAIL*
+$rm $P/{aa,acl,af,aio,archive,asn1,cap,clnt,curl,curs,dane,el_,field_,form_}*
+$rm $P/{idn,item_,keyctl,libcurl,ne_,opus_,rpc_,svc,tld_,tok_}*
+$rm $P/{CIRC,CMSG,CPU_,DMX,DPMS,Default,RB,SPI,SPLAY,TYPE_}*
 
 P=/usr/share/man
 $rm $P/[acdf-ln-z]* $P/b[a-fh-z].* $P/e[a-mo-z].* $P/b[a-fh-z] $P/e[a-mo-z]
@@ -123,23 +140,28 @@ $rm /usr/share/gir-1.0 /usr/share/gir-1.0--
 $rm /usr/bin/osdemo*
 $rm /usr/sbin/osd_login
 
-P=/usr/lib/modules/*/kernel
-# $rm $P/drivers/staging/{lustre,comedi,speakup}
-# $rm $P/drivers/{isdn,infiniband}
-## $rm $P/drivers/media/dvb-*
-# $rm $P/drivers/media/tuners
-# $rm $P/drivers/media/pci/{bt8,ttpci,saa,cx,ivtv}*
-# #$rm $P/drivers/media/usb/{gspca,dvb*,cx*,em*,tm*,go7007}
-# $rm $P/drivers/scsi/{aic*,bnx*,megaraid,mpt3*,lpfc,bfa,qla*}
-# $rm $P/drivers/gpu/drm/{radeon,amd*}
+P=/usr/lib/modules/*/kernel/drivers
+$rm $P/staging/ #{lustre,comedi,speakup}
+$rm $P/{isdn,infiniband}
+## $rm $P/media/dvb-*
+# $rm $P/media/tuners
+# $rm $P/media/pci/{bt8,ttpci,saa,cx,ivtv}*
+# #$rm $P/media/usb/{gspca,dvb*,cx*,em*,tm*,go7007}
+$rm $P/scsi/{aic*,bnx*,megaraid,mpt3*,lpfc,bfa,qla*}
+$rm $P/gpu/drm/{radeon,amd*}
+$rm $P/net/ethernet/{mellanox,qlogic,chelsio,sfc,cavium,dec,sun,netronome}
 
 P=/usr/lib/firmware
-$rm $P/{ti-connectivity,liquidio,netronome}
+$rm $P/{ti-connectivity,liquidio,netronome,mellanox,qlogic}
+$rm $P/{amdgpu,radeon}
 $rm $P/bnx2*
 $rm $P/{mrvl,ar3k,slicoss,go7007,emi*,qca}
-# $rm $P/{libertas,carl9170fw,mwl*,moxa,vxge,qed,cxgb4,ueagle-atm}
+$rm $P/{libertas,carl9170fw,mwl*,moxa,vxge,qed,cxgb4,ueagle-atm}
 $rm $P/{iwlwifi*,myri*,phan*,ct*fw*,qat*,i2400*,i6050*,cbfw*,s5*}
 # $rm $P/{brcm,radeon,amdgpu}
+
+P=/usr/lib*/dri
+$rm $P/r*
 
 $rm /usr/share/help/*
 
@@ -193,5 +215,13 @@ $rm $P/brushes/{Texture,Media,Splatters,*obsolet*}
 
 $rm /var/log/journal/*/system@*
 $rm /var/log/journal/*/user-*@*
+
+$rm /usr/lib/girepository-*
+
+P=/usr/share/info
+$rm $P/{as,gcc*,gdb,gawk,gsl,autoconf,gettext,bison,flex,xorriso,guile}.info*.gz
+
+$rm /usr/share/jack-audio-connection-kit/reference/html
+#$rm /usr/share/graphviz/doc/ #{html,ChangeLog,COPYING}
 
 #$rm /usr/bin/smbtorture /usr/bin/php

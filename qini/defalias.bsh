@@ -3,6 +3,10 @@
 
 _CHMOD_S=
 #########
+al wh     type    # -path'
+al rehash 'hash -r'
+al z    'fg %vi'  #pop up last suspended vi* job (ctrl-Z doesnt work)
+
  # -L to follow a link2dir instead of showing the link itself
  # -d to see the link and not to follow
  # ls without .*; -o w/o groups; -g w/o owner
@@ -49,6 +53,7 @@ al l    less
 
 al t    cat
 al g    'grep -E'
+al gi   'g -i'
 #al tm   date
 al tm   'date "+%R %a %x"'
 al qt   tm

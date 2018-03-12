@@ -24,7 +24,7 @@ for l in sys.stdin:
     name,ext = os.path.splitext( name)
     if ext.lower() != '.jpg': continue
     path,name = os.path.split( name)
-    m = re.search( '.jpg.r(medium|high|low|veryhigh)(\d*)', name)
+    m = re.search( '.r(medium|high|low|veryhigh)(\d*)', name)
     if m:
         kind = m.group(1)+m.group(2)
         name = name[ :m.start() ]

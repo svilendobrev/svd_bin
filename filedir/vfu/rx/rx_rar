@@ -1,0 +1,88 @@
+#!/usr/bin/python
+from __future__ import print_function
+
+usage = '''vfu's zip-reader/svd2009. usage:
+   rx_* l archive directory   # list archive directory
+   rx_* v archive             # list entire archive
+   rx_* x archive             # extract all
+   rx_* x archive [files...]  # extract files
+   rx_* x archive @listfile   # extract list of files
+'''
+
+#common
+import sys, os
+if len(sys.argv) < 3: raise SystemExit (usage+':1')
+cmd = sys.argv[1]
+archive = sys.argv[2]
+rest = sys.argv[3:] or None
+if cmd in ['x']:
+    #if not rest: raise SystemExit( usage+':2')
+    if rest and rest[0].startswith('@'):
+        rest = file( rest[0][1:]).read().readlines()
+elif cmd not in [ 'v', 'l']:
+    raise SystemExit( usage+':3')
+
+class dictAttr( dict):
+    'getitem == getattr ; like Struct'
+    def __init__( me, *a, **k):
+        dict.__init__( me, *a, **k)
+        me.__dict__ = me
+
+#o=open('/tmp/zzzzz', 'a')
+import subprocess
+items = subprocess.check_output( ['unrar','l', archive], universal_newlines=True).split('\n')
+items2 = []
+on = False
+for i in items:
+    if i.startswith('----'): 
+        if on: break
+        else: 
+            on = True
+            continue
+    elif on: items2.append( i)        
+#Attributes      Size     Date    Time   Name
+items = [ dictAttr( zip( 'attrs file_size date time filename'.split(), x.split( None, 4)))
+            for x in items2 ]
+#print( items)
+#assert 0
+result = []
+if cmd == 'l':
+    rlevels = rest and os.path.normpath( rest[0] ).split( os.sep) or []     #common?
+    if rlevels[:1]==['.']: rlevels=rlevels[1:]
+    #print >>o, rlevels
+    depth = len( rlevels)
+    roots = []
+    for i in items:
+        levels = os.path.normpath( i.filename).split( os.sep)
+        if len( levels) <= depth: continue #itself or not at all matching
+        if levels[ :depth] != rlevels: continue #not matching
+        name = levels[ depth ]
+        if name in roots: continue     #already there
+        roots.append( name)
+
+        if (len(levels) > 1+depth or
+            len(levels) == 1+depth and i.filename.endswith( os.sep)
+            ): name += os.sep
+        result.append( (name,i) )
+
+elif cmd =='v':
+    result = [ (i.filename,i) for i in items ]
+
+if cmd in 'lv':
+    for name,i in result:
+        #..A....   9450935  2013-04-30 06:51  name1
+        year,month,day = i.date.split('-')
+        h,m = i.time.split(':')
+        time = '%(year)04s %(month)02s %(day)02s %(h)02s %(m)02s'.replace(' ','') % locals()
+        if 'D' in i.attrs and not name.endswith( os.sep): name += os.sep
+        size = i.file_size
+        print( 0*name or '''\
+NAME:%(name)s
+SIZE:%(size)s
+TIME:%(time)s
+''' % locals())
+
+else:   #'x'
+    subprocess.call( ['unrar','x', archive] + (rest or []) )
+
+# vim:ts=4:sw=4:expandtab:ft=python

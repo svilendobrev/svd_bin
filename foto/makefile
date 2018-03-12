@@ -63,8 +63,8 @@ optjpg:
 	rename.pl 's/opt$$/jpg/' $(ROOTWILD).opt
 
 600 c6 6c i6c: ren6
-	$(MAKE) -f $(MAKEFILE_LIST) opt
-	$(MAKE) -f $(MAKEFILE_LIST) optjpg
+	$(MAKE) -f $(MAKEFILE_LIST) j2j
+	$(MAKE) -f $(MAKEFILE_LIST) j2j_rename
 	$(MAKE) -f $(MAKEFILE_LIST) autodate
 ren6:
 	rename.pl 'y/A-Z/a-z/+s/img_9/i6c09/+s/img_/i6c1/' $(ROOTWILD)[jJ][pP][gG]
@@ -118,44 +118,37 @@ png2jpg:
 	for a in *.png; do echo "$$a" ; convert "$$a" "$$a.jpg" ; done
 
 ren-mkv-dt:
-	PATH=${PATH#.:} find . -name *.mkv -execdir rename.py  '\.[^/]*mkv$' '.mkv' {} +
-	PATH=${PATH#.:} find . -name *.dt  -execdir rename.py  '\.[^/]*dt$' '.dt' {} +
+	PATH=$${PATH#.:} find . -name "*.mkv" -execdir rename.py  '\.[^/]*mkv$' '.mkv' {} +
+	PATH=$${PATH#.:} find . -name "*.dt"  -execdir rename.py  '\.[^/]*dt$' '.dt' {} +
 video-vse:
 	find ../ -name skuka -prune -o -type f -a \( -name *.avi -o -name *.mkv -o -name *.3gp \) -exec ln -s {} . \;
 
 last posledni:
-	find /snimki/ -name i6c\*.jpg | sed s,.*/,, | sort | tail -5
-	find /snimki/ -name v6c\*.mkv | sed s,.*/,, | sort | tail -5
+	find . -name i6c\*.jpg | sed s,.*/,, | sort | tail -5
+	find . -name v6c\*.mkv | sed s,.*/,, | sort | tail -5
+
+png2pnm: $(patsubst %.png,%.pnm,$(shell find $(ROOT) $(if $(DEPTH),-maxdepth $(DEPTH)) -name '$(WILD).png'))
+%.pnm: %.png
+	png2pnm $< >$@
 
 ##recompress : level=medium max=95=default --method=ssim=default --accurate=no=default --subsampling=on=default
 J2LEVEL=medium
-J2Q=95
+J2Q=75
 JARGS=
 JOPTS=--quiet
 #--no-copy
 Jsfx=r$(J2LEVEL)$(J2Q)
 Jallsfx=jpg.r[lmhv]
-DEPTH=15
-Jall4shell = find $(ROOT) $(if $(DEPTH),-maxdepth $(DEPTH)) -name '*.$(Jallsfx)*' -prune -o -type l -prune -o -name '$(WILD).jpg' -print
+DEPTH=1
+JEXT=jpg
+Jall4shell = find $(ROOT) $(if $(DEPTH),-maxdepth $(DEPTH)) -name '*.$(Jallsfx)*' -prune -o -type l -prune -o -name '$(WILD).$(JEXT)' -print
 #no symlinks
 
 j2j: $(patsubst %,%.$(Jsfx).jpg,$(shell $(Jall4shell)))
 %.$(Jsfx).jpg: % #.jpg
-	-jpeg-recompress $(JOPTS) -q $(J2LEVEL)  $(if $(J2Q),--max $(J2Q))  $(JARGS) $< $@
-
-#JQs={medium,high}{70,75,80,85,90,95,""}
-#use OUT= for no redirect2file
-#OUT = >j2jstat
-#.PHONY: jall j2jstat
-#j2jstat:	#no ROOT here XXX ! use make -C theroot  jstat
-#	-@for lq in $(JQs) ; do X=`LANG=C du -k --total *.r$$lq.* 2>/dev/null | grep "^[1-9][0-9]*[[:space:]]*total"` && echo "$$lq: $$X" ; done $(OUT)
-#	-@LANG=C du -k --total $(WILD).jpg --exclude '*$(Jallsfx)*' 2>/dev/null | grep total $(if $(OUT),>$(OUT))
-#jstatall:
-#	find . -depth -type d -exec $(MAKE) -f $(MAKEFILE_LIST) -C "{}" j2jstat \; #>/dev/null
-#	find . -name j2jstat -print -a -exec cat {} \; >jstatall
-#jall: jstatall
-#	-@for lq in $(JQs); do echo $$lq: `perl -ne "print if s/$$lq: (\d+).*/\1/" jstatall | sum.py | grep -v : ` ; done
-#	@echo total: `perl -ne 'print if s/^(\d+).*/\1/' jstatall | sum.py | grep -v :`
+	-jpeg-recompress $(JOPTS) -q $(J2LEVEL)  $(if $(J2Q),--max $(J2Q)) $(if $(findstring .pnm,$<),--ppm)  $(JARGS) $< $@
+j2j_rename j2j_ren:
+	PATH=$${PATH#.:} find $(ROOT) -name "*.$(Jsfx).jpg" -execdir rename.py '\.jpg\.$(Jsfx)' '' {} +
 
 jall:
 	du -a -k | $(BIN)/du2sum.py kb
@@ -164,5 +157,8 @@ QIVIW=XLIB_SKIP_ARGB_VISUALS=1 qiv -l -s -m -i -f
 jviw jview jqiv: WILD=*[0123456789][0123456789][0123456789]
 jviw jview jqiv:
 	for a in $(ROOTWILD).jpg ; do $(QIVIW) -d 1 $$a* ; done
+
+find_cp find_and_cp:
+	echo find _{FROMS} -name _{NAMEFILT} -exec cpmkdirs.sh {} _{TO} _{CPopts:--a}  \;
 
 # vim:ts=4:sw=4:noexpandtab

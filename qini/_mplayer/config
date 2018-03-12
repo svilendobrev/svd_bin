@@ -25,10 +25,11 @@ stop-xscreensaver=1
 #aout-of-sync-xvid/mp3?
 #mc=0
 vo=vdpau,
-vc=ffmpeg12vdpau,ffh264vdpau,
+vc=ffmpeg12vdpau,ffh264vdpau,ffhevcvdpau,ffodivxvdpau,
+#ffhevcvdpau
 #ffodivxvdpau,
-#ffvc1vdpau  ffmpeg    problems  FFmpeg WVC1 (VDPAU)  [vc1_vdpau]
-#ffwmv3vdpau 
+#ffvc1vdpau  problems
+#ffwmv3vdpau problems
 
 #vc=ffh264vdpau,
 

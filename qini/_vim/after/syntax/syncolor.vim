@@ -11,7 +11,7 @@ if &t_Co >= 8
     hi PreProc      cterm=none ctermfg=darkmagenta
     hi Constant     cterm=none ctermfg=darkred
     hi Type         cterm=none ctermfg=darkcyan
-    hi Search       cterm=none ctermfg=black    ctermbg=gray
+    hi Search       cterm=none ctermfg=black    ctermbg=brown "gray
     hi Folded       cterm=none ctermfg=darkgray
 
     hi IncSearch    cterm=none ctermfg=black ctermbg=brown

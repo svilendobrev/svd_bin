@@ -1,0 +1,10 @@
+if first cygwin starts slooow..
+#https://stackoverflow.com/questions/28410852/startup-is-really-slow-for-all-cygwin-applications
+
+mkpasswd -c > /etc/passwd
+mkgroup  -c > /etc/group
+
+2) Edit "/etc/nsswitch.conf" file to contain the following two lines:
+passwd:   files 
+group:    files 
+

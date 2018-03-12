@@ -4,8 +4,8 @@ from __future__ import print_function #,unicode_literals
 import sys
 import glob
 def aset( ext):
-    return set( a.replace( ext,'') for a in glob.glob( pfx+'/hb*/*'+ext))
-for pfx in sys.argv[1:]:
+    return set( a[:-len(ext)] for a in glob.glob( pfx+'/hb*/*'+ext))
+for pfx in sys.argv[1:] or ['.']:
     flacs= aset( '.flac')
     if not flacs: continue
     mp3s = aset( '.mp3')
