@@ -1,4 +1,4 @@
-"as is from https://github.com/timakro/vim-searchant
+"from https://github.com/timakro/vim-searchant : nnoremap -> noremap
 " searchant.vim - Vim plugin for improved search highlighting
 " Author:   Tim Schumacher <tim@timakro.de>
 " License:  GPLv3
@@ -77,7 +77,7 @@ function s:MapUpdate(name)
     if !len(recall)
         let recall = a:name
     endif
-    execute "nnoremap <silent> ".a:name." ".recall.":call <SID>Update()<CR>"
+    execute "noremap <silent> ".a:name." ".recall.":call <SID>Update()<CR>"
 endfunction
 call s:MapUpdate("*")
 call s:MapUpdate("#")

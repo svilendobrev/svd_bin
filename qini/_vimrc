@@ -434,16 +434,16 @@ noremap! <c-Down> <Down>
 "noremap  <esc>[b <Down>
 "noremap! <esc>[b <Down>
 
-"map/imap: to allow for plugin/searchant: github.com/timakro/vim-searchant for highlight-match-under-cursor, needs hi SearchCurrent
+"map: to allow for plugin/searchant: github.com/timakro/vim-searchant for highlight-match-under-cursor; uses hi SearchCurrent
 "prev search
 map  <c-A> N
-imap <c-A> <c-o>N
+inoremap <c-A> <c-o>N
 "next search
 map  <c-F> n
-imap <c-F> <c-o>n
+inoremap <c-F> <c-o>n
 "search downward word under cursor
 map <c-\> *
-imap <c-\> <c-o>*
+inoremap <c-\> <c-o>*
 
 "join lines
 noremap  <c-J> J
