@@ -11,10 +11,13 @@ if &t_Co >= 8
     hi PreProc      cterm=none ctermfg=darkmagenta
     hi Constant     cterm=none ctermfg=darkred
     hi Type         cterm=none ctermfg=darkcyan
-    hi Search       cterm=none ctermfg=black    ctermbg=brown "gray
     hi Folded       cterm=none ctermfg=darkgray
 
-    hi IncSearch    cterm=none ctermfg=black ctermbg=brown
+    hi Search       cterm=none ctermfg=black ctermbg=gray	"all matching
+    hi IncSearch    cterm=none ctermfg=black ctermbg=brown	"incr.search OR current for s///c
+
+    hi SearchCurrent cterm=none ctermfg=black ctermbg=brown	"using searchant, match-under-cursor
+
     hi DiffText     cterm=none ctermfg=black ctermbg=darkred
     hi DiffChange   cterm=none ctermfg=black ctermbg=darkmagenta
     hi DiffDelete   cterm=none ctermfg=black ctermbg=darkgreen
