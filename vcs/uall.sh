@@ -8,10 +8,10 @@ for a in ${@:-./*}; do
   else
     BWD=$a
     test -n "$UWD" && BWD=$UWD/${a#./}
-    H=" >>> $BWD"
+    H="$UPFX >>> $BWD"
     #`pwd`'---'
     if test -n "$VS" ; then
-        echo "$H"
+        echo -e "$H"
         #if test -x ./vs ; then CMD=./vs ; elif test -x ./u ; then CMD=./u ; else CMD="v s" ; fi
         CMD="v s"
         for f in ./vs ./u ; do test -x $f && CMD=$f && break ; done
@@ -19,7 +19,7 @@ for a in ${@:-./*}; do
     else
       test -x ./u && CMD=./u || CMD="v u"
       if test -z $UPARAL ; then
-        echo "$H"
+        echo -e "$H"
         UWD=$BWD $E $CMD
       else
         UWD=$BWD $E $CMD |& nl -s "$BWD	" - | cut -c1-5,7- &
