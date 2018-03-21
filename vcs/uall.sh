@@ -12,7 +12,9 @@ for a in ${@:-./*}; do
     #`pwd`'---'
     if test -n "$VS" ; then
         echo "$H"
-        test -x ./vs && CMD=./vs || test -x ./u && CMD=./u || CMD="v s"
+        #if test -x ./vs ; then CMD=./vs ; elif test -x ./u ; then CMD=./u ; else CMD="v s" ; fi
+        CMD="v s"
+        for f in ./vs ./u ; do test -x $f && CMD=$f && break ; done
         UWD=$BWD $E $CMD
     else
       test -x ./u && CMD=./u || CMD="v u"
