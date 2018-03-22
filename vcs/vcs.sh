@@ -131,16 +131,17 @@ bzr_m='merge'
 #bzr_p='push'    #not needed, plain commit does it
 bzr_io='missing'    #needs pull-branch remembered
 bzr_oi='missing'    #needs pull-branch remembered
-bzr_hs='shelve'
-bzr_hu='unshelve'
+bzr_hs='shelve'    
+bzr_hu='unshelve'    
 
 hg_u='pull -u'
+hg_u_pipe='|| echo "! unresolveds !" && false'  #false: propagate the error (as echo->success)
 hg_uu='update'
 hg_i='commit'
 hg_p='push'
 #hg_i_pipe='&& hg push'
-hg_io='in ; hg out'
-hg_oi='in ; hg out'
+hg_io='in ; echo ..out: ; hg out'
+hg_oi='in ; echo ..out: ; hg out'
 hg_ii='resolve -m'    #??? after conflct, before commit + needs another commit
 hg_d='diff --nodates'
 hg_dd='diff -Bbw'
@@ -154,8 +155,8 @@ hg_n='identify -n -i -b -t' #hg branch ; hg log -l 1 --template "{rev}\n";
 hg_n_pipe='; hg showconfig | grep paths.default='
 hg_v='revert'
 hg_m='merge'
-hg_hs='shelve'
-hg_hu='unshelve'
+hg_hs='shelve'    
+hg_hu='unshelve'    
 
 # git config --get remote.origin.url
 git_n='remote -v'
@@ -178,8 +179,8 @@ git_r='rm'
 git_v='checkout --'
 git_m='merge' #?
 git_p='push' #?
-git_hs='stash'
-git_hu='stash pop'
+git_hs='stash'    
+git_hu='stash pop'    
 
 #to turn checkout into bare:
 #git config --bool core.bare true
