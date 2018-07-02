@@ -194,6 +194,8 @@ git_hu='stash pop'
 
 ####################
 
+test -e $0.override && . $0.override
+
 if [ $cmd == 'v' ] ; then
 	read -p "$* - REVERT - sure ?" -n 1 && echo
 	if [ "$REPLY" != "y" ] ; then
