@@ -135,7 +135,7 @@ bzr_hs='shelve'
 bzr_hu='unshelve'
 
 hg_u='pull -u'
-hg_u_pipe='|| echo "! unresolveds !" && false'  #false: propagate the error (as echo->success)
+hg_u_pipe='| grep -v searching.for.changes || (echo "! unresolveds !" && false)'  #false: propagate the error (as echo->success) ; || && =same priroty ; grep needs -o pipefail
 hg_uu='update'
 hg_i='commit'
 hg_p='push'
@@ -224,6 +224,7 @@ if test -n "$clrvcs"; then  #-a ($cmd == 'u' -o $cmd == 's')
  test $cmd = d -o $cmd = dd -o $cmd = dprev && what=diffU
  CMD="( $CMD ) 2>&1 | $clrvcs $what 2>&1"
 fi
-$E bash -c "$CMD" anything_as_argv0 "$@"
+#set -x
+$E bash -o pipefail -c "$CMD" anything_as_argv0 "$@"
 
 # vim:ts=4:sw=4:expandtab
