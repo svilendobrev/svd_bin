@@ -11,7 +11,7 @@ let g:loaded_searchant = 1
 
 " default variables
 if !exists("g:searchant_map_stop")
-    let g:searchant_map_stop = 1
+    let g:searchant_map_stop = 0
 endif
 if !exists("g:searchant_all")
     let g:searchant_all = 1

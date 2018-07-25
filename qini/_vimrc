@@ -127,32 +127,54 @@ augroup filetypedetect
 au! BufNewFile,BufRead *.as		setf javascript
 augroup END
 
-let gr_any0="grep\ -Ens\ --exclude-dir=.svn --exclude-dir=CVS --exclude-dir=.bzr \"$*\""
-" -r : no symlinks
-" -R: with symlinks
-let gr_withLinks="\ -R\ ."
-let gr_noLinks="\ -r\ ."
-let gr_any=gr_any0
-let gr_mak="\ --include=[mM]ake\\*"
-let gr_cfg="\ --include=\\*.inc\ --include=\\*.cfg"
-let gr_xml="\ --include=\\*.xml"
-let gr_prg="\ --include=\\*.p[ylp]\ --include=\\*.php*\ --include=\\*.rb\ --include=\\*.java\ --include=\\*.js\ --include=\\*.[hcHCm]\ --include=\\*.[hcHC][pPxX][pPxX]\ --include=\\*.idl\ --include=\\*.CC\ --include=\\*.cc --include=\\*.as"
-let gr_noold="\ --exclude=old\\*" . "\ --exclude-dir=old\\*"
-let gr_noalt="\ --exclude-dir=\\*-\\*"
-let gr_nosrc_="\ --exclude-dir=src_"
-let gr_no0="\ --exclude-dir=0"
-let gr_prgall=gr_prg . gr_mak
+if $_SRC==""  "see $_INIs/defalias.bsh
+ let INC_= 'my[cChylgm] [ch]pp [ch]xx cc CC asm as p[yl] java js jsx xsl rb php '
+ let EXC = 'CVS .svn .bzr .hg .repo .git'
+else
+ let INC_= $_SRC
+ let EXC = $_EXCL
+endif
+let INC = ''
 
-let gr_all=gr_prgall . gr_cfg
+let gr_any = "grep -Ens $*"
+let gr_withLinks= " -R ."
+let gr_noLinks  = " -r ."
+if 0
+" let gr_prg     =" --include=*.p[ylp] --include=*.php* --include=*.rb --include=*.java --include=*.js --include=*.[hcHCm] --include=*.[hcHC][pPxX][pPxX] --include=*.idl --include=*.CC --include=*.cc --include=*.as"
+ let gr_noold   =" --exclude=old*  --exclude-dir=old*"
+ let gr_noalt   =" --exclude-dir=*-*"
+ let gr_nosrc_  =" --exclude-dir=src_"
+ let gr_no0     =" --exclude-dir=0"
+ let gr_prgall  = gr_prg . gr_mak
+ let gr_all     = gr_prgall . gr_cfg
+ let grepprg0   = gr_any . gr_all . gr_nosrc_
+ let grepprg1   = gr_any . gr_all ." *"
+else
+ let gr_mak = ' [mM]ake* *.mak*'
+ let gr_cfg = " *.inc *.cfg"
+ let gr_xml = " *.xml"
+ let gr_html= " *.htm*"
+endif
+
+let INC .= gr_mak.gr_cfg
+let EXC .= ' node_modules'
+
 "/dev/null
-let grepprg0=gr_any . gr_all . gr_nosrc_
-let grepprg2=gr_any . gr_all . gr_noalt . gr_noold
-let grepprg1=gr_any0 . gr_all ."\ *"
-let grepprgno0=grepprg0 . gr_no0
-let &grepprg=grepprg0.gr_noLinks
+"let &grepprg=grepprg0.gr_noLinks.gr_no_node
 
-let gr_html="\ --include=\\*.htm\\* "
-let grephtml="grep\ -Ens $* `find . -type f -name \\*.htm\\*`"
+let grephtml="grep -Ens $* `find . -type f -name *.htm*`"
+
+function! Regrepprg()
+ "let cmd= 'set -f; aINC_=('.g:INC_.'); aINC=('.g:INC.'); aEXC=('.g:EXC.'); '
+ "let flt= ' ${aEXC[*]/\#/--exclude-dir } ${aINC_[*]/\#/--include *.} ${aINC[*]/\#/--include }'
+ let cmd= 'set -f; '
+ let flt=  ' '. substitute( g:EXC,  '\(\S\+\)', '--exclude-dir \1',  'g') 
+ let flt.= ' '. substitute( g:INC_, '\(\S\+\)', '--include *.\1',    'g') 
+ let flt.= ' '. substitute( g:INC,  '\(\S\+\)', '--include \1',      'g') 
+ let &grepprg = cmd . g:gr_any . g:gr_noLinks . flt 
+endf
+call Regrepprg()
+command! Regrepprg call Regrepprg()
 
 "use: let &grepprg=grepprgall
 
@@ -434,7 +456,9 @@ noremap! <c-Down> <Down>
 "noremap  <esc>[b <Down>
 "noremap! <esc>[b <Down>
 
-"map: to allow for plugin/searchant: github.com/timakro/vim-searchant for highlight-match-under-cursor; uses hi SearchCurrent
+"using map instead of noremap: to allow for plugin/searchant: github.com/timakro/vim-searchant for highlight-match-under-cursor; uses hi SearchCurrent
+let g:searchant_map_stop = 0
+
 "prev search
 map  <c-A> N
 inoremap <c-A> <c-o>N
@@ -525,6 +549,8 @@ noremap  <F11>      :cn<CR>
 inoremap <F11> <c-o>:cn<CR>
 map  <s-F11>  :cp<CR>
 imap <s-F11>  <c-o>:cp<CR>
+map  <c-F11>  :clast\|cp<CR>
+imap <c-F11>  <c-o>:clast\|cp<CR>
 
 "redo
 inoremap <c-R> <c-o><c-R>

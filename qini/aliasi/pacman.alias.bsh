@@ -1,7 +1,7 @@
 ### pacman
 #al()  { alias  $1="$2"; }  #no parameters allowed!
 al pac1line "perl -e 'undef $/; while(<>) { s/\n  /\t/g; print; }'"
-al pacnamesize "perl -ne 's/,00//; printf \"%-30s\",\$1 if s/^Name *: *(\S+)//; printf \"%7s : <%s> %s\", \$1, \$req, \$des if /^Installed Size *: *([\d,. KM]+)/; \$des= \$_ if s/^Description *: *//; \$req=\$_ if s/^Required By *: (None)?(.*)\s*$/\2/' "
+al pacnamesize "perl -ne 's/[,.]00 / /; printf \"%-30s\",\$1 if s/^Name *: *(\S+)//; printf \"%7s : <%s> %s\", \$1, \$req, \$des if /^Installed Size *: *([\d,. KM]+)/; \$des= \$_ if s/^Description *: *//; \$req=\$_ if s/^Required By *: (None)?(.*)\s*$/\2/' "
 #|sort -n -k 2
 
 al a-install 'sudo pacman -S'
@@ -25,10 +25,10 @@ al a-file0   'pacman -Q --owns'
 al a-list    'pacman -Q --list'
 a-all()         	{ pacman -S --list "$@" | pac1line; }   #??
 a-all-inst()    	{ pacman -Qs "$@" | pac1line; } 
-a-all-instsize() 	{ pacman -Qi "$@" | pacnamesize; } 
-a-all-instsize-sorted() { pacman -Qi "$@" | pacnamesize | grep MiB | sort -n -k 2; } 
+a-all-instsize() 	{ LANG=C pacman -Qi "$@" | pacnamesize; } 
+a-all-instsize-sorted() { LANG=C pacman -Qi "$@" | pacnamesize | grep "M :" | sort -n -k 2; } 
 # -e explicit
-a-all-unneeded() 	{ pacman -Qdti "$@" | pacnamesize; } 
+a-all-unneeded() 	{ LANG=C pacman -Qdti "$@" | pacnamesize; } 
 al a-remove-force  'a-remove -dd'
 al a-delete-force a-remove-force
 

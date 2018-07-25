@@ -174,13 +174,14 @@ git_i_pipe='; git push'
 git_il='commit'  #local
 git_ii='add'
 git_a='add'
-git_l='log'
+git_l='log --name-status'
 git_r='rm'
 git_v='checkout --'
 git_m='merge' #?
 git_p='push' #?
 git_hs='stash'
 git_hu='stash pop'
+git_io='log --branches --not --remotes ; git log --remotes --not --branches '   #??
 
 #to turn checkout into bare:
 #git config --bool core.bare true

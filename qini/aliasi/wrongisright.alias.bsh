@@ -24,6 +24,7 @@ al "я" q
 al "цп" cp
 al "дф" df
 al "ду" du
+al "цалц" calc
 
 al vm mv
 al dc cd

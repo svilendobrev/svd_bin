@@ -11,12 +11,16 @@ HD="$HD -a 2048"
 #241-251: (n-240)*30min
 #252: 21min
 #HD1="$HD1 -S 241"
-HD="$HD -S ${SPIN:-60}"
+HD="$HD -S ${SPIN:-50}"
 
 #acoustic:quiet
 #HD="$HD -M 128"
 
 echo $HD $_HD
-test -e "$_HD" && /sbin/hdparm $HD $_HD
+if test -n "$FORCE" ; then 
+ test -e "$_HD" && /sbin/hdparm $HD $_HD
+else 
+ /sbin/hdparm -C "$_HD" | grep active/idle && /sbin/hdparm $HD $_HD
+fi 
 
 # vim:ts=4:sw=4:expandtab

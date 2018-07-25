@@ -4,9 +4,10 @@ rm='sudo rm -rf'
 
 # path PFX SFX PFX2
 dellocale /usr/share/locale/ "" /
+$rm /usr/share/locale/en{_CA,_GB,@*}
 dellocale /usr/share/i18n/locales/
 dellocale /usr/share/kbd/locale/
-dellocale /usr/lib/chromium/locales/ 
+dellocale /usr/lib/chromium/locales/
 dellocale /usr/lib/opera/localization/
 dellocale /usr/share/lxpanel/images/xkb-flags/ '' .png
 dellocale /usr/share/libexttextcat/ '' .lm
@@ -31,8 +32,11 @@ $rm /usr/share/gtk*-doc
 $rm /usr/share/Xm
 $rm /usr/share/man/man3/Xm*
 
+#libguile needed by make.. del the rest
 $rm /usr/share/guile
-$rm /usr/lib/guile/*/ccache
+#$rm /usr/lib/guile/*/ccache
+$rm /usr/lib/guile/ /usr/share/guile/ /usr/include/guile/
+$rm /usr/share/info/guile* /usr/share/info/r5rs.info.gz
 
 P=/usr/lib/libreoffice/
 $rm $P/program/wizards/
@@ -47,10 +51,10 @@ $rm $P/sdk/
 
 P=/usr/lib/python*/
 $rm $P/test/ $P/idle*/ $P/tkinter/
-$rm $P/*/test/ $P/*/tests/ 
-$rm $P/site-packages/*/test/ 
-$rm $P/site-packages/*/tests/ 
-$rm $P/site-packages/*/*/tests/ 
+$rm $P/*/test/ $P/*/tests/
+$rm $P/site-packages/*/test/
+$rm $P/site-packages/*/tests/
+$rm $P/site-packages/*/*/tests/
 $rm $P/site-packages/*/SelfTest/
 $rm $P/site-packages/bzrlib/plugins/*/test*
 $rm $P/site-packages/numpy/*/tests
@@ -70,11 +74,7 @@ V=/usr/share/vim/vim*/
 $rm $V/tutor $V/lang
 $rm $V/spell/*latin*
 $rm $V/doc/versio*
-$rm $V/syntax/xs.vim
-$rm $V/syntax/muttrc.vim
-$rm $V/syntax/pfmain.vim
-$rm $V/syntax/baan.vim
-$rm $V/syntax/redif.vim
+$rm $V/syntax/{xs,*muttrc,pfmain,baan,redif,foxpro,autoit}.vim
 $rm $V/autoload/phpcomplete.vim
 
 
@@ -92,6 +92,7 @@ P=/usr/share/icons/
 $rm $P/*/{512x,384x,256x,scalable}*
 
 $rm /usr/share/licenses/
+$rm /usr/share/liblouis
 
 $rm /usr/share/ghostscript/*/doc/
 $rm /usr/share/ghostscript/*/examples/
@@ -119,7 +120,7 @@ $rm $P/xcb_[a-h]*
 $rm $P/xcb_[i-t]*
 $rm $P/xcb_[t-z]*
 $rm $P/xcb*
-$rm $P/pipe[cl]* $P/secc* 
+$rm $P/pipe[cl]* $P/secc*
 $rm $P/set_* $P/zip_*
 $rm $P/SD_* $P/SLIST* $P/LIST* $P/STAIL* $P/TAIL*
 $rm $P/{aa,acl,af,aio,archive,asn1,cap,clnt,curl,curs,dane,el_,field_,form_}*
@@ -167,22 +168,29 @@ $rm /usr/share/help/*
 
 P=/usr/include
 for a in `cat <<HHHHHHHH
-wine
-php
-subversion*
-poppler
-openssl
-mozjs-* js-*
-claws-mail libetpan
-qt4
-wx-*
-gstreamer*
+gtk-* SDL*
 CLucene
-epoxy
+GL
 ImageMagick
+claws-mail libetpan
+epoxy
 gimp
+glib
+gstreamer
+krb
+mozjs- js-
+ntfs
+openssl
+php
+poppler
+postgresql
+mysql
+qt
+subversion
+wine
+wx-
 HHHHHHHH
-`; do $rm $P/$a; done
+`; do $rm $P/$a*; done
 
 P=/usr/lib
 $rm $P/libmupdf.a
@@ -190,6 +198,8 @@ $rm $P/libLL*.a
 $rm $P/libeca*.a
 $rm $P/libruby*.a
 $rm $P/libQt*.a
+
+$rm /usr/share/sip
 
 P=/usr/share/terminfo
 $rm $P/w
@@ -219,9 +229,11 @@ $rm /var/log/journal/*/user-*@*
 $rm /usr/lib/girepository-*
 
 P=/usr/share/info
-$rm $P/{as,gcc*,gdb,gawk,gsl,autoconf,gettext,bison,flex,xorriso,guile}.info*.gz
+$rm $P/{as,bfd,gcc,gdb,gawk,gsl,auto[cm],gettext,bison,flex,xorriso,texinfo,gnutls,tar,aspell,ld,lib}*
 
 $rm /usr/share/jack-audio-connection-kit/reference/html
 #$rm /usr/share/graphviz/doc/ #{html,ChangeLog,COPYING}
 
 #$rm /usr/bin/smbtorture /usr/bin/php
+
+$rm /usr/share/ibus/*

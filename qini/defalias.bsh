@@ -32,9 +32,9 @@ d2()    { d --color "$@" | _d2; } #force coloring
 
 #al llm  'nroff -man \!#:* | less'
 
-al eng  'env | g'
-al seg  'set | g -A 5'
-al alg  'alias | g'
+al eng  'env | grep'
+al seg  'set | grep -A 5'
+al alg  'alias | grep'
 asg()  { alg "$@" ; seg "^\S*$1\S* \(\)" ; }
 
 al up   'cd ..'
@@ -141,23 +141,29 @@ ggg()   { grep -Ens "$@" /dev/null; }
 #al xgg "xargs -e grep -nsE \!#:1 /dev/null" #xargs -e coz otherwise it uses _ as EOFmarker
 #al zgg "find . -type f -name \!#:2* | xgg \!#:1"
 
-senv _SRC   '[cChylgm] [ch]pp [ch]xx cc CC asm p[yl] java js xsl rb php as'
-senv _EXCL  'CVS .svn .bzr .hg .repo'
+senv _SRCnojs  '[cChHylgm] [chCH][pP][pP] [chCH][xX][xX] cc CC asm p[ylp] java xsl rb php as'
+senv _SRC  "$_SRCnojs js jsx"
+senv _EXCL 'CVS .svn .bzr .hg .repo .git'
  #recursive     from current dir grep in source files ONLY
  ###grep --exclude-dir to ignore whole-dirs
-#al grs  "ggg -r --exclude=\*.svn-\* \!#:* . `echo $_SRC | sed 's/\\\\/--include=/g'` "
-#al grs  "ggg -r --exclude=\*.svn-\* \!#:* . `perl -e '$_=$ENV{"_SRC"}; s/(\S+)/--include=\\*.\1/g; print'` "
-grs()   { set -f; ggg -r "$@" . `for a in $_SRC; do echo --include="*.$a"; done `; set +f; } 
+ #-f : Disable pathname expansion
+ ##_SRC+=" whatever" to add pattern/s
+#grs()   { set -f; ggg -r "$@" . `for a in $_SRC; do echo --include="*.$a"; done `; set +f; } 
+grs()   { set -f; aSRC=($_SRC); aEXCL=($_EXCL); ggg -r "$@" . ${aSRC[*]/#/--include *.} ${aEXCL[*]/#/--exclude-dir } ; set +f; } 
 al gr   grs
-grm()   { ggg -r --include=[mM]akef\* --include=*.mak --exclude=\*.svn-\* "$@" . ; } 
+#grnojs()   { _SRC="$_SRCnojs" ; grs "$@" ; }
+grnonode() { _EXCL+=' node_modules' ; grs "$@" ; }
+
+grm()   { ggg -r --include=[mM]akef\* --include=\*.mak\* --exclude=\*.svn-\* "$@" . ; } 
 grh()   { ggg -r --include=\*.html --include=\*.htm --include=\*.css "$@" . ; } 
-grx()   { ggg -r --include=\*.xml "$@" . ; } 
+grxml() { ggg -r --include=\*.xml "$@" . ; } 
 grimport()  { gr "(import.*$1|$1.*import)"; }
 
 #see fff.sh for quote troubles
 #diff dirs ignoring these
-senv FCSRC  'CVS* *.pyc __pycache__ *.so *.[oa] *.exe *.proj .snprj *.dep *.req _obj *.gen _*.fsm *.ok *.xx *.result *.tmp _allin1* .#* *.jar *.bin dependencies objects *.class .cvsignore .svn tags .bzr .hg .hgtags .git'
-fcsrc()     { set -f; fc -r -I "\$Id.*\$" -I "\$Rev.*\$" `for a in $FCSRC; do echo -x "$a"; done ` "$@"; set +f; } 
+senv FCEXCL "$_EXCL"' .hgtags tags *.pyc __pycache__ *.so *.[oa] *.exe *.proj .snprj *.dep *.req _obj *.gen *.ok *.xx *.result *.tmp _allin1* .#* *.jar *.bin dependencies objects *.class .cvsignore '
+#fcsrc()     { set -f; fc -r -I "\$Id.*\$" -I "\$Rev.*\$" `for a in $FCSRC; do echo -x "$a"; done ` "$@"; set +f; } 
+fcsrc()     { set -f; aFC=($FCEXCL); fc -r -I "\$Id.*\$" -I "\$Rev.*\$" ${aFC[*]/#/-x } "$@"; set +f; } 
 
 al rmpyc    'find . -depth -follow -name \*.pyc -exec rm {} \; -o -name __pycache__ -exec rm -rf {} \;'
 al rmpycl   'find . -depth         -name \*.pyc -exec rm {} \; -o -name __pycache__ -exec rm -rf {} \;'
@@ -193,7 +199,7 @@ else
  addusergroup()  { u=$1; shift; usermod -a -G "$@" $u ; }
 fi
 
-al qiv  'XLIB_SKIP_ARGB_VISUALS=1 qiv -l'
+#al qiv  'XLIB_SKIP_ARGB_VISUALS=1 qiv -l'
 al qiviw 'qiv -s -m -i -f -d 7'
 
 #net

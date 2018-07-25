@@ -53,6 +53,7 @@ soxres: $(patsubst %,%-$(RATE).sox.wav,$(_WILDS))
 #sox -V  show auto-added processing
 #sox -D  no auto-dither
 
+#$(MAKE) becomes recursive only if used directly, else prefix with +
 REMAKE = $(MAKE) -f $(firstword $(MAKEFILE_LIST))
 #TOWAV=$(TOWAV) WAV2FLAC=$(WAV2FLAC)
 
@@ -70,7 +71,7 @@ outflac: $(WAVs:%.wav=%.out.flac)
 	/usr/local/bin/wavres44khz.py "$<" --otype flac
 else
 flac outflac:
-	$(REMAKE) WAV2FLAC=1 $@
+	+$(REMAKE) WAV2FLAC=1 $@
 outflac2: $(FLACs:%.flac=%.out.flac)
 %.out.flac: %.flac
 	/usr/local/bin/wavres44khz.py "$<" --otype flac
@@ -112,8 +113,15 @@ wavcat:
 split: $(_WILDS:%=./mm.%-001.mkv)
 
 T?=0:0:20 #,0:4:30
+KIND?=timecodes
 ./mm.%-001.mkv: #./%
-	mkvmerge "$*" -o "mm.$*" --split timecodes:$T
+	mkvmerge "$*" -o "mm.$*" --split $(KIND):$T
+
+#keep parts: T=a-b,c-d  e.g. T=-b,c- removes b-c
+parts: $(_WILDS:%=./pp.%)
+parts: KIND=parts
+./pp.%: ./mm.%-001.mkv
+	mkvmerge -o "pp.$*" [ `basename mm.$* .mkv`* ]
 
 #export MKVTOOLNIX_OPTIONS=".. .."
 # mkvmerge --disable-track-statistics-tags

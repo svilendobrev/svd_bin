@@ -80,8 +80,9 @@ v6 6v v6c:
 mov2dt:
 	for a in $(ROOTWILD).mov ; do $E $(BIN)/vdater.py $$a $${a%.mov}.dt ; done
 dt2mkv:
-	rename.py mov...mkv mkv *.mov...mkv
-	for a in $(ROOTWILD).dt  ; do $E $(BIN)/vdater.py $$a $${a%.dt}.mkv ; done
+	-rename.py mov...mkv mkv *.mov...mkv
+	#for a in $(ROOTWILD).dt  ; do $E $(BIN)/vdater.py $$a $${a%.dt}.mkv ; done
+	find $(ROOT) -name '$(WILD).dt' -exec bash -c "a={}"' ; $E $(BIN)/vdater.py $$a $${a%.dt}.mkv' \;
 mkv4dt:
 	for a in $(ROOTWILD).mkv ; do $E $(BIN)/vdater.py $${a%.mkv}.dt $$a ; done
 	#shopt -s extglob ; for a in $(ROOTWILD).mkv; do $E $(BIN)/vdater.py $${a%%?(.mov)+(.)mkv}*.dt $$a ; done
@@ -107,7 +108,8 @@ view:
 jpgdati:
 	find . -type d -exec sh -c 'jhead -ft "{}"/*jpg' \;
 videodati dati dates:
-	for a in `find . -name \*.dt` ; do F=`dirname $$a`/`basename $$a .dt` ; test -e $$F && $$E touch -c -d `cat $$a` $$F $$a || echo $$F '??' ; done
+	echo use: make dt2mkv
+	# export TZ=EEST && for a in `find . -name \*.dt` ; do F=`dirname $$a`/`basename $$a .dt`.mkv ; test -e $$F && $$E touch -c -d `cat $$a` $$F $$a || echo $$F '??' ; done
 
 #	find -name видео-всички -prune -o -name \*.[ma][kv][vi] -printf "%TY.%Tm.%Td-%TH:%TM %p\n"
 #	#find . -name \*.mkv -print -exec date -r {} \;
@@ -124,8 +126,8 @@ video-vse:
 	find ../ -name skuka -prune -o -type f -a \( -name *.avi -o -name *.mkv -o -name *.3gp \) -exec ln -s {} . \;
 
 last posledni:
-	find . -name i6c\*.jpg | sed s,.*/,, | sort | tail -5
-	find . -name v6c\*.mkv | sed s,.*/,, | sort | tail -5
+	find . -name i6c\*.jpg | sed s,.*/,, | sort | tail -3
+	find . -name v6c\*.mkv | sed s,.*/,, | sort | tail -3
 
 png2pnm: $(patsubst %.png,%.pnm,$(shell find $(ROOT) $(if $(DEPTH),-maxdepth $(DEPTH)) -name '$(WILD).png'))
 %.pnm: %.png
