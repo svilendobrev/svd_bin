@@ -142,7 +142,7 @@ ggg()   { grep -Ens "$@" /dev/null; }
 #al zgg "find . -type f -name \!#:2* | xgg \!#:1"
 
 senv _SRCnojs  '[cChHylgm] [chCH][pP][pP] [chCH][xX][xX] cc CC asm p[ylp] java xsl rb php as'
-senv _SRC  "$_SRCnojs js jsx"
+senv _SRC  "$_SRCnojs js jsx tsx"
 senv _EXCL 'CVS .svn .bzr .hg .repo .git'
  #recursive     from current dir grep in source files ONLY
  ###grep --exclude-dir to ignore whole-dirs
@@ -152,7 +152,7 @@ senv _EXCL 'CVS .svn .bzr .hg .repo .git'
 grs()   { set -f; aSRC=($_SRC); aEXCL=($_EXCL); ggg -r "$@" . ${aSRC[*]/#/--include *.} ${aEXCL[*]/#/--exclude-dir } ; set +f; } 
 al gr   grs
 #grnojs()   { _SRC="$_SRCnojs" ; grs "$@" ; }
-grnonode() { _EXCL+=' node_modules' ; grs "$@" ; }
+grnonode() { _EXCL+=' node_modules dist' ; grs "$@" ; }
 
 grm()   { ggg -r --include=[mM]akef\* --include=\*.mak\* --exclude=\*.svn-\* "$@" . ; } 
 grh()   { ggg -r --include=\*.html --include=\*.htm --include=\*.css "$@" . ; } 

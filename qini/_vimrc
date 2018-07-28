@@ -128,7 +128,7 @@ au! BufNewFile,BufRead *.as		setf javascript
 augroup END
 
 if $_SRC==""  "see $_INIs/defalias.bsh
- let INC_= 'my[cChylgm] [ch]pp [ch]xx cc CC asm as p[yl] java js jsx xsl rb php '
+ let INC_= 'my[cChylgm] [ch]pp [ch]xx cc CC asm as p[yl] java js jsx tsx xsl rb php '
  let EXC = 'CVS .svn .bzr .hg .repo .git'
 else
  let INC_= $_SRC
@@ -612,7 +612,7 @@ endf
 command! HEADsetup call HEADsetup()
 
 function! TAILsetup()
- let comment_pfx = (&filetype=='cpp' || &filetype=='c' || &filetype=='cfg' || &filetype=='java') ? '//' : '#'
+ let comment_pfx = (&filetype=='cpp' || &filetype=='c' || &filetype=='cfg' || &filetype=='java' || &filetype=='javascript') ? '//' : '#'
  if &filetype =='xml' || &filetype=='html'
   let comment_pfx = '<!--'
  else  
