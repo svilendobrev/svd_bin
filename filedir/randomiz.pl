@@ -7,7 +7,7 @@ opendir(D,".");
 foreach $p (@a) {
    (@statx) = stat($p);
    $mode = $statx[2];
-   next if (($mode & 0xF000)==0x3000); # directory
+   next if (($mode & ~0xFFF)==0x4000); # directory
 
     $ext = $p; $ext =~ s/^.*\.//;
     next if $ext =~ /pl/;
