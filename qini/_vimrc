@@ -120,6 +120,8 @@ autocmd FileType java setl makeprg=make
 autocmd FileType xml  setl makeprg=make
 autocmd FileType java let java_allow_cpp_keywords=1
 
+autocmd FileType javascript setl tabstop=4 shiftwidth=4 expandtab
+
 autocmd BufEnter opis*    setl ts=4 sw=4 expandtab
 
 "autocmd BufNewFile,BufRead *.as		setf actionscript
@@ -595,7 +597,7 @@ command! HDRC call HDRC()
 let g:filetype_inc="cfg"
 "|| fnamemodify(@%,":e")=='inc'
 function! HEADsetup()
- let comment_pfx = (&filetype=='cpp' || &filetype=='c' || &filetype=='cfg' || &filetype=='java') ? '//' : '#'
+ let comment_pfx = (&filetype=='cpp' || &filetype=='c' || &filetype=='cfg' || &filetype=='java' || &filetype=='javascript') ? '//' : '#'
  let comment_sfx = ''
  if &filetype =='xml' || &filetype=='html'
   let comment_pfx = '<!--'
