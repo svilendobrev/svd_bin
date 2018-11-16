@@ -5,8 +5,7 @@ al a-update    'sudo pacman -Syy'
 al a-remove    'sudo yum erase'
 al a-delete a-remove
 #al a-purge  dpkg-purge
-#al a-autoremove 'sudo pacman -S --clean'
-#al a-autoclean a-autoremove
+#al a-autoclean 'sudo pacman -S --clean'
 #al a-autoclean2 'a-autoclean --clean'
 al a-search 'yum search'
 al a-show   'yum info'

@@ -94,6 +94,8 @@ else
 fi
 
 if test ! -e /tmp/xmodmap.done ; then 
+#XXX see x/setxkb-bgphonetic.sh
+
 #let both alt's be the same; warning: xmodmap/xkb conflict
 #xmodmap -e "add mod1 = Alt_L Alt_R"
 #may use .Xresources, .Xmodmap, .Xkbmap

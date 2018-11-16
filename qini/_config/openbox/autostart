@@ -1,16 +1,16 @@
-xsetroot -solid black
+xsetroot -solid black &
+opera &
+claws-mail &
 lxpanel & 
 #x-terminal-emulator &
 xtermutf &
+/home/qini/x/setxkb-bgphonetic.sh &
 
-opera &
-claws-mail &
 /home/qini/x/kpie/zzkpie &	#assign screens
 
-#screesaver off
+#screensaver off:
 #xset -dpms
 #xset s off
 
-/home/qini/x/setxkb-bgphonetic.sh &
 #xcalib.sh
 #kodi &

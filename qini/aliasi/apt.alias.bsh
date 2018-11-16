@@ -7,8 +7,7 @@ al a-source 'cd /usr/src/; apt-get source'  #install source
 al a-remove 'sudo apt-get remove'
 al a-delete a-remove
 al a-purge  dpkg-purge
-al a-autoremove 'sudo apt-get autoremove'
-al a-autoclean a-autoremove
+al a-autoclean 'sudo apt-get autoremove'
 al a-autoclean2 'sudo apt-get autoclean; sudo apt-get autoremove'
 a-search()  { apt-cache search "$@" | sort; } 
 al a-show   'apt-cache show'

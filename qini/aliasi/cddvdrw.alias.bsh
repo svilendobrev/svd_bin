@@ -15,3 +15,9 @@ al dvdw-data    'growisofs -Z /dev/$DVD -r -J -f '
 al dvdw-dataadd 'growisofs -M /dev/$DVD -r -J -f '
 al dvdw-video   'growisofs -dvd-compat -Z /dev/$DVD -dvd-video -f '
 al cdw-audio    'wodim -dao -audio -pad -v speed=8 ' #defpregap=2
+
+al cdr2toc 'cdrdao read-toc  --with-cddb --fast-toc'
+al cd2toc cdr2toc
+#use: cdr2toc xx.toc ; remove CDDA on top and SIZES inside ; cuetag.sh xx.toc *.flac/mp3
+
+# vim:ts=4:sw=4:expandtab

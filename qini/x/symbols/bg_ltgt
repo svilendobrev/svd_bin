@@ -1,0 +1,20 @@
+partial alphanumeric_keys
+xkb_symbols "phonetic_ltgt" {
+  include "bg(phonetic)"
+  name[Group1]= "Bulgarian (traditional phonetic)+less/greater/hash/hat/underscore";
+
+  // see /usr/share/X11/xkb/symbols/bg
+  //key <AE03> {[ 3,                 numerosign                                                ]};
+  //key <AE06> {[ 6,                 EuroSign                                                  ]};
+  //key <AE11> {[ minus,             endash,            U2011,             U2011               ]};
+  //key <AC11> {[ apostrophe,        quotedbl,       rightsinglequotemark, leftsinglequotemark ]};
+  //key <AB08> {[ comma,            doublelowquotemark, guillemotleft,     guillemotleft       ]};
+  //key <AB09> {[ period,          leftdoublequotemark, guillemotright,    guillemotright      ]};
+
+  key <AE03> {[ 3,                 numbersign,        numerosign,     notequal            ]};
+  key <AE06> {[ 6,                 asciicircum,       logicaland,        logicalor           ]};
+  key <AE11> {[ minus,             underscore,        U2011,             endash              ]};
+  key <AC11> {[ apostrophe,        quotedbl,        leftdoublequotemark, rightdoublequotemark]};
+  key <AB08> {[ comma,             less,              U2266,             U21D4               ]};
+  key <AB09> {[ period,            greater,           U2267,             U21D2               ]};
+};

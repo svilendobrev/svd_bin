@@ -3,11 +3,11 @@ al lamev6 'lame --nohist -h -v -V 6'
 
 alf()       { eval "$1() { $2 \"\$@\" ;}" ; }   #create a func from alias' syntax
 forall()    { W="$1"; shift; for a in "$@"; do "$W" "$a" ; done; }
-forallif()  { IFS=$'\n'; for a in `fff \*.$1`; do test ! $4 -f "$a.$2" -a ! $4 -f `basename $a $1`$2 && echo "$a" && $3 "$a"; done; unset IFS; }
-
-al show_wav_no_mp3   'forallif wav mp3 echo'
-al show_wav_with_mp3 'forallif wav mp3 echo ! '
-al del_wav_with_mp3  'forallif wav mp3 rm'
+forallif()  { IFS=$'\n'; for a in `ffl \*.$1`; do test ! $4 -f "$a.$2" -a ! $4 -f `basename "$a" $1`$2 && ${CMD:-echo} "$a"; done; unset IFS; }
+#use CMD= to do more than echo
+al show_wav_no_mp3   'forallif wav mp3 '    
+al show_wav_with_mp3 'forallif wav mp3 ! '  
+#al del_wav_with_mp3  'CMD=rm show_wav_with_mp3'
 
 mp2wav()        { mplayer -vc null -vo null -ao pcm:fast:file="$1".wav "$@" ; }
 #mpaudio2wav() { mplayer -vc null -vo null -ao pcm:fast:file="$1".wav "$@" ; }
@@ -91,7 +91,10 @@ tag1-flac2name() {
     a=`_flac2tag Artist "$1"`
     n=`_flac2tag Tracknumber "$1"`
     l=`_flac2tag Album  "$1"`
-    mv "$1" "`printf %02g $n` - $a - $l - $t".flac
+    y=`_flac2tag Year   "$1"`
+    n=`printf %02g $n`
+    #mv "$1" "$n - $a - $l-$y - $t".flac
+    mv "$1" "$a--$l-$y--$n--$t".flac
 }
 
 al mp3-name2title   '_name2title mp3-title'
@@ -133,6 +136,8 @@ tag1-mp32mp3() {
 
 tag-flac2mp3()  { for f in "$@"; do tag1-flac2mp3 "$f" "$f".mp3 ; done ;}
 tag-flac2name() { for f in "$@"; do tag1-flac2name "$f" ; done ;}
+al flac-rename-by-tags tag-flac2name
+al tag-mp32name mp3-rename-by-tags
 
 tag1-mp32flac() {
     track=`mp3info -p '%n' "$1"`
@@ -228,17 +233,19 @@ rec0nocache() {
 }
 
 al arec 'arecord -f cd -V stereo ' #--fatal #-B 5666777'
-al srec 'rec -r 44100 -b 16 -c 2 -s -S -t wav '
-al zrec srec
+al zrec 'rec -r 44100 -b 16 -c 2 -s -S -t wav '
 #al rec1 'arec -d 1500 1.wav'
 #al rec2 'arec -d 1500 2.wav'
-r() { srec $1.wav trim 0 0:35:0; }
+r() { zrec $1.wav trim 0 0:35:0; }
 al r1 'r 1'
 al r2 'r 2'
 al rec1 r1
 al rec2 r2
 
 al izz 'izvadki2opis.py --z .'
+
+#al cdr2toc 'cdrdao read-toc  --with-cddb --fast-toc' #in cddvdrw
+#use: cdr2toc xx.toc ; remove CDDA on top and SIZES inside ; cuetag.sh xx.toc *.flac/mp3
 
 ########################
 

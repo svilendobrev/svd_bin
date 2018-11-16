@@ -8,7 +8,9 @@ if ( --( window_title() == "... - Opera" ) and
     --size(1280,1024 )
     workspace(3)
     --maximize()
+    if ( window_class() == "Opera" ) then maximize() else --opera>55 
     fullscreen()
+    end     --opera>55 
 end
 
 if ( -- opera-start-dialog:

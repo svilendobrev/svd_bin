@@ -15,8 +15,7 @@ al a-remove-deps 'a-remove -s'
 al a-delete a-remove
 al a-delete-deps a-remove-deps
 #al a-purge  dpkg-purge
-al a-autoremove 'sudo pacman -S --clean'
-al a-autoclean a-autoremove
+al a-autoclean 'sudo pacman -S --clean'
 al a-autoclean2 'a-autoclean --clean'
 a-search() { pacman -S --search "$@" | pac1line; } 
 al a-show    'pacman -S --info'
