@@ -1,5 +1,6 @@
 #!/bin/sh
 export VS=`echo $VS$0.$1|grep vs`
+export VIO=`echo $VIO$0.$1|grep vio`
 for a in ${@:-./*}; do
  test -d $a || continue
  if test ! -L "$a" -o -n "$LINKSuall" -o `basename "$0"` = "luall.sh" -o -f .LINKSuall; then
@@ -8,16 +9,21 @@ for a in ${@:-./*}; do
   else
     BWD=$a
     test -n "$UWD" && BWD=$UWD/${a#./}
-    H="$UPFX >>> $BWD"
+    H="$UPFX >>> $BWD -----------"
     #`pwd`'---'
     if test -n "$VS" ; then
+        CMD="v s"
+        test -x ./vs && CMD=./vs
         echo -e "$H"
-        #if test -x ./vs ; then CMD=./vs ; elif test -x ./u ; then CMD=./u ; else CMD="v s" ; fi
-        CMD="v s"   #./u
-        for f in ./vs  ; do test -x $f && CMD=$f && break ; done
+        UWD=$BWD $E $CMD
+    elif test -n "$VIO" ; then
+        CMD="v io"
+        test -x ./vio && CMD=./vio
+        echo -e "$H"
         UWD=$BWD $E $CMD
     else
-      test -x ./u && CMD=./u || CMD="v u"
+      CMD="v u"
+      test -x ./u && CMD=./u
       if test -z $UPARAL ; then
         echo -e "$H"
         UWD=$BWD $E $CMD
