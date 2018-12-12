@@ -5,7 +5,7 @@ case x$1 in
  x) ;;
  x-*) ;;
  x*) #A="-x bash -ic 'echo $1 $2 ; sleep 3' " ;;
-   exec xfce4-terminal -T "`pwd`"" $*" -x bash -ic '"$@"' zzzz "$@"	#zzzz : избутва арументите
+   exec xfce4-terminal -T "`pwd`"" $*" $MYTERMFLAGS -x bash -ic '"$@"' zzzz "$@"	#zzzz : избутва арументите
    return
    ;;
 esac 
