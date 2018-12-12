@@ -122,6 +122,7 @@ flac-title()    { A="$1"; shift; metaflac --remove-tag=Title  --set-tag="Title=$
 flac-year()     { A="$1"; shift; metaflac --remove-tag=Year   --set-tag="Year=$A"  "$@" ;}
 flac-number()   { A="$1"; shift; metaflac --remove-tag=Tracknumber --remove-tag=Track --set-tag="Track=$A"  "$@" ;}
 al flac-del-image   'metaflac --remove --block-type=PICTURE'
+al flac-get-image   'metaflac --export-picture-to=-'
 
 tag1-flac2mp3() {
     t=`metaflac --show-tag=Title  "$1"| tail -1 |sed -s 's/[^=]*=//'`; mp3-title "$t"  "$2"

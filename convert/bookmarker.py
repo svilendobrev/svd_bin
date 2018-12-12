@@ -142,13 +142,14 @@ class Node:
                     if a == 'trash': v = 'True'
                     else: v = "'"+ escape( v) +"'"
                     r += ' {a}= {v},'.format( **locals())
-            print( pfx + r, end=' ')
+            print( pfx + 0*d.indent*( not me.items)*' ' + r, end=' ')
             if me.items: print( 'items=[')
         def leave( d, me, pfx):
-            if me.items: print( pfx+']', end=' ')
+            if me.items: print( pfx + d.indent*' ' +']', end=' ')
             print( ')'+ (me.parent and ',' or ''))
 
     def py( me):
+        print( '# vi' + 'm:ts=2:sw=2:expandtab')
         print( '# -*- coding: utf-8 -*-')
         return me.dump( dumper= me.pydumper() )
 

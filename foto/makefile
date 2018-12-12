@@ -5,6 +5,9 @@ ROOTWILD=$(ROOT)$(WILD)
 all:
 	@echo i6c ? ren6v ? datev ? opt ? optjpg ? autorot ?autodate
 
+i: i6c
+v: v6c
+
 BIN = $(dir $(MAKEFILE_LIST))
 
 i3c 3c c3 300: ren3

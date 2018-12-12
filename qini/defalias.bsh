@@ -152,7 +152,7 @@ senv _EXCL 'CVS .svn .bzr .hg .repo .git'
 grs()   { set -f; aSRC=($_SRC); aEXCL=($_EXCL); ggg -r "$@" . ${aSRC[*]/#/--include *.} ${aEXCL[*]/#/--exclude-dir } ; set +f; } 
 al gr   grs
 #grnojs()   { _SRC="$_SRCnojs" ; grs "$@" ; }
-grnonode() { _EXCL+=' node_modules dist' ; grs "$@" ; }
+grnonode() { _EXCL+=' node_modules dist build' ; grs "$@" ; }
 
 grm()   { ggg -r --include=[mM]akef\* --include=\*.mak\* --exclude=\*.svn-\* "$@" . ; } 
 grh()   { ggg -r --include=\*.html --include=\*.htm --include=\*.css "$@" . ; } 

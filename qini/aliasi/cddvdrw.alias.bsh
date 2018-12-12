@@ -6,7 +6,7 @@ senv DVD cdrom	#arch
 al dvdi     'dvd+rw-mediainfo /dev/$DVD'
 # lsdvd saves css-keys which readcd uses but cant get by itself
 al readcd   readom
-dvdr-raw()  { lsdvd; readcd dev=/dev/$DVD f="$@"; } #.raw-filename
+dvdr-raw()  { lsdvd /dev/$DVD ; readcd dev=/dev/$DVD f="$@" ; } #.raw-filename
 
 # dvd-writing in readcd and cdrecord not working
 dvdw-raw()  { growisofs -dvd-compat -Z /dev/$DVD="$@"; } #.raw-filename

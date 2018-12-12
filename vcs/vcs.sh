@@ -141,6 +141,7 @@ hg_i='commit'
 hg_p='push'
 #hg_i_pipe='&& hg push'
 hg_ii='resolve -m'    #??? after conflct, before commit + needs another commit
+hg_ic='commit --interactive'    #was hg record
 hg_d='diff --nodates'
 hg_dd='diff -Bbw'
 hg_dprev='diff -r .^1'
@@ -194,7 +195,7 @@ git_io='log --branches --not --remotes ; git log --remotes --not --branches '   
 #chmod g+s `find .git -type d`
 
 ####################
-cmd_interactives=",i,"
+cmd_interactives=",i,ic,"
 #cmd_interactives="$cmd_interactives,ia,"   example
 
 test -e $0.override && . $0.override

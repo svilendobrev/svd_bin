@@ -253,6 +253,7 @@
     <keybind key="Print">
       <action name="NextWindow">
        <interactive>no</interactive>
+       <linear>yes</linear>
       </action>
     </keybind>
     <keybind key="A-Tab">
