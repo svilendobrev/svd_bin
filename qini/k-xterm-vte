@@ -111,7 +111,9 @@ if test ! -e /tmp/xmodmap.done ; then
 #fi
 
  echo clear lock | xmodmap -
- echo keysym Caps_Lock = Shift_L | xmodmap - >& /dev/null #Caps_Lock
+ #echo keysym Caps_Lock = Shift_L | xmodmap - >& /dev/null #Caps_Lock
+ echo keysym Caps_Lock = Control_L | xmodmap - >& /dev/null #Caps_Lock
+ echo add Control = Control_L | xmodmap - 
  >/tmp/xmodmap.done
 fi 
 

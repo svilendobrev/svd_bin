@@ -44,12 +44,18 @@ ape2flac()      { ffmpeg -i "$1" "$1".flac ; }
 ape2mp3()       { ffmpeg -i "$1" -f wav pipe: | _stdin2mp3  "$1" ; }
 ape2mp3split()  { ape2mp3 "$1"; mp3splt -c "$2" "$1".mp3; }
 cuefix()        { grep -v "REM " | cuebreakpoints -i cue ; }
-CUEFILTER="cat"
+CUEFILTER=cat
 any2wavsplit()  {
     echo "$1"--"$2"
     cat "$2" | grep -v "REM " | $CUEFILTER | shnsplit -O never -o ${ext:-wav} -t '%n. %t' -m '/-' -x 1-99  "$1" ;
 }
 cue-noframes()  { CUEFILTER='perl -ne s/:[0-9][0-9]\s*$/\n/;print' ; }  #wholly shit
+_cuefilter-frames2ms() { 
+	perl -ne 's/:([0-9][0-9])\s*$/sprintf(".%03d\n",$1*1000\/80.)/e;print' $@ ; 
+	}  #owholly shit
+cue-frames2ms() { CUEFILTER=_cuefilter-frames2ms ; }  #owholly shit
+cue-frames() { CUEFILTER=cat; }  
+
 any2flacsplit() { ext=flac any2wavsplit "$@" ; }
 any2flacsplit_forall() {
     shopt -s nullglob
@@ -94,7 +100,7 @@ tag1-flac2name() {
     y=`_flac2tag Year   "$1"`
     n=`printf %02g $n`
     #mv "$1" "$n - $a - $l-$y - $t".flac
-    mv "$1" "$a--$l-$y--$n--$t".flac
+    mv "$1" "$a--$l-$y--$n-$t".flac
 }
 
 al mp3-name2title   '_name2title mp3-title'
@@ -113,7 +119,7 @@ al flac-name2title  '_name2title flac-title'
 al flac-removeall   'metaflac --remove-all-tags'
 al flac-show        'metaflac --export-tags-to=-'
 flac-copytags() {
-    flac-copytagsmetaflac --export-tags-to=- "$1" | metaflac --import-tags-from=- "$2"
+    metaflac --export-tags-to=- "$1" | metaflac --import-tags-from=- "$2"
 }    
 
 flac-album()    { A="$1"; shift; metaflac --remove-tag=Album  --set-tag="Album=$A"  "$@" ;}

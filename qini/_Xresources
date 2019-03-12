@@ -101,3 +101,15 @@ XTerm*translations: #override          \n\\
 
 #include "/home/qini/x/vtcolors.xrdb"
 
+!! Xft.dpi:       96
+!! Xft.antialias: 1
+!! Xft.rgba:      rgb
+!! Xft.autohint:  0
+!! Xft.lcdfilter: lcddefault
+!! Xft.hinting:   1
+!! Xft.hintstyle: hintfull
+!! use lxappearance or ~/.gtkrc-2.0 :
+!!  gtk-xft-antialias=1
+!!  gtk-xft-hinting=1
+!!  gtk-xft-hintstyle="hintfull"
+!!  gtk-xft-rgba="rgb"
