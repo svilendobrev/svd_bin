@@ -133,7 +133,6 @@ $rm /usr/share/perl5/core_perl/pod/
 $rm /usr/bin/core_perl/pod*
 $rm /usr/*bin/pod2*
 
-$rm /usr/share/gir-1.0 /usr/share/gir-1.0--
 
 #mesa-demos
 $rm /usr/bin/osdemo*
@@ -156,7 +155,7 @@ $rm $P/{amdgpu,radeon}
 $rm $P/bnx2*
 $rm $P/{mrvl,ar3k,slicoss,go7007,emi*,qca}
 $rm $P/{libertas,carl9170fw,mwl*,moxa,vxge,qed,cxgb4,ueagle-atm}
-$rm $P/{iwlwifi*,myri*,phan*,ct*fw*,qat*,i2400*,i6050*,cbfw*,s5*}
+$rm $P/{myri*,phan*,ct*fw*,qat*,cbfw*,s5*} #iwlwifi*=intel  i2400*,i6050*=?
 # $rm $P/{brcm,radeon,amdgpu}
 
 P=/usr/lib*/dri
@@ -224,7 +223,8 @@ $rm $P/brushes/{Texture,Media,Splatters,*obsolet*}
 $rm /var/log/journal/*/system@*
 $rm /var/log/journal/*/user-*@*
 
-$rm /usr/lib/girepository-*
+#$rm /usr/share/gir-1.0 /usr/share/gir-1.0--
+#$rm /usr/lib/girepository-*
 
 P=/usr/share/info
 $rm $P/{as,bfd,gcc,gdb,gawk,gsl,auto[cm],gettext,bison,flex,xorriso,texinfo,gnutls,tar,aspell,ld,lib}*
