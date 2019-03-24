@@ -1,4 +1,4 @@
 [Command]
-Logout=~/bin/exitmenu.sh
+Logout=/home/svilen/bin/exitmenu.sh
 #Logout=systemctl poweroff
 #LogoutCommand=
