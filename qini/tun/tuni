@@ -1,3 +1,8 @@
+#reboot/poweroff rights:
+/usr/share/polkit-1/actions/org.freedesktop.login1.policy
+ ... <allow_any> yes
+
+
 /etc/rc2.d/S60-mplayer-rtc -> ../init.d/S60-mplayer-rtc
 #!/bin/sh
 echo 1024 > /proc/sys/dev/rtc/max-user-freq

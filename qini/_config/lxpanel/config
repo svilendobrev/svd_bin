@@ -1,0 +1,4 @@
+[Command]
+Logout=~/bin/exitmenu.sh
+#Logout=systemctl poweroff
+#LogoutCommand=
