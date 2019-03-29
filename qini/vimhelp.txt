@@ -1,0 +1,78 @@
+Mnem = no-edit = normal = non-typing mode ... not readonly, but key-strokes are intepreted as commands
+Medm = edit-mode = key-strokes are the change of text
+
+moving: usual 
+ arrows: 1 char/line
+ ctrl-left/right: word
+ pgdn/pgup: 1 page
+ home/end: line start/end
+ ctrl-home/ctrl-end: file start/end (orig: noeditMode 1G/noeditMode G)
+
+tags:
+ ctrl-]: find tag and go there
+ ctrl-t: go back
+ also see commands: :ts, :tn, :tp
+
+F1: help
+F2: save
+F3: (abandon) exit buffer
+F4: save + exit buffer
+F5: paste before cursor (noeditMode:P)
+F6: paste after cursor  (noeditMode:p)
+F7: copy line
+F8: delete line
+F9: prev file/buffer
+F10: next file/buffer
+F11: next error/position
+shift-F11: prev error/position
+F12: save + runmake
+ctrl-F12: edit ./[mM]akefile
+
+ins: switch from noeditMode to Medm, and between insert and replace in Medm
+esc: switch from Medm to noeditMode ; or cancel some commands
+
+select:
+ ctrl-l: lines
+ ctrl-b: block
+ Mnem:v: sequential
+
+delete:
+ del: char-at-cursor or whatever if selected
+ bksp: char-before-cursor
+ ctrl-d: word-right-off-cursor
+ ctrl-e: from cursor to end of line/right
+ F8: line
+
+copy:
+ ctrl-y: word-right-off-cursor
+ F7: line
+ Mselect:y: whatever is selected
+ Mnem:yy: line
+
+find:
+ ctrl-f: forward
+ ctrl-a: backward
+ ctrl-\: select and find forward word under cursor; same as Mnem:*
+ Mnem-#: select and find backward word under cursor
+
+other:
+ ctrl-u: undo
+ ctrl-r: redo
+ ctrl-z: pause/suspend the editor and go back to shell
+ ctrl-p: previous suggestion
+ ctrl-n: next suggestion
+ ctrl-g: show statistics
+ alt-W: go to next window
+ ctrl-w: window-command, i.e. ctrl-w ctrl-w goes to next window
+ ctrl-/: format paragraph
+ ctrl-x: X-mode, insert various items, like file names, etc
+
+orig-other: 
+ Mnem:ctrl-i/ctrl-o: go prev/next cursor position in history
+ Mselect:u: selected -> lowercase
+ Mselect:U: selected -> uppercase
+
+orig-command-line:
+ ctrl-r / : insert current search-pattern
+ ctrl-r f : insert whole word under cursor
+ ...
