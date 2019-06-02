@@ -4,21 +4,31 @@ from __future__ import print_function #,unicode_literals
 
 import sys,re,subprocess,tempfile
 import datetime, os
-fi,fo = sys.argv[1:3]
 
-if fi.lower().endswith('.mov'):
+set_local_tz = False
+for a in ['-tz', '--tz']:
+    if a in sys.argv:
+        sys.argv.remove( a)
+        set_local_tz = True
+
+fi,fo = (sys.argv[1:3]+[ None ])[:2]
+
+if fi.lower().endswith('.dt'):
+    creatime = open(fi).readlines()[0]
+    assert fo.endswith( '.mkv') or fo.endswith('.avi'), fo
+else: #if fi.lower().endswith('.mov'):
     creatime = subprocess.check_output( [ 'ffprobe', '-hide_banner', fi ],
         stderr= subprocess.STDOUT
         ).decode('cp1251', 'ignore')
     creatime = [ l for l in creatime.split('\n') if 'creation_time' in l ][0]
     creatime = creatime.split(': ',1)[-1]
-else:
-    assert fi.lower().endswith('.dt'), fi
-    creatime = open(fi).readlines()[0]
-    assert fo.endswith( '.mkv') or fo.endswith('.avi'), fo
+    if not fo:
+        fo = os.path.splitext( fi)[0]+'.dt'
 
 creatime = creatime.strip()
 print( '>>', creatime, fo)
+
+#tz = datetime.datetime.now().astimezone().tzinfo   same as supplying None
 
 def touch( fo, creatime):
     a_secs = creatime.split('.')[0]
@@ -26,6 +36,11 @@ def touch( fo, creatime):
         dt = datetime.datetime.strptime( a_secs, '%Y-%m-%d' 'T' '%H:%M:%S',)
     except ValueError:
         dt = datetime.datetime.strptime( a_secs, '%Y-%m-%d' 'T' '%H:%M',)
+
+    if set_local_tz:
+        dt = dt.replace( tzinfo= datetime.timezone.utc ).astimezone()
+        print( ' >>', dt)
+
     t = dt.timestamp()
     os.utime( fo, (t,t) )
 

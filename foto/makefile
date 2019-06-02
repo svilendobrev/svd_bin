@@ -13,7 +13,7 @@ BIN = $(dir $(MAKEFILE_LIST))
 i3c 3c c3 300: ren3
 	$(MAKE) -f $(MAKEFILE_LIST) opt
 ren3:
-	rename.pl 'y/A-Z/a-z/+s/_/1/' $(ROOTWILD)[jJ][pP][gG]
+	rename.pl 'y/A-Z/a-z/+s/_/1/+s/img/i3c/' $(ROOTWILD)[jJ][pP][gG]
 
 ix index:
 	~/src/bin/foto/indexer.sh *.jpg > index.html
@@ -62,30 +62,52 @@ opt3: $(OPTs:%.jpg=%.opt3)
 4/%.jpg: %.jpg
 	-SCALE=4 $(BIN)/2small.sh $<
 
+SIZE?=1200x800
+size: $(OPTs:%.jpg=sz/%.jpg)
+sz/%.jpg: %.jpg
+	~/src/bin/foto/fit2print.py --size=1200x800,pixels --djpeg --exifcopy --cjpeg=85 --autooutpfx=sz/ $<
+
 optjpg:
 	rename.pl 's/opt$$/jpg/' $(ROOTWILD).opt
 
 600 c6 6c i6c: ren6
+	$(MAKE) -f $(MAKEFILE_LIST) images
+ins isn: renns
+	$(MAKE) -f $(MAKEFILE_LIST) images
+ina ian: renna
+	$(MAKE) -f $(MAKEFILE_LIST) images
+images snimki:
 	$(MAKE) -f $(MAKEFILE_LIST) j2j
 	$(MAKE) -f $(MAKEFILE_LIST) j2j_rename
 	$(MAKE) -f $(MAKEFILE_LIST) autodate
 ren6:
-	rename.pl 'y/A-Z/a-z/+s/img_9/i6c09/+s/img_/i6c1/' $(ROOTWILD)[jJ][pP][gG]
+	rename.pl 'y/A-Z/a-z/+s/img_/i6c2/' $(ROOTWILD)[jJ][pP][gG]
+	#rename.pl 'y/A-Z/a-z/+s/img_9/i6c09/+s/img_/i6c1/' $(ROOTWILD)[jJ][pP][gG]
+rensn renns:
+	rename.pl 'y/A-Z/a-z/+s/img_/ins_/' $(ROOTWILD)[jJ][pP][gG]
+	rename.pl 'y/A-Z/a-z/+s/vid_/vns_/' $(ROOTWILD)3[gG][pP]
+renan renna:
+	rename.pl 'y/A-Z/a-z/+s/img_/ina_/' $(ROOTWILD)[jJ][pP][gG]
+	rename.pl 'y/A-Z/a-z/+s/vid_/vna_/' $(ROOTWILD)3[gq][pP]
 DTFMT = %Y.%m.%d-%H:%M
 
 ren6v:
-	rename.pl 'y/A-Z/a-z/+s/mvi_9/v6c09/+s/mvi_/v6c1/' $(ROOTWILD)[mM][oO][vV]*
+	rename.pl 'y/A-Z/a-z/+s/mvi_/v6c2/' $(ROOTWILD)[mM][oO][vV]*
+	#rename.pl 'y/A-Z/a-z/+s/mvi_9/v6c09/+s/mvi_/v6c1/' $(ROOTWILD)[mM][oO][vV]*
 v6 6v v6c:
 	$(MAKE) -f $(MAKEFILE_LIST) ren6v
 	$(MAKE) -f $(MAKEFILE_LIST) mov2dt
 	@echo ".mov -> .mkv ; maf dt2mkv !!"
+rensnv:
+	rename.pl 'y/A-Z/a-z/+s/vid_/vns_/' $(ROOTWILD)3[gG][pP]*
 
-mov2dt:
-	for a in $(ROOTWILD).mov ; do $E $(BIN)/vdater.py $$a $${a%.mov}.dt ; done
+v2dt vid2dt mov2dt 3gp2dt:
+	shopt -s nullglob ; for a in $(ROOTWILD).mov $(ROOTWILD).3gp ; do $E $(BIN)/vdater.py $$a ; done
 dt2mkv:
-	-rename.py mov...mkv mkv *.mov...mkv
+	-rename.py mov.[.0-9]*.mkv mkv *.mov.*.mkv
+	-rename.py 3gp.[.0-9]*.mkv mkv *.3gp.*.mkv
 	#for a in $(ROOTWILD).dt  ; do $E $(BIN)/vdater.py $$a $${a%.dt}.mkv ; done
-	find $(ROOT) -name '$(WILD).dt' -exec bash -c "a={}"' ; $E $(BIN)/vdater.py $$a $${a%.dt}.mkv' \;
+	find $(ROOT) -name '$(WILD).dt' -exec bash -c "a={}"' ; $E $(BIN)/vdater.py $$a $${a%.dt}.mkv $(ARGS)' \;
 mkv4dt:
 	for a in $(ROOTWILD).mkv ; do $E $(BIN)/vdater.py $${a%.mkv}.dt $$a ; done
 	#shopt -s extglob ; for a in $(ROOTWILD).mkv; do $E $(BIN)/vdater.py $${a%%?(.mov)+(.)mkv}*.dt $$a ; done
@@ -153,7 +175,7 @@ j2j: $(patsubst %,%.$(Jsfx).jpg,$(shell $(Jall4shell)))
 %.$(Jsfx).jpg: % #.jpg
 	-jpeg-recompress $(JOPTS) -q $(J2LEVEL)  $(if $(J2Q),--max $(J2Q)) $(if $(findstring .pnm,$<),--ppm)  $(JARGS) $< $@
 j2j_rename j2j_ren:
-	PATH=$${PATH#.:} find $(ROOT) -name "*.$(Jsfx).jpg" -execdir rename.py '\.jpg\.$(Jsfx)' '' {} +
+	PATH=$${PATH#.:} PATH=$${PATH/:.:/:} find $(ROOT) -name "*.$(Jsfx).jpg" -execdir rename.py '\.jpg\.$(Jsfx)' '' {} +
 
 jall:
 	du -a -k | $(BIN)/du2sum.py kb

@@ -1,7 +1,10 @@
 #!/bin/sh
 
 echo "<html>"
+test -n "$HEAD$TITLE" && echo "<head>"
 test -n "$TITLE" && echo "<title>$TITLE</title>"
+test -n "$HEAD$TITLE" && echo "$HEAD</head>"
+test -n "$AUTOSIZE" && echo " <head> <style> img { max-width: 90% ; max-height: 90% } </style> </head> "
 echo "<body><center>"
 echo "$TITLE"
 echo "<hr>"
@@ -15,7 +18,7 @@ for a in "$@"; do
 	else
 	    endname=
 		test -n "$HREF" && endname="</a>" && echo -n '<a href="'$HREF/$a'">'
-		echo '<img src="'$a'">' $name$endname "$BR $HR $BR"
+		echo '<img src="'$a'"'"$ATTRS"' >' $name$endname "$BR $HR $BR"
 	fi
 done
 echo "</html>"
