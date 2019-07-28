@@ -11,7 +11,7 @@ v: v6c
 BIN = $(dir $(MAKEFILE_LIST))
 
 i3c 3c c3 300: ren3
-	$(MAKE) -f $(MAKEFILE_LIST) opt
+	$(MAKE) -f $(MAKEFILE_LIST) images
 ren3:
 	rename.pl 'y/A-Z/a-z/+s/_/1/+s/img/i3c/' $(ROOTWILD)[jJ][pP][gG]
 

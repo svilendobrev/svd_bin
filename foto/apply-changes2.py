@@ -32,22 +32,35 @@ if optz.exclude:
     print( 'excluding:', optz.exclude)
     exclude = re.compile( optz.exclude)
 errdup = set()
+
+def dirsfiles( path, dirs, files):
+    #dirs0 = dirs[:]
+    dirs[:] = [ name for name in dirs
+                if not (exclude and exclude.search( join( path, name)) or name in optz.ignore )
+                ]
+    #files0 = files[:]
+    files[:] = [ name for name in files
+                if not (exclude and exclude.search( join( path, name)) or name in optz.ignore )
+                ]
+    if 0:
+        fexcluded = set(files0)- set(files)
+        dexcluded = set(dirs0) - set(dirs)
+        if fexcluded or dexcluded: print( 'fdexcluded', fexcluded, dexcluded)
+
+    dirs.sort()
+    files.sort()
+    return dirs,files
+
 for path, dirs, files in os.walk( template ):
     subpath = path[ len(template): ].lstrip('/').split( '/')
     p = join( *subpath[:] )
     if exclude and exclude.search( p):
+        if 0: print( 'pexclude', p)
         dirs[:] = []
         continue
 
     paths.add( p)
-    dirs[:] = [ name for name in dirs
-                if not (exclude and exclude.search( join( path, name)) or name in optz.ignore )
-                ]
-    files = [ name for name in files
-                if not (exclude and exclude.search( join( path, name)) or name in optz.ignore )
-                ]
-    dirs.sort()
-    files.sort()
+    dirsfiles( path, dirs, files)
     if optz.alsodirs:
         for name in dirs:
             if name in tree:
@@ -90,16 +103,11 @@ for path, dirs, files in os.walk( '.' ):
         subpath = path.split( '/')
         p = join( *subpath[1:] )
         if exclude and exclude.search( p):
+            if 0: print( '2pexclude', p)
             dirs[:] = []
             continue
-    dirs[:] = [ name for name in dirs
-                if not (exclude and exclude.search( join( path, name)) or name in optz.ignore )
-                ]
-    files = [ name for name in files
-                if not (exclude and exclude.search( join( path, name)) or name in optz.ignore )
-                ]
-    dirs.sort()
-    files.sort()
+
+    dirsfiles( path, dirs, files)
     for name in files + bool(optz.alsodirs) * dirs:
         target = tree.get( name, optz.deldir )
         if not target:
@@ -111,6 +119,7 @@ for path, dirs, files in os.walk( '.' ):
         #TODO if path/name -> target/name comes from  path -> target : continue
         subpath = path.split( '/')
         if any( p in tree for p in subpath):
+            print( '!ignoring existing file/dir in tree', p, tree[p])
             continue
         if name not in tree: print( 'deleted', name)
 
