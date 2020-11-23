@@ -1,5 +1,6 @@
-#!/usr/bin/env python2
-#$Id: dircolor.py,v 1.2 2007-03-02 17:30:28 sdobrev Exp $
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import print_function #,unicode_literals
 
 help = '''
  generates ls colorization:
@@ -68,9 +69,9 @@ class COLORs:   #do not touch these
     )
 
 for a in (COLORs.Attributes, COLORs.Text_colors):
-    exec '; '.join( [ '%s=%s' % kv for kv in a.iteritems() ] )
+    globals().update( a) #exec '; '.join( [ '%s=%s' % kv for kv in a.items() ] )
 a = COLORs.Background_colors
-exec '; '.join( [ 'bg_%s=%s' % kv for kv in a.iteritems() ] )
+globals().update( ('bg_'+k,v) for k,v in a.items() ) #exec '; '.join( [ 'bg_%s=%s' % kv for kv in a.items() ] )
 
 
 
@@ -165,6 +166,7 @@ xcf
 xwd
 flv
 m4v
+3gp
 ''', magenta
 
     # audio formats
@@ -220,22 +222,23 @@ def type_valueonly_flat( values, ignore_abbr =1):   #recursive lookup/flatten
 
 def types():
     typs = []
-    for k,value in TYPEs.__dict__.iteritems():
+    for k,value in TYPEs.__dict__.items():
         if not k.startswith('_'):
             abbr = value[0]
             name = FMT.use_abbr and abbr or k
             typs.append( [name, type_valueonly_flat( value)])
     return typs
 
-#print type_valueonly_flat( TYPEs.DIR)
-#print type_valueonly_flat( TYPEs.STICKY_OTHER_WRITABLE )
-#print type_valueonly_flat( TYPEs.STICKY)
+#print( type_valueonly_flat( TYPEs.DIR))
+#print( type_valueonly_flat( TYPEs.STICKY_OTHER_WRITABLE ))
+#print( type_valueonly_flat( TYPEs.STICKY))
 
 def suffixes( what, *colors):
     a = what + what.upper() + what.lower()
     a = a.split()
-    d = dict.fromkeys( a, 1 ).keys()
-    d.sort()
+    #d = dict.fromkeys( a, 1 ).keys()   ??WTF
+    #d.sort()
+    d = sorted(a)
     c = type_valueonly_flat( colors, ignore_abbr =0)
     return ( ( FMT.suffix_pfx + key, c)   for key in d )
 
@@ -259,7 +262,7 @@ for a in sys.argv[1:]:
     if a.startswith( '-dosexe'): do_dosexe = True
 
 if do_ls == do_dir:
-    raise SystemExit, help + ', '.join( k for k in SUFFIXEs.__dict__.iterkeys() if not k.startswith('_'))
+    raise SystemExit( help + ', '.join( k for k in SUFFIXEs.__dict__ if not k.startswith('_')))
 if not do_dosexe:
     del SUFFIXEs.DOS_EXEC
 
@@ -272,10 +275,10 @@ else:   #do_ls
     FMT = FMT4ls
 
 p+= itemize( types())
-for k,s in SUFFIXEs.__dict__.iteritems():
+for k,s in SUFFIXEs.__dict__.items():
     if not k.startswith('_'):
         p+= itemize( suffixes( *s))
 
-print FMT.items.join( p )
+print( FMT.items.join( p ))
 
 # vim:ts=4:sw=4:expandtab
