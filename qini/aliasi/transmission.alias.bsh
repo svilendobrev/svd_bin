@@ -15,8 +15,11 @@ t-stop1() 	{ tremote -t $1 -S; }
 t-del1() 	{ tremote -t $1 -r; }
 t-del1zap() { tremote -t $1 --remove-and-delete; }
 t-restart1() { t-stop1 $1; sleep 5; t-start1 $1; }
+t-verify1()	{ tremote -t $1 -v; }
 al t-info   "t-info1  all"
 al t-startall  "t-start1 all"
 al t-stopall   "t-stop1  all"
 al t-restartall "t-restart1 all"
 al t-restart 't-restart1 `t-list | trestart.py `'
+
+# vim:ts=4:sw=4:expandtab

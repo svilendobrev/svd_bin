@@ -56,9 +56,11 @@ $rm $P/*/test/ $P/*/tests/
 $rm $P/site-packages/*/test/
 $rm $P/site-packages/*/tests/
 $rm $P/site-packages/*/*/tests/
+$rm $P/site-packages/*/*/*/tests/
+$rm $P/site-packages/*/*/*/*/tests/
 $rm $P/site-packages/*/SelfTest/
-$rm $P/site-packages/bzrlib/plugins/*/test*
-$rm $P/site-packages/numpy/*/tests
+#$rm $P/site-packages/bzrlib/plugins/*/test*
+#$rm $P/site-packages/numpy/*/tests
 $rm $P/site-packages/mercurial/locale/*
 $rm $P/site-packages/pygame/examples
 $rm $P/site-packages/pygame/docs
@@ -159,13 +161,14 @@ $rm $P/{myri*,phan*,ct*fw*,qat*,cbfw*,s5*} #iwlwifi*=intel  i2400*,i6050*=?
 # $rm $P/{brcm,radeon,amdgpu}
 
 P=/usr/lib*/dri
-$rm $P/r*
+$rm $P/r* $P/nouv* $P/zink*
 
 $rm /usr/share/help/*
 
 P=/usr/include
+#SDL*
 for a in `cat <<HHHHHHHH
-gtk-* SDL*
+gtk* 
 CLucene
 GL
 ImageMagick
@@ -184,6 +187,7 @@ postgresql
 mysql
 qt
 subversion
+xercesc
 wine
 wx-
 HHHHHHHH

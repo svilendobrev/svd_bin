@@ -8,4 +8,5 @@
 #bzr: v d "$1" -r -2
 al vdprev 'v dprev'
 al i 'v i -m'
+al vd 'v d'
 

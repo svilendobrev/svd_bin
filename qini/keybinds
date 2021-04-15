@@ -21,7 +21,7 @@ _kcmd $_k_F5    up      # cd ..; works fine but doesn't update the prompt!
 _kcmd $_k_F7    dm		# du -m .
 _kcmd $_k_F8    mi      # process info
 _kcmd $_k_F9    "cd -"
-_kcmd $_k_F10   "v s"
+_kcmd $_k_F10   "v s ; v n"
 _kcmd $_k_F12   m       # make
 _kcmd $_k_F11   _g      # so .go
 _kcmd $_k_cF12  em      # e makefile

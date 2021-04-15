@@ -217,7 +217,7 @@ main()
 			echo "$file: uknown file type"
 			;;
 		esac
-		trackno=$(($trackno + 1))
+		trackno=$(expr $trackno + 1)
 	done
 }
 

@@ -12,15 +12,18 @@ optz.bool( 'fake',    '-n', help='do nothing')
 optz.bool( 'deldest', '-f', help='delete destname before acting')
 optz.bool( 'quiet', '-q', )
 optz.bool( 'srcname', help='use link-target-name instead of link-name itself')
-optz.bool( 'dellink',  help='delete symlink after acting')
+optz.bool( 'dellink', help='delete symlink after acting')
+optz.bool( 'absshow', help='only show abs resolved paths')
 optz,args = optz.get()
 optz.verbose = not optz.quiet
-if len(args)==1:
-    raise RuntimeError( 'last arg must be target dir/filename')
-dest = args.pop()
-destdir = os.path.isdir( dest )
-if len(args)>2 and not destdir:
-    raise RuntimeError( 'last arg must be dir')
+
+if not optz.absshow:
+    if len(args)==1:
+        raise RuntimeError( 'last arg must be target dir/filename')
+    dest = args.pop()
+    destdir = os.path.isdir( dest )
+    if len(args)>2 and not destdir:
+        raise RuntimeError( 'last arg must be dir')
 
 func = optz.mv and os.rename or os.link
 for a in args:
@@ -29,6 +32,9 @@ for a in args:
         print( '... non-symlink', a)
         continue
     f = realpath(a)
+    if optz.absshow:
+        print( a, '->', f)
+        continue
     if destdir:
         destname = basename( f if optz.srcname else a )
         destfull = join( dest, destname)

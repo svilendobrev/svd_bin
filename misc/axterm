@@ -1,3 +1,3 @@
 #!/bin/sh
-MY_TERM=xterm xterm -font Terminus-cp1251-bold-20 "$@" &
+MY_TERM=xterm xterm -font -xos4-terminus-bold-r-normal--20-200-72-72-c-100-iso10646-1 "$@" &
 #LANG=bg_BG.CP1251 xterm -fn *-terminus-*-20-*-*-*-*-cp1251

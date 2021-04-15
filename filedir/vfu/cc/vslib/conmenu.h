@@ -37,6 +37,8 @@ struct ConMenuInfo
 
   int st; // scroll type -- 1 dynamic and 0 normal/static
   char hide_magic[32];
+
+  int (*key_translator)( int);
 };
 
 extern ConMenuInfo con_default_menu_info;

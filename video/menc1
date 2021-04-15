@@ -2,7 +2,9 @@
 #IN=$1
 #OUT="$IN.avi"
 #LOG="$IN.log"
-test -z "$IN"  && IN=dvd://$TITLE
+test -z "$IN"  && IN="$1"
+#test -z "$IN"  && IN=dvd://$TITLE
+test -z "$OUT" && OUT="$IN.avi"
 test -z "$LOG" && LOG="$OUT.log"
 #shift
 

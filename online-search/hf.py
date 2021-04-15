@@ -28,13 +28,16 @@ def re_filter(x):
 def re_skriti( s):
     r = []
     for x in s.strip().split('\n'):
-        if x.strip() and x.strip()[0] != '#':
-            xx = re_filter( x)
-            try:
-                r.append( re.compile( xx, re.IGNORECASE ) )
-            except:
-                prn( '??', x , '-->', xx )
-                raise
+        x = x.strip()
+        if not x: continue
+        if x[0] == '#': continue
+        if not x.strip('-='): continue
+        xx = re_filter( x)
+        try:
+            r.append( re.compile( xx, re.IGNORECASE ) )
+        except:
+            prn( '??', x , '-->', xx )
+            raise
     return r
 
 def finddel( tr, match):

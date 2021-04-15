@@ -11,17 +11,27 @@ for a in ['-tz', '--tz']:
         sys.argv.remove( a)
         set_local_tz = True
 
+use_inner_datetime = False
+for a in ['-inner', '--inner']:
+    if a in sys.argv:
+        sys.argv.remove( a)
+        use_inner_datetime = True
+
 fi,fo = (sys.argv[1:3]+[ None ])[:2]
 
 if fi.lower().endswith('.dt'):
     creatime = open(fi).readlines()[0]
     assert fo.endswith( '.mkv') or fo.endswith('.avi'), fo
-else: #if fi.lower().endswith('.mov'):
-    creatime = subprocess.check_output( [ 'ffprobe', '-hide_banner', fi ],
-        stderr= subprocess.STDOUT
-        ).decode('cp1251', 'ignore')
-    creatime = [ l for l in creatime.split('\n') if 'creation_time' in l ][0]
-    creatime = creatime.split(': ',1)[-1]
+else:
+    dt_tm = re.search( '(?P<Y>\d{4})(?P<M>\d{2})(?P<D>\d{2})_(?P<h>\d{2})(?P<m>\d{2})(?P<s>\d{2})', fi)
+    if not use_inner_datetime and dt_tm:
+        creatime = '{Y}-{M}-{D}T{h}:{m}:{s}.000000Z'.format( **dt_tm.groupdict())
+    else:
+        creatime = subprocess.check_output( [ 'ffprobe', '-hide_banner', fi ],
+            stderr= subprocess.STDOUT
+            ).decode('cp1251', 'ignore')
+        creatime = [ l for l in creatime.split('\n') if 'creation_time' in l ][0]
+        creatime = creatime.split(': ',1)[-1]
     if not fo:
         fo = os.path.splitext( fi)[0]+'.dt'
 

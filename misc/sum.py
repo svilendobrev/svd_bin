@@ -18,10 +18,11 @@ except IndexError:
     f = sys.stdin
 
 for line in f:
-    lr = line.strip().split( '#' if HASH else None, 1)
+    lr = line.strip()
+    if not lr: continue
+    lr = lr.split( '#' if HASH else None, 1)
     x = lr[0].strip()
-    if not x:
-        continue
+    if not x or x[0] == '#': continue
     if x=='eof': break
     if '==' in x:
         if ss: print( around(ss), '=', x.split('=',1)[-1], '\n')

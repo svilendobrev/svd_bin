@@ -13,5 +13,7 @@ foreach $p (@a) {
     next if $ext =~ /pl/;
     $r = rand();
     $nm = substr($r,2,8);
-    rename( $p, "$nm.$ext" );
+	$p =~ s/^\d+-//;
+    rename( $p, "$nm-$p" );
+    #rename( $p, "$nm.$ext" );
 }

@@ -23,7 +23,7 @@ set visualbell t_vb=
 set history=200
 set laststatus=2    "show status line always
 set ruler           "show cursor position
-set scrolloff=3     "number of lines around the cursor
+set scrolloff=5     "number of lines around the cursor
 set cmdheight=2     "height of cmd line window
 set helpheight=16
 set viminfo='11,\"12,:40,/50    "marks for 11 files, 12 lines per register, 40 cmdline history, 50 searches
@@ -121,6 +121,7 @@ autocmd FileType xml  setl makeprg=make
 autocmd FileType java let java_allow_cpp_keywords=1
 
 autocmd FileType javascript setl tabstop=4 shiftwidth=4 expandtab
+autocmd FileType javascript setl suffixesadd=.js
 
 autocmd BufEnter opis*    setl ts=4 sw=4 expandtab
 
@@ -239,7 +240,10 @@ autocmd Syntax python  syntax sync fromstart
 
 "set notimeout      " don't timeout on mappings
 "set ttimeout       " do timeout on terminal key codes
-"set ttimeoutlen=10
+set timeoutlen=10
+set ttimeoutlen=10
+
+"""may be useful: https://vim.fandom.com/wiki/Mapping_fast_keycodes_in_terminal_Vim
 
 "use $XX not "$XX" !!!
 
@@ -568,9 +572,10 @@ imap  <c-]> <c-o><c-]>
 "back tag
 imap  <c-T> <c-o><c-T>
 
-"empty keys: c-2:^@, c-6:^^, c-\:^\, shift-tab, shift-Fxx
+"empty keys: c-2:^@, c-6:^^, shift-tab, shift-Fxx
+"used: c-\:^\, c-_:^/
 "not-usable: c-5:^] =c-], c-8:^? =bksp
-"vim keys: c-p/prev c-t/tag-back, c-]/tag-find, c-o, c-v, c-x/expand, c-k/digraph
+"vim keys: c-p/prev c-n/next c-t/tag-back, c-]/tag-find, c-o, c-v, c-x/expand, c-k/digraph
 "   c-h,c-m,c-s/c-q, c-c
 
 "reformat paragraph
@@ -580,6 +585,9 @@ inoremap <c-_> <c-o>gqap
 "ALt-w -> next window
 map <esc>w <c-w><c-w>
 imap <esc>w <c-o><c-w><c-w>
+"same but cyrilic-phonetic
+map <esc>в <c-w><c-w>
+imap <esc>в <c-o><c-w><c-w>
 
 """ so functions.vimrc
 
@@ -645,6 +653,10 @@ cabbrev dc cd
 cabbrev Gr gr
 cabbrev rg gr
 cabbrev undiff Undiffthis
+cabbrev Qa qa
+cabbrev QA qa
+cabbrev Qa! qa!
+cabbrev QA! qa!
 
 "folding
 noremap + zO
@@ -736,5 +748,59 @@ scriptencoding
 
 map <c-F2> :call mkdir( "./ok/okk", "p", 0775)<CR>
 imap <c-F2> <c-o>:call mkdir( "./ok/okk", "p", 0775)<CR>
+
+"neovim:
+map  <F13>  <s-F1>
+map  <F14>  <s-F2>
+map  <F15>  <s-F3>
+map  <F16>  <s-F4>
+map  <F17>  <s-F5>
+map  <F18>  <s-F6>
+map  <F19>  <s-F7>
+map  <F20>  <s-F8>
+map  <F21>  <s-F9>
+map  <F22>  <s-F10>
+map  <F23>  <s-F11>
+map  <F24>  <s-F12>
+map  <F25>  <c-F1>
+map  <F26>  <c-F2>
+map  <F27>  <c-F3>
+map  <F28>  <c-F4>
+map  <F29>  <c-F5>
+map  <F30>  <c-F6>
+map  <F31>  <c-F7>
+map  <F32>  <c-F8>
+map  <F33>  <c-F9>
+map  <F34>  <c-F10>
+map  <F35>  <c-F11>
+map  <F36>  <c-F12>
+
+imap  <F13>  <s-F1>
+imap  <F14>  <s-F2>
+imap  <F15>  <s-F3>
+imap  <F16>  <s-F4>
+imap  <F17>  <s-F5>
+imap  <F18>  <s-F6>
+imap  <F19>  <s-F7>
+imap  <F20>  <s-F8>
+imap  <F21>  <s-F9>
+imap  <F22>  <s-F10>
+imap  <F23>  <s-F11>
+imap  <F24>  <s-F12>
+imap  <F25>  <s-F1>
+imap  <F26>  <s-F2>
+imap  <F27>  <s-F3>
+imap  <F28>  <s-F4>
+imap  <F29>  <s-F5>
+imap  <F30>  <s-F6>
+imap  <F31>  <s-F7>
+imap  <F32>  <s-F8>
+imap  <F33>  <s-F9>
+imap  <F34>  <s-F10>
+imap  <F35>  <s-F11>
+imap  <F36>  <s-F12>
+
+map <m-w> <c-w><c-w>
+imap <m-w> <c-o><c-w><c-w>
 
 " vim:ts=4:sw=4:expandtab

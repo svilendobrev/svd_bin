@@ -165,4 +165,4 @@ fi #non-keys
 #so [A-Z] is NOT_AT_ALL what u think! put this also in etc/profile
 senv LC_COLLATE C
 
-# vim:ts=4:sw=4:expandtab
+# vim:ts=4:sw=4:expandtab:ft=bash

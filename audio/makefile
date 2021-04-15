@@ -4,6 +4,8 @@
 #	target pattern contains no `%'.
 #	mixed implicit and static pattern rules.
 
+.PHONY: mp3 flac wav
+
 all: mp3 flac
 
 _WILDS=$(wildcard $(WILD))
@@ -11,21 +13,24 @@ _WILDS=$(wildcard $(WILD))
 ifneq ($(MONO),)
 OPTS+=-m m
 endif
-LAME= lame --nohist --disptime 2 -h -v -V 6 $(OPTS)
-
+Q=4
+LAME= lame --nohist --disptime 2 -h -v -V $(Q)  $(OPTS)
+#-V 6
 %.mp36: %.mp3
 	$(LAME) "$<" "$@"
-#%.mp3: %.wav
-#	$(LAME) "$<" "$@"
 %.mp3: %.flac
 	flac -s -c -d "$<" | $(LAME) - "$@"
+ifeq ($(NOWAV),)
+%.mp3: %.wav
+	$(LAME) "$<" "$@"
+endif
 
 %.mkv: %.wmv
 	ffmpeg -i "$<" "$@"
 VQ=-sameq
-%.avi: %.mkv
+%.avi.mkv: %.mkv
 	ffmpeg -i "$<" $(VQ) -acodec copy "$@"
-%.mkv: %.avi
+%.avi.mkv: %.avi
 	mkvmerge $< -o $@
 
 
@@ -35,9 +40,15 @@ VQ=-sameq
 	ffmpeg -i $< -ar $(RATE) $(if $(MONO),-ac 1) $@
 ffres: $(patsubst %,%-$(RATE).ff.wav,$(_WILDS)))
 
-%-$(RATE).sox.wav: %
-	sox "$<" -b 16 -e signed-integer -t wav "$@" $(if $(STEREO),channels 2) $(if $(MONO),channels 1) rate -m -I -b 80 $(RATE)
-soxres: $(patsubst %,%-$(RATE).sox.wav,$(_WILDS))
+OUT?=FLAC
+RATE?=44100
+%-$(RATE).sox.$(OUT): %
+	sox "$<" -b 16 -e signed-integer -t $(OUT) "$@" gain -1 $(if $(STEREO),channels 2) $(if $(MONO),channels 1) rate -m -I -b 80 $(RATE)
+soxres soxresample: $(patsubst %,%-$(RATE).sox.$(OUT),$(_WILDS))
+
+flac44: WILD=*.flac
+flac44:
+	+$(REMAKE) RATE=44100 WILD=$(WILD) OUT=flac soxres
 #rate
 # -s: steep filter
 # -M/-I/-L     Phase response = minimum/intermediate/linear
@@ -81,7 +92,7 @@ ifneq ($(TOWAV),)
 wav: flacwav mp3wav #$(FLACs:%.flac=%.wav) $(MP3s:%.mp3=%.wav)
 
 %.wav: %.flac
-	flac -d --no-preserve-modtime --force --keep-foreign-metadata -o "$@" "$<"
+	flac -d --no-preserve-modtime --force -o "$@" "$<"
 %.wav: %.mp3
 	lame --decode --nohist --quiet "$<" "$@"
 else
@@ -95,6 +106,8 @@ mp36: mp3mp3
 mp3mp3 : $(MP3s:%.mp3=%.mp36)
 363:
 	rename.pl s/mp36/mp3/ *mp36
+mp34: Q=4
+mp34: mp3
 
 flacwav: $(FLACs:%.flac=%.wav)
 flac2mp3: $(FLACs:%.flac=%.mp3)
@@ -113,7 +126,8 @@ wavcat:
 split: $(_WILDS:%=./mm.%-001.mkv)
 
 T?=0:0:20 #,0:4:30
-KIND?=timecodes
+KIND?=timestamps
+#parts duration
 ./mm.%-001.mkv: #./%
 	mkvmerge "$*" -o "mm.$*" --split $(KIND):$T
 
@@ -215,5 +229,8 @@ cue2tags: EXT?=flac
 	cd "$*" && cuetag.sh $(CUE) $(CUEITEMS)*.$(EXT)
 
 cuetag1: .._cue		#in current dir
+
+renunnum:
+	rename.py '^([\d.]+) *(.*)\.' '$$2.$$1.' *.flac *.wav *.mp3
 
 # vim:ts=4:sw=4:noexpandtab

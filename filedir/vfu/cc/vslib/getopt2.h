@@ -30,6 +30,6 @@ extern int opterr_report;
 
 /* name changed to getopt2 to avoid library function mismatch */
 
-int getopt2(int argc, char *argv[], char *optstring);
+int getopt2(int argc, char *argv[], const char *optstring);
 
 #endif

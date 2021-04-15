@@ -12,13 +12,14 @@ grep -q 'Module kbd: vendor' /var/log/Xorg.0.log && RUL=xorg || RUL=evdev
   #try one of these
   echo $RUL
   #-v 5
-
+  OPTION="grp:alt_shift_toggle,grp_led:scroll,grp:sclk_toggle"
+  grep -q 'Logitech Wireless Keyboard PID:4023' /var/log/Xorg.0.log && OPTION=$OPTION,grp_led:caps
   if test -e /usr/share/X11/xkb/symbols/bg_ltgt ; then
-    setxkbmap -rules $RUL -model pc105 -layout "en_US,bg_ltgt" -variant ",phonetic_ltgt" -option "grp:alt_shift_toggle,grp_led:scroll,grp:sclk_toggle"
-  elif test -e /home/qini/x/symbols/bg_ltgt ; then
-    setxkbmap -rules $RUL -model pc105 -layout "en_US,bg_ltgt" -variant ",phonetic_ltgt" -option "grp:alt_shift_toggle,grp_led:scroll,grp:sclk_toggle" -print | xkbcomp -w 3 -I/home/qini/x/ - $DISPLAY
+    setxkbmap -rules $RUL -model pc105 -layout "en_US,bg_ltgt" -variant ",phonetic_ltgt" -option $OPTION
+  elif test -e /home/qini/x/symbols/bg_ltgt ; then	#does not work well.. copy the symbols/bg_ltgt into above
+    setxkbmap -rules $RUL -model pc105 -layout "en_US,bg_ltgt" -variant ",phonetic_ltgt" -option $OPTION -print | xkbcomp -w 3 -I/home/qini/x/ - $DISPLAY
   else
-    setxkbmap -rules $RUL -model pc105 -layout "en_US,bg" -variant ",phonetic" -option "grp:alt_shift_toggle,grp_led:scroll,grp:sclk_toggle"
+    setxkbmap -rules $RUL -model pc105 -layout "en_US,bg" -variant ",phonetic" -option $OPTION
   fi
   	##&& break
 		#also caps_toggle menu_toggle ... /usr/share/X11/xkb/rules/base.lst
@@ -44,8 +45,9 @@ if uname -a | grep -q eee ; then ##eeepc:
  echo eeepc
   echo keycode 135 = Control_R    | xmodmap - #Menu
   echo add control = Control_R    | xmodmap -
-else
- xmodmap -e "keycode 133 = underscore"	#winLeft =_
- xmodmap -e "keycode 134 = underscore"	#winRight=_
+else	#133=winLeft 134=winRight 135=Menu
+ xmodmap -e "keycode 135 = underscore"
+ #xmodmap -e "keycode 133 = underscore"	#winLeft =_
+ #xmodmap -e "keycode 134 = underscore"	#winRight=_
 fi
 

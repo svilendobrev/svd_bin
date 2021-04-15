@@ -168,6 +168,11 @@ int over_if_exist( const char* src, const char *dst, CopyInfo* copy_info )
 
   if ( copy_info->over_mode == OM_ALWAYS_IF_MTIME)
        return (stat_src.st_mtime > stat_dst.st_mtime); /* newer mtime, do it! */
+  if ( copy_info->over_mode == OM_ALWAYS_IF_MTIME_OR_SIZEDIFF)
+       return ( stat_src.st_mtime > stat_dst.st_mtime  /* newer mtime, do it! */
+                ||  stat_src.st_mtime == stat_dst.st_mtime
+                    && stat_src.st_size != stat_dst.st_size
+              );
 
   int ch = 0;
   while(4)
@@ -195,7 +200,7 @@ int over_if_exist( const char* src, const char *dst, CopyInfo* copy_info )
     say2(t);
 
     vfu_beep();
-    vfu_menu_box( "Overwrite", "Y Yes,N No,A Always overwrite,V Never overwrite,I If newer (MODIFY),W Always if newer (MODIFY),D View differences,  Abort (ESC)", -1 );
+    vfu_menu_box( "Overwrite", "Y Yes,N No,A Always overwrite,V Never overwrite,I If newer (MODIFY),W Always if newer (MODIFY),S Always if newer or diff.size (MODIFY),D View differences,  Abort (ESC)", -1 );
     ch = menu_box_info.ec;
     if( ch == 'D' )
       {
@@ -219,6 +224,7 @@ int over_if_exist( const char* src, const char *dst, CopyInfo* copy_info )
     case 'A' : copy_info->over_mode = OM_ALWAYS; return 1;
     case 'V' : copy_info->over_mode = OM_NEVER; return 0;
     case 'W' : copy_info->over_mode = OM_ALWAYS_IF_MTIME;
+    case 'S' : copy_info->over_mode = OM_ALWAYS_IF_MTIME_OR_SIZEDIFF;
     case 'I' : return ( stat_src.st_mtime > stat_dst.st_mtime );
     default  : copy_info->abort = 1; return 0;
     }

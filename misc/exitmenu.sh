@@ -6,7 +6,8 @@ scelta=$( Xdialog --title " exit?" --shadow --menu "?" 17 35 35 \
       2>&1 );
 
 case $scelta in
-x) killall nodm ;;
+#x) killall nodm ;;
+x) pkexec /usr/local/bin/xrestart ;;
 q) systemctl poweroff ;;
 r) systemctl reboot ;;
 #h) systemctl hibernate ;;

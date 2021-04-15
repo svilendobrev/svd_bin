@@ -3,10 +3,10 @@ al lamev6 'lame --nohist -h -v -V 6'
 
 alf()       { eval "$1() { $2 \"\$@\" ;}" ; }   #create a func from alias' syntax
 forall()    { W="$1"; shift; for a in "$@"; do "$W" "$a" ; done; }
-forallif()  { IFS=$'\n'; for a in `ffl \*.$1`; do test ! $4 -f "$a.$2" -a ! $4 -f `basename "$a" $1`$2 && ${CMD:-echo} "$a"; done; unset IFS; }
-#use CMD= to do more than echo
-al show_wav_no_mp3   'forallif wav mp3 '    
-al show_wav_with_mp3 'forallif wav mp3 ! '  
+forallif()  { IFS=$'\n'; for a in `ffl \*.$1`; do test ! $4 -f "$a.$2" -a ! $4 -f `basename "$a" $1`$2 && ${3:-echo} "$a"; done; unset IFS; }
+#use 3rd arg to do more than echo ; 4th is ! or nothing
+al show_wav_no_mp3   'forallif wav mp3 echo '    
+al show_wav_with_mp3 'forallif wav mp3 ${CMD:-echo} ! '  
 #al del_wav_with_mp3  'CMD=rm show_wav_with_mp3'
 
 mp2wav()        { mplayer -vc null -vo null -ao pcm:fast:file="$1".wav "$@" ; }
@@ -62,7 +62,9 @@ any2flacsplit_forall() {
     for a in "$@"; do
      cd "$a" ; pwd
      test -n "$IN" && any2flacsplit *.$IN *.cue
-     test -z "$IN" && any2flacsplit *.{flac,ape,wv} *.cue
+     test -z "$IN" && any2flacsplit *.{wav,flac,ape,wv} *.cue
+     rm -f 00*pregap*flac
+     cuetag.sh *.cue *.flac
      cd - > /dev/null
     done
     shopt -u nullglob
@@ -82,7 +84,7 @@ _name2title() {
     what=$1;
     shift;
     for a in "$@"; do
-        n=`echo "$a" | perl -ne 's/^(\d+([-\._] ?| - ?| ))?(.*?)(\.(flac|wav|ape|mp3))+//; print $3'`;
+        n=`echo "$a" | perl -ne 's/^(\d+([-\._]+ ?| - ?| ))?(.*?)(\.(flac|wav|ape|mp3))+//; print $3'`;
         echo "$n";
         $what "$n" "$a";
     done
@@ -95,7 +97,7 @@ _flac2tag() {
 tag1-flac2name() {
     t=`_flac2tag Title  "$1"`
     a=`_flac2tag Artist "$1"`
-    n=`_flac2tag Tracknumber "$1"`
+    n=`_flac2tag Track  "$1"``_flac2tag Tracknumber  "$1"`
     l=`_flac2tag Album  "$1"`
     y=`_flac2tag Year   "$1"`
     n=`printf %02g $n`
@@ -109,11 +111,16 @@ al mp3-show         'mp3info -x -r a'
 mp3-album()     { A="$1"; shift; mp3info -l "$A" "$@"; }
 mp3-artist()    { A="$1"; shift; mp3info -a "$A" "$@"; }
 mp3-title()     { A="$1"; shift; mp3info -t "$A" "$@"; }
+mp3-year()      { A="$1"; shift; mp3info -y "$A" "$@"; }
+mp3-number()    { A="$1"; shift; mp3info -n "$A" "$@"; }
 mp3-comment()   { A="$1"; shift; mp3info -c "$A" "$@"; }
 
 mp3-rename-by-tags() { meyeD3 --rename '$artist--$album-$best_date:year--$track:num-$title' "$@"; }
 mp3-dump-tags2stdout() { stagger --dump "$1"; } #> "$1".tag 
 mp3-load-tags4stdin()  { stagger --load "$1"; } #< "$1".tag 
+meyed3-tags()   { meyeD3 "--v12" "--encv1=cp1251" "--to-v2.3" "--encoding=utf16" "--remove-all-comments" "$@"; }
+al mp3-tags meyed3-tags
+
 
 al flac-name2title  '_name2title flac-title'
 al flac-removeall   'metaflac --remove-all-tags'
@@ -126,14 +133,18 @@ flac-album()    { A="$1"; shift; metaflac --remove-tag=Album  --set-tag="Album=$
 flac-artist()   { A="$1"; shift; metaflac --remove-tag=Artist --set-tag="Artist=$A" "$@" ;}
 flac-title()    { A="$1"; shift; metaflac --remove-tag=Title  --set-tag="Title=$A"  "$@" ;}
 flac-year()     { A="$1"; shift; metaflac --remove-tag=Year   --set-tag="Year=$A"  "$@" ;}
+flac-date()     { A="$1"; shift; metaflac --remove-tag=Date   --set-tag="Date=$A"  "$@" ;}
 flac-number()   { A="$1"; shift; metaflac --remove-tag=Tracknumber --remove-tag=Track --set-tag="Track=$A"  "$@" ;}
+flac-comment()  { A="$1"; shift; metaflac --remove-tag=Comment --set-tag="Comment=$A"  "$@" ;}
 al flac-del-image   'metaflac --remove --block-type=PICTURE'
 al flac-get-image   'metaflac --export-picture-to=-'
 
 tag1-flac2mp3() {
-    t=`metaflac --show-tag=Title  "$1"| tail -1 |sed -s 's/[^=]*=//'`; mp3-title "$t"  "$2"
-    t=`metaflac --show-tag=Artist "$1"| tail -1 |sed -s 's/[^=]*=//'`; mp3-artist "$t" "$2"
-    t=`metaflac --show-tag=Album  "$1"| tail -1 |sed -s 's/[^=]*=//'`; mp3-album "$t"  "$2"
+    t=`metaflac --show-tag=Title    "$1" | tail -1 |sed -s 's/[^=]*=//'`; mp3-title  "$t" "$2" 
+    t=`metaflac --show-tag=Artist   "$1" | tail -1 |sed -s 's/[^=]*=//'`; mp3-artist "$t" "$2"
+    t=`metaflac --show-tag=Album    "$1" | tail -1 |sed -s 's/[^=]*=//'`; mp3-album  "$t" "$2"
+    t=`metaflac --show-tag=Track --show-tag=Tracknumber "$1" | tail -1 |sed -s 's/[^=]*=//'`; mp3-number "$t" "$2"
+    t=`metaflac --show-tag=Year  --show-tag=Date        "$1" | tail -1 |sed -s 's/[^=]*=//'`; mp3-year   "$t" "$2"
 }
 tag1-mp32mp3() {
     A=`mp3info -p ' -n %n -l \"%l\" -a \"%a\" -t \"%t\" -y "%y" ' "$1"`
@@ -141,8 +152,9 @@ tag1-mp32mp3() {
     #-g "%g"
 }
 
-tag-flac2mp3()  { for f in "$@"; do tag1-flac2mp3 "$f" "$f".mp3 ; done ;}
+tag-flac2mp3()  { for f in "$@"; do tag1-flac2mp3 "$f" "${f%flac}"mp3 ; done ;}
 tag-flac2name() { for f in "$@"; do tag1-flac2name "$f" ; done ;}
+#see also flactags2name.py XXX
 al flac-rename-by-tags tag-flac2name
 al tag-mp32name mp3-rename-by-tags
 
@@ -157,7 +169,7 @@ tag-mp32flacsplit() {
     for f in "$@"; do
         track=`mp3info -p '%n' "$f"`
         ztrack=`printf %02d $track`
-        mv split-track*$ztrack.flac $ztrack.flac
+        mv *track*$ztrack*.flac $ztrack.flac
         tag1-mp32flac "$f" $ztrack.flac
         title=`mp3info -p '%t' "$f"`
         mv $ztrack.flac $ztrack-"$title".flac
@@ -222,13 +234,30 @@ ffmpeg2wav() {
 }
 
 mkv2extract() {
-    mkvextract tracks "$1" "$2":"$1"."$2"
+    mkvextract tracks "$1" "$2":"$1"."$2""$3"
 }
 
-qcut() {
-    qwavcut "$1" -o cut"$1" -B $2 -E $3
-    chmod a+r cut"$1"
-}
+flac2mp34() {
+ nd mp34 
+ ln -s ../*.flac . 
+ ren_ * 
+ ren "[;:]" "+" *
+ mau mp34
+ tag-flac2mp3 *.flac
+ rm ../mp34/*.flac
+ }
+
+flac44() {
+ nd flac44 
+ ln -s ../*.flac . 
+ ren_ * 
+ mau flac44
+ ren -f flac-44100.sox. '' *.sox.flac
+ }
+
+flac2mp34-all() {
+ for a in "$@" ; do ( cd "$a" ; flac2mp34 ) ; done
+ }
 
 rec0nocache() {
   sudo sh -c "echo 1  >/proc/sys/vm/dirty_ratio"
@@ -265,5 +294,16 @@ al mpsoft   'mp -softvol -softvol-max 2000'
 
 flv2mkv()   { ffmpeg -i "$1" -vcodec copy -acodec copy  "$1".mkv; }
 avi2mkv()   { mkvmerge -o "$1".mkv "$@"; }
+
+al mp-mono-2 'mp -af pan=1:0.5:0.5'
+al mp-mono-R 'mp -af pan=2:0:0.5:0:0.5'
+al mp-mono-L 'mp -af pan=2:0.5:0:0.5:0'
+al mp-L-2   'mp -af pan=2:1:1:0:0'
+al mp-R-2   'mp -af pan=2:0:0:1:1'
+al mp-L-L   'mp -af pan=2:1:0:0:0'
+al mp-R-R   'mp -af pan=2:0:0:0:1'
+
+al am alsamixer
+al playends ~/src/bin/audio/playendsox
 
 # vim:ts=4:sw=4:expandtab

@@ -73,13 +73,20 @@ if 'new':
     o_getTitle  = _Tag._getTitle
     o_getArtist = _Tag._getArtist
     o_getAlbum  = _Tag._getAlbum
-    def _getTitle(  me):
-        return enco( o_getTitle( me))
+    def _getTitle(  me): return enco( o_getTitle( me))
     def _getArtist( me): return enco( o_getArtist( me))
     def _getAlbum(  me): return enco( o_getAlbum( me))
     _Tag._getTitle  = _getTitle
     _Tag._getArtist = _getArtist
     _Tag._getAlbum  = _getAlbum
+
+    o_setReleaseDate= _Tag._setReleaseDate
+    def _setReleaseDate( me, date):
+        o_setReleaseDate( me, date)
+        me._setDate( b"XDOR", date)    #if available, shadows other dates
+        #me.frame_set.pop( "XDOR", 0) #doesnt work
+    _Tag._setReleaseDate = _setReleaseDate
+    _Tag.release_date = property( _Tag._getReleaseDate, _setReleaseDate)
 
     #обаче за коментарите е по-сложно..
     _CommentsAccessor = ed3.tag.CommentsAccessor
@@ -218,6 +225,8 @@ def __eq__(me, o):
 ed3.tag.Genre.__eq__ = __eq__
 #eyed3.Frame.__eq__ = __eq__
 
+_nums = ed3.tag.TagTemplate._nums
+ed3.tag.TagTemplate._nums = lambda self, num_tuple, param, zeropad: _nums( self, num_tuple, param, False)
 
 #ed3.tag.Tag = Tag #cached too many places before this
 

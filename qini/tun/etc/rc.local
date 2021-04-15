@@ -1,15 +1,19 @@
-#!/bin/sh 
-#-e
-#
-# rc.local
-#
-# This script is executed at the end of each multiuser runlevel.
-# Make sure that the script will "exit 0" on success or any other
-# value on error.
-#
-# In order to enable or disable this script just change the execution
-# bits.
-#
-# By default this script does nothing.
+#!/bin/sh
+L=/tmp/rclocal
+echo zzzzzzzzzzzz $0 > $L
+chmod a+rw $L
+date >> $L
 
-hald 
+for a in `lsblk -o path -d -n`; do  
+ lsblk -o model -d -n $a | grep -vi ssd  && /home/qini/tun/diskyt  $a >>$L
+done
+
+#cpufreq-set -r --max 3.0GHZ
+cpupower -c all frequency-set --max 3.4GHZ -g powersave
+#ползва грешна горна граница 3.8гхц.. затуй 3.3гхц : спрямо 3.8 всъщност дават 3.2
+for a in   /sys/devices/system/cpu/cpu0/cpufreq/* /sys/devices/system/cpu/intel_pstate/* ; do 
+ echo $a >> $L
+ cat $a >> $L
+done
+
+exit 0

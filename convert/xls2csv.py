@@ -26,7 +26,7 @@ def read( fname, sheets =[], as_sheet =False):
         import openpyxl
         wb = openpyxl.load_workbook( filename= fname,
                     read_only= True,
-                    guess_types= False,
+                    #guess_types= False,
                     data_only= True,    #no formulas
                     )
         wsnames = wb.get_sheet_names()
@@ -49,10 +49,14 @@ def read( fname, sheets =[], as_sheet =False):
         wsnames = sheets
 
     for sname in wsnames:
-        def value( cell): return cell.value
         if use_xlrd:
             ws = wb.sheet_by_name( sname)
             rows = ws.get_rows()
+
+            def value( cell):
+                if isinstance( cell.value, float) and cell.value.is_integer():
+                    return int( cell.value)
+                return cell.value
         else:
             ws = wb[ sname ]
             rows = ws.rows

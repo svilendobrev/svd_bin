@@ -35,6 +35,7 @@
 #define OM_NEVER    2 /* never overwrite */
 #define OM_IF_MTIME 3 /* if newer modify time*/
 #define OM_ALWAYS_IF_MTIME 4 /* always if newer modify time*/
+#define OM_ALWAYS_IF_MTIME_OR_SIZEDIFF 5 /* always if newer modify time or same time and size-diff */
 
 /* copy results ************************************************************/
 
@@ -78,9 +79,9 @@ struct CopyInfo
 fsize_t device_free_space( const char *target ); /* user free space, NOT real! */
 
 int file_is_same( const char *src, const char *dst );
-int device_is_same( const char *src, const char *dst ); 
+int device_is_same( const char *src, const char *dst );
 int fast_stat( const char* s, struct stat *st );
-int over_if_exist( const char* src, const char *dst, 
+int over_if_exist( const char* src, const char *dst,
                    CopyInfo* copy_info );
 
 void show_copy_pos( fsize_t a_fc, /* file under copy current pos */

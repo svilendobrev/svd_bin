@@ -24,7 +24,8 @@ ddir()  { d "$@" | grep ^d; }
 dfile() { d "$@" | grep -v ^d; } 
 #al dlinkbroken 'find . -type l -exec ls -alF --color {} \; | grep "31;1" '
 al dlinkbroken 'find -L . -type l '
-al df   'LANG=C df -h'
+#al df   'LANG=C df -h -x tmpfs'
+al df 'LANG=C df -B1g -x tmpfs'
  # ls directories; then files - choose which version is faster: 2x ls+grep or 1x ls+perl
 #al d2   'ddir \!#:* ; dfile \!#:*'
 al _d2  "perl -e 'while(<>)"'{if (/^d/||/\/$/) {print} else {push @a,$_}}'" print @a'"
@@ -33,7 +34,7 @@ d2()    { d --color "$@" | _d2; } #force coloring
 #al llm  'nroff -man \!#:* | less'
 
 al eng  'env | grep'
-al seg  'set | grep -A 5'
+al seg  'set | grep -C 6'
 al alg  'alias | grep'
 asg()  { alg "$@" ; seg "^\S*$1\S* \(\)" ; }
 
@@ -60,15 +61,21 @@ al qt   tm
 al q    qt
 al zap  'rm -rf'
 al e    'vim -n -X'    #no swap - memonly  ; no X server
+#al e    'nvim -n -X'    #no swap - memonly  ; no X server
 al vimdiff    'e -d'   
 al vimdiffexactws    "e -d --cmd 'let diff_ws_exact=1'"
 al m    make
 al em   'e [Mm]akefile'
 #al renl 'rename.pl y/A-Z/a-z/'  #this works only if  LC_COLLATE=C !!
 #al renu 'rename.pl y/a-z/A-Z/'
+al ren  rename.py   
 al renl renl.py   
 al renu renu.py   
-al ren_ 'rename.py " " _'
+al renin    'rename.py --in'
+al reni     renin
+al rensym   'rename.py --sym'
+al ren_     'rename.py --s2u' #'rename.py " " _'
+al ren__    'rename.py --u2s' #'rename.py _ " " _'
 al sort 'LC_ALL=C sort'
 al hex  'hexdump -C'
 al h    hex  
@@ -153,6 +160,8 @@ grs()   { set -f; aSRC=($_SRC); aEXCL=($_EXCL); ggg -r "$@" . ${aSRC[*]/#/--incl
 al gr   grs
 #grnojs()   { _SRC="$_SRCnojs" ; grs "$@" ; }
 grnonode() { _EXCL+=' node_modules dist build' ; grs "$@" ; }
+grnonodemig() { _EXCL+=' node_modules dist build migrations' ; grs "$@" ; }
+al grn grnonode
 
 grm()   { ggg -r --include=[mM]akef\* --include=\*.mak\* --exclude=\*.svn-\* "$@" . ; } 
 grh()   { ggg -r --include=\*.html --include=\*.htm --include=\*.css "$@" . ; } 
@@ -200,7 +209,7 @@ else
 fi
 
 #al qiv  'XLIB_SKIP_ARGB_VISUALS=1 qiv -l'
-al qiviw 'qiv -s -m -i -f -d 7'
+al qiviw 'qiv -s -m -i -f -d 8'
 
 #net
 al bt       'btlaunchmanycurses.bittorrent . --max_rate_period 10 --display_interval 2' #--max_upload_rate 60' # --max_initiate 20 --min_peers 10 --max_uploads 3
@@ -256,5 +265,7 @@ chmod_s() {
 al amx alsamixer
 #hardlink, ignore hardlinked, sort-size
 al rmli 'rmlint -c sh:link -L -y s -p -T duplicates'
+
+al ren-abs2.. 'rename.py --in ".*/" ../'
 
 # vim:ts=4:sw=4:expandtab

@@ -4,10 +4,12 @@ if ( --( window_title() == "... - Opera" ) and
         --( window_role() == "browser" ) and 
         --( window_application() == "... - Opera" ) and
         true ) then
-    xy(0,0 )
-    --size(1280,1024 )
-    workspace(3)
-    --maximize()
+    xy( screen_width()>1920 and 1920 or 0, 0 )
+    -- --size(1280,1024 )
+    workspace( screen_width()>1920 and 2 or 3)
+    -- --maximize()
+    -- workspace( 3)
+
     if ( window_class() == "Opera" ) then maximize() else --opera>55 
     fullscreen()
     end     --opera>55 

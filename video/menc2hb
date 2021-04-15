@@ -1,9 +1,12 @@
 #!/bin/sh
+#XXX for rotation: if by metadata, --rotate=angle=0   
+
 if test -z "$NOTITLE"; then 
 if test -z "$TITLE"; then WHAT="--main-feature"; else WHAT="-t $TITLE" ; fi
 fi
 #aac,
-oAUDIO="--aencoder copy  --audio-copy-mask ac3,mp3  --audio-fallback ffac3"
+oAUDIO="--aencoder copy  --audio-copy-mask ac3,mp3  --audio-fallback ffac3 --audio-lang-list=any"
+#--audio-lang-list=any needed since hb1.3.*
 oVIDEO="--vfr"
 oVIDEO="-r 25 --pfr"
 ##XXX -r 25 --pfr	#variable but <= -r

@@ -40,7 +40,7 @@ static char *nextarg = NULL;
 
 /* Funktion */
 
-int getopt2(int argc, char *argv[], char *optstring)
+int getopt2(int argc, char *argv[], const char * optstring)
 
 /*
  *  AU: Auswertung der Kommandozeile

@@ -110,6 +110,8 @@ svn_m='merge'
 svn_s_pipe="| grep -vE '(Performing status on external item at|^$)'"
 svn_u_pipe="| grep -viE '(external |^$)'"
 
+BZR=bzr
+type -p brz > /dev/null && BZR=brz
 bzr_u='update'
 bzr_i='commit'
 bzr_il='commit --local'
@@ -125,11 +127,11 @@ bzr_r='rm'
 bzr_s="`test -f $d/.bzrmeta/externals && echo 'ecmd --'` status"  #externals???
 bzr_ss="status"
 bzr_n='info'
-bzr_n_pipe='; bzr revno'
+bzr_n_pipe="; $BZR revno"
 bzr_v='revert'
 bzr_m='merge'
 #bzr_p='push'    #not needed, plain commit does it
-bzr_io="missing ; bzr $bzr_s"    #missing needs pull-branch remembered: bzr pull the-url
+bzr_io="missing ; $BZR $bzr_s"    #missing needs pull-branch remembered: bzr pull the-url
 bzr_oi="$bzr_io"
 bzr_hs='shelve'
 bzr_hu='unshelve'
@@ -217,10 +219,11 @@ p=${what}_${cmd}_pipe
 
 #if [ $x == 'hg_n' ] ; then
 #fi
-
+whatcmd=$what
+test $what = bzr && whatcmd=$BZR
 #only if stdout=1 is terminal and not in commit/interactive
 test -z "$NOCOLOR" -a -t 1 -a "${cmd_interactives/,$cmd,/}" == "$cmd_interactives" && clrvcs=`which colorvcs.py`
-CMD="$what ${!x} ${!a} "'"$@"'" ${!p}"
+CMD="$whatcmd ${!x} ${!a} "'"$@"'" ${!p}"
 if test -n "$clrvcs"; then  #-a ($cmd == 'u' -o $cmd == 's')
  #for all cmds or only for upd and stat??
  test $cmd = d -o $cmd = dd -o $cmd = dprev && what=diffU

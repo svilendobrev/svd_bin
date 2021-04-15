@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import print_function #,unicode_literals
 import sys
 import datetime, calendar, time
 import os.path
@@ -35,3 +38,5 @@ for a in args:
     if not optz.fake:
         os.utime( a, (t,t))
 
+
+# vim:ts=4:sw=4:expandtab

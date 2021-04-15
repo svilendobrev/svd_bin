@@ -10,9 +10,11 @@ optz.help( 'apply moves-around-dirs/deletes from template/ into .')
 optz.bool( 'real', '-y', )
 optz.text( 'exclude', '-x', help= 'regexp',)
 optz.list( 'ignore' , '-i', help= 'file/dir-names', default= [])
+optz.bool( 'nosymlinks' ,   help= 'ignore symlinks')
 optz.bool( 'alsodirs' , help= 'check moving of dirs too')
 optz.bool( 'dup2ignore' , help= 'ignore duplicates')
 optz.text( 'deldir' , default='del', help= 'folder to move deleted items into [%default]')
+optz.bool( 'nodelete' , help= 'dont delete, only move')
 optz,args = optz.get()
 none = not optz.real
 
@@ -33,15 +35,15 @@ if optz.exclude:
     exclude = re.compile( optz.exclude)
 errdup = set()
 
+def ignore( path, name):
+    pathname = join( path, name)
+    return exclude and exclude.search( pathname) or name in optz.ignore or optz.nosymlinks and os.path.islink( pathname)
+
 def dirsfiles( path, dirs, files):
     #dirs0 = dirs[:]
-    dirs[:] = [ name for name in dirs
-                if not (exclude and exclude.search( join( path, name)) or name in optz.ignore )
-                ]
+    dirs[:] = [ name for name in dirs if not ignore( path, name) ]
     #files0 = files[:]
-    files[:] = [ name for name in files
-                if not (exclude and exclude.search( join( path, name)) or name in optz.ignore )
-                ]
+    files[:] = [ name for name in files if not ignore( path, name) ]
     if 0:
         fexcluded = set(files0)- set(files)
         dexcluded = set(dirs0) - set(dirs)
@@ -51,7 +53,7 @@ def dirsfiles( path, dirs, files):
     files.sort()
     return dirs,files
 
-for path, dirs, files in os.walk( template ):
+for path, dirs, files in os.walk( template, followlinks= False ):
     subpath = path[ len(template): ].lstrip('/').split( '/')
     p = join( *subpath[:] )
     if exclude and exclude.search( p):
@@ -121,11 +123,16 @@ for path, dirs, files in os.walk( '.' ):
         if any( p in tree for p in subpath):
             print( '!ignoring existing file/dir in tree', p, tree[p])
             continue
-        if name not in tree: print( 'deleted', name)
+        deleting = name not in tree
+        if 0 and deleting:
+            if optz.nodelete:
+                print( 'not-deleting', name)
+                continue
+            print( 'deleting', name)
 
         a = join( path, name )
         b = join( target, name)
-        print( a, ' '* (10 - len(a) % 10), '>', b)
+        print( deleting and '-del' or '', a, ' '* (10 - len(a) % 10), '>', b)
         if not none: os.rename( a,b)
 
 if none: print( '-y to apply for real')

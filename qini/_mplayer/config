@@ -1,6 +1,7 @@
+mixer-channel=Master			#if multiple
 #srate=44100
 ao=alsa
-ac=mp3,
+#ac=mp3,
 cache=15000
 #subcp=cp1251
 subcp=enca:bg:cp1251
@@ -24,14 +25,8 @@ stop-xscreensaver=1
 
 #aout-of-sync-xvid/mp3?
 #mc=0
-vo=vdpau,
-vc=ffmpeg12vdpau,ffh264vdpau,ffhevcvdpau,ffodivxvdpau,
-#ffhevcvdpau
-#ffodivxvdpau,
-#ffvc1vdpau  problems
-#ffwmv3vdpau problems
-
-#vc=ffh264vdpau,
+#vo=vdpau,
+#vc=ffmpeg12vdpau,ffh264vdpau,ffhevcvdpau,ffodivxvdpau,
 
 use-filedir-conf=1
 
@@ -40,3 +35,10 @@ use-filedir-conf=1
 
 slang=bul,rus,eng
 alang=bul,rus,eng
+
+[extension.flac]
+novideo=yes
+[extension.ogg]
+novideo=yes
+[extension.mp3]
+novideo=yes

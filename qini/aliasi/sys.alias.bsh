@@ -7,15 +7,17 @@ if which pmount >&/dev/null ; then
  #pmountm 
  al pmount   'pmount --noatime'
  al pm   pmount
- mm()     { pmount /dev/sd"$1" ; }
- uu()     { pumount /dev/sd"$1" ; }
+ mm()     { pmount /dev/sd"$@" ; }
+ uu()     { pumount /dev/sd"$@" ; }
 else #udevil
- mm()     { udevil mount  /dev/sd"$1" ; }
- uu()     { udevil umount /dev/sd"$1" ; }
- cdrom()  { udevil mount  /dev/cdrom "$@" ; }
- ucdrom() { udevil umount /dev/cdrom "$@" ; }
+ mm()     { udevil mount  /dev/sd"$@" ; }
+ uu()     { udevil umount /dev/sd"$@" ; }
+ mmcdrom() { udevil mount  /dev/cdrom "$@" ; }
+ uucdrom() { udevil umount /dev/cdrom "$@" ; }
 fi
 al umediat  'fusermount -u /media/t'
+al mmtp     'mount /media/mtp'
+al umtp     'fusermount -u /media/mtp'
 
 al mmna 'mount /media/na'
 al uuna 'umount /media/na'
@@ -50,5 +52,10 @@ al taskset_cpu0_pid 'taskset -c -p 0'
 #al poweroff '/usr/bin/poweroff -d --no-wall'
 al ciao '/usr/bin/xfce4-session-logout --fast --halt'
 
+al memory 'dmidecode --type 17'
+al ram memory 
+
+al mountl 'mount | grep -Ev "(tmpfs|/sys|/proc|mqueue|devpts|hugetlbfs)"'
+al lmount mountl
 
 # vim:ts=4:sw=4:expandtab

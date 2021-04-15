@@ -2,25 +2,70 @@ ROOT ?= ./
 WILD ?= *
 ROOTWILD=$(ROOT)$(WILD)
 
-all:
-	@echo i6c ? ren6v ? datev ? opt ? optjpg ? autorot ?autodate
+all: last
+	@echo i6c ? ren6v ? dt2mkv ? datev ? opt ? optjpg ? autorot ?autodate
 
 i: i6c
 v: v6c
 
+PATH_NO_CURDIR = PATH=$${PATH\#.:} PATH=$${PATH/:.:/:}
+
 BIN = $(dir $(MAKEFILE_LIST))
 
-i3c 3c c3 300: ren3
+i3c 300: ren3
 	$(MAKE) -f $(MAKEFILE_LIST) images
-ren3:
-	rename.pl 'y/A-Z/a-z/+s/_/1/+s/img/i3c/' $(ROOTWILD)[jJ][pP][gG]
+i6c 600: ren6
+	$(MAKE) -f $(MAKEFILE_LIST) images
+pana lumix panasonic: renpana
+	$(MAKE) -f $(MAKEFILE_LIST) images
+i530c 530 i53 53 5: ren530
+	$(MAKE) -f $(MAKEFILE_LIST) images
+#i50c i50 50: ren50
+#	$(MAKE) -f $(MAKEFILE_LIST) images
+ins isn: renns
+	$(MAKE) -f $(MAKEFILE_LIST) images
+ina ian: renna
+	$(MAKE) -f $(MAKEFILE_LIST) images
 
-ix index:
-	~/src/bin/foto/indexer.sh *.jpg > index.html
+ren3:
+	rename.pl 'y/A-Z/a-z/+s/img_/i3c1/' $(ROOTWILD)[jJ][pP][gG]
+ren6:
+	rename.pl 'y/A-Z/a-z/+s/img_/i6c2/' $(ROOTWILD)[jJ][pP][gG]
+	rename.pl 'y/A-Z/a-z/+s/mvi_/v6c2/' $(ROOTWILD)[mM][oO][vV]*
+	#rename.pl 'y/A-Z/a-z/+s/img_9/i6c09/+s/img_/i6c1/' $(ROOTWILD)[jJ][pP][gG]
+	#rename.pl 'y/A-Z/a-z/+s/mvi_9/v6c09/+s/mvi_/v6c1/' $(ROOTWILD)[mM][oO][vV]*
+ren530:
+	rename.pl 'y/A-Z/a-z/+s/img_/i53c0/' $(ROOTWILD)[jJ][pP][gG]
+	rename.pl 'y/A-Z/a-z/+s/mvi_/v53c0/' $(ROOTWILD)[mM][pP]4
+ren50:
+	rename.pl 'y/A-Z/a-z/+s/img_/i5c0/' $(ROOTWILD)[jJ][pP][gG]
+	rename.pl 'y/A-Z/a-z/+s/mvi_/v5c0/' $(ROOTWILD)[mM][pP]4
+	rename.pl 'y/A-Z/a-z/+s/mvi_/v5c0/' $(ROOTWILD)[mM][oO][vV]*
+renpana:
+	rename.pl 'y/A-Z/a-z/+s/p1200/ipan01/' $(ROOTWILD)[jJ][pP][gG]
+	rename.pl 'y/A-Z/a-z/+s/p1200/vpan01/' $(ROOTWILD)[mM][pP]4*
+	rename.pl 'y/A-Z/a-z/+s/p1210/ipan02/' $(ROOTWILD)[jJ][pP][gG]
+	rename.pl 'y/A-Z/a-z/+s/p1210/vpan02/' $(ROOTWILD)[mM][pP]4*
+	rename.pl 'y/A-Z/a-z/+s/p1220/ipan03/' $(ROOTWILD)[jJ][pP][gG]
+	rename.pl 'y/A-Z/a-z/+s/p1220/vpan03/' $(ROOTWILD)[mM][pP]4*
+rensn renns:
+	rename.pl 'y/A-Z/a-z/+s/img_/ins_/' $(ROOTWILD)[jJ][pP][gG]
+	rename.pl 'y/A-Z/a-z/+s/vid_/vns_/' $(ROOTWILD)3[gG][pP]
+renan renna:
+	rename.pl 'y/A-Z/a-z/+s/img_/ina_/' $(ROOTWILD)[jJ][pP][gG]
+	rename.pl 'y/A-Z/a-z/+s/vid_/vna_/' $(ROOTWILD)3[gq][pP]
+
+INDEX ?= index.html
+ix index: $(INDEX)
+always:
+%.html: always
+	cd $(@D) ; pwd ; DIRS=`ls -1d ./*/| grep -v /del` ; shopt -s nullglob ; AUTOSIZE=1 ~/src/bin/foto/indexer.sh $(BEFORE)$(PREDI) $$DIRS *.{mkv,avi,mp4,3gp,mov} *.jpg $(AFTER)$(SLED) > $(@F)
 autorot:
 	jhead -autorot $(ROOTWILD).jpg
 autodate:
 	jhead -ft $(ROOTWILD).jpg
+autodaterot autorotdate:
+	jhead -autorot -ft $(ROOTWILD).jpg
 
 OPTs=$(wildcard $(ROOTWILD).jpg)
 OPTes=$(wildcard $(ROOTWILD).jpeg)
@@ -62,50 +107,38 @@ opt3: $(OPTs:%.jpg=%.opt3)
 4/%.jpg: %.jpg
 	-SCALE=4 $(BIN)/2small.sh $<
 
-SIZE?=1200x800
-size: $(OPTs:%.jpg=sz/%.jpg)
+#SIZE?=1245x830
+SIZE?=1536x1024
+make_sz: $(OPTs:%.jpg=sz/%.jpg)
+	jhead -autorot sz/*.jpg
 sz/%.jpg: %.jpg
-	~/src/bin/foto/fit2print.py --size=1200x800,pixels --djpeg --exifcopy --cjpeg=85 --autooutpfx=sz/ $<
+	~/src/bin/foto/fit2print.py --size=$(SIZE),pixels --djpeg --exifcopy --cjpeg=88 --autooutpfx=sz/sz $<
 
 optjpg:
 	rename.pl 's/opt$$/jpg/' $(ROOTWILD).opt
 
-600 c6 6c i6c: ren6
-	$(MAKE) -f $(MAKEFILE_LIST) images
-ins isn: renns
-	$(MAKE) -f $(MAKEFILE_LIST) images
-ina ian: renna
-	$(MAKE) -f $(MAKEFILE_LIST) images
-images snimki:
-	$(MAKE) -f $(MAKEFILE_LIST) j2j
-	$(MAKE) -f $(MAKEFILE_LIST) j2j_rename
-	$(MAKE) -f $(MAKEFILE_LIST) autodate
-ren6:
-	rename.pl 'y/A-Z/a-z/+s/img_/i6c2/' $(ROOTWILD)[jJ][pP][gG]
-	#rename.pl 'y/A-Z/a-z/+s/img_9/i6c09/+s/img_/i6c1/' $(ROOTWILD)[jJ][pP][gG]
-rensn renns:
-	rename.pl 'y/A-Z/a-z/+s/img_/ins_/' $(ROOTWILD)[jJ][pP][gG]
-	rename.pl 'y/A-Z/a-z/+s/vid_/vns_/' $(ROOTWILD)3[gG][pP]
-renan renna:
-	rename.pl 'y/A-Z/a-z/+s/img_/ina_/' $(ROOTWILD)[jJ][pP][gG]
-	rename.pl 'y/A-Z/a-z/+s/vid_/vna_/' $(ROOTWILD)3[gq][pP]
+images snimki ss ii img:
+	$(MAKE) -f $(MAKEFILE_LIST) j2j DEPTH=$(DEPTH)
+	$(MAKE) -f $(MAKEFILE_LIST) j2j_rename DEPTH=$(DEPTH)
+	$(MAKE) -f $(MAKEFILE_LIST) autodaterot
+
+ii9: DEPTH=19
+ii9: ii
+
 DTFMT = %Y.%m.%d-%H:%M
 
-ren6v:
-	rename.pl 'y/A-Z/a-z/+s/mvi_/v6c2/' $(ROOTWILD)[mM][oO][vV]*
-	#rename.pl 'y/A-Z/a-z/+s/mvi_9/v6c09/+s/mvi_/v6c1/' $(ROOTWILD)[mM][oO][vV]*
-v6 6v v6c:
-	$(MAKE) -f $(MAKEFILE_LIST) ren6v
+v6 6v v6c: ren6
 	$(MAKE) -f $(MAKEFILE_LIST) mov2dt
 	@echo ".mov -> .mkv ; maf dt2mkv !!"
 rensnv:
 	rename.pl 'y/A-Z/a-z/+s/vid_/vns_/' $(ROOTWILD)3[gG][pP]*
 
-v2dt vid2dt mov2dt 3gp2dt:
-	shopt -s nullglob ; for a in $(ROOTWILD).mov $(ROOTWILD).3gp ; do $E $(BIN)/vdater.py $$a ; done
-dt2mkv:
-	-rename.py mov.[.0-9]*.mkv mkv *.mov.*.mkv
-	-rename.py 3gp.[.0-9]*.mkv mkv *.3gp.*.mkv
+v2d v2dt vid2dt mov2dt 3gp2dt:
+	shopt -s nullglob ; for a in $(ROOTWILD).{mov,3gp,mp4} ; do $E $(BIN)/vdater.py $$a ; done
+dt2mkv d2v dt2v:
+	-rename.py --overwrite mov.[.0-9]*.mkv mkv *.mov.*.mkv
+	-rename.py --overwrite 3gp.[.0-9]*.mkv mkv *.3gp.*.mkv
+	-rename.py --overwrite mp4.[.0-9]*.mkv mkv *.mp4.*.mkv
 	#for a in $(ROOTWILD).dt  ; do $E $(BIN)/vdater.py $$a $${a%.dt}.mkv ; done
 	find $(ROOT) -name '$(WILD).dt' -exec bash -c "a={}"' ; $E $(BIN)/vdater.py $$a $${a%.dt}.mkv $(ARGS)' \;
 mkv4dt:
@@ -118,7 +151,7 @@ avi4dt:
 movdate2dt:
 	for a in $(ROOTWILD).mov ; do date -r $$a +$(DTFMT) > $$a.dt ; done
 datev:
-	for a in $(ROOTWILD).mov ; do touch -r $$a $$a*.mkv ; done
+	for a in $(ROOTWILD).mov $(ROOTWILD).mp4 ; do touch -r $$a $$a*.mkv ; done
 
 diffix:
 	diff -btw index.html .. | perl -ne 'print if s/.*"(.*)".*/$$1 /' > ../rmm
@@ -142,17 +175,32 @@ optall:
 	find . -type d -exec make -f $(MAKEFILE_LIST) opt -C {} \;
 
 png2jpg:
-	for a in *.png; do echo "$$a" ; convert "$$a" "$$a.jpg" ; done
+	for a in *.png; do echo "$$a" ; convert -quality 90 "$$a" "$$a.jpg" ; done
+p2j:
+	find . -name \*.png -exec convert -quality 90 -verbose "{}" "{}.jpg" \;
 
 ren-mkv-dt:
-	PATH=$${PATH#.:} find . -name "*.mkv" -execdir rename.py  '\.[^/]*mkv$' '.mkv' {} +
-	PATH=$${PATH#.:} find . -name "*.dt"  -execdir rename.py  '\.[^/]*dt$' '.dt' {} +
+	$(PATH_NO_CURDIR) find . -name "*.mkv" -execdir rename.py --overwrite '\.[^/]*mkv$' '.mkv' {} +
+	$(PATH_NO_CURDIR) find . -name "*.dt"  -execdir rename.py --overwrite '\.[^/]*dt$' '.dt' {} +
 video-vse:
 	find ../ -name skuka -prune -o -type f -a \( -name *.avi -o -name *.mkv -o -name *.3gp \) -exec ln -s {} . \;
 
+LAST ?= 1
+LAST_ONLY_FILENAME = | sed -E "s,(.*/)(.*),\2 \t: \1\2,"
 last posledni:
-	find . -name i6c\*.jpg | sed s,.*/,, | sort | tail -3
-	find . -name v6c\*.mkv | sed s,.*/,, | sort | tail -3
+	@find . -name i6c\*.jpg $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
+	@find . -name v6c\*.mkv $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
+	@find . -name i53c\*.jpg $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
+	@find . -name v53c\*.mkv $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
+	@find . -name i5c\*.jpg $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
+	@find . -name v5c\*.mkv $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
+	@find . -name ipan\*.jpg $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
+	@find . -name vpan\*.mkv $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
+	@find . -name ina\*.jpg $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
+	@find . -name vna\*.[3m][gk][pv] $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
+	@find . -name ins\*.jpg $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
+	@find . -name vns\*.[3m][gk][pv] $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
+
 
 png2pnm: $(patsubst %.png,%.pnm,$(shell find $(ROOT) $(if $(DEPTH),-maxdepth $(DEPTH)) -name '$(WILD).png'))
 %.pnm: %.png
@@ -162,7 +210,7 @@ png2pnm: $(patsubst %.png,%.pnm,$(shell find $(ROOT) $(if $(DEPTH),-maxdepth $(D
 J2LEVEL=medium
 J2Q=75
 JARGS=
-JOPTS=--quiet
+JOPTS=--quiet --accurate --no-copy
 #--no-copy
 Jsfx=r$(J2LEVEL)$(J2Q)
 Jallsfx=jpg.r[lmhv]
@@ -173,9 +221,9 @@ Jall4shell = find $(ROOT) $(if $(DEPTH),-maxdepth $(DEPTH)) -name '*.$(Jallsfx)*
 
 j2j: $(patsubst %,%.$(Jsfx).jpg,$(shell $(Jall4shell)))
 %.$(Jsfx).jpg: % #.jpg
-	-jpeg-recompress $(JOPTS) -q $(J2LEVEL)  $(if $(J2Q),--max $(J2Q)) $(if $(findstring .pnm,$<),--ppm)  $(JARGS) $< $@
+	-jpeg-recompress $(JOPTS) -q $(J2LEVEL)  $(if $(J2Q),--max $(J2Q)) $(if $(findstring .pnm,$<),--ppm)  $(JARGS) "$<" "$@"
 j2j_rename j2j_ren:
-	PATH=$${PATH#.:} PATH=$${PATH/:.:/:} find $(ROOT) -name "*.$(Jsfx).jpg" -execdir rename.py '\.jpg\.$(Jsfx)' '' {} +
+	$(PATH_NO_CURDIR) find $(ROOT) -name "*.$(Jsfx).jpg" -execdir rename.py --overwrite '\.jpg\.$(Jsfx)' '' {} +
 
 jall:
 	du -a -k | $(BIN)/du2sum.py kb
@@ -187,5 +235,23 @@ jviw jview jqiv:
 
 find_cp find_and_cp:
 	echo find _{FROMS} -name _{NAMEFILT} -exec cpmkdirs.sh {} _{TO} _{CPopts:--a}  \;
+#2/|4/|2012/|izbor|избор
+fcdir:
+	fcdir.py -t -x '/(sz/|index|del/)' $(ARGS)
+apply apply-changes:
+	~/src/bin/foto/apply-changes2.py --nosym -x '/(index|избор|izbor$(EXCL))' $(ARGS) $(if $Y,-y)
+
+all_autorot:
+	$(PATH_NO_CURDIR) find . -name \*.jpg -execdir bash -c "make -f ~/src/bin/foto/makefile autorot && false " {} +
+all-ix all_ix all_index ix-all:
+	$(PATH_NO_CURDIR) find . -name del -prune -o -name \*.jpg -execdir bash -c "test -f index.html || make -f ~/src/bin/foto/makefile ix && false  " {} +
+del-ix del_ix del_index:
+	$(PATH_NO_CURDIR) find . -name index.html -delete
+all_autodate:
+	$(PATH_NO_CURDIR) find . -name \*.jpg -execdir bash -c "make -f ~/src/bin/foto/makefile autodate && false " {} +
+
+find_sizes:
+	#$(PATH_NO_CURDIR) find . -name i6\*.jpg -execdir bash -c "jhead -c {} | " +
+	find . -name i6*.jpg -print0 | xargs -0 -n 100 jhead -c
 
 # vim:ts=4:sw=4:noexpandtab

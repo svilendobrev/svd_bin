@@ -66,6 +66,30 @@ def fnmatch_list( fn, pats):
         if fnmatch.fnmatch( fn, pat):
             return True
 
+#http://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx#file_and_directory_names
+ntfs_forbids = ''.join( a[0] for a in r'''
+< (less than)
+> (greater than)
+: (colon)
+" (double quote)
+/ (forward slash)
+\ (backslash)
+| (vertical bar or pipe)
+? (question mark)
+* (asterisk)
+'''.strip().split('\n') )
+def ntfs_fname_filter( f, context =None, repl ='.'):
+    if not isinstance( repl, dict): repl = { None: repl }
+    repl_default = repl[None]
+    for n in ntfs_forbids:
+        r = repl.get( n, repl_default)
+        if r == n: continue
+        if context and n in f: err( context, f'-> {f} не може да има {n}, заменям с {r}')
+        f = f.replace( n, r)
+    f = f.strip()
+    f = f.rstrip(' '+repl_default)
+    return f
+
 def noslash( fn, *context):
     if '/' in fn:
         err( context, '->', fn, 'не може да има /, заменям с -')
@@ -230,6 +254,7 @@ class info:
         optz.int(  'shirina_tekstove',  default=80, help= 'ширина на пренасяне на текстове; подразбиране- %default', **gg)
         optz.bool( 'yaml')  #ignore
         optz.bool( 'noyaml')
+        optz.bool( 'ntfs',  help= 'замества с "-" непозволеното в имена на файлове според NTFS/samba: '+ntfs_forbids)
 
         #optz.bool( 'vinagi',  '-f',help= 'записва независимо дали има разлики', **gg)
 
@@ -986,17 +1011,23 @@ class info:
 
 
     @classmethod
+    def ime_filter( klas, f, *ctx):
+        if not klas.options.ntfs: return noslash( f, *ctx)
+        return ntfs_fname_filter( f, context= ctx, repl= {'"':"'", '*':'+', '?':'?', None:'-'} )
+
+    @classmethod
     def preimenovai_papki( klas):
         for k,i in sorted( info.vse.items()):
             i.prevedi_elementi()
 
+        ime_filter = klas.ime_filter
         spisyk = []
         for k,i in sorted( info.vse.items()):
-            spisyk += [ (join( k,o), join( k,noslash(n, k,o)) )
+            spisyk += [ (join( k,o), join( k, ime_filter(n, k,o)) )
                         for o,n in i.file_prevodi.items() if n ]
             #след вътрешностите
             fpath,fname = os.path.split( k)
-            spisyk.append( (k, join( fpath, noslash( i.ime_po_shablon(), k) )))
+            spisyk.append( (k, join( fpath, ime_filter( i.ime_po_shablon(), k) )))
 
         for k,v in reversed( sorted( spisyk)):
             pfx = commonprefix( (k,v))
@@ -1019,18 +1050,19 @@ class info:
             'return prevedeno novo, prevedeni elementi'
             rorig = realpath( orig)
             i = info.vse.get( rorig)
+            fpath,fname = os.path.split( novo)
             if i is None:
-                return novo, () #няма info/превод
+                rnovo = join( fpath, klas.ime_filter( fname))
+                return rnovo, () #няма info/превод
             #elif rorig == orig:
             #    rnovo = None #пропусни самите info-та
             else:
-                fpath,fname = os.path.split( novo)
-                rnovo = join( fpath, i.ime_po_shablon( **{ info.stoinosti.pyt: fpath} ) )
+                rnovo = join( fpath, klas.ime_filter( i.ime_po_shablon( **{ info.stoinosti.pyt: fpath} )) )
             rimena = {}
             for n in elementi:
                 #if join( orig, n) in info.vse:
                 #    continue    #пропусни info-та
-                rimena[ n] = i.file_prevodi.get( n) or klas.vse_file_prevodi.get( n) or n
+                rimena[ n] = klas.ime_filter( i.file_prevodi.get( n) or klas.vse_file_prevodi.get( n) or n)
 
             return rnovo, rimena
 

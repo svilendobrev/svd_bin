@@ -1,16 +1,35 @@
+~/src/bin/misc/2monitors
+#(xrandr | grep HDMI1.*2560 ) && ~/src/bin/misc/2monitors
+#xrandr --output HDMI1 --auto --output HDMI2 --left-of HDMI1
+
 xsetroot -solid black &
-opera &
+
+opera --with-feature:captive-portal-interstitial=off --with-feature:chrome-extensions-one-click-install-policy=off --with-feature:crypto-wallet=off --with-feature:crypto-wallet-in-cpp=off --with-feature:crypto-wallet-new-server=off --with-feature:lookalike-url-navigation-suggestions=off --with-feature:notification-overlay-on-taskbar=off --with-feature:personal-news-notifications=off --with-feature:update-recovery-page=off --with-feature:volume-control-in-video-popout=off --with-feature:toolkit-bookmarks=off & 
+
+#	--with-feature:better-address-bar [Enabled by default: true]
+#	--with-feature:partner-bookmarks-opt-out [Enabled by default: true]
+#	--with-feature:reborn-communicator-show-permissions [Enabled by default: true]
+#	--with-feature:search-results-extensions-block-v2 [Enabled by default: true]
+#	--with-feature:wallpapers-api [Enabled by default: false]
+#	--with-feature:warn-on-closing-multiple-tabs [Enabled by default: true]
+#	--with-feature:yandex-zen-news [Enabled by default: false]
+#	--with-feature:zoom-indicator [Enabled by default: true]
+
+#WTF (sleep 2 && alsactl -f /home/asound.state restore)	#after opera XXX
+
 claws-mail &
-lxpanel & 
+lxpanel &
 #x-terminal-emulator &
 xtermutf &
 /home/qini/x/setxkb-bgphonetic.sh &
 
 /home/qini/x/kpie/zzkpie &	#assign screens
 
+#/home/qini/tun/alsa/alsa-restore-if-pulseaudio
+
 #screensaver off:
 #xset -dpms
 #xset s off
 
 #xcalib.sh
-#kodi &
+#1kodi &

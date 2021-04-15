@@ -1,28 +1,13 @@
 
-### MAKEMAKE STARTS HERE #######################################################
-
-
-### Created by makemake.pl on Wed Dec 29 04:46:52 2004 #########################
-
-
-### GLOBAL TARGETS #############################################################
-
 default: all
-
 re: rebuild
-
 li: link
-
-all: modules libvslib.a libvscon.a test 
-
-clean: clean-modules clean-libvslib.a clean-libvscon.a clean-test 
-
-rebuild: rebuild-modules rebuild-libvslib.a rebuild-libvscon.a rebuild-test 
-
-link: link-modules link-libvslib.a link-libvscon.a link-test 
+all: modules libvslib.a libvscon.a test
+clean: clean-modules clean-libvslib.a clean-libvscon.a clean-test
+rebuild: rebuild-modules rebuild-libvslib.a rebuild-libvscon.a rebuild-test
+link: link-modules link-libvslib.a link-libvscon.a link-test
 
 ### GLOBAL (AND USER) DEFS #####################################################
-
 
 AR = ar rv
 CC = g++
@@ -34,17 +19,16 @@ RMDIR = rm -rf
 RMFILE = rm -f
 SRC = *.c *.cpp *.cc *.cxx
 
-
 ### TARGET 1: libvslib.a #######################################################
 
 CC_1       = g++
 LD_1       = g++
 AR_1       = ar rv
 RANLIB_1   = ranlib
-CCFLAGS_1  = -I. -Ipcre -O2 $(CCDEF) 
+CCFLAGS_1  = -I. -Ipcre -O2 $(CCDEF)
 LDFLAGS_1  = $(LDDEF)
-DEPFLAGS_1 = 
-ARFLAGS_1  = 
+DEPFLAGS_1 =
+ARFLAGS_1  =
 TARGET_1   = libvslib.a
 
 ### SOURCES FOR TARGET 1: libvslib.a ###########################################
@@ -79,14 +63,14 @@ OBJ_1= \
 
 ### TARGET DEFINITION FOR TARGET 1: libvslib.a #################################
 
-.OBJ.libvslib.a: 
+.OBJ.libvslib.a:
 	$(MKDIR) .OBJ.libvslib.a
 
 libvslib.a:  .OBJ.libvslib.a $(OBJ_1)
 	$(AR_1) $(ARFLAGS_1) $(TARGET_1) $(OBJ_1)
 	$(RANLIB_1) $(TARGET_1)
 
-clean-libvslib.a: 
+clean-libvslib.a:
 	$(RMFILE) $(TARGET_1)
 	$(RMDIR) .OBJ.libvslib.a
 
@@ -130,10 +114,10 @@ CC_2       = g++
 LD_2       = g++
 AR_2       = ar rv
 RANLIB_2   = ranlib
-CCFLAGS_2  = -I. -Ipcre -I/usr/include/ncurses -O2 $(CCDEF) 
+CCFLAGS_2  = -I. -Ipcre -I/usr/include/ncurses -O2 $(CCDEF)
 LDFLAGS_2  = $(LDDEF)
-DEPFLAGS_2 = 
-ARFLAGS_2  = 
+DEPFLAGS_2 =
+ARFLAGS_2  =
 TARGET_2   = libvscon.a
 
 ### SOURCES FOR TARGET 2: libvscon.a ###########################################
@@ -154,14 +138,14 @@ OBJ_2= \
 
 ### TARGET DEFINITION FOR TARGET 2: libvscon.a #################################
 
-.OBJ.libvscon.a: 
+.OBJ.libvscon.a:
 	$(MKDIR) .OBJ.libvscon.a
 
 libvscon.a:  .OBJ.libvscon.a $(OBJ_2)
 	$(AR_2) $(ARFLAGS_2) $(TARGET_2) $(OBJ_2)
 	$(RANLIB_2) $(TARGET_2)
 
-clean-libvscon.a: 
+clean-libvscon.a:
 	$(RMFILE) $(TARGET_2)
 	$(RMDIR) .OBJ.libvscon.a
 
@@ -192,10 +176,10 @@ CC_3       = g++
 LD_3       = g++
 AR_3       = ar rv
 RANLIB_3   = ranlib
-CCFLAGS_3  = -g -I. -Ipcre $(CCDEF) -DTEST 
+CCFLAGS_3  = -g -I. -Ipcre $(CCDEF) -DTEST
 LDFLAGS_3  = -g -L. -Lpcre -lvslib -lvscon -lpcre -lncurses $(LDDEF)
-DEPFLAGS_3 = 
-ARFLAGS_3  = 
+DEPFLAGS_3 =
+ARFLAGS_3  =
 TARGET_3   = test
 
 ### SOURCES FOR TARGET 3: test #################################################
@@ -210,13 +194,13 @@ OBJ_3= \
 
 ### TARGET DEFINITION FOR TARGET 3: test #######################################
 
-.OBJ.test: 
+.OBJ.test:
 	$(MKDIR) .OBJ.test
 
-test: libvslib.a .OBJ.test $(OBJ_3)
+test: libvslib.a libvscon.a .OBJ.test $(OBJ_3)
 	$(LD_3) $(OBJ_3) $(LDFLAGS_3) -o $(TARGET_3)
 
-clean-test: 
+clean-test:
 	$(RMFILE) $(TARGET_3)
 	$(RMDIR) .OBJ.test
 
@@ -236,7 +220,7 @@ link-test: .OBJ.test $(OBJ_3)
 ### MODULES ####################################################################
 
 modules:
-	make -C pcre 
+	make -C pcre
 
 clean-modules:
 	make -C pcre clean

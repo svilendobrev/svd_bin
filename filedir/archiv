@@ -13,6 +13,7 @@ case "x$lowcase" in
  x*.tbz*|x*.tar.bz* )  		tar j${T}vf "$@" ;;#bz$A tar j$Tvf
  x*.tgz|x*.tar.gz )         tar z${T}vf "$@" ;;#gz$A tar z$Tvf
  x*.tar.z|x*.tar.Z )        tar Z${T}vf "$@" ;;#z$A  tar Z$Tvf
+ x*.tar.zst )        		tar ${T}vf "$@" --zstd  ;;#z$A  tar Z$Tvf
  x*.zip|x*.egg|x*.jar|x*.apk|x*.odt )     unzip $Z    "$@" ;;#$A   unzip $Z  
  x*.rar )            		unrar $A    "$@" ;;
  x*.ace )            		unace $A    "$@" ;;

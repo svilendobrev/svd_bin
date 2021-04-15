@@ -21,6 +21,7 @@
 #include "vfuarc.h"
 #include "vfutools.h"
 #include "see.h"
+#include <assert.h>
 
 /*######################################################################*/
 
@@ -745,9 +746,34 @@ int vfu_exit( const char* a_path )
 }
 
 /*--------------------------------------------------------------------------*/
+enum zcyr { ZA=176, ZB, ZW, ZG, ZD, ZE, ZV, ZZ, ZI, ZJ, ZK, ZL, ZM, ZN, ZO, ZP,
+        ZR=128, ZS, ZT, ZU, ZF, ZH, ZC, ZCH_tilde, ZSH_LB, ZSHT_RB, ZY, ZX=140, ZYU_backslash=142, ZQ
+} ;
+
+
+const unsigned char _cyr[] = {
+    ZA, ZB, ZW, ZG, ZD, ZE, ZV, ZZ, ZI, ZJ, ZK, ZL, ZM, ZN, ZO, ZP,
+    ZR, ZS, ZT, ZU, ZF, ZH, ZC, ZCH_tilde, ZSH_LB, ZSHT_RB, ZY,
+    ZX, ZYU_backslash, ZQ,
+    0
+    };
+const char _lat[] = {
+    'A', 'B', 'W', 'G', 'D', 'E', 'V', 'Z', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+    'R', 'S', 'T', 'U', 'F', 'H', 'C', '~', '[', ']', 'Y',
+    'X', '\\', 'Q',
+    0
+    };
+
+int cyr2lat( int x) {
+    assert( strlen( _lat) == strlen( _cyr)) ;
+    int ofs = str_find( _cyr, x) ;  //how naive char<>int
+    if (ofs<0) return x ;
+    return _lat[ ofs ] ;
+    }
 
 void vfu_run()
 {
+  menu_box_info.key_translator = cyr2lat ;
   say1center( HEADER );
 
   /* int oldFLI = -1; // quick view */
@@ -783,8 +809,11 @@ void vfu_run()
     say1( "" );
     if ( user_id_str == "root" )
       say2center( "*** WARNING: YOU HAVE GOT ROOT PRIVILEGES! ***" );
-    else
-      say2( "" );
+    /* else {
+        char dd[100]    ;
+        sprintf(dd,"ch: %d -%c-", ch,ch);
+      say2( dd);//"" + "--" + ch + "--" );
+    } */
 
     if ( work_mode == WM_NORMAL || work_mode == WM_ARCHIVE ) switch (ch)
       { /* actually this is ANY work_mode (since there are two modes only) */
@@ -805,12 +834,14 @@ void vfu_run()
 
       case KEY_CTRL_L: do_draw = 3; break;
 
+      case ZQ        :
       case 'q'       : if( vfu_exit( work_path ) == 0 ) return; break;
 
       case KEY_ALT_X :
-      case 'x'       : if( vfu_exit( startup_path ) == 0 ) return; break;
+      //case 'x'       :
+                           if( vfu_exit( startup_path ) == 0 ) return; break;
 
-      case 27        : if( vfu_exit( NULL ) == 0 ) return; break;
+//      case 27        : if( vfu_exit( NULL ) == 0 ) return; break;
 
       case KEY_UP    : vfu_nav_up(); break;
       case KEY_DOWN  : vfu_nav_down(); break;
@@ -824,6 +855,7 @@ void vfu_run()
 
       case 'h' : vfu_help(); break;
 
+      case ZF         :
       case 'f'        : vfu_change_file_mask( NULL ); break;
       case KEY_CTRL_F : vfu_change_file_mask( "*" ); break;
 
@@ -856,6 +888,7 @@ void vfu_run()
                            vfu_rename_file_in_place();
                        break;
 
+      case ZD :
       case 'd' : vfu_chdir( NULL ); break;
       case KEY_ALT_D : vfu_chdir_history(); break;
 
@@ -865,8 +898,10 @@ void vfu_run()
                  do_draw = 1;
                  break;
 
+      case ZA :
       case 'a' : vfu_arrange_files(); break;
 
+      case ZG  :
       case 'g' : vfu_global_select(); break;
 
       case 'o' : vfu_options(); break;
@@ -899,6 +934,7 @@ void vfu_run()
                  do_draw = 1;
                  break;
 
+      case ZZ         :
       case 'z'        : vfu_directories_sizes(  0  ); break;
       case KEY_ALT_Z  : vfu_directories_sizes( 'A' ); break;
       case KEY_CTRL_Z : vfu_directories_sizes( 'Z' ); break;
@@ -910,6 +946,7 @@ void vfu_run()
       }
     if ( work_mode == WM_NORMAL ) switch (ch)
       {
+      case ZB  :
       case 'b' :
       case KEY_ALT_B : if ( ch == 'b' && sel_count > 0 )
                          vfu_browse_selected_files();
@@ -935,15 +972,19 @@ void vfu_run()
                    say1( "No files");
                  break;
 
+      case ZM         :
       case 'm'        : vfu_copy_files(sel_count == 0, CM_MOVE); break;
       case KEY_ALT_M  : vfu_copy_files(1, CM_MOVE); break;
 
+      case ZC         :
       case 'c'        : vfu_copy_files(sel_count == 0, CM_COPY); break;
       case KEY_ALT_C  : vfu_copy_files(1, CM_COPY); break;
 
+      case ZL         :
       case 'l'        : vfu_copy_files(sel_count == 0, CM_LINK); break;
       case KEY_ALT_L  : vfu_copy_files(1, CM_LINK); break;
 
+      case ZE         :
       case 'e'        : vfu_erase_files(sel_count == 0); break;
       case KEY_ALT_E  : vfu_erase_files(1); break;
 
