@@ -1,0 +1,6 @@
+#!/bin/bash
+N=`perl -e '$_=@ARGV[0]; s/^(\d+).*/\1/; print $1'   "$2" `
+test -n "$N" && N="-n $N"
+T=`perl -e '$_=@ARGV[0]; s/^\d+\. *(.*)\.[^.]*$/\1/; print' "$2" ` 
+meyed3-tags()   { meyeD3 "--v12" "--encv1=cp1251" "--to-v2.3" "--encoding=utf16" "--remove-all-comments" "$@"; }
+$E meyed3-tags -t "$T" $N "$3"

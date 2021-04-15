@@ -1,0 +1,20 @@
+<!-- 
+http://epsi-rns.github.io/desktop/2018/05/11/openbox-config.html
+-->
+<openbox_pipe_menu>
+    <item label="Logout">
+        <action name="Exit" />
+    </item>
+    <item label="Suspend">
+        <action name="Execute"><execute>systemctl suspend</execute></action>
+    </item>
+    <item label="Hibernate">
+        <action name="Execute"><execute>systemctl hibernate</execute></action>
+    </item>
+    <item label="Reboot">
+        <action name="Execute"><execute>systemctl reboot</execute></action>
+    </item>
+    <item label="Shutdown">
+        <action name="Execute"><execute>systemctl poweroff</execute></action>
+    </item>
+</openbox_pipe_menu>

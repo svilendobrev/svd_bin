@@ -1,0 +1,2 @@
+#!/bin/sh
+hg strip -r -1 --keep "$@"
