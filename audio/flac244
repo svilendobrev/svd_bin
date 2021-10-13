@@ -1,0 +1,5 @@
+nd flac44 
+ln -s ../*.flac . 
+ren_ * 
+mau flac44
+ren -f flac-44100.sox. '' *.flac

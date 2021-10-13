@@ -19,7 +19,7 @@
 # takem from BitTorrent.__init__
 class BTFailure(Exception):
     pass
-
+def _(x): return x
 # from BitTorrent import BTFailure
 
 def decode_int(x, f):

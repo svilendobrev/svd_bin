@@ -21,6 +21,7 @@ if len(argv) == 1:
     exit(2) # common exit code for syntax error
 
 for metainfo_name in argv[1:]:
+  try:
     metainfo_file = open(metainfo_name, 'rb')
     metainfo = bdecode(metainfo_file.read())
     #print metainfo
@@ -48,6 +49,7 @@ for metainfo_name in argv[1:]:
     print '%s %i (%i * %i + %i)' % (name,file_length, piece_number, piece_length, last_piece_length)
 
     print 'info hash\t', info_hash.hexdigest()
+    #if 'announce' not in metainfo: continue
     print 'announce url\t', metainfo['announce']
     if metainfo.has_key('announce-list'):
         print 'announce-list   '+ '|'.join( 
@@ -64,5 +66,8 @@ for metainfo_name in argv[1:]:
         print 'comment: \t', metainfo['comment']
 
         print '---'
+  except:
+    import traceback
+    traceback.print_exc()
 
 # vim:ts=4:sw=4:expandtab

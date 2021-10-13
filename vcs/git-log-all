@@ -1,0 +1,14 @@
+#!/bin/sh
+for a in ${@-*/}; do 
+( 
+ cd $a
+ echo ===== $a 
+#%ai: iso timestamp
+#%as: date-only
+#%an: author name
+#s: comment
+#%h: short hash
+ git --no-pager log -n 5 -q --pretty=format:"%h %as: %an: 	  %s"  
+ echo
+ ) 
+done

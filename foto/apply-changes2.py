@@ -14,7 +14,7 @@ optz.bool( 'nosymlinks' ,   help= 'ignore symlinks')
 optz.bool( 'alsodirs' , help= 'check moving of dirs too')
 optz.bool( 'dup2ignore' , help= 'ignore duplicates')
 optz.text( 'deldir' , default='del', help= 'folder to move deleted items into [%default]')
-optz.bool( 'nodelete' , help= 'dont delete, only move')
+#optz.bool( 'nodelete' , help= 'dont delete, only move')
 optz,args = optz.get()
 none = not optz.real
 

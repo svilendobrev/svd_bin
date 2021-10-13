@@ -209,7 +209,8 @@ else
 fi
 
 #al qiv  'XLIB_SKIP_ARGB_VISUALS=1 qiv -l'
-al qiviw 'qiv -s -m -i -f -d 8'
+#al qiviw 'qiv -s -m -i -f -d 8'
+al qiviw 'pqiv -s -i -f -d 8'
 
 #net
 al bt       'btlaunchmanycurses.bittorrent . --max_rate_period 10 --display_interval 2' #--max_upload_rate 60' # --max_initiate 20 --min_peers 10 --max_uploads 3
@@ -244,9 +245,11 @@ al pip3local 'pip3 install --user'
 al maf 'make -f ~/src/bin/foto/makefile'
 al emf 'e ~/src/bin/foto/makefile'
 
+#TODO split all this into packs/topics then source all in some dir of links to availables
 which apt-get   >&/dev/null && so $_INIs/aliasi/apt.alias.bsh
 which pacman    >&/dev/null && so $_INIs/aliasi/pacman.alias.bsh
 which yum       >&/dev/null && so $_INIs/aliasi/yum.alias.bsh
+which pkcon     >&/dev/null && so $_INIs/aliasi/pkcon.alias.bsh
 which systemctl >&/dev/null && so $_INIs/aliasi/systemctl.alias.bsh
 so $_INIs/aliasi/audio.alias.bsh
 so $_INIs/aliasi/rename.alias.bsh

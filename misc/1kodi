@@ -1,3 +1,4 @@
-pgrep kodi || ( kodi & )
-echo 'if ( window_class() == "Kodi" ) then workspace(1) fullscreen() activate_workspace(1) focus() end ' >/tmp/1kodi.lua
-kpie --single /tmp/1kodi.lua
+##########!/bin/sh
+pgrep kodi || ( nice kodi & )
+#echo 'if ( window_class() == "Kodi" ) then workspace(1) fullscreen() activate_workspace(1) focus() end ' >/tmp/1kodi.lua
+#kpie --single /tmp/1kodi.lua

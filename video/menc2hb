@@ -16,7 +16,7 @@ test -n "$P720" && oSIZE="-w 1280"
 oLANG="--native-language bul --native-dub"
 I="$1"
 shift
-O="$2"
+O="$1"
 case "x$O" in
  x-*|x) O="$I" ;; 
  x*) shift ;;

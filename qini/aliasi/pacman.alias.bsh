@@ -25,7 +25,8 @@ al a-list    'pacman -Q --list'
 a-all()         	{ pacman -S --list "$@" | pac1line; }   #??
 a-all-inst()    	{ pacman -Qs "$@" | pac1line; } 
 a-all-instsize() 	{ LANG=C pacman -Qi "$@" | pacnamesize; } 
-a-all-instsize-sorted() { LANG=C pacman -Qi "$@" | pacnamesize | grep "M :" | sort -n -k 2; } 
+a-all-instsize-sorted-m() { LANG=C pacman -Qi "$@" | pacnamesize | grep "M :" | sort -n -k 2; } 
+a-all-instsize-sorted() { LANG=C pacman -Qi "$@" | pacnamesize | sort -k 3,3 -k 2,2n ; } 
 # -e explicit
 a-all-unneeded() 	{ LANG=C pacman -Qdti "$@" | pacnamesize; } 
 al a-remove-force  'a-remove -dd'

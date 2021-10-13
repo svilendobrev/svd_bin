@@ -20,9 +20,11 @@ for a in ['-inner', '--inner']:
 fi,fo = (sys.argv[1:3]+[ None ])[:2]
 
 if fi.lower().endswith('.dt'):
+    fromdt = True
     creatime = open(fi).readlines()[0]
-    assert fo.endswith( '.mkv') or fo.endswith('.avi'), fo
+    #assert fo.endswith( '.mkv') or fo.endswith('.avi'), fo
 else:
+    fromdt = False
     dt_tm = re.search( '(?P<Y>\d{4})(?P<M>\d{2})(?P<D>\d{2})_(?P<h>\d{2})(?P<m>\d{2})(?P<s>\d{2})', fi)
     if not use_inner_datetime and dt_tm:
         creatime = '{Y}-{M}-{D}T{h}:{m}:{s}.000000Z'.format( **dt_tm.groupdict())
@@ -80,6 +82,9 @@ elif fo.endswith( '.avi'):
                     ] + '-acodec copy -vcodec copy -metadata'.split() + [
                         'date='+creatime, ffo] )   #date->ICRD recognized only
     touch( ffo, creatime)
+
+elif fromdt:
+    touch( fo, creatime)
 
 else:
     assert fo.lower().endswith('.dt'), fo

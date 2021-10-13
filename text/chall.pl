@@ -4,11 +4,13 @@
 # overwriting input files, reading one whole file at a time, hence may
 # have memory size limitations AND ^ and $ are not start/end of line but file!
 die
- "usage: changeall [-b[inary]] perl-expr-to-apply   files...."
+ "usage: changeall [-options] perl-expr-to-apply   files...."
 ."\n read whole files and OVERWRITES them if matching"
 ."\n perl_expr's can be almost anything (in quotes)"
 ."\n  (warning: ^ and $ ARE NOT start and end of line, but of file!)"
 ."\n -binary    write LF as LF, not CRLF"
+."\n -pPREFIX   dont overwrite, outname=PREFIX+filename"
+."\n -sSUFFIX   dont overwrite, outname=filename+SUFFIX"
 ."\n -utf8 i/o"
 ."\n -utf8all expr & i/o"
 ."\n -loop      apply over and over until no matches"
@@ -22,10 +24,14 @@ shift if ($BIN      = ($ARGV[0] =~ /^--?b(inary)?$/ ));
 shift if ($UTF      = ($ARGV[0] =~ /^--?utf8$/      ));
 shift if ($UTFall   = ($ARGV[0] =~ /^--?utf8all$/   ));
 shift if ($LOOP     = ($ARGV[0] =~ /^--?loop$/      ));
+shift if ($PREFIX   = ($ARGV[0] =~ s/^--?p(.+)$// ));
+$PREFIX = $PREFIX ? $1 : '';
+shift if ($SUFFIX   = ($ARGV[0] =~ s/^--?s(.+)$// ));
+$SUFFIX = $SUFFIX ? $1 : '';
 
 $rexp = shift;
 undef $/;       #whole file each time
-print "applying --$rexp-- ...\n";
+print "applying --$rexp-- > $PREFIX(...)$SUFFIX\n";
 if ($UTFall) {
     print "utf8 expr\n";
     $rexp = encode("UTF-8", decode("cp1251", $rexp));
@@ -61,10 +67,10 @@ while (<>) {
   } until !$m || !$LOOP;
   #$n = 0+eval( "$rexp" );
   if ($n || $DBG) {
-      print "\r> $ARGV :$n             \n";
-  } else { print "            \r"; }
+      print "\r> $PREFIX$ARGV$SUFFIX :$n             \n";
+  } else { print "                               \r"; }
   if ($n && $a ne $_) {
-    $OUT = ">$ARGV"; open(OUT) || die "$! $OUT";
+    $OUT = ">$PREFIX$ARGV$SUFFIX"; open(OUT) || die "$! $OUT";
     binmode(OUT) if $BIN;
     print OUT; close OUT;
   }

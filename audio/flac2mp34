@@ -1,0 +1,6 @@
+nd mp34 
+ln -s ../*.flac . 
+ren_ * 
+mau mp3 
+tag-flac2mp3 *.flac
+rm ../mp34/*.flac

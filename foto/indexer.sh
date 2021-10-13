@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo "<html>"
 test -n "$HEAD$TITLE" && echo "<head>"
@@ -15,6 +15,8 @@ test -z "$NOBR" && BR="<BR>"
 test -z "$NOHR" && HR="<hr>"
 for a in "$@"; do
 	test "$a" = "$O" && continue
+	#perl -e ' exit !($ARGV[0] =~ m,/del/,)' "$a" && continue
+	[[ "x$a" =~ /del/ ]] && continue
 	if [ -d "$a" -o -n "$NOPATHS" -a `basename "$a" .html` != "$a" ]; then
 		echo '<a href="'$a'">' "$a" "</a> $BR $HR"
 	else

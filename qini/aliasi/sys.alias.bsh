@@ -16,8 +16,11 @@ else #udevil
  uucdrom() { udevil umount /dev/cdrom "$@" ; }
 fi
 al umediat  'fusermount -u /media/t'
-al mmtp     'mount /media/mtp'
-al umtp     'fusermount -u /media/mtp'
+#al mmtp     'mount /media/mtp'
+#al umtp     'fusermount -u /media/mtp'
+al mmtp     'aft-mtp-mount /media/mtp'
+al jmtp     'jmtpfs /media/mtp'
+al umtp     'umount /media/mtp'
 
 al mmna 'mount /media/na'
 al uuna 'umount /media/na'
@@ -39,9 +42,10 @@ al s sens
 #al sss 'ss;hddtemp /dev/sda /dev/sdb'
 
 al freq0 'cpupower -c all frequency-info'
-al freq  'freq0 | grep urrent.*Hz'
+#al freq  'freq0 | grep -Ei "(current.cpu.freq.*hz|the.governor)"'
+al freq  'freq0 | perl -ne "print if s/^analyzing// || s/current.policy:// || s/current.CPU.(frequency.*[\d.]+).*/\1/i || s/the.(governor.\S+).*/\1/i"'
 _CHMOD_S="$_CHMOD_S cpupower"
-al freqset  'sudo cpupower -c all frequency-set -g powersave --max '
+al freqset  'sudo cpupower -c all frequency-set --max ' # -g ondemand
 
 #cpulimit/set process affinity to cpu
 al taskset_cpu0 'taskset -c 0'

@@ -124,6 +124,7 @@ autocmd FileType javascript setl tabstop=4 shiftwidth=4 expandtab
 autocmd FileType javascript setl suffixesadd=.js
 
 autocmd BufEnter opis*    setl ts=4 sw=4 expandtab
+autocmd BufEnter dodo.py  setl makeprg=~/.local/bin/doit
 
 "autocmd BufNewFile,BufRead *.as		setf actionscript
 augroup filetypedetect
@@ -160,7 +161,7 @@ else
 endif
 
 let INC .= gr_mak.gr_cfg
-let EXC .= ' node_modules'
+let EXC .= ' node_modules 1'
 
 "/dev/null
 "let &grepprg=grepprg0.gr_noLinks.gr_no_node
