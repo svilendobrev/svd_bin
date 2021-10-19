@@ -28,7 +28,8 @@ for a in ${@:-./*}; do
         echo -e "$H"
         UWD=$BWD $E $CMD
       else
-        UWD=$BWD $E $CMD 2>&1 | nl -s "$BWD	" - | cut -c1-5,7- &
+        #UWD=$BWD $E $CMD 2>&1 | nl -s "$BWD	" - | cut -c1-5,7- &
+        UWD=$BWD $E $CMD 2>&1 | perl -ne "s,^,$BWD  ,;print "  &
       fi
     fi
   fi
