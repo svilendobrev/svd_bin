@@ -1,5 +1,5 @@
 #!/bin/sh
 export UPARAL=1
-../u $@ |& grep -v searching.for.changes
+uall.sh $@ 2>&1 | grep -v searching.for.changes
 
 # vim:ts=4:sw=4:expandtab
