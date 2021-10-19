@@ -25,7 +25,8 @@ dfile() { d "$@" | grep -v ^d; }
 #al dlinkbroken 'find . -type l -exec ls -alF --color {} \; | grep "31;1" '
 al dlinkbroken 'find -L . -type l '
 #al df   'LANG=C df -h -x tmpfs'
-al df 'LANG=C df -B1g -x tmpfs'
+#al df 'LANG=C df -m -x tmpfs'
+al df 'LANG=C BLOCKSIZE=1G df | grep -v tmpfs'
  # ls directories; then files - choose which version is faster: 2x ls+grep or 1x ls+perl
 #al d2   'ddir \!#:* ; dfile \!#:*'
 al _d2  "perl -e 'while(<>)"'{if (/^d/||/\/$/) {print} else {push @a,$_}}'" print @a'"
