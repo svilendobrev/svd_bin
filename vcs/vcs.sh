@@ -15,21 +15,27 @@
 #
 # my preferred usage is having both in path, and
 # sym-linking vcs to be called 'v' and also 'u' :
-#  $ u ... does update, same as v u
+#  $ u   ... does update, same as v u
 #  $ v u ... does update
 #  $ v s ... does status
 #  $ v i -m fixx ... does commit AND push
-#  $ v il -m fixx ... does commit local (same as above is no such notion)
+#  $ v il -m fixx ... does commit local (or same as above if no such notion)
 #  $ v ii ... resolve conflict
 #  $ v d ... does diff
 #  $ v dd ... does diff ignoring whitespace
+#  $ v dprev ... does diff to previous version
 #  $ v r ... does remove
 #  $ v a ... does add
 #  $ v l ... does log
 #  $ v n ... does info, e.g. repository urls, revisions, etc
+#  $ v io ... does list missing commits local vs remote = not-pushed / non-pulled
+#  $ v oi ... does same as io
 #  $ v v ... does revert -- this one asks for confirmation - happened to kill a file
 #  $ v p ... does push
 #  $ v m ... does merge
+#  $ v hs ... does stash/shelve
+#  $ v hu ... does unstash/unshelve
+#  $ v w ... does show particular commit patch
 #
 # there are also other naming schemes below (e.g. can be linked as v-status or vvs) but of no use..
 
@@ -188,6 +194,8 @@ git_p='push' #?
 git_hs='stash'
 git_hu='stash pop'
 git_io='log --branches --not --remotes ; git log --remotes --not --branches '   #??
+git_oi="$git_io"
+git_w='show'
 
 #to turn checkout into bare:
 #git config --bool core.bare true
