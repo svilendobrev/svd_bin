@@ -33,12 +33,27 @@ except FileNotFoundError:
 
 #print( copyargs)
 
-from svd_util import optz
-optz.text( 'include', '-i', help= 'these-only, regexp.match, applied over whole path - use .*/[^/]*xyz[^/]* to match filename having xyz ; .*xyz.* to match anything having xyz in path' )
-optz.text( 'exclude', '-x', help= 'these-skip, regexp.match, applied over whole path, before --include' )
-optz.bool( 'symlinks_dereference', '-L', help= 'dereference symlinks into files')
-optz.bool( 'verbose', '-v', help= 'print what is copied or not')
-optz,argz = optz.get()
+#from svd_util import optz
+import optparse, sys
+class OptionParser( optparse.OptionParser):
+    '--ab_c=--ab-c'
+    def _match_long_opt( self, opt):
+        return optparse.OptionParser._match_long_opt( self, opt.replace('_','-'))
+oparser = OptionParser()
+def optany( name, *short, **k):
+    if sys.version_info[0]<3:
+        h = k.pop( 'help', None)
+        if h is not None:
+            k['help'] = isinstance( h, unicode) and h or h.decode( 'utf8')
+    return oparser.add_option( dest=name, *(list(short)+['--'+name.replace('_','-')] ), **k)
+def optbool( name, *short, **k):
+    return optany( name, action='store_true', *short, **k)
+
+optany( 'include', '-i', help= 'these-only, regexp.match, applied over whole path - use .*/[^/]*xyz[^/]* to match filename having xyz ; .*xyz.* to match anything having xyz in path' )
+optany( 'exclude', '-x', help= 'these-skip, regexp.match, applied over whole path, before --include' )
+optbool( 'symlinks_dereference', '-L', help= 'dereference symlinks into files')
+optbool( 'verbose', '-v', help= 'print what is copied or not')
+optz,argz = oparser.parse_args()
 
 import re
 exclude = None
