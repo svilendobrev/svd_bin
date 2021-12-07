@@ -31,58 +31,68 @@ except TypeError: pass
 except FileNotFoundError:
     copyargs.update( ignore_dangling_symlinks = True)
 
+# docs-as-of-py3.9: shutil.copytree( src, dst,
+#   symlinks=False,             #if True: copy symlinks as is
+#   ignore=None,                #func to filter dir-list
+#   copy_function=copy2,
+#   ignore_dangling_symlinks=False,     #if True: dont error if symlinks = False and symlink is dangling
+#   dirs_exist_ok=False         #if True: dont error if dir/s exists
+#   )
+#
 #print( copyargs)
 
-#from svd_util import optz
-import optparse, sys
-class OptionParser( optparse.OptionParser):
-    '--ab_c=--ab-c'
-    def _match_long_opt( self, opt):
-        return optparse.OptionParser._match_long_opt( self, opt.replace('_','-'))
-oparser = OptionParser()
-def optany( name, *short, **k):
-    if sys.version_info[0]<3:
-        h = k.pop( 'help', None)
-        if h is not None:
-            k['help'] = isinstance( h, unicode) and h or h.decode( 'utf8')
-    return oparser.add_option( dest=name, *(list(short)+['--'+name.replace('_','-')] ), **k)
-def optbool( name, *short, **k):
-    return optany( name, action='store_true', *short, **k)
+if __name___ == '__main__':
+    #from svd_util import optz
+    import optparse, sys
+    class OptionParser( optparse.OptionParser):
+        '--ab_c=--ab-c'
+        def _match_long_opt( self, opt):
+            return optparse.OptionParser._match_long_opt( self, opt.replace('_','-'))
+    oparser = OptionParser()
+    def optany( name, *short, **k):
+        if sys.version_info[0]<3:
+            h = k.pop( 'help', None)
+            if h is not None:
+                k['help'] = isinstance( h, unicode) and h or h.decode( 'utf8')
+        return oparser.add_option( dest=name, *(list(short)+['--'+name.replace('_','-')] ), **k)
+    def optbool( name, *short, **k):
+        return optany( name, action='store_true', *short, **k)
 
-optany( 'include', '-i', help= 'these-only, regexp.match, applied over whole path - use .*/[^/]*xyz[^/]* to match filename having xyz ; .*xyz.* to match anything having xyz in path' )
-optany( 'exclude', '-x', help= 'these-skip, regexp.match, applied over whole path, before --include' )
-optbool( 'symlinks_dereference', '-L', help= 'dereference symlinks into files')
-optbool( 'verbose', '-v', help= 'print what is copied or not')
-optz,argz = oparser.parse_args()
+    optany( 'include', '-i', help= 'these-only, regexp.match, applied over whole path - use .*/[^/]*xyz[^/]* to match filename having xyz ; .*xyz.* to match anything having xyz in path' )
+    optany( 'exclude', '-x', help= 'these-skip, regexp.match, applied over whole path, before --include' )
+    optbool( 'symlinks_dereference', '-L', help= 'dereference symlinks into files')
+    optbool( 'verbose', '-v', help= 'print what is copied or not')
+    optz,argz = oparser.parse_args()
 
-import re
-exclude = None
-if optz.exclude:
-    print( 'excluding:', optz.exclude)
-    exclude = re.compile( optz.exclude)
-include = None
-if optz.include:
-    print( 'including:', optz.include)
-    include = re.compile( optz.include)
+    import re
+    exclude = None
+    if optz.exclude:
+        print( 'excluding:', optz.exclude)
+        exclude = re.compile( optz.exclude)
+    include = None
+    if optz.include:
+        print( 'including:', optz.include)
+        include = re.compile( optz.include)
 
-src,dst = argz[:2]
-if 1:
-    def copy( src, dst, **ka):
-        if exclude and exclude.match( src):
-            if optz.verbose: print( 'excluded:', src)
-            return
-        if include and not include.match( src):
-            if optz.verbose: print( 'not included:', src)
-            return
-        if optz.verbose: print( 'copy:', src, '>>', dst)
-        return copy2( src, dst, **ka)
-    copyargs.update( copy_function= copy)
-else:
-    def ignore( dir,listdir):
-        skipped = filter( dir, listdir) if filter else ()
-        return skipped
-    copyargs.update( ignore= ignore)
+    src,dst = argz[:2]
+    if 1:
+        def copy( src, dst, **ka):
+            if exclude and exclude.match( src):
+                if optz.verbose: print( 'excluded:', src)
+                return
+            if include and not include.match( src):
+                if optz.verbose: print( 'not included:', src)
+                return
+            if optz.verbose: print( 'copy:', src, '>>', dst)
+            return copy2( src, dst, **ka)
+        copyargs.update( copy_function= copy)
+    else:
+        def ignore( dir,listdir):
+            #TODO make proper exclude include here
+            skipped = filter( dir, listdir) if filter else ()
+            return skipped
+        copyargs.update( ignore= ignore)
 
-copytree( src, dst, symlinks= not optz.symlinks_dereference, **copyargs)
+    copytree( src, dst, symlinks= not optz.symlinks_dereference, **copyargs)
 
 # vim:ts=4:sw=4:expandtab

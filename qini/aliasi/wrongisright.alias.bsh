@@ -9,6 +9,7 @@ al "зап" zap
 al "м" m
 al "мв" mv
 al "мд" md
+al "рд" rd
 al "мж" mv
 al "нд" nd
 al "рм" rm
@@ -26,7 +27,10 @@ al "дф" df
 al "ду" du
 al "цалц" calc
 al cacl calc
+al "мп" mp
 
 al vm mv
 al dc cd
 
+al ффлцц fflcc
+al fflцц fflcc

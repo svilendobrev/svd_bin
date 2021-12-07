@@ -131,6 +131,8 @@ augroup filetypedetect
 au! BufNewFile,BufRead *.as		setf javascript
 augroup END
 
+autocmd FileType markdown  setl wrap linebreak ts=4 sw=4
+
 if $_SRC==""  "see $_INIs/defalias.bsh
  let INC_= 'my[cChylgm] [ch]pp [ch]xx cc CC asm as p[yl] java js jsx tsx xsl rb php '
  let EXC = 'CVS .svn .bzr .hg .repo .git'
@@ -141,8 +143,8 @@ endif
 let INC = ''
 
 let gr_any = "grep -Ens $*"
-let gr_withLinks= " -R ."
-let gr_noLinks  = " -r ."
+let gr_withLinks= " -R "
+let gr_noLinks  = " -r "
 if 0
 " let gr_prg     =" --include=*.p[ylp] --include=*.php* --include=*.rb --include=*.java --include=*.js --include=*.[hcHCm] --include=*.[hcHC][pPxX][pPxX] --include=*.idl --include=*.CC --include=*.cc --include=*.as"
  let gr_noold   =" --exclude=old*  --exclude-dir=old*"
@@ -682,9 +684,13 @@ scriptencoding utf8 "cp1251
 cabbrev е e
 cabbrev Е e
 cabbrev я q
+cabbrev яа qa
+cabbrev ая qa
 cabbrev цд cd
+cabbrev дц cd
 cabbrev Цд cd
 cabbrev гр gr
+cabbrev рг gr
 cabbrev Гр gr
 "cyrilic in visual mode
 "vnoremap ъ y

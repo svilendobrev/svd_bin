@@ -1,2 +1,8 @@
 #!/bin/sh
-for a in [0-9]*.flac ; do X=`perl -e '$_=$ARGV[0] ; s/\..*//; print' "$a" `; C=`ls -1d *.cue | head -1` ; cuetag.sh "$C" "$X" "$a" ;done
+C=`ls -1d ./*.cue | head -1`  
+echo ::$C
+for a in "$@" ; do 
+ X=`perl -e '$_=$ARGV[0] ; s/\..*//; print' "$a" ` 
+ echo ? $X
+ cuetag.sh "$C" "$X" "$a" 
+done

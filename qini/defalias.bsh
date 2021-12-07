@@ -139,6 +139,8 @@ ff()    { fff "$@" -exec ls -doF '{}' ';'; }
 al ffi  'II=i ff'
 al fffi 'II=i fff'
 al ffli 'II=i ffl'
+fflii() { X="$1" ; shift ; ffli "*$X*" "$@"; }
+fflcc() { X="$1" ; shift ; ffli "*"`echo "$X"|lat2cyr.py`"*" "$@"; }
 # !!! for any other * finds use fff.sh !
 
 ##grep what where
@@ -198,6 +200,7 @@ al f vfu
 #l calc 'echo "\!#:*" |bc'
 #calc()  { echo print "$@" | python ; } 
 calc()  { python -c "from math import *; print( $*)"; } 
+al c calc
 which ncal >&/dev/null  && al cal 'ncal -M' || al cal '/usr/bin/cal -m'
 
 #addusergroup()  { usermod -G `id -Gn "$1" | sed "s/ /,/g"`,"$2" "$1"; } 
@@ -271,5 +274,10 @@ al amx alsamixer
 al rmli 'rmlint -c sh:link -L -y s -p -T duplicates'
 
 al ren-abs2.. 'rename.py --in ".*/" ../'
+
+al mradio 'make -f ~/src/bin/biblioteka/radio/rendirall.mak'
+al emradio 'e ~/src/bin/biblioteka/radio/rendirall.mak'
+al mra mradio 
+al emr emradio
 
 # vim:ts=4:sw=4:expandtab

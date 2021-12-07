@@ -8,7 +8,8 @@
 
 all: mp3 flac
 
-_WILDS=$(wildcard $(WILD))
+#_WILDS=$(wildcard $(WILD))	#does not accept multiple patterns - *.x *.y XXX
+_WILDS=$(shell shopt -s nullglob && ls -1d $(WILD) && shopt -u nullglob)
 
 ifneq ($(MONO),)
 OPTS+=-m m
@@ -43,12 +44,13 @@ ffres: $(patsubst %,%-$(RATE).ff.wav,$(_WILDS)))
 OUT?=FLAC
 RATE?=44100
 %-$(RATE).sox.$(OUT): %
-	sox "$<" -b 16 -e signed-integer -t $(OUT) "$@" gain -1 $(if $(STEREO),channels 2) $(if $(MONO),channels 1) rate -m -I -b 80 $(RATE)
+	sox "$<" -b 16 -e signed-integer -t $(OUT) "$@" gain -1 $(if $(STEREO),channels 2) $(if $(MONO),channels 1) rate -m -I -b 80 $(RATE) dither -s
+# explicit dither, even if sox does it automatical ; and no -G or gain -n
 soxres soxresample: $(patsubst %,%-$(RATE).sox.$(OUT),$(_WILDS))
 
 flac44: WILD=*.flac
 flac44:
-	+$(REMAKE) RATE=44100 WILD=$(WILD) OUT=flac soxres
+	+$(REMAKE) RATE=44100 WILD="$(WILD)" OUT=flac soxres
 #rate
 # -s: steep filter
 # -M/-I/-L     Phase response = minimum/intermediate/linear
@@ -68,7 +70,6 @@ flac44:
 REMAKE = $(MAKE) -f $(firstword $(MAKEFILE_LIST))
 #TOWAV=$(TOWAV) WAV2FLAC=$(WAV2FLAC)
 
-ROOT=./
 WILD?=*
 WAVs = $(wildcard $(WILD).wav)
 MP3s = $(wildcard $(WILD).mp3)
@@ -76,13 +77,13 @@ FLACs= $(wildcard $(WILD).flac)
 ifneq ($(WAV2FLAC),)
 flac: $(WAVs:%.wav=%.flac)
 %.flac: %.wav
-	flac --no-preserve-modtime --force --keep-foreign-metadata $(ARGS) -o "$@" "$<"
+	$E flac --no-preserve-modtime --force --keep-foreign-metadata $(ARGS) -o "$@" "$<"
 outflac: $(WAVs:%.wav=%.out.flac)
 %.out.flac: %.wav
 	/usr/local/bin/wavres44khz.py "$<" --otype flac
 else
 flac outflac:
-	+$(REMAKE) WAV2FLAC=1 $@
+	+$(REMAKE) WAV2FLAC=1 $@ ROOT=$(ROOT) WILD="$(WILD)"
 outflac2: $(FLACs:%.flac=%.out.flac)
 %.out.flac: %.flac
 	/usr/local/bin/wavres44khz.py "$<" --otype flac
@@ -232,5 +233,9 @@ cuetag1: .._cue		#in current dir
 
 renunnum:
 	rename.py '^([\d.]+) *(.*)\.' '$$2.$$1.' *.flac *.wav *.mp3
+
+#re-code whatever aac into flac of same bits/freq ; use flac44 further
+%.m4a2flac: %.m4a
+	ffmpeg -i $< -map 0:a:0 $@
 
 # vim:ts=4:sw=4:noexpandtab

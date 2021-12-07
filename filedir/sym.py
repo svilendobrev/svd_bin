@@ -8,6 +8,7 @@ issymlink = islink
 
 optz.description( 'move/link real-source-of-symlink into elsewhere')
 optz.bool( 'mv', help='do move, default is (hard)link')
+#optz.bool( 'cp', help='do copy, default is (hard)link')
 optz.bool( 'fake',    '-n', help='do nothing')
 optz.bool( 'deldest', '-f', help='delete destname before acting')
 optz.bool( 'quiet', '-q', )
@@ -24,8 +25,10 @@ if not optz.absshow:
     destdir = os.path.isdir( dest )
     if len(args)>2 and not destdir:
         raise RuntimeError( 'last arg must be dir')
+func = os.link
+if optz.mv: func = os.rename
+#elif optz.cp: func = copytree  TODO from cp_filtered.py
 
-func = optz.mv and os.rename or os.link
 for a in args:
     if not issymlink( a):
         #if optz.verbose:

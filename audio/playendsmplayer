@@ -18,7 +18,12 @@ echo "len=$L beg=$BEG end=$END ofs=$OFS"
 
 for f in "$@"; do
     for a in $BEG $END ; do 
-        play "$f" trim $a+${OFS:-0} $L
+        case $a in
+         -*) a=`filmid0.sh "$f" | perl -ne 'print if s/ID_LENGTH=//'`$a ;;
+        esac
+        #-ss = start
+        #-endpos = length
+        $E mplayer -ss `echo $a+${OFS:-0} | bc` -endpos $L "$f" 
         done
 done 
 # vim:ts=4:sw=4:expandtab

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function #,unicode_literals
 # *  This Program is free software; you can redistribute it and/or modify
 # *  it under the terms of the GNU General Public License as published by
 # *  the Free Software Foundation; either version 2, or (at your option)
@@ -15,9 +17,9 @@
 
 import random, copy, threading
 import xbmcgui, xbmcaddon
-import EXIFvfs
-from iptcinfovfs import IPTCInfo
-from XMPvfs import XMP_Tags
+import exifread as EXIFvfs
+#from iptcinfovfs import IPTCInfo
+#from XMPvfs import XMP_Tags
 from xml.dom.minidom import parse
 from utils import *
 import json
@@ -26,7 +28,7 @@ from lat2cyr import zvuchene    #svd
 ADDON    = sys.modules[ '__main__' ].ADDON
 ADDONID  = sys.modules[ '__main__' ].ADDONID
 CWD      = sys.modules[ '__main__' ].CWD
-SKINDIR  = xbmc.getSkinDir().decode('utf-8')
+SKINDIR  = xbmc.getSkinDir()#.decode('utf-8')
 
 # images types that can contain exif/iptc data
 EXIF_TYPES  = ('.jpg', '.jpeg', '.tif', '.tiff')
@@ -46,8 +48,9 @@ EFFECTLIST = ["('conditional', 'effect=zoom start=100 end=400 center=auto time=%
 DATEFORMAT = xbmc.getRegion('dateshort')
 
 class Screensaver(xbmcgui.WindowXMLDialog):
-    def __init__( self, *args, **kwargs ):
-        pass
+    #def __init__( self, *args, **kwargs ):
+    #    super().__init__( *args, **kwargs )
+    #    pass
 
     def onInit(self):
         # load constants
@@ -64,7 +67,7 @@ class Screensaver(xbmcgui.WindowXMLDialog):
         self.adj_time = int(101000 * speedup)
         # get the images
         self._get_items()
-        if self.slideshow_type == '2' and self.slideshow_random == 'false' and self.slideshow_resume == 'true':
+        if self.slideshow_type == '2'  and self.slideshow_resume == 'true': #svd: and self.slideshow_random == 'false'
             self._get_offset()
         if self.items:
             # hide startup splash
@@ -135,6 +138,7 @@ class Screensaver(xbmcgui.WindowXMLDialog):
         # start with image 1
         cur_img = self.image1
         order = [1,2]
+        usetexturecache = (self.slideshow_type != '2')
         # loop until onScreensaverDeactivated is called
         while (not self.Monitor.abortRequested()) and (not self.stop):
             # keep track of image position, needed to save the offset
@@ -145,13 +149,13 @@ class Screensaver(xbmcgui.WindowXMLDialog):
                 if self.slideshow_type == '2' and not xbmcvfs.exists(img[0]):
                     continue
                 # add image to gui
-                cur_img.setImage(img[0],False)
+                cur_img.setImage(img[0],usetexturecache)
                 # add background image to gui
                 if self.slideshow_scale == 'false' and self.slideshow_bg == 'true':
                     if order[0] == 1:
-                        self.image3.setImage(img[0],False)
+                        self.image3.setImage(img[0],usetexturecache)
                     else:
-                        self.image4.setImage(img[0],False)
+                        self.image4.setImage(img[0],usetexturecache)
                 # give xbmc some time to load the image
                 if not self.startup:
                     xbmc.sleep(1000)
@@ -167,13 +171,22 @@ class Screensaver(xbmcgui.WindowXMLDialog):
                 iptc_de = False
                 iptc_ke = False
                 if self.slideshow_type == '2' and ((self.slideshow_date == 'true') or (self.slideshow_iptc == 'true')) and (os.path.splitext(img[0])[1].lower() in EXIF_TYPES):
-                    imgfile = xbmcvfs.File(img[0])
+                    imgfile = xbmcvfs.File(img[0],'b')
+                    log( img[0])
                     # get exif date
                     if self.slideshow_date == 'true':
-                        try:
+                        #try:
+                        if 1:
+                            class A:
+                                def __init__(me, x): me.__x = x
+                                def __getattr__( me, k ):
+                                    if k == 'read': k = 'readBytes'
+                                    return getattr( me.__x, k)
+                            imgfile = A(imgfile)
                             exiftags = EXIFvfs.process_file(imgfile, details=False, stop_tag='DateTimeOriginal')
-                            if exiftags.has_key('EXIF DateTimeOriginal'):
-                                datetime = str(exiftags['EXIF DateTimeOriginal']).decode('utf-8')
+                            datetime = exiftags.get('EXIF DateTimeOriginal') or ''
+                            if datetime:
+                                datetime = datetime.values.decode('utf-8')
                                 # sometimes exif date returns useless data, probably no date set on camera
                                 if datetime == '0000:00:00 00:00:00':
                                     datetime = ''
@@ -192,34 +205,34 @@ class Screensaver(xbmcgui.WindowXMLDialog):
                                     except:
                                         pass
                                     exif = True
-                        except:
+                        #except:
                             pass
                     # get iptc title, description and keywords
                     if self.slideshow_iptc == 'true':
                         try:
                             iptc = IPTCInfo(imgfile)
                             iptctags = iptc.data
-                            if iptctags.has_key(105):
-                                title = iptctags[105].decode('utf-8')
+                            if iptctags.__contains__(105):
+                                title = iptctags[105] #.decode('utf-8')
                                 iptc_ti = True
-                            if iptctags.has_key(120):
-                                description = iptctags[120].decode('utf-8')
+                            if iptctags.__contains__(120):
+                                description = iptctags[120] #.decode('utf-8')
                                 iptc_de = True
-                            if iptctags.has_key(25):
-                                keywords = ', '.join(iptctags[25]).decode('utf-8')
+                            if iptctags.__contains__(25):
+                                keywords = ', '.join(iptctags[25]) #.decode('utf-8')
                                 iptc_ke = True
                         except:
                             pass
                         if (not iptc_ti or not iptc_de or not iptc_ke):
                             try:
                                 tags = XMP_Tags().get_xmp(img[0]) # passing the imgfile object does not work for some reason
-                                if (not iptc_ti) and tags.has_key('dc:title'):
+                                if (not iptc_ti) and tags.__contains__('dc:title'):
                                     title = tags['dc:title']
                                     iptc_ti = True
-                                if (not iptc_de) and tags.has_key('dc:description'):
+                                if (not iptc_de) and tags.__contains__('dc:description'):
                                     description = tags['dc:description']
                                     iptc_de = True
-                                if (not iptc_ke) and tags.has_key('dc:subject'):
+                                if (not iptc_ke) and tags.__contains__('dc:subject'):
                                     keywords = tags['dc:subject'].replace('||',', ')
                                     iptc_ke = True
                             except:
@@ -232,10 +245,17 @@ class Screensaver(xbmcgui.WindowXMLDialog):
                 else:
                     self.datelabel.setVisible(False)
                 # display iptc data if we have any
-                if iptc_ti or iptc_de or iptc_ke:
+                if iptc_ti or iptc_de or iptc_ke or 1:
+                    tt = { title: 1, description: 2, keywords: 3}
+                    tt.pop('','')
+                    tt = sorted( ( v,k) for k,v in tt.items())
+                    import datetime as dt
+                    now = dt.datetime.now().time()
                     self.textbox.setText(
-                        '[CR]'.join([title, keywords] if title == description
-                                    else [title, description, keywords]))
+                        '[CR]'.join( [ '{now.hour:02d}:{now.minute:02d}'.format(now=now)] + [v for k,v in tt ]
+                                    #[title, keywords] if title == description
+                                    #else [title, description, keywords]
+                                    ))
                     self.textbox.setVisible(True)
                 else:
                     self.textbox.setVisible(False)
@@ -255,7 +275,7 @@ class Screensaver(xbmcgui.WindowXMLDialog):
                             if qq[0].isdigit():
                                 qq = pp[max( start, len(pp) - 4):]
                             NAME = ' / '.join( qq)
-                            NAME = zvuchene.lat2cyr( NAME.decode('utf8'))
+                            NAME = zvuchene.lat2cyr( NAME)#.decode('utf8'))
                         else:
                             ROOT, NAME = os.path.split(os.path.dirname(img[0]))
                     elif self.slideshow_name == '3':
@@ -333,20 +353,73 @@ class Screensaver(xbmcgui.WindowXMLDialog):
             self.items = []
             for method in methods:
                 json_query = xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "' + method[0] + '", "params": {"properties": ["fanart"]}, "id": 1}')
-                json_query = unicode(json_query, 'utf-8', errors='ignore')
+                #json_query = unicode(json_query, 'utf-8', errors='ignore')
                 json_response = json.loads(json_query)
-                if json_response.has_key('result') and json_response['result'] != None and json_response['result'].has_key(method[1]):
-                    for item in json_response['result'][method[1]]:
+                rm1 = json_response.get('result',{}).get( method[1])
+                if rm1: #method[1] in json_response.get('result',{}): # != None and json_response['result'].__contains__(method[1]):
+                    for item in rm1: #json_response['result'][method[1]]:
                         if item['fanart']:
                             self.items.append([item['fanart'], item['label']])
         # randomize
         if self.slideshow_random == 'true':
-            random.seed()
-            random.shuffle(self.items, random.random)
             if 'svd':
-                self.items.reverse()
-                random.seed()
-                random.shuffle(self.items, random.random)
+                rnd = random.Random() #SystemRandom()
+                #done 1.enable above _save_offset in _exit and _get_offset in onInit
+                #2 randomize sequence
+
+                #seed = rnd.seed
+                def seed():
+                    rnd.seed()
+                    i = rnd.randrange( 16384)
+                    seeds = open( '/home/tmp/randombytes.bin', 'rb').read()
+                    seeds = seeds[i:] + seeds[:i]
+                    rnd.seed( seeds)
+                import re
+                re_filt = re.compile( '/([1234]/|sz/|del/|ne/|сватби|избор|izbor|skuka|скука|направисам)')
+                self.items = [ x for x in self.items if not re_filt.search( x[0]) ]
+
+                def getsize( img):
+                    try: return os.path.getsize( img[0])
+                    except OSError: return 0
+                def namerev( x): return ''.join( reversed( x[0]))
+                #self.items.sort( key= namerev) #=getsize, reverse=True)
+                self.items.sort( key= getsize, reverse=True)
+                def _razbyrkvane( items, pokolko):
+                    import itertools
+                    try: zip_longest = itertools.izip_longest
+                    except: zip_longest = itertools.zip_longest
+                    seed()
+                    chunks = []
+                    for i in range( 0, len( items), pokolko):
+                        chunks.append( list( items[i:i+pokolko]))
+                        rnd.shuffle( chunks[-1])
+                    rnd.shuffle( chunks)
+                    chunks = zip_longest( *chunks)
+                    chunks = list( chunks)
+                    r = itertools.chain( *chunks)
+                    return [ x for x in r if x]
+                def razbyrkvane( pokolko):
+                    self.items = _razbyrkvane( self.items, pokolko)
+                if 0:
+                    with open( '/home/tmp/aaaaaa1', 'a') as o:
+                        print( '\n'.join( x[0] for x in self.items), file=o)
+                        print( 2222222222, len( self.items), getsize( self.items[0]), file=o)
+                seed()
+                rnd.shuffle( self.items)
+                razbyrkvane( 1277)
+                seed()
+                rnd.shuffle( self.items)
+                #self.items.reverse()
+                #rnd.shuffle( self.items)
+                #razbyrkvane( 3771)
+                #self.items.reverse()
+                #rnd.shuffle( self.items)
+                #razbyrkvane( 13771)
+                #self.items.reverse()
+                #rnd.shuffle( self.items)
+                #razbyrkvane( 581)
+                #rnd.shuffle( self.items)
+                #razbyrkvane( 137)
 
     def _get_offset(self):
         try:
@@ -406,11 +479,12 @@ class Screensaver(xbmcgui.WindowXMLDialog):
     def _get_animspeed(self):
         # find the skindir
         json_query = xbmc.executeJSONRPC('{"jsonrpc": "2.0", "method": "Addons.GetAddonDetails", "params": {"addonid": "%s", "properties": ["path", "extrainfo"]}, "id": 1}' % SKINDIR)
-        json_query = unicode(json_query, 'utf-8', errors='ignore')
+        #json_query = unicode(json_query, 'utf-8', errors='ignore')
         json_response = json.loads(json_query)
-        if json_response.has_key('result') and (json_response['result'] != None) and json_response['result'].has_key('addon') and json_response['result']['addon'].has_key('path'):
-            skinpath = json_response['result']['addon']['path']
-        skinxml = xbmc.translatePath( os.path.join( skinpath, 'addon.xml' ).encode('utf-8') ).decode('utf-8')
+        ra = json_response.get( 'result',{}).get( 'addon', {}).get('path')
+        if ra: #json_response.__contains__('result') and (json_response['result'] != None) and json_response['result'].__contains__('addon') and json_response['result']['addon'].__contains__('path'):
+            skinpath = ra #json_response['result']['addon']['path']
+        skinxml = xbmcvfs.translatePath( os.path.join( skinpath, 'addon.xml' ) )#.encode('utf-8') ).decode('utf-8')
         try:
             # parse the skin addon.xml
             self.xml = parse(skinxml)
@@ -446,7 +520,7 @@ class Screensaver(xbmcgui.WindowXMLDialog):
         self._clear_prop('Splash')
         self._clear_prop('Background')
         # save the current position  to file
-        if self.slideshow_type == '2' and self.slideshow_random == 'false' and self.slideshow_resume == 'true':
+        if self.slideshow_type == '2' and self.slideshow_resume == 'true':  #svd: and self.slideshow_random == 'false'
             self._save_offset()
         self.close()
 
@@ -479,3 +553,5 @@ class MyMonitor(xbmc.Monitor):
 
     def onScreensaverDeactivated(self):
         self.action()
+
+# vim:ts=4:sw=4:expandtab

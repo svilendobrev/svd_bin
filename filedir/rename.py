@@ -6,24 +6,28 @@ def run( *parse_args):
 
     optz.bool( 'fake', '-n', help= 'do nothing')
     optz.bool( 'link', help= 'link instead of move/rename')
+    optz.bool( 'symlink',   help= 'symlink instead of move/rename, be careful with output-name')
+    optz.str(  'command',   help= 'exec this with 2 args instead of os.rename/os.link')
     optz.bool( 'lower', '-l', help= 'just lower-case, all args are filepaths, see --levels')
     optz.bool( 'upper', '-u', help= 'just upper-case, all args are filepaths, see --levels')
     optz.bool( 'space2under', help= 'whitespace-to-_, all args are filepaths, see --levels')
     optz.bool( 'under2space', help= '_-to-whitespace, all args are filepaths, see --levels')
     optz.bool( 's2u', help= 'space2under')
     optz.bool( 'u2s', help= 'under2space')
+    optz.bool( 'ignorecase', '-i',  help= 'ignore upper/lower case')
     optz.int(  'levels',    default=0, help= 'levels above leaf to rename lower/upper/_, default [%default]') #TODO only works for last-level-changes.. TODO apply to all renaming
     optz.str(  'movepath',  help= 'rename and move into')
-    optz.str(  'command',   help= 'exec this with 2 args instead of os.rename/os.link')
+    optz.bool( 'mkdirs',    '-p',   help= 'make missing dirs in target path')
     optz.bool( 'insymlink', help= 'rename inside symlinks (text it points to), ignore non-symlinks')
     optz.bool( 'outsymlink', help= 'if --insymlink, also rename/cmd actual symlinked-path')
     optz.bool( 'thesymlink', help= 'if --insymlink, also rename/cmd the symlink itself')
-    optz.bool( 'symlink',   help= '--insymlink --outsymlink --thesymlink together')
+    optz.bool( 'allsymlink', help= '--insymlink --outsymlink --thesymlink together')
     #optz.bool( 'filter',    help= 'additional filter for inside symlinks; action applies if this matches inside symlink')  mmm use instead find -lname ?
     optz.bool( 'abssymlink', help= 'change symlinks to point to abs-full-path, ignore non-symlinks')
     optz.bool( 'dirfiles', '-r', help= 'dir and then files inside') #?
     optz.bool( 'noerror',   help= 'skip errors')
     optz.bool( 'overwrite', '-f',   help= 'allow overwriting existing files')
+    optz.bool( 'delete_if_overwrite', '-d',   help= 'delete before overwriting existing files ; --symlink always does this if overwriting allowed, like ln -sf')
     optz.bool( 'quiet', )
     optz.bool( 'verbose', '-v')
     optz.help( '''
@@ -55,14 +59,14 @@ def run( *parse_args):
         regexp = argz.pop(0)
         subst  = argz.pop(0)
         for a in range(1,6):
-           subst = subst.replace( '$'+str(a), '\\'+str(a))
-        repl = re.compile( regexp)
+            subst = subst.replace( '$'+str(a), '\\'+str(a))
+        repl = re.compile( regexp, **( dict( flags= re.IGNORECASE) if optz.ignorecase else {}))
         def func( x):
             return repl.sub( subst, x)
         if not optz.quiet: print( '#', repr(regexp), '=>', repr(subst))
     optz.func = func
 
-    if optz.symlink:
+    if optz.allsymlink:
         optz.insymlink = optz.thesymlink = optz.outsymlink = True
     if optz.insymlink and not optz.quiet:
         print( '# inside symlinks')
@@ -147,6 +151,11 @@ def doit( a, optz):
         renames += [ (a,b) ]
     if not symlink and optz.thesymlink:
         renames += [ (org,orgb) ]
+
+    cmd = os.rename
+    if optz.link: cmd = os.link
+    elif optz.symlink: cmd = os.symlink
+
     for a,b in renames:
     #if not symlink or optz.outsymlink or optz.thesymlink:
         if optz.command:
@@ -154,18 +163,28 @@ def doit( a, optz):
             print( optz.command, a, b)
             subprocess.call( optz.command.split() + [ a, b] )
         else:
-            if not os.path.exists( a):
+            if not os.path.lexists( a):     #do not ignore broken symlinks
                 print( '!ignore inexisting', a)
                 continue
-            if os.path.exists( b) and not optz.overwrite:
-                print( '!not overwriting', b)
-            else:
-                #print( optz.link and 'os.link' or 'os.rename', a, b)
-                try:
-                    (optz.link and os.link or os.rename)( a,b)
-                except Exception as e:
-                    if optz.noerror: print( '??', e )
-                    else: raise
+            if os.path.lexists( b):         #do not ignore broken symlinks
+                if not optz.overwrite:
+                    print( '!not overwriting', b)
+                    continue
+                if optz.delete_if_overwrite or optz.symlink:
+                    if not optz.quiet: print( ':: exists and removed:', b)
+                    os.remove( b)
+
+            bpdirs = os.path.split( b)[:-1]
+            if bpdirs and optz.mkdirs:
+                bpdir = os.path.join( *bpdirs)
+                if not os.path.exists( bpdir):
+                    os.makedirs( bpdir, exist_ok= True)
+            #print( cmd, a, b)
+            try:
+                cmd( a,b)
+            except Exception as e:
+                if optz.noerror: print( '??', e )
+                else: raise
     return b
 
 if __name__ == '__main__':
