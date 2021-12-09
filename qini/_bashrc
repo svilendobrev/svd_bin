@@ -103,6 +103,7 @@ if [ -n "$PS1" ]; then #interactivestuff
   T="${MY_TERM:-$TERM}"
   case "x$T" in
    xlinux|xxterm|xdosbsh|xxterm-vte) sosi k-$T;;
+   xxterm-256color) sosi k-$T;;
    xkonsole*) sosi k-konsole ;;
    x*) echo "what the hell @@@@@ unknown TERM=<$TERM> MY_TERM=<$MY_TERM>" ;;
   esac

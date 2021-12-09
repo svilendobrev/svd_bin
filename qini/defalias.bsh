@@ -11,10 +11,12 @@ al z    'fg %vi'  #pop up last suspended vi* job (ctrl-Z doesnt work)
  # -d to see the link and not to follow
  # ls without .*; -o w/o groups; -g w/o owner
 al d    'ls --color=auto -ogF'
+#bsd al d    'ls -G -ogF'
 al d1   'ls -1'
 al da   'ls -lF'
  # ls with .*
 al d.   'ls --color=auto -alF'
+#bsd al d.   'ls -G -alF'
  # ls .* only; -d is to avoid recursive ls of directories
 al d..  'd -d .*'
  # ls executables only
@@ -24,12 +26,14 @@ ddir()  { d "$@" | grep ^d; }
 dfile() { d "$@" | grep -v ^d; } 
 #al dlinkbroken 'find . -type l -exec ls -alF --color {} \; | grep "31;1" '
 al dlinkbroken 'find -L . -type l '
-#al df   'LANG=C df -h -x tmpfs'
+
 al df 'LANG=C df -B1g -x tmpfs'
+#bsd al df 'LANG=C BLOCKSIZE=1G df | grep -v tmpfs'
  # ls directories; then files - choose which version is faster: 2x ls+grep or 1x ls+perl
 #al d2   'ddir \!#:* ; dfile \!#:*'
 al _d2  "perl -e 'while(<>)"'{if (/^d/||/\/$/) {print} else {push @a,$_}}'" print @a'"
 d2()    { d --color "$@" | _d2; } #force coloring
+#bsd d2()    { CLICOLOR_FORCE=1 d -G "$@" | _d2; } #force coloring
 
 #al llm  'nroff -man \!#:* | less'
 
@@ -81,6 +85,7 @@ al hex  'hexdump -C'
 al h    hex  
 
 al top  'top -d 1'
+#bsd al top  'top -s 1'
 
 al psu  'ps -u $USER --sort=start_time'   # BSD style; override if other layout
 test 0 == `id -u` && al psu  'ps ax'   # BSD style; override if other layout
@@ -197,7 +202,11 @@ al f vfu
 #l calc 'echo "\!#:*" |bc'
 #calc()  { echo print "$@" | python ; } 
 calc()  { python -c "from math import *; print( $*)"; } 
-which ncal >&/dev/null  && al cal 'ncal -M' || al cal '/usr/bin/cal -m'
+#which ncal >&/dev/null  && al cal 'ncal -M' || al cal '/usr/bin/cal -m'
+#which ncal >&/dev/null  && al cal ncal
+if ! which cal >&/dev/null ; then 
+  which ncal >&/dev/null && al cal ncal
+fi
 
 #addusergroup()  { usermod -G `id -Gn "$1" | sed "s/ /,/g"`,"$2" "$1"; } 
 if which adduser >&/dev/null ; then
