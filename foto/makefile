@@ -186,9 +186,9 @@ videodati dati dates:
 optall:
 	find . -type d -exec make -f $(MAKEFILE_LIST) opt -C {} \;
 
-png2jpg:
-	for a in *.png; do echo "$$a" ; convert -quality 90 "$$a" "$$a.jpg" ; done
-p2j:
+#png2jpg:
+#	for a in $(ROOT)*.png; do echo "$$a" ; convert -quality 90 "$$a" "$$a.jpg" ; done
+p2j png2jpg:
 	find . -name \*.png -exec convert -quality 90 -verbose "{}" "{}.jpg" \;
 
 ren-mkv-dt:

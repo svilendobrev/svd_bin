@@ -1,0 +1,2 @@
+#!/bin/sh
+diff -q "$1" "${1%.rmedium75.jpg}" && mv "$1" "$1.same"

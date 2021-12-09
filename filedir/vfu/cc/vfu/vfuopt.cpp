@@ -22,7 +22,7 @@ const char *NOYES[] = { " - ", "YES", NULL };
 const char *NOYESPRECOPY[] = { " - ", "YES", "PRELIM", NULL };
 const char *FTIMETYPE[] = { "CHANGE", "MODIFY", "ACCESS", NULL };
 #ifdef _TARGET_GO32_
-const char *TAGMARKS[] = { ">>", "=>", "->", "Í", "Ä", " ¯", "¯¯", NULL };
+const char *TAGMARKS[] = { ">>", "=>", "->", "\xCD\x10", "\xC4\x10", " \xAF", "\xAF\xAF", NULL };
 #else
 const char *TAGMARKS[] = { ">>", "=>", "->", NULL };
 #endif

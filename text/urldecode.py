@@ -3,12 +3,13 @@ from __future__ import print_function
 
 import sys
 try:
-    from urllib import unquote_plus, unquote
+    from urllib.parse import unquote_plus, unquote, urlparse, parse_qs
 except:
-    from urllib.parse import unquote_plus, unquote
+    from urllib import unquote_plus, unquote
+    from urlparse import urlparse, parse_qs
 
 class optz: pass
-for o in 'cp1251 quoted keepplus'.split():
+for o in 'cp1251 quoted keepplus dict'.split():
     v = True
     try: sys.argv.remove( o)
     except: v= False
@@ -34,4 +35,12 @@ for a in sys.stdin:
     else:
         a = tx(a)
     #if 'q=%' in a: a = tx(a)
+    if optz.dict:   #TODO maybe do this before unquote-ing, then unquote items ??
+        import pprint
+        a = urlparse( a)._asdict()
+        a['query'] = parse_qs( a['query'])
+        pprint.pprint( a, sort_dicts=False )
+        continue
     print( a)
+
+# vim:ts=4:sw=4:expandtab

@@ -158,7 +158,7 @@ class json_opera:
     def userRoot( io): return io['roots']['custom_root']['userRoot']
 
     @classmethod
-    def save( klas, rootnode, notrash =False, subst_in_iofilename =None, rootpath =(), sortkey =None):
+    def save( klas, rootnode, notrash =False, subst_in_iofilename =None, rootpath =()): #, sortkey =None
         nodeinfo = dict(
                     meta_info= dict( layoutMode= '1',), #lines-of-text-view
                     )
@@ -204,7 +204,7 @@ class json_opera:
             rt['children'] = children
             #rint( json.dumps( i, sort_keys=0*True, indent=4))
             with open( subst_in_iofilename, 'w', encoding='utf-8') as fo:
-                json.dump( io, fo, indent=4, ensure_ascii=False, sort_keys=True)
+                json.dump( io, fo, indent=4, ensure_ascii=False )#, sort_keys=True)
 
     @classmethod
     def load( klas, itext):
@@ -289,7 +289,26 @@ class json_firefox:
 
 def key4tree(x): return x.NAME #getattr( x, 'URL', '')
 def key4flat(x): return x.URL, x.NAME
-def key4tree4folder_last(x):  return (not x.URL, x.NAME.lower())
+def _key4tree( x, folder_last, weird_order =False):
+    xx = x.NAME.lower()
+    bfolder_last = not x.URL
+    if not folder_last: bfolder_last = not bfolder_last
+    o = ord( xx[0])
+    bdigit = xx[0].isdigit()    #30<=o<=39
+    ba_z   = 64<o<=90 or 96<o<=122 #A-Z a-z 0-9
+    bascii = ord(xx[0]) < 128
+    bweird_order = False
+    if weird_order:
+        #non-letter-digit , digit, non-ascii-letter, ascii-letter
+        bweird_order = '4ascii-letter' if ba_z else (
+                       '3non-ascii' if not bascii else (
+                       '2digit' if bdigit
+                       else '0ascii-non-letter-digit'
+                       ))
+    return (bfolder_last, bweird_order, xx)
+def key4tree4folder_last(x):  return (not x.URL,   x.NAME.lower())
+def key4tree4folder_first(x): return (bool(x.URL), x.NAME.lower())
+def key4tree4folder_last__ascii_last(x):  return (not x.URL,   x.NAME.lower())
 def key4tree4folder_first(x): return (bool(x.URL), x.NAME.lower())
 
 formats = 'python html adr_opera dldt_html_firefox json_opera lz4json_firefox'.split()
@@ -329,6 +348,8 @@ optz.bool( 'nounique',  help= 'ignore UNIQUEID' )
 optz.bool( 'align',     help= '(for out=.adr)')
 optz.bool( 'notrash',   help= 'ignore trash (for out=.adr)' )
 optz.bool( 'nosort',    help= 'dont sort items' )
+optz.bool( 'weird_order', help= 'sort: first non-letter-digit, then digit, then letter-non-ascii/cyrrillic, then letter/ascii/lat last' )
+optz.bool( 'abcd', )
 options,args = optz.get()
 
 if options.nounique:
@@ -358,7 +379,7 @@ class io:
     class json_opera( json_opera):
         @classmethod
         def save( klas, root, options):
-            root.sort( key= key4tree4folder_first)
+            root.sort( key= lambda x: _key4tree( x, folder_last= False, weird_order= options.weird_order))
             super().save( root, notrash= options.notrash,
                                 subst_in_iofilename= options.subst_in,
                                 rootpath= rootpath2list( options.rootoname),
@@ -393,9 +414,18 @@ for a in args:
     r = reader( a)
     root = i.load(r)
 
+    if options.abcd:
+        #test the veeeery strange alphabetical order in opera
+        abcd = [ (chr(x) +':'+ str(x)) for x in range(32,128)] + [ 'АБВ', 'абв' ]
+        root.items.append( Node( NAME= 'abcd', items= [ Node(
+                NAME= x,
+                ) for x in abcd ]
+                ))
+
+
     root.fixparent()
     if not options.nosort:
-        root.sort( key=key4tree4folder_last)
+        root.sort( key= lambda x: _key4tree( x, folder_last=True, weird_order= options.weird_order))
 
     if options.rootiname:
         root = root.find( rootpath2list( options.rootiname)) or Node()

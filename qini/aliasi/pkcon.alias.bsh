@@ -1,0 +1,73 @@
+# sailfish-os packages
+
+al a-install 'devel-su pkcon install'
+al a-search  'devel-su pkcon search'
+al a-remove  'devel-su pkcon remove'
+al a-remove-deps 'a-remove --autoremove'
+al a-delete	 a-remove
+al a-delete-deps a-remove-deps
+al a-list    'devel-su pkcon get-files'
+al a-update	 'devel-su pkcon update'
+al a-show 	 'devel-su pkcon get-details'
+
+#Repository management
+#/usr/bin/ssu 
+
+#/usr/bin/pkcon 
+#  pkcon [OPTION?] PackageKit Console Program
+#
+#PackageKit Console Interface
+#
+#Subcommands:
+#  backend-details
+#  get-roles
+#  get-groups
+#  get-filters
+#  get-transactions
+#  get-time
+#  search [name|details|group|file] [data]
+#  install [packages]
+#  install-local [files]
+#  download [directory] [packages]
+#  install-sig [type] [key_id] [package_id]
+#  remove [package]
+#  update <package>
+#  refresh [force]
+#  resolve [package]
+#  get-updates
+#  depends-on [package]
+#  required-by [package]
+#  get-details [package]
+#  get-distro-upgrades
+#  get-files [package]
+#  get-update-detail [package]
+#  get-packages
+#  repo-list
+#  repo-enable [repo_id]
+#  repo-disable [repo_id]
+#  repo-set-data [repo_id] [parameter] [value]
+#  what-provides [search]
+#  upgrade-system [distro-name] [minimal|default|complete]
+#  offline-get-prepared
+#  offline-trigger
+#  offline-cancel
+#  offline-status
+#  quit
+#
+#Options:
+#  -h, --help               Show help options
+#  --help-all               Show all help options
+#  --version                Show the program version and exit
+#  --filter                 Set the filter, e.g. installed
+#  -y, --noninteractive     Install the packages without asking for confirmation
+#  -d, --only-download      Prepare the transaction by downloading packages only
+#  --allow-downgrade        Allow packages to be downgraded during transaction
+#  --allow-reinstall        Allow packages to be reinstalled during transaction
+#  --autoremove             Automatically remove unused dependencies
+#  -n, --background         Run the command using idle network bandwidth and also using less power
+#  -p, --plain              Print to screen a machine readable output, rather than using animated widgets
+#  -c, --cache-age          The maximum metadata cache age. Use -1 for 'never'.
+#  --allow-untrusted        Allow untrusted packages to be installed.
+#  -v, --verbose            Show debugging information for all files
+
+# vim:ts=4:sw=4:expandtab

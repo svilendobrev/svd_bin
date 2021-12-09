@@ -26,9 +26,9 @@ ddir()  { d "$@" | grep ^d; }
 dfile() { d "$@" | grep -v ^d; } 
 #al dlinkbroken 'find . -type l -exec ls -alF --color {} \; | grep "31;1" '
 al dlinkbroken 'find -L . -type l '
-
-al df 'LANG=C df -B1g -x tmpfs'
-#bsd al df 'LANG=C BLOCKSIZE=1G df | grep -v tmpfs'
+#al df 'LANG=C df -B1g -x tmpfs'
+#al df 'LANG=C df -m -x tmpfs'
+al df 'LANG=C BLOCKSIZE=1G df | grep -v tmpfs'
  # ls directories; then files - choose which version is faster: 2x ls+grep or 1x ls+perl
 #al d2   'ddir \!#:* ; dfile \!#:*'
 al _d2  "perl -e 'while(<>)"'{if (/^d/||/\/$/) {print} else {push @a,$_}}'" print @a'"
@@ -143,6 +143,8 @@ ff()    { fff "$@" -exec ls -doF '{}' ';'; }
 al ffi  'II=i ff'
 al fffi 'II=i fff'
 al ffli 'II=i ffl'
+fflii() { X="$1" ; shift ; ffli "*$X*" "$@"; }
+fflcc() { X="$1" ; shift ; ffli "*"`echo "$X"|lat2cyr.py`"*" "$@"; }
 # !!! for any other * finds use fff.sh !
 
 ##grep what where
@@ -199,11 +201,11 @@ al utf2win 'encodec.py utf8 cp1251'
 al win2utf 'encodec.py cp1251 utf8'
 
 al f vfu
-#l calc 'echo "\!#:*" |bc'
+#al calc 'echo "\!#:*" |bc'
 #calc()  { echo print "$@" | python ; } 
 calc()  { python -c "from math import *; print( $*)"; } 
+al c calc
 #which ncal >&/dev/null  && al cal 'ncal -M' || al cal '/usr/bin/cal -m'
-#which ncal >&/dev/null  && al cal ncal
 if ! which cal >&/dev/null ; then 
   which ncal >&/dev/null && al cal ncal
 fi
@@ -279,5 +281,10 @@ al amx alsamixer
 al rmli 'rmlint -c sh:link -L -y s -p -T duplicates'
 
 al ren-abs2.. 'rename.py --in ".*/" ../'
+
+al mradio 'make -f ~/src/bin/biblioteka/radio/rendirall.mak'
+al emradio 'e ~/src/bin/biblioteka/radio/rendirall.mak'
+al mra mradio 
+al emr emradio
 
 # vim:ts=4:sw=4:expandtab
