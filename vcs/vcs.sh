@@ -183,6 +183,7 @@ git_i='commit'
 git_i_pipe='; git push -q'
 git_il='commit'  #local
 git_ii='add'
+git_ic='add --patch'    #general is git add --interactive
 git_a='add'
 git_l='log'
 git_l3='log -n 3'
