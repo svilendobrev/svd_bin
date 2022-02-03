@@ -197,6 +197,7 @@ git_hu='stash pop'
 git_io='log --branches --not --remotes ; git log --remotes --not --branches '   #??
 git_oi="$git_io"
 git_w='show'
+git_b='checkout -b'     #make branch <name-follows>
 
 #to turn checkout into bare:
 #git config --bool core.bare true
