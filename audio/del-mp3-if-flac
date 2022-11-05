@@ -1,0 +1,1 @@
+ffl *.mp3 -exec bash -c 'test -f `dirname {}`/`basename {} .mp3`.flac && rm -v {}' \;
