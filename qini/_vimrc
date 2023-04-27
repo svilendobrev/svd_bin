@@ -6,6 +6,7 @@
 set hidden      "allow moving out of a changed file (which goes hidden)
 set backspace=2 "allow backspace to remove everywhere+newlines
 set modeline    "allow modeline (>7.1 disabled in debian by default)
+set modelines=2 "allow modeline (=0 in mac-os)
 "set fileencodings=ucs-bom,cp1251,utf-8  "allow editing utf in cp1251 env
 set fileencodings=cp1251,ucs-bom,utf-8  "allow editing utf in cp1251 env
 "set fileencodings=ucs-bom,utf-8,cp1251  "allow editing utf in cp1251 env
