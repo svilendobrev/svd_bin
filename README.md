@@ -2,7 +2,7 @@ svd_bin
 =======
 
 various tools + libraries of mine, small or big, old'91 or new.
-most used are: vcs/, qini/ + aliases, filedir/, eee/, and audio-videog'day
+most used are: vcs/, qini/ + aliases, filedir/, text/, and foto/audio/video
 
 my minimal set are:
 
