@@ -226,7 +226,10 @@ ed3.tag.Genre.__eq__ = __eq__
 #eyed3.Frame.__eq__ = __eq__
 
 _nums = ed3.tag.TagTemplate._nums
-ed3.tag.TagTemplate._nums = lambda self, num_tuple, param, zeropad: _nums( self, num_tuple, param, False)
+if isinstance( ed3.tag.TagTemplate.__dict__[ '_nums'], staticmethod):
+    ed3.tag.TagTemplate._nums = staticmethod( lambda num_tuple, param, zeropad: _nums( num_tuple, param, False))
+else: #old
+    ed3.tag.TagTemplate._nums = lambda self, num_tuple, param, zeropad: _nums( self, num_tuple, param, False)
 
 #ed3.tag.Tag = Tag #cached too many places before this
 

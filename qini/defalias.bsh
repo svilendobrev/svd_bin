@@ -11,6 +11,9 @@ al z    'fg %vi'  #pop up last suspended vi* job (ctrl-Z doesnt work)
  # -d to see the link and not to follow
  # ls without .*; -o w/o groups; -g w/o owner
 al d    'ls --color=auto -ogF'
+al dt1  'd --time-style=long-iso'
+al dt2  'd --time-style=full-iso'
+al dt   dt1
 #bsd al d    'ls -G -ogF'
 al d1   'ls -1'
 al da   'ls -lF'
@@ -21,6 +24,8 @@ al d.   'ls --color=auto -alF'
 al d..  'd -d .*'
  # ls executables only
 al dx   'd | g "^[^d]..(x|...x|......x)"'
+al d-   'd -d'
+al d1-  'd1 -d'
  # ls directories only
 ddir()  { d "$@" | grep ^d; } 
 dfile() { d "$@" | grep -v ^d; } 
@@ -28,7 +33,7 @@ dfile() { d "$@" | grep -v ^d; }
 al dlinkbroken 'find -L . -type l '
 #al df 'LANG=C df -B1g -x tmpfs'
 #al df 'LANG=C df -m -x tmpfs'
-al df 'LANG=C BLOCKSIZE=1G df | grep -v tmpfs'
+df() { LANG=C BLOCKSIZE=1G /bin/df "$@" | grep -v tmpfs ; }
  # ls directories; then files - choose which version is faster: 2x ls+grep or 1x ls+perl
 #al d2   'ddir \!#:* ; dfile \!#:*'
 al _d2  "perl -e 'while(<>)"'{if (/^d/||/\/$/) {print} else {push @a,$_}}'" print @a'"
@@ -135,7 +140,7 @@ cpdir2file()  { cp -vL "$2" "$1"/"$2"; }
 #al ff  "find . -name \!#:* | xargs -e ls -lF"
 #al ff  "find . -name \!#:* -exec ls -doF \{\} \;"
 
-ffl()   { find . -${II}name "$@"; } 
+ffl()   { find . ${FF} -${II}name "$@"; } 
  #-follow sym-links
 fff()   { find . -follow -${II}name "$@"; } 
 ff()    { fff "$@" -exec ls -doF '{}' ';'; } 
@@ -143,8 +148,10 @@ ff()    { fff "$@" -exec ls -doF '{}' ';'; }
 al ffi  'II=i ff'
 al fffi 'II=i fff'
 al ffli 'II=i ffl'
-fflii() { X="$1" ; shift ; ffli "*$X*" "$@"; }
-fflcc() { X="$1" ; shift ; ffli "*"`echo "$X"|lat2cyr.py`"*" "$@"; }
+fflii() { X="$1" ; shift ; ffli "*$X*" "$@" | sort ; }
+fflcc() { X="$1" ; shift ; ffli "*"`echo "$X"|lat2cyr.py`"*" "$@" | sort; }
+fflii1() { fflii "$@" -maxdepth 1; }
+fflcc1() { fflcc "$@" -maxdepth 1; }
 # !!! for any other * finds use fff.sh !
 
 ##grep what where
@@ -155,8 +162,8 @@ ggg()   { grep -Ens "$@" /dev/null; }
 #al xgg "xargs -e grep -nsE \!#:1 /dev/null" #xargs -e coz otherwise it uses _ as EOFmarker
 #al zgg "find . -type f -name \!#:2* | xgg \!#:1"
 
-senv _SRCnojs  '[cChHylgm] [chCH][pP][pP] [chCH][xX][xX] cc CC asm p[ylp] java xsl rb php as'
-senv _SRC  "$_SRCnojs js jsx tsx"
+senv _SRCnojs  '[cChHylgm] [chCH][pP][pP] [chCH][xX][xX] cc CC asm p[ylp] java xsl rb php as clj'
+senv _SRC  "$_SRCnojs js jsx tsx ts vue"
 senv _EXCL 'CVS .svn .bzr .hg .repo .git'
  #recursive     from current dir grep in source files ONLY
  ###grep --exclude-dir to ignore whole-dirs
@@ -181,8 +188,8 @@ senv FCEXCL "$_EXCL"' .hgtags tags *.pyc __pycache__ *.so *.[oa] *.exe *.proj .s
 #fcsrc()     { set -f; fc -r -I "\$Id.*\$" -I "\$Rev.*\$" `for a in $FCSRC; do echo -x "$a"; done ` "$@"; set +f; } 
 fcsrc()     { set -f; aFC=($FCEXCL); fc -r -I "\$Id.*\$" -I "\$Rev.*\$" ${aFC[*]/#/-x } "$@"; set +f; } 
 
-al rmpyc    'find . -depth -follow -name \*.pyc -exec rm {} \; -o -name __pycache__ -exec rm -rf {} \;'
-al rmpycl   'find . -depth         -name \*.pyc -exec rm {} \; -o -name __pycache__ -exec rm -rf {} \;'
+al rmpyc    'find . -depth -follow -name \*.pyc -delete  -o -name __pycache__ -exec rm -rf {} \;'
+al rmpycl   'find . -depth         -name \*.pyc -delete  -o -name __pycache__ -exec rm -rf {} \;'
 
 ### file sizes
 al dm       'du -m --total'
@@ -208,6 +215,8 @@ al c calc
 #which ncal >&/dev/null  && al cal 'ncal -M' || al cal '/usr/bin/cal -m'
 if ! which cal >&/dev/null ; then 
   which ncal >&/dev/null && al cal ncal
+else
+  al cal 'cal --monday'
 fi
 
 #addusergroup()  { usermod -G `id -Gn "$1" | sed "s/ /,/g"`,"$2" "$1"; } 
@@ -216,7 +225,7 @@ if which adduser >&/dev/null ; then
  al addusergroup  adduser #useradd 
 else
  #XXX arch etc
- addusergroup()  { u=$1; shift; usermod -a -G "$@" $u ; }
+ addusergroup()  { u=$1; shift; sudo usermod -a -G "$@" $u ; }
 fi
 
 #al qiv  'XLIB_SKIP_ARGB_VISUALS=1 qiv -l'
@@ -286,5 +295,20 @@ al mradio 'make -f ~/src/bin/biblioteka/radio/rendirall.mak'
 al emradio 'e ~/src/bin/biblioteka/radio/rendirall.mak'
 al mra mradio 
 al emr emradio
+al mu 'cd /muzika'
+al му mu
+
+al kal 'khal list ' #today+tomorrow
+al kalw 'khal list now 7d'
+al kalall 'khal list now 190d'
+
+al dr docker
+al de docker-compose
+drbash() { docker exec -it $1 bash ; }  #container-id
+# docker run  -it --entrypoint bash  <img>
+# docker exec -it <container> bash  
+## show :3000 as :3001 ; needs hacking SSL.* in /usr/lib/python3.10/site-packages/mitmproxy/net/tls.py
+#mitmproxy --mode reverse:http://localhost:3001 -p 3000
+drlocalhost() { docker run -p 127.0.0.1:$1:$1 $2 $3 ; }  #port img args
 
 # vim:ts=4:sw=4:expandtab

@@ -191,7 +191,7 @@ class json_opera:
                 io = json.load( fi)
 
             rt = klas.userRoot( io)
-            rt.setdefault( 'name', 'useRoot')
+            rt.setdefault( 'name', 'userRoot')
             for p in rootpath:
                 cc = rt['children']
                 for c in cc:
@@ -207,17 +207,34 @@ class json_opera:
                 json.dump( io, fo, indent=4, ensure_ascii=False )#, sort_keys=True)
 
     @classmethod
+    def nodejson( me, node, is_root =False, name =None):
+        URL = (node.get( 'url') or '').strip()
+        return Node(
+            NAME= name or node[ 'name'].strip() or URL,
+            URL = URL,
+            UNIQUEID = (node.get('id') or '').strip(),
+            items = [ me.nodejson( c) for c in node.get( 'children', ()) ]
+            )
+    @classmethod
     def load( klas, itext):
         io = json.loads( itext)
         userRoot = klas.userRoot( io)
-        def operajson( node, is_root =False):
-            return Node(
-                NAME= node[ 'name'].strip(),
-                URL = (node.get( 'url') or '').strip(),
-                UNIQUEID = (node.get('id') or '').strip(),
-                items = [ operajson( c) for c in node.get( 'children', ()) ]
-                )
-        r = operajson( userRoot, is_root=True)
+        r = klas.nodejson( userRoot, is_root=True)
+        r.NAME = r.URL = r.UNIQUEID = None
+        return r
+
+class json_chrome: #same as json_opera but load-only, with all non-empty sub-roots
+    save = None
+    nodejson = json_opera.nodejson
+    @classmethod
+    def load( klas, itext):
+        io = json.loads( itext)
+        thingsRoot = io['roots']
+        r = Node( items= [
+                klas.nodejson( v, name= k, is_root= True)
+                for k,v in list( thingsRoot.items()) + list( thingsRoot.get( 'custom_root', {}).items())
+                if k != 'trash' and isinstance( v, dict) and v.get('children')
+                ] )
         r.NAME = r.URL = r.UNIQUEID = None
         return r
 
@@ -271,7 +288,7 @@ class json_firefox:
     def load( klas, jsonlz4_binary):
         b = jsonlz4_binary
         assert b[:8] == b'mozLz40\0', b[:8]
-        import lz4
+        import lz4.block
         jsn = lz4.block.decompress( b[8:])
         io = json.loads( jsn)
         userRoot = klas.userRoot( io)
@@ -293,6 +310,8 @@ def _key4tree( x, folder_last, weird_order =False):
     xx = x.NAME.lower()
     bfolder_last = not x.URL
     if not folder_last: bfolder_last = not bfolder_last
+    assert xx, x
+    #if not xx: return (bfolder_last, '0asci', xx)
     o = ord( xx[0])
     bdigit = xx[0].isdigit()    #30<=o<=39
     ba_z   = 64<o<=90 or 96<o<=122 #A-Z a-z 0-9
@@ -311,7 +330,54 @@ def key4tree4folder_first(x): return (bool(x.URL), x.NAME.lower())
 def key4tree4folder_last__ascii_last(x):  return (not x.URL,   x.NAME.lower())
 def key4tree4folder_first(x): return (bool(x.URL), x.NAME.lower())
 
-formats = 'python html adr_opera dldt_html_firefox json_opera lz4json_firefox'.split()
+
+def rootpath2list( rootpath): return [ a for a in (rootpath or '').split('/') if a]
+
+class io:
+    class python:
+        @staticmethod
+        def load( r): return eval( r, dict(dict=Node) )
+        @staticmethod
+        def save( root, options): root.py()
+    if 0:
+        class adr_opera:
+            import opera_adr
+            @classmethod
+            def load( klas, r): return klas.opera_adr.parse_adr( r, Node)
+            @classmethod
+            def save( klas, root, options):
+                klas.opera_adr.adr_opera( root, align= options.align, notrash= options.notrash )
+    class json_opera( json_opera):
+        @classmethod
+        def save( klas, root, options):
+            root.sort( key= lambda x: _key4tree( x, folder_last= False, weird_order= options.weird_order))
+            super().save( root, notrash= options.notrash,
+                                subst_in_iofilename= options.subst_in,
+                                rootpath= rootpath2list( options.rootoname),
+                                )
+    class chrome_json( json_chrome):
+        pass
+    dldt_html_firefox = dldt_html_firefox
+    class lz4json_firefox( json_firefox):
+        @staticmethod
+        def read( fname): return open( a, 'rb').read()
+    class html:
+        @staticmethod
+        def save( root, options):
+            root.dump( dumper= Node.htmler())
+    class text:
+        @staticmethod
+        def save( root, options):
+            if options.flat:
+                root.allitems.sort( key=key4flat)
+                for i in root.allitems:
+                    print( repr(i))
+            else:
+                root.dump()
+
+iformats = [ k for k,v in io.__dict__.items() if k[0] != '_' and hasattr( v, 'load') ]
+oformats = [ k for k,v in io.__dict__.items() if k[0] != '_' and hasattr( v, 'save') ]
+
 #opera-htmlexport = firefox = netscape
 def fullmap( names, **aliases):
     oo = dict( (f,f) for f in names)    #with aliases
@@ -327,8 +393,6 @@ def fullmap( names, **aliases):
         #oo.update( (f[:i],f) for f in fmts)
     return oo
 
-iformats = formats
-oformats = formats + 'text'.split()
 ifmts = fullmap( iformats)
 ofmts = fullmap( oformats)
 
@@ -358,49 +422,6 @@ if options.nounique:
 
 options.output = ofmts[ options.output ]
 options.input  = ifmts[ options.input ]
-
-def rootpath2list( rootpath): return [ a for a in (rootpath or '').split('/') if a]
-
-
-class io:
-    class python:
-        @staticmethod
-        def load( r): return eval( r, dict(dict=Node) )
-        @staticmethod
-        def save( root, options): root.py()
-    if 0:
-        class adr_opera:
-            import opera_adr
-            @classmethod
-            def load( klas, r): return klas.opera_adr.parse_adr( r, Node)
-            @classmethod
-            def save( klas, root, options):
-                klas.opera_adr.adr_opera( root, align= options.align, notrash= options.notrash )
-    class json_opera( json_opera):
-        @classmethod
-        def save( klas, root, options):
-            root.sort( key= lambda x: _key4tree( x, folder_last= False, weird_order= options.weird_order))
-            super().save( root, notrash= options.notrash,
-                                subst_in_iofilename= options.subst_in,
-                                rootpath= rootpath2list( options.rootoname),
-                                )
-    dldt_html_firefox = dldt_html_firefox
-    class lz4json_firefox( json_firefox):
-        @staticmethod
-        def read( fname): return open( a, 'rb').read()
-    class html:
-        @staticmethod
-        def save( root, options):
-            root.dump( dumper= Node.htmler())
-    class text:
-        @staticmethod
-        def save( root, options):
-            if options.flat:
-                root.allitems.sort( key=key4flat)
-                for i in root.allitems:
-                    print( repr(i))
-            else:
-                root.dump()
 
 def reader( fname):
     return open( fname, encoding='utf-8').read().strip()

@@ -62,4 +62,11 @@ al ram memory
 al mountl 'mount | grep -Ev "(tmpfs|/sys|/proc|mqueue|devpts|hugetlbfs)"'
 al lmount mountl
 
+al stat 'iostat -m ; uptime '
+al nfsr nfsrights
+al lsblkmodel 'lsblk -o NAME,FSTYPE,LABEL,MOUNTPOINT,SIZE,MODEL'
+
+al netspeed iperf
+al netspeedwatch nload
+
 # vim:ts=4:sw=4:expandtab

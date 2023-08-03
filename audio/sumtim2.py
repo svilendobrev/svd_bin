@@ -28,7 +28,7 @@ DIGITS = 0
 def minsec( s):
     m = int(s/60)
     ss = s-m*60
-    return '{m:2d}:{ss:0{w}.{p}f}'.format( p=DIGITS, w=2+bool(DIGITS)+DIGITS, **locals())
+    return '{m:2d}:{ss:0{w}.{p}f} = {s:0{w}.{p}f}'.format( p=DIGITS, w=2+bool(DIGITS)+DIGITS, **locals())
     return '%(m)2d:%(ss)4.1f = %(s).1fs ' % locals()
 
 def bytesize( size, show =True):

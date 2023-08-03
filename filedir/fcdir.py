@@ -19,10 +19,14 @@ optbool( 'nosize', default= bool( os.environ.get( 'NOSIZE')), help= 'ignore size
 optbool( 'byname',  help= 'sort by name, not dir')
 optbool( 'convert', help= 'show moves/deletes needed to convert dir1 to dir2, by-name')
 optany(  'exclude', '-x',   help= 'regexp to exclude/ignore files')
+optany(  'wexclude', '-w',  help= 'space-separated-list of patterns to be |-joined into exclude regex')
 optbool( 'same',            help= 'show same/similar things instead of differences')
 optbool( 'nosymlink',       help= 'dont follow symlink dirs = no dereference')
 optbool( 'symtext', '-t',   help= 'compare symlinks as text, no dereference')
 optbool( 'timestamps'   ,   help= 'compare timestamps too')
+optbool( 'nodirs'       ,   help= 'do not show dirs')
+optbool( 'noexcluded_count', help= 'do not show excluded counts')
+optbool( 'nocount',         help= 'do not show counts any')
 optz,args = oparser.parse_args()
 if len(args)<2:
     oparser.error('compare what?')
@@ -32,6 +36,9 @@ if len(args)<2:
 ##eutf.e_utf_stdout() and 'utf-8' or
 
 ignore = None
+if optz.wexclude:
+    assert not optz.exclude
+    optz.exclude = '('+'|'.join( optz.wexclude.split())+')'
 if optz.exclude:
     print( 'excluding:', optz.exclude)
     ignore = re.compile( optz.exclude)
@@ -42,17 +49,32 @@ def outsymlink( fp,f):
 
 from os.path import join, getsize, islink, dirname
 
-if optz.timestamps:
-    os.stat_float_times( False)
+#if optz.timestamps:
+#    os.stat_float_times( False)
+# XXX fat* has time-resolution of 2s !  so odd-second times will be always newer..
 
 def files( root):
     c = os.getcwd()
     os.chdir( root )
     o = []
+    odirs = {}
+    def dirify( fp, item =None):
+        levels = fp.split('/')
+        if levels: levels.pop()
+        while levels:
+            dir = odirs.get( '/'.join( levels))
+            if dir:
+                if item:
+                    dir.files.append( item )
+                dir.files_all_count += 1
+            levels.pop()
+
     for root, dirs, files in os.walk( '.', followlinks= not optz.nosymlink):
-        for f in files:
+        for f in sorted( files):
             fp = join( root, f)
-            if ignore and ignore.search( fp): continue
+            if ignore and ignore.search( fp):
+                dirify( fp)
+                continue
             #fp = fp.decode( fenc)
             if optz.symtext and islink( fp):
                 item = outsymlink( fp,f)
@@ -65,14 +87,22 @@ def files( root):
                     sz = (sz, os.stat( fp).st_mtime)
                 item = DictAttr( size= sz, path= fp, name= f)
             o.append( item)
+            dirify( fp, item)
         dd = []
-        for f in dirs:
+        for f in sorted( dirs):
             fp = join( root, f)
-            if ignore and ignore.search( fp): continue
+            if ignore and ignore.search( fp):
+                dirify( fp)
+                continue
             if optz.symtext and islink( fp):
                 item = outsymlink( fp,f)
                 o.append( item)
-            else: dd.append(f)
+            else:
+                dd.append(f)
+                item = DictAttr( size= '/', path= fp, name= f, dir= True, files= [], files_all_count= 0)
+                o.append( item)
+                odirs[ fp ] = item
+            dirify( fp, item)
         dirs[:] = dd
 
     os.chdir( c)
@@ -90,14 +120,33 @@ def files( root):
 #        assert len( r) == len(o)
         return r
 
+    return o, odirs
+
+def item_as_text( x):
+    r = DictAttr( x)
+    r.count = ''
+    n_all = x.get('files_all_count')
+    if n_all:
+        n_files = len( x.files)
+        r.count = f' :: {n_files}'
+        if not optz.noexcluded_count:
+            n_diff = n_all - n_files
+            if n_diff: r.count += f' +{n_diff}'
+    if x.get('dir'):
+        r.name +='/'
+        r.path +='/'
+    r.dir = dirname( x.path)
+    return r
+
+def textify( o):
     if optz.byname:
         o.sort( key= lambda x: (x.name,x.path,x.size) )
-        o = [ '%(name)16s %(size)16s %(path)s' % dict( x, path= dirname( x.path))
-                for x in o ]
+        format = '%(name)16s %(size)16s %(dir)s'
     else:
         o.sort( key= lambda x: (x.path,x.size) )
-        o = [ '%(size)16s %(path)s' % x for x in o ]
-    return o
+        format = '%(size)16s %(path)s'
+    if not optz.nocount: format+= '%(count)s'
+    return [ format % item_as_text( x) for x in o ]
 
 a1   = args[0]
 a2   = args[1]
@@ -108,6 +157,20 @@ a2   = args[1]
 import difflib
 f1,f2 = files( a1), files( a2)
 if not optz.convert:
+    def parent_dir_missing( f, dirs, dirs_other):
+        for p,d in dirs.items():
+            if p not in dirs_other:
+                for x in d.files:
+                    x.parent_dir_missing = True
+        return textify( [x for x in f if not x.get('parent_dir_missing')])
+    f1,dirs1 = f1
+    f2,dirs2 = f2
+    #from pprint import pprint
+    #pprint( sorted(dirs1))
+    #pprint( sorted(dirs2))
+    f1 = parent_dir_missing( f1, dirs1, dirs2)
+    f2 = parent_dir_missing( f2, dirs2, dirs1)
+
     if optz.same:
         for l in difflib.ndiff( f1,f2):
             if l.startswith('  '): print( l)

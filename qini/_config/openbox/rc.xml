@@ -53,7 +53,7 @@
     <animateIconify>no</animateIconify>
     <font place="ActiveWindow">
       <name>sans</name>
-      <size>14</size>
+      <size>18</size>
       <!-- font size in points -->
       <weight>bold</weight>
       <!-- 'bold' or 'normal' -->
@@ -62,7 +62,7 @@
     </font>
     <font place="InactiveWindow">
       <name>sans</name>
-      <size>14</size>
+      <size>18</size>
       <!-- font size in points -->
       <weight>bold</weight>
       <!-- 'bold' or 'normal' -->
@@ -71,7 +71,7 @@
     </font>
     <font place="MenuHeader">
       <name>sans</name>
-      <size>16</size>
+      <size>22</size>
       <!-- font size in points -->
       <weight>normal</weight>
       <!-- 'bold' or 'normal' -->
@@ -80,7 +80,7 @@
     </font>
     <font place="MenuItem">
       <name>sans</name>
-      <size>16</size>
+      <size>22</size>
       <!-- font size in points -->
       <weight>normal</weight>
       <!-- 'bold' or 'normal' -->
@@ -89,7 +89,7 @@
     </font>
     <font place="OnScreenDisplay">
       <name>sans</name>
-      <size>14</size>
+      <size>20</size>
       <!-- font size in points -->
       <weight>bold</weight>
       <!-- 'bold' or 'normal' -->
@@ -167,20 +167,16 @@
     <!-- Keybindings for desktop switching -->
     <keybind key="c-1 c-KP_End">
       <action name="Desktop">
-        <desktop>1</desktop>
-      </action> </keybind>
+        <desktop>1</desktop> </action> </keybind>
     <keybind key="c-2 c-KP_Down">
       <action name="Desktop">
-        <desktop>2</desktop>
-      </action> </keybind>
+        <desktop>2</desktop> </action> </keybind>
     <keybind key="c-3 c-KP_Next">
       <action name="Desktop">
-        <desktop>3</desktop>
-      </action> </keybind>
+        <desktop>3</desktop> </action> </keybind>
     <keybind key="c-4 c-KP_Left">
       <action name="Desktop">
-        <desktop>4</desktop>
-      </action> </keybind>
+        <desktop>4</desktop> </action> </keybind>
     <keybind key="c-a-1">
       <action name="SendToDesktop">
         <desktop>1</desktop>
@@ -215,8 +211,7 @@
     </keybind>
     <keybind key="A-space">
       <action name="ShowMenu">
-        <menu>client-menu</menu>
-      </action> </keybind>
+        <menu>client-menu</menu> </action> </keybind>
     <keybind key="a-F9">
       <action name="Iconify"/> </keybind>
     <keybind key="a-F10">
@@ -251,17 +246,15 @@
     <!-- Keybindings for running applications -->
     <keybind key="c-F1"> <action name="Execute">
         <command>1kodi</command> </action> </keybind>
-    <keybind key="W-e"> <action name="Execute">
-        <command>pcmanfm</command> </action> </keybind>
     <keybind key="a-x"> <action name="Execute">
         <command>xtermutf</command> </action> </keybind>
     <keybind key="c-a-x"> <action name="Execute">
         <command>axfce4term</command> </action> </keybind>
     <keybind key="a-z"> <action name="Execute">
         <command>axterm</command> </action> </keybind>
-    <keybind key="c-a-m"> <action name="Execute">
+    <keybind key="c-a-m c-F2"> <action name="Execute">
         <command>claws-mail</command> </action> </keybind>
-    <keybind key="c-a-o"> <action name="Execute">
+    <keybind key="c-a-o c-F3 a-o"> <action name="Execute">
         <command>opera</command> </action> </keybind>
     <keybind key="c-a-f"> <action name="Execute">
         <command>firefox</command> </action> </keybind>
@@ -278,17 +271,9 @@
     <keybind key="A-C-Delete"> <action name="Execute">
         <command>lxtask</command> </action> </keybind>
     <!-- sound volume svd: amixer set Master playback 2db- -->
-    <keybind key="a-period"> <action name="Execute">
+    <keybind key="XF86AudioRaiseVolume a-period w-period a-KP_Add"> <action name="Execute">
         <command>amixer set Master playback 2db+</command> </action> </keybind>
-    <keybind key="a-comma"> <action name="Execute">
-        <command>amixer set Master playback 2db-</command> </action> </keybind>
-    <keybind key="a-KP_Add"> <action name="Execute">
-        <command>amixer set Master playback 2db+</command> </action> </keybind>
-    <keybind key="a-KP_Subtract"> <action name="Execute">
-        <command>amixer set Master playback 2db-</command> </action> </keybind>
-    <keybind key="XF86AudioRaiseVolume"> <action name="Execute">
-        <command>amixer set Master playback 2db+</command> </action> </keybind>
-    <keybind key="XF86AudioLowerVolume"> <action name="Execute">
+    <keybind key="XF86AudioLowerVolume a-comma w-comma a-KP_Subtract"> <action name="Execute">
         <command>amixer set Master playback 2db-</command> </action> </keybind>
   </keyboard>
   <mouse>

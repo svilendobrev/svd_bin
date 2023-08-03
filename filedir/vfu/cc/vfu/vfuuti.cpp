@@ -230,7 +230,7 @@ char* time_str_compact( const time_t tim, char* buf )
 {
   ASSERT( buf );
   time_t timenow = time( NULL );
-  strcpy(buf, ctime(&tim));
+  strcpy(buf, ctime(&tim)); //XXX dies on some hanging symlinks because uncleaned stat struct in __ftwalk_process() in vslib/vsuti.cpp
   if (timenow > tim + 6L * 30L * 24L * 60L * 60L /* old */
       ||
       timenow < tim - 60L * 60L) /* in the future */

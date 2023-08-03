@@ -1,16 +1,21 @@
 #!/bin/sh
 L=/tmp/rclocal
 echo zzzzzzzzzzzz $0 > $L
-chmod a+rw $L
+chmod g+w $L
+chgrp wheel $L
 date >> $L
 
+lsblk -o path,model,size -d >>$L
+
 for a in `lsblk -o path -d -n`; do  
- lsblk -o model -d -n $a | grep -vi ssd  && /home/qini/tun/diskyt  $a >>$L
+ # lsblk -o model -d -n $a | grep -vi ssd  && /home/qini/tun/diskyt  $a >>$L
+ # grep 1 /sys/block/xxxxx/queue/rotational && /home/qini/tun/diskyt  $a >>$L
+ lsblk -o rota -d -n $a | grep -q 1 && /home/qini/tun/diskyt  $a >>$L
 done
 
-#cpufreq-set -r --max 3.0GHZ
-cpupower -c all frequency-set --max 3.4GHZ -g powersave
-#ползва грешна горна граница 3.8гхц.. затуй 3.3гхц : спрямо 3.8 всъщност дават 3.2
+GOV=ondemand
+cpupower frequency-info | grep -q governors | grep -q $GOV || GOV=powersave
+cpupower -c all frequency-set --max 3.6GHZ -g $GOV
 for a in   /sys/devices/system/cpu/cpu0/cpufreq/* /sys/devices/system/cpu/intel_pstate/* ; do 
  echo $a >> $L
  cat $a >> $L

@@ -461,6 +461,7 @@ int __ftwalk_process( const char *origin,
 
     this_path += de->d_name;
     int is_link = file_is_link( this_path );
+    memset( &st, 0, sizeof(st) );
     #ifdef _TARGET_GO32_
     if (dosstat(dir, &st)) /* dosstat() will never return != 0 */
     #else

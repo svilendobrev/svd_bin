@@ -24,6 +24,13 @@ from xml.dom.minidom import parse
 from utils import *
 import json
 from lat2cyr import zvuchene    #svd
+if 0:
+    from xorshiftx import xorshift128plus   #svd
+    class xRandom( random.Random):
+        _randbelow = random.Random._randbelow_without_getrandbits
+        def __init__(me ):
+            super().__init__( me)
+            me.random = xorshift128plus( True, random.randrange(2**32), random.randrange(2**32))
 
 ADDON    = sys.modules[ '__main__' ].ADDON
 ADDONID  = sys.modules[ '__main__' ].ADDONID
@@ -363,12 +370,16 @@ class Screensaver(xbmcgui.WindowXMLDialog):
         # randomize
         if self.slideshow_random == 'true':
             if 'svd':
-                rnd = random.Random() #SystemRandom()
-                #done 1.enable above _save_offset in _exit and _get_offset in onInit
-                #2 randomize sequence
+                if 0:
+                  rnd = xRandom()
+                  def seed(): pass
+                else:
+                  rnd = random.Random() #SystemRandom()
+                  #done 1.enable above _save_offset in _exit and _get_offset in onInit
+                  #2 randomize sequence
 
-                #seed = rnd.seed
-                def seed():
+                  seed = rnd.seed
+                  def zseed():
                     rnd.seed()
                     i = rnd.randrange( 16384)
                     seeds = open( '/home/tmp/randombytes.bin', 'rb').read()
@@ -379,11 +390,28 @@ class Screensaver(xbmcgui.WindowXMLDialog):
                 self.items = [ x for x in self.items if not re_filt.search( x[0]) ]
 
                 def getsize( img):
-                    try: return os.path.getsize( img[0])
+                    try: return os.path.getsize( img[0].encode( 'utf-8'))
                     except OSError: return 0
-                def namerev( x): return ''.join( reversed( x[0]))
+                    except UnicodeEncodeError:
+                        log( f'errrrrrr: {img} {os.environ}  fs={sys.getfilesystemencoding()} ')
+                        raise
+
+                def getsize_x_time( img):
+                    sz = getsize( img) or 1
+                    try:
+                        return 16* os.path.getctime( img[0].encode( 'utf-8')) / sz
+                    except OSError: return sz
+
+                def getsize_y_time( img):
+                    sz = getsize( img) or 1
+                    try:
+                        tm = os.path.getctime( img[0].encode( 'utf-8'))
+                    except OSError: tm = 1
+                    return (1024 * tm / sz , img[0])
+
+                #def namerev( x): return ''.join( reversed( x[0]))
                 #self.items.sort( key= namerev) #=getsize, reverse=True)
-                self.items.sort( key= getsize, reverse=True)
+                self.items.sort( key= getsize_y_time, reverse= rnd.randint(0,1))
                 def _razbyrkvane( items, pokolko):
                     import itertools
                     try: zip_longest = itertools.izip_longest
@@ -406,19 +434,13 @@ class Screensaver(xbmcgui.WindowXMLDialog):
                         print( 2222222222, len( self.items), getsize( self.items[0]), file=o)
                 seed()
                 rnd.shuffle( self.items)
-                razbyrkvane( 1277)
+                #razbyrkvane( 2273)
                 seed()
+                #for a in range( 0, rnd.randint( 1,7)):
+                #    rnd.shuffle( self.items)
+                #self.items.reverse()
+                razbyrkvane( 81)
                 rnd.shuffle( self.items)
-                #self.items.reverse()
-                #rnd.shuffle( self.items)
-                #razbyrkvane( 3771)
-                #self.items.reverse()
-                #rnd.shuffle( self.items)
-                #razbyrkvane( 13771)
-                #self.items.reverse()
-                #rnd.shuffle( self.items)
-                #razbyrkvane( 581)
-                #rnd.shuffle( self.items)
                 #razbyrkvane( 137)
 
     def _get_offset(self):

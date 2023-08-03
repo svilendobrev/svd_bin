@@ -8,6 +8,7 @@
 
 all: mp3 flac
 
+# XXX see above - no : in filenames
 #_WILDS=$(wildcard $(WILD))	#does not accept multiple patterns - *.x *.y XXX
 _WILDS=$(shell shopt -s nullglob && ls -1d $(WILD) && shopt -u nullglob)
 
@@ -17,7 +18,11 @@ endif
 Q=4
 LAME= lame --nohist --disptime 2 -h -v -V $(Q)  $(OPTS)
 #-V 6
+%.mp36: Q=6
 %.mp36: %.mp3
+	$(LAME) "$<" "$@"
+%.mp34: Q=4
+%.mp34: %.mp3
 	$(LAME) "$<" "$@"
 %.mp3: %.flac
 	flac -s -c -d "$<" | $(LAME) - "$@"
@@ -77,13 +82,13 @@ FLACs= $(wildcard $(WILD).flac)
 ifneq ($(WAV2FLAC),)
 flac: $(WAVs:%.wav=%.flac)
 %.flac: %.wav
-	$E flac --no-preserve-modtime --force --keep-foreign-metadata $(ARGS) -o "$@" "$<"
+	-$E flac --no-preserve-modtime --force --keep-foreign-metadata $(ARGS) -o "$@" "$<"
 outflac: $(WAVs:%.wav=%.out.flac)
 %.out.flac: %.wav
 	/usr/local/bin/wavres44khz.py "$<" --otype flac
 else
 flac outflac:
-	+$(REMAKE) WAV2FLAC=1 $@ ROOT=$(ROOT) WILD="$(WILD)"
+	+$(REMAKE) WAV2FLAC=1 $@ WILD="$(WILD)"
 outflac2: $(FLACs:%.flac=%.out.flac)
 %.out.flac: %.flac
 	/usr/local/bin/wavres44khz.py "$<" --otype flac
@@ -103,8 +108,9 @@ endif
 
 mp3 : $(WAVs:%.wav=%.mp3)
 mp3 : $(FLACs:%.flac=%.mp3)
-mp36: mp3mp3
-mp3mp3 : $(MP3s:%.mp3=%.mp36)
+mp36: mp3mp36
+mp3mp36 : $(MP3s:%.mp3=%.mp36)
+mp3mp34 : $(MP3s:%.mp3=%.mp34)
 363:
 	rename.pl s/mp36/mp3/ *mp36
 mp34: Q=4
@@ -161,7 +167,7 @@ tags:
 _RESAMPLE = resample,auto,
 _MONO2STEREO = -chcopy 1,2
 mono2stereo.%.wav:
-	ecasound -i:"$(if $(RESAMPLE),$(_RESAMPLE))$*" -o "$@" $(_MONO2STEREO)
+	ecasound -i:"$(if $(RESAMPLE),$(_RESAMPLE))$*.wav" -o "$@" $(_MONO2STEREO)
 eca.%.wav:
 	ecasound -i:"$(if $(RESAMPLE),$(_RESAMPLE))$*" -o "$@" $(if $(PERC),-ei:$(PERC)) $(if $(MONO2STEREO)$(STEREO),$(_MONO2STEREO))
 

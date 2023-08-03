@@ -1,0 +1,11 @@
+#!/bin/sh
+while true ; do
+X=`find . -name 1 -prune -o -name mp3* -prune -o -iname scans -prune -o -type d  -print | py -c 'import sys,random ; r=sys.stdin.readlines() ; print( random.choice( r))'`
+#echo "$X"
+read -p "$X .... ?" -n 1 && echo
+if [ "$REPLY" == "y" -o "$REPLY" == "ъ" ] ; then 
+ xdotool  getactivewindow set_window --name mplayer
+ mplayer "$X"/*
+ break
+fi
+done

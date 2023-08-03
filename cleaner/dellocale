@@ -4,7 +4,12 @@ X=${X%/}
 PFX=$2
 SFX=$3
 PFX2=${4:-$PFX}
+test "$SFX" = "/" && _R=-r
+#E=echo
 echo "$X" --$PFX-- --$SFX-- --$PFX2--
-sudo $E rm -rf ` ls -1d "$X"/${PFX}*$SFX 2>/dev/null | grep -Ev "^$X/$PFX2(bg|en|us|en[_-]US|en[_-]GB|i18n|iso14651_t1(_common|$)|translit)" `
+for d in "$X"/ ; do (
+ test -d "$d" && cd "$d" && sudo $E rm -f $_R ` ls -1d ${PFX}*$SFX 2>/dev/null | grep -Ev "^$PFX2(bg|en|us|en[_-]US|en[_-]GB|i18n|iso14651_t1(_common|$)|translit)" `
+ )
+done
 
 # vim:ts=4:sw=4:expandtab

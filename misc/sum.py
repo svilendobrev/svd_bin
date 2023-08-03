@@ -12,6 +12,9 @@ def around(x):
     return round(x,ROUND)
 
 HASH= os.environ.get('HASH', '')
+
+NAME1= os.environ.get('NAME1', '')
+
 try:
     f = open( sys.argv[1] )
 except IndexError:
@@ -20,8 +23,8 @@ except IndexError:
 for line in f:
     lr = line.strip()
     if not lr: continue
-    lr = lr.split( '#' if HASH else None, 1)
-    x = lr[0].strip()
+    lr = lr.split( '#' if HASH else None)
+    x = lr.pop(0).strip()
     if not x or x[0] == '#': continue
     if x=='eof': break
     if '==' in x:
@@ -31,8 +34,13 @@ for line in f:
         if s: print( around(s), '=', x.split('=',1)[-1], '\n')
         s = 0
     else:
+        if NAME1:
+            name = x
+            x = lr[0]
+            lr[0] = name
+        r = ' '.join( lr)
         e = around(eval(x))
-        print( ':',x.ljust(15),'=', e, ':', ''.join( lr[1:]))
+        print( ':',x.ljust(15),'=', e, ':', r)
         s+= e
         ss+= e
 if s: print( around(s) )

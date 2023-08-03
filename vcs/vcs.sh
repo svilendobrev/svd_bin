@@ -126,6 +126,7 @@ bzr_d='diff'
 bzr_dd='diff --diff-options=-btwU3'
 bzr_dprev='diff -r -2'
 bzr_l='log'
+bzr_l3='log -l ${N:-3}'
 bzr_a='add'
 bzr_r='rm'
 #bzr_s='status'
@@ -154,7 +155,7 @@ hg_d='diff --nodates'
 hg_dd='diff -Bbw'
 hg_dprev='diff -r .^1'
 hg_l='log'
-hg_l3='log -l 3'
+hg_l3='log -l ${N:-3}'
 hg_a='add'
 hg_r='rm'
 hg_s='status'
@@ -170,7 +171,7 @@ hg_hu='unshelve'
 
 # git config --get remote.origin.url
 git_n='remote -v'
-git_n_pipe='; git branch'
+git_n_pipe='; git branch ; git log -1 --format=%H'
 #git_n_pipe='; git ls-remote --heads'
 #git_n='ls-remote'
 #git_n='config -l'   # config --get remote.origin.url
@@ -178,6 +179,7 @@ git_s='status -s'
 git_d='diff'
 git_dd='diff -b'
 git_dprev='diff -r @{1}'
+#v d -r 'HEAD@{2 weeks ago}' ...
 git_u='pull'
 git_i='commit'
 git_i_pipe='; git push -q'
@@ -186,18 +188,24 @@ git_ii='add'
 git_ic='add --patch'    #general is git add --interactive
 git_a='add'
 git_l='log'
-git_l3='log -n 3'
-git_ll='log --name-status'
+git_l3='log -n ${N:-3}'
+git_ll='log --name-status'  #show filenames
+git_l1='log -1 -U'  #given revision
 git_r='rm'
-git_v='checkout --'
+git_v='reset --'    #needed for dirs
+git_v_pipe='; git checkout -- "$@"'
+git_c='checkout'
 git_m='merge' #?
 git_p='push' #?
-git_hs='stash'
+git_hs='stash'  #-m message
 git_hu='stash pop'
 git_io='log --branches --not --remotes ; git log --remotes --not --branches '   #??
 git_oi="$git_io"
 git_w='show'
 git_b='checkout -b'     #make branch <name-follows>
+git_ls='ls-files'       #list vcs-ed files
+
+#git_goto='git checkout -b newbranchname commithash'
 
 #to turn checkout into bare:
 #git config --bool core.bare true

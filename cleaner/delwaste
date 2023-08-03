@@ -9,6 +9,8 @@ $rm /usr/share/locale/en{_CA,_GB,@*}
 dellocale /usr/share/i18n/locales/
 dellocale /usr/share/kbd/locale/
 dellocale /usr/lib/chromium/locales/
+dellocale /usr/lib/slack/locales/
+dellocale /usr/lib/tcl8.6/msgs/
 dellocale /usr/lib/opera/localization/
 dellocale /usr/share/lxpanel/images/xkb-flags/ '' .png
 dellocale /usr/share/libexttextcat/ '' .lm
@@ -81,9 +83,11 @@ $rm $V/syntax/{xs,*muttrc,pfmain,baan,redif,foxpro,autoit}.vim
 $rm $V/autoload/phpcomplete.vim
 
 
-P=/usr/lib/qt4/bin/
-$rm $P/??c $P/assistant $P/l* $P/designer $P/qdoc*
-$rm /usr/share/qt4/translations/
+#P=/usr/lib/qt4/bin/
+#$rm $P/??c $P/assistant $P/l* $P/designer $P/qdoc*
+dellocale /usr/share/qt5/translations/  '' .qm '.*_'
+dellocale /usr/share/qt6/translations/  '' .qm '.*_'
+dellocale /usr/share/qt/translations/  '' .qm '.*_'
 
 dellocale /usr/share/skype/lang/ skype_
 
@@ -91,8 +95,8 @@ dellocale /usr/share/opera/locale/
 #$rm [acdf-z]* b[a-fh-z] e[a-mo-z]
 $rm /usr/share/xml/docbook/xsl-stylesheets-*/common/{zh,sr,pt,bn}_*
 
-P=/usr/share/icons/
-$rm $P/*/{512x,384x,256x,scalable}*
+#P=/usr/share/icons/
+#$rm $P/*/{512x,384x,256x,scalable}*
 
 $rm /usr/share/licenses/
 $rm /usr/share/liblouis
@@ -148,12 +152,12 @@ $rm $P/{isdn,infiniband}
 # $rm $P/media/pci/{bt8,ttpci,saa,cx,ivtv}*
 # #$rm $P/media/usb/{gspca,dvb*,cx*,em*,tm*,go7007}
 $rm $P/scsi/{aic*,bnx*,megaraid,mpt3*,lpfc,bfa,qla*}
-$rm $P/gpu/drm/{radeon,amd*}
+#$rm $P/gpu/drm/{radeon,amd*}
 $rm $P/net/ethernet/{mellanox,qlogic,chelsio,sfc,cavium,dec,sun,netronome}
 
 P=/usr/lib/firmware
 $rm $P/{ti-connectivity,liquidio,netronome,mellanox,qlogic}
-$rm $P/{amdgpu,radeon}
+#$rm $P/{amdgpu,radeon}
 $rm $P/bnx2*
 $rm $P/{mrvl,ar3k,slicoss,go7007,emi*,qca}
 $rm $P/{libertas,carl9170fw,mwl*,moxa,vxge,qed,cxgb4,ueagle-atm}
@@ -161,14 +165,16 @@ $rm $P/{myri*,phan*,ct*fw*,qat*,cbfw*,s5*} #iwlwifi*=intel  i2400*,i6050*=?
 # $rm $P/{brcm,radeon,amdgpu}
 
 P=/usr/lib*/dri
-$rm $P/r* $P/nouv* $P/zink*
+#$rm $P/r* 
+$rm $P/nouv* 
+$rm $P/zink*
 
 $rm /usr/share/help/*
 
 P=/usr/include
 #SDL*
 for a in `cat <<HHHHHHHH
-gtk* 
+gtk 
 CLucene
 GL
 ImageMagick

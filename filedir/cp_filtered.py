@@ -41,7 +41,7 @@ except FileNotFoundError:
 #
 #print( copyargs)
 
-if __name___ == '__main__':
+if __name__ == '__main__':
     #from svd_util import optz
     import optparse, sys
     class OptionParser( optparse.OptionParser):
@@ -58,8 +58,14 @@ if __name___ == '__main__':
     def optbool( name, *short, **k):
         return optany( name, action='store_true', *short, **k)
 
-    optany( 'include', '-i', help= 'these-only, regexp.match, applied over whole path - use .*/[^/]*xyz[^/]* to match filename having xyz ; .*xyz.* to match anything having xyz in path' )
-    optany( 'exclude', '-x', help= 'these-skip, regexp.match, applied over whole path, before --include' )
+    oparser.set_usage( '''%prog [options] from to
+        patterns below are regexp.match over whole path, for example:
+        - use .*/[^/]*xyz[^/]* or .*xyz[^/]* to match just filename having xyz
+        - use .*xyz.* to match anything having xyz in path
+        - use (?i:pattern..) for ignorecase
+        '''.rstrip())
+    optany( 'include', '-i', help= 'these-only, regexp.match over whole path' )
+    optany( 'exclude', '-x', help= 'these-skip, regexp.match over whole path, before --include' )
     optbool( 'symlinks_dereference', '-L', help= 'dereference symlinks into files')
     optbool( 'verbose', '-v', help= 'print what is copied or not')
     optz,argz = oparser.parse_args()

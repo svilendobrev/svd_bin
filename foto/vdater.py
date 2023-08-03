@@ -17,7 +17,16 @@ for a in ['-inner', '--inner']:
         sys.argv.remove( a)
         use_inner_datetime = True
 
+dt2v = False
+for a in ['-dt', '--dt']:
+    if a in sys.argv:
+        sys.argv.remove( a)
+        dt2v = True
+
 fi,fo = (sys.argv[1:3]+[ None ])[:2]
+if not fo and dt2v:
+    fo = fi
+    fi = os.path.splitext( fi)[0]+'.dt'
 
 if fi.lower().endswith('.dt'):
     fromdt = True

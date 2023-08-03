@@ -6,7 +6,7 @@ x = eval( sys.argv[1])
 
 dod = 0.10
 osig_rabotnik_perc = (8.38+2.2+3.2)/100.0
-MAX_OSIG_BRUTO = 3000
+MAX_OSIG_BRUTO = 3400
 def osig_rabotnik( bruto): # = 413.4 if >=3000
     return min( MAX_OSIG_BRUTO, bruto ) * osig_rabotnik_perc
 def osig_rabotodatel( bruto):   #=567.6 if >= 3000

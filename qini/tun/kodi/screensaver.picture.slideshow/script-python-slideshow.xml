@@ -127,10 +127,10 @@
 			</control>
 			<control type="label" id="99">
 				<posx>1270</posx>
-				<posy>665</posy>
-				<width>600</width>
-				<height>25</height>
-				<font>font32_title</font>
+				<posy>660</posy>
+				<width>990</width>
+				<height>28</height>
+				<font>font37</font>
 				<align>right</align>
 				<textcolor>F0FFeeee</textcolor>
 				<shadowcolor>F0000000</shadowcolor>
@@ -140,10 +140,10 @@
 			<control type="label" id="100">
 				<!--svd:date-->
 				<posx>1270</posx>
-				<posy>690</posy>
+				<posy>695</posy>
 				<width>600</width>
 				<height>25</height>
-				<font>font30_title</font>
+				<font>font32_title</font>
 				<align>right</align>
 				<textcolor>D0fFFFFF</textcolor>
 				<shadowcolor>F0000000</shadowcolor>

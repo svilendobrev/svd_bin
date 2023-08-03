@@ -14,7 +14,7 @@ optz.bool( 'nosymlinks' ,   help= 'ignore symlinks')
 optz.bool( 'alsodirs' , help= 'check moving of dirs too')
 optz.bool( 'dup2ignore' , help= 'ignore duplicates')
 optz.text( 'deldir' , default='del', help= 'folder to move deleted items into [%default]')
-#optz.bool( 'nodelete' , help= 'dont delete, only move')
+optz.bool( 'nodelete' , help= 'dont delete, only move')
 optz,args = optz.get()
 none = not optz.real
 
@@ -124,7 +124,7 @@ for path, dirs, files in os.walk( '.' ):
             print( '!ignoring existing file/dir in tree', p, tree[p])
             continue
         deleting = name not in tree
-        if 0 and deleting:
+        if 10 and deleting:
             if optz.nodelete:
                 print( 'not-deleting', name)
                 continue

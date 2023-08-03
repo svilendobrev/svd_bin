@@ -24,6 +24,9 @@ def tx(a):
     return a #.decode('utf-8', 'ignore') #.encode('cp1251', 'ignore')
 
 for a in sys.stdin:
+    if not a.strip():
+        print()
+        continue
     a = a.rstrip()
     if optz.quoted:
         qq = a.split('"')

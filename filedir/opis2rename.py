@@ -8,6 +8,8 @@ from svd_util import lat2cyr
 l2c = lat2cyr.zvuchene.lat2cyr
 c2l = lat2cyr.zvuchene.cyr2lat
 
+def fat( x): return x.replace( ':', '-')
+
 f_by_number = '*{n}*'
 f_by_title  = '*{t}*'
 optz.bool( 'fake',  '-n',   help= 'do nothing')
@@ -22,11 +24,12 @@ optz.text( 'startswith',    default='',     help= 'filenames must start with thi
 #optz.bool( 'nounder2space', help= 'do not turn _ into space')
 optz.bool( 'cyr2lat', )
 optz.bool( 'lat2cyr', )
+optz.bool( 'fat', help= 'replace : with -')
 optz.bool( 'noinnumber',    help= 'do not look for number in name; use with --enum')
 optz.bool( 'nonumber',      help= 'do not put number in name')
 optz.bool( 'noextension',   help= 'do not put file-extension')
 optz.text( 'filename_pattern', help= f'file-name pattern, args: n/umber t/itle a/rtist b:album l:whole-line, default={f_by_number} or if --noinnumber {f_by_title})')
-optz.bool( 'notrack',       help= 'remove track-prefix')
+optz.bool( 'track',         help= 'add track-prefix')
 optz.text( 'artist_after_title',  help= 'separator to split into title and artist')
 optz.help( '''
 %prog [options] [-- ...command args]
@@ -94,6 +97,9 @@ for l in sys.stdin:
             ns = n
     elif not optz.noinnumber: continue  #XXX ??
     tags['n'] = ns
+    if tags.get('t') and optz.fat:
+        tags['t'] = fat( tags['t'])
+
     #elif not tags:
     #    m = re_num_title.match( l)
     #    if not m: continue
@@ -108,7 +114,7 @@ for l in sys.stdin:
     l = re.sub( '\.'+extensions2re+'$', '', l)
     rfiles = optz.startswith + optz.filename_pattern.format( l=l, **tags) #f'*{n:02d}*'
     args = [
-        ('track' if optz.notrack else '') + ('' if optz.nonumber or optz.noinnumber or not n else f'(?<!\d)0?{ns}(?!\d)') + '[^/]*\.' + extensions2re,
+        ('track' if optz.track else '') + ('' if optz.nonumber or optz.noinnumber or not n else f'(?<!\d)0?{ns}(?!\d)') + '[^/]*\.' + extensions2re,
         ('' if optz.nonumber or not n else (ns + optz.separator)) + (tags.get('t') or l) + ('' if optz.noextension else '.$1'),
         ]    #nondigit?-digit-digit-nondigit?...whatever
     files = []
@@ -146,6 +152,7 @@ for (tags, argz, args, files) in runs:
                     v = v.replace('_',' ').strip()
                     if optz.cyr2lat: v = c2l(v)
                     elif optz.lat2cyr: v = l2c(v)
+                    if optz.fat: v = fat(v)
                     tags[k] = v
             if optz.nonumber: tags.pop('n',0)
             TAGS_OPTS = dict( ((k,k) for k in 'nta'), b='A',y='Y')

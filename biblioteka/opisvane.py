@@ -778,8 +778,8 @@ class info:
             prn( '---------file_prevodi-----')
             prn( '\n'.join( '%-50s = %s' % (k,v) for k,v in sorted( r.items())))
 
-    svoistva_ot_fname__shabloni= [ re_godina ]
-    svoistva_ot_fname__red = ()
+    svoistva_ot_fname__shabloni= [ re_godina ]  #всички
+    svoistva_ot_fname__red = ()     #само тези се запазват, в този ред
 
     def svoistva_ot_fname( az, aname):
         red_svoistva_ot_fname = az.svoistva_ot_fname__red or az.svoistva_ot_fname__shabloni

@@ -3,6 +3,7 @@ export VS=`echo $VS$0.$1|grep vs`
 export VIO=`echo $VIO$0.$1|grep vio`
 for a in ${@:-./*}; do
  test -d "$a" || continue
+ test "$a" = "./__pycache__" && continue
  if test ! -L "$a" -o -n "$LINKSuall" -o `basename "$0"` = "luall.sh" -o -f .LINKSuall; then
   cd "$a"
   if test -f ignore-uall ; then echo '** ignored' `pwd`

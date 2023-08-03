@@ -5,17 +5,20 @@ def run( *parse_args):
     from svd_util import optz
 
     optz.bool( 'fake', '-n', help= 'do nothing')
+    optz.bool( 'once', '-1', help= 'sub-stitute once-only per filename')
     optz.bool( 'link', help= 'link instead of move/rename')
     optz.bool( 'symlink',   help= 'symlink instead of move/rename, be careful with output-name')
     optz.str(  'command',   help= 'exec this with 2 args instead of os.rename/os.link')
     optz.bool( 'lower', '-l', help= 'just lower-case, all args are filepaths, see --levels')
     optz.bool( 'upper', '-u', help= 'just upper-case, all args are filepaths, see --levels')
+    optz.bool( 'mediate',     help= 'go through intermediate name, for FAT/ignorecase-filesystems')
     optz.bool( 'space2under', help= 'whitespace-to-_, all args are filepaths, see --levels')
     optz.bool( 'under2space', help= '_-to-whitespace, all args are filepaths, see --levels')
     optz.bool( 's2u', help= 'space2under')
     optz.bool( 'u2s', help= 'under2space')
     optz.bool( 'ignorecase', '-i',  help= 'ignore upper/lower case')
     optz.int(  'levels',    default=0, help= 'levels above leaf to rename lower/upper/_, default [%default]') #TODO only works for last-level-changes.. TODO apply to all renaming
+    optz.bool( 'funcsubst', help= 'subst is a func to eval( m=match)')
     optz.str(  'movepath',  help= 'rename and move into')
     optz.bool( 'mkdirs',    '-p',   help= 'make missing dirs in target path')
     optz.bool( 'insymlink', help= 'rename inside symlinks (text it points to), ignore non-symlinks')
@@ -50,20 +53,30 @@ def run( *parse_args):
 
     if   optz.upper:   func = lambda x: renul_( x, True,  optz.levels)
     elif optz.lower:   func = lambda x: renul_( x, False, optz.levels)
-    elif optz.under2space: func = lambda x: renul_( x, '_2 ', optz.levels)
-    elif optz.space2under: func = lambda x: renul_( x, ' 2_', optz.levels)
+    elif optz.under2space: func = lambda x: renul_( x, '_2s', optz.levels)
+    elif optz.space2under: func = lambda x: renul_( x, 's2_', optz.levels)
     elif optz.abssymlink:
         assert not optz.insymlink
         func = os.path.realpath
     else:
         regexp = argz.pop(0)
         subst  = argz.pop(0)
-        for a in range(1,6):
-            subst = subst.replace( '$'+str(a), '\\'+str(a))
+        if not optz.funcsubst:
+            for a in range(0,9):
+                subst = subst.replace( f'${a}', f'\\g<{a}>')
         repl = re.compile( regexp, **( dict( flags= re.IGNORECASE) if optz.ignorecase else {}))
-        def func( x):
-            return repl.sub( subst, x)
         if not optz.quiet: print( '#', repr(regexp), '=>', repr(subst))
+        if optz.funcsubst:
+            evalsubst = subst
+            def funcsubst( m):
+                try:
+                    return eval( evalsubst, dict( m=m), dict( m=m))
+                except:
+                    _print( '???', m.string, m.groups())
+                    raise
+            subst = funcsubst
+        def func( x):
+            return repl.sub( subst, x, count= bool( optz.once) )
     optz.func = func
 
     if optz.allsymlink:
@@ -89,8 +102,8 @@ def renul_( x, up, levels =0):
     r = os.path.split( x)
     r0 = r[0]
     if levels>0: r0 = renul_( r0, up, levels-1)
-    if up==' 2_': to = '_'.join( r[1].split())
-    elif up=='_2 ': to = ' '.join( r[1].split('_'))
+    if up=='s2_': to = '_'.join( r[1].split())
+    elif up=='_2s': to = ' '.join( r[1].split('_'))
     else: to = r[1].upper() if up else r[1].lower()
     return os.path.join( r0, to)
 
@@ -167,10 +180,15 @@ def doit( a, optz):
                 print( '!ignore inexisting', a)
                 continue
             if os.path.lexists( b):         #do not ignore broken symlinks
-                if not optz.overwrite:
+                if cmd == os.rename and  a.lower() == b.lower() and optz.mediate: # FAT: x==X, so x->x1->X
+                    if not optz.quiet: print( ':: exists and mediated:', b)
+                    b1 = b+str(os.getpid())
+                    cmd( a, b1)
+                    a = b1
+                elif not optz.overwrite:
                     print( '!not overwriting', b)
                     continue
-                if optz.delete_if_overwrite or optz.symlink:
+                elif optz.delete_if_overwrite or optz.symlink:
                     if not optz.quiet: print( ':: exists and removed:', b)
                     os.remove( b)
 

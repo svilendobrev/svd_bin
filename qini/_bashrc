@@ -43,7 +43,7 @@ if [ "x$1" != "xkeys" ]; then   # if this is at the top, so is not aliased
   esac
 
   pathfind() {
-  	echo $PATH | egrep -q "(^|$_DLM)$1(\$|$_DLM)"
+  	echo $PATH | grep -Eq "(^|$_DLM)$1(\$|$_DLM)"
   }
   pathadd() {
   	if ! pathfind "$1" ; then

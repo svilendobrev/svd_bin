@@ -23,7 +23,9 @@ case "x$lowcase" in
  x*.deb )         			dpkg  $D    "$@" ;;
  x*.rpm )   
  	if [ $A == x ]; then 
-		rpm2cpio  "$@" | cpio -dimv 	#extract-only
+#		rpm2cpio  "$@" | cpio -dimv 	#extract-only
+#		rpmextract.sh "$@"
+		rpm2cpio  "$@" | bsdtar -xf - 	#extract-only
 	else 
 		rpm -q -l -p "$@"
 	fi

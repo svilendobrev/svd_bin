@@ -6,7 +6,6 @@
 set hidden      "allow moving out of a changed file (which goes hidden)
 set backspace=2 "allow backspace to remove everywhere+newlines
 set modeline    "allow modeline (>7.1 disabled in debian by default)
-set modelines=2 "allow modeline (=0 in mac-os)
 "set fileencodings=ucs-bom,cp1251,utf-8  "allow editing utf in cp1251 env
 set fileencodings=cp1251,ucs-bom,utf-8  "allow editing utf in cp1251 env
 "set fileencodings=ucs-bom,utf-8,cp1251  "allow editing utf in cp1251 env
@@ -83,6 +82,7 @@ autocmd FileType c,cpp          setl cindent ts=4 sw=4 expandtab
 autocmd FileType python setl tabstop=4 shiftwidth=4 expandtab
 autocmd FileType python setl errorformat=%\\s%#File\ \"%f\"\\,\ line\ %l%.%#
 autocmd FileType yaml   setl errorformat=%A\ \ in\ \"%f\"\\,\ line\ %l\\,\ column\ %c,%C%m
+"autocmd FileType javascript setl errorformat=%E%f:\ line\ %l\,\ col\ %c\,\ Error\ -\ %m,\ %W%f:\ line\ %l\,\ col\ %c\,\ Warning\ -\ %m
 
 "autocmd FileType python set errorformat-=%.%#Error:%m
 "autocmd FileType python set errorformat+=%.%#Error:%m
@@ -135,7 +135,7 @@ augroup END
 autocmd FileType markdown  setl wrap linebreak ts=4 sw=4
 
 if $_SRC==""  "see $_INIs/defalias.bsh
- let INC_= 'my[cChylgm] [ch]pp [ch]xx cc CC asm as p[yl] java js jsx tsx xsl rb php '
+ let INC_= 'my[cChylgm] [ch]pp [ch]xx cc CC asm as p[yl] java js jsx tsx ts xsl rb php vue'
  let EXC = 'CVS .svn .bzr .hg .repo .git'
 else
  let INC_= $_SRC
@@ -485,6 +485,9 @@ inoremap <c-J> <c-o>J
 "del curline
 noremap  <F8>       dd
 inoremap <F8>  <c-o>dd
+"del curline , no registers/clipoard
+noremap  <s-F8>       "_dd
+inoremap <s-F8>  <c-o>"_dd
 "copy curline
 noremap  <F7>  yy
 noremap! <F7>  yy
@@ -627,6 +630,9 @@ command! HEADsetup call HEADsetup()
 
 function! TAILsetup()
  let comment_pfx = (&filetype=='cpp' || &filetype=='c' || &filetype=='cfg' || &filetype=='java' || &filetype=='javascript') ? '//' : '#'
+ if &filetype == 'markdown'
+  let comment_pfx = '[//]: # '
+ endif
  if &filetype =='xml' || &filetype=='html'
   let comment_pfx = '<!--'
  else  
@@ -676,6 +682,21 @@ function! DiffIgnoreAllWhitespace()
      let opt = opt . "-bBw "
    endif
    silent execute "!diff " . opt . v:fname_in . " " . v:fname_new . " > " . v:fname_out
+endfunction
+
+"set diffexpr=DiffIgnoreFull()
+function! DiffIgnoreFull()
+    let opt = ""
+    if exists("g:diffignore") && g:diffignore != ""
+        let opt = "-I " . g:diffignore . " "
+    endif
+    if &diffopt =~ "icase"
+        let opt = opt . "-i "
+    endif
+    if &diffopt =~ "iwhite"
+        let opt = opt . "-b "
+    endif
+    silent execute "!diff -a --binary " . opt . v:fname_in . " " . v:fname_new . " > " . v:fname_out
 endfunction
 
 command! -bar -range LAT2CYR '<,'>!cyr2lat.pl -lat2cyr|dos2win.pl
@@ -753,9 +774,9 @@ iabbrev ье э
 iabbrev ЬЕ Э
 scriptencoding
 
-
-map <c-F2> :call mkdir( "./ok/okk", "p", 0775)<CR>
-imap <c-F2> <c-o>:call mkdir( "./ok/okk", "p", 0775)<CR>
+"gramo-radio
+"map <c-F2> :call mkdir( "./ok/okk", "p", 0775)<CR>
+"imap <c-F2> <c-o>:call mkdir( "./ok/okk", "p", 0775)<CR>
 
 "neovim:
 map  <F13>  <s-F1>

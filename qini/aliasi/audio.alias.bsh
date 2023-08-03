@@ -1,9 +1,13 @@
-al lamev 'lame --nohist -h -v -V 0'
+al lamev 'lame --nohist -h -v -V ${Q:-4}'
+al lamev0 'Q=0 lamev'
+al lamev4 'lame --nohist -h -v -V 4'
 al lamev6 'lame --nohist -h -v -V 6'
 
-alf()       { eval "$1() { $2 \"\$@\" ;}" ; }   #create a func from alias' syntax
-forall()    { W="$1"; shift; for a in "$@"; do "$W" "$a" ; done; }
-forallif()  { IFS=$'\n'; for a in `ffl \*.$1`; do test ! $4 -f "$a.$2" -a ! $4 -f `basename "$a" $1`$2 && ${3:-echo} "$a"; done; unset IFS; }
+alf()       { eval "$1() { $2 \"\$@\" ;}" ; export -f $1 ; }   #create a func from alias' syntax
+#forall()    { W="$1"; shift; for a in "$@"; do "$W" "$a" ; done; }
+#forallif()  { IFS=$'\n'; for a in `ffl \*.$1`; do test ! $4 -f "$a.$2" -a ! $4 -f `basename "$a" $1`$2 && ${3:-echo} "$a"; done; unset IFS; }
+#forallifff()  { ffl \*.$FROM | parallel   test ! $NOT -f "{}.$TO" -a ! $NOT -f "{.}.$EXT" && ${CMD:-echo} "{}" ; }
+forallif()  { ffl \*.$1 | parallel  test ! $4 \\\( -f "{}.$2" -o -f "{.}.$2" \\\) \&\& ${3:-echo} "{}" ; }
 #use 3rd arg to do more than echo ; 4th is ! or nothing
 al show_wav_no_mp3   'forallif wav mp3 echo '
 al show_wav_with_mp3 'forallif wav mp3 ${CMD:-echo} ! '
@@ -17,22 +21,25 @@ alf wav2mp36    'lamev6 "$LAMEOPT"'
 alf mp32wav     'lamev -S --decode'
 
 al wav2mp3if    'forallif wav mp3 wav2mp3'
-al wav2mp36if   'forallif wav mp3 wav2mp36'
+al wav2mp36if   'Q=6 wav2mp3if'
 al mp32mp3if    'forallif mp3 mp3.mp3 wav2mp3'
 al mp32wavif    'forallif mp3 wav mp32wav'
 
 _stdin2mp3()    { wav2mp3 - "$1.mp3" ; }
 _stdin2flac()   { flac -o "$1.flac" -; }
-
+export -f _stdin2mp3 _stdin2flac
 alf flac2wav    'flac -d'
 alf wav2flac    'flac'
 al wav2flacif   'forallif wav flac wav2flac'
 flac2mp3()      { flac -d "$1" -o -| _stdin2mp3 "$1"; }
+export -f flac2mp3
 al flac2mp3if   'forallif flac mp3 flac2mp3'
 flac2mp3split() { flac2mp3 "$1"; mp3splt -c "$2" "$1".mp3; }
+mp32flac()      { mp32wav "$1" - | _stdin2flac "$1"; }
 
 wv2mp3()        { wvunpack "$1" -o -| _stdin2mp3  "$1" ; }
 wv2flac()       { wvunpack "$1" -o -| _stdin2flac "$1" ; }
+export -f wv2mp3 wv2flac
 al wv2mp3if     'forallif wv mp3 wv2mp3'
 al wv2flacif    'forallif wv flac wv2flac'
 
@@ -59,13 +66,14 @@ cue-frames() { CUEFILTER=cat; }
 any2flacsplit() { ext=flac any2wavsplit "$@" ; }
 any2flacsplit_forall() {
     shopt -s nullglob
-    for a in "$@"; do
+    for a in "$@"; do (
      cd "$a" ; pwd
      test -n "$IN" && any2flacsplit *.$IN *.cue
      test -z "$IN" && any2flacsplit *.{wav,flac,ape,wv} *.cue
      rm -f 00*pregap*flac
-     cuetag.sh *.cue *.flac
-     cd - > /dev/null
+     #cuetag.sh *.cue [0-9]*.flac
+     cuetags-any [0-9]*.flac
+     )
     done
     shopt -u nullglob
     }
@@ -77,6 +85,7 @@ ape2flacsplit() {
     ape2wav  "$1"
     any2flacsplit "$1".wav  "$2"
 }
+export -f ape2mp3 ape2flac
 al ape2mp3if    'forallif ape mp3 ape2mp3'
 al ape2flacif   'forallif ape flac ape2flac'
 
@@ -109,18 +118,37 @@ al mp3-name2title   '_name2title mp3-title'
 al mp3-removealltags    'mp3info -d'
 al mp3-delalltags       mp3-removealltags
 al mp3-show         'mp3info -x -r a'
-mp3-album()     { A="$1"; shift; mp3info -l "$A" "$@"; }
-mp3-artist()    { A="$1"; shift; mp3info -a "$A" "$@"; }
-mp3-title()     { A="$1"; shift; mp3info -t "$A" "$@"; }
-mp3-year()      { A="$1"; shift; mp3info -y "$A" "$@"; }
-mp3-number()    { A="$1"; shift; mp3info -n "$A" "$@"; }
-mp3-comment()   { A="$1"; shift; mp3info -c "$A" "$@"; }
+#mp3-album()     { A="$1"; shift; mp3info -l "$A" "$@"; }
+#mp3-artist()    { A="$1"; shift; mp3info -a "$A" "$@"; }
+#mp3-title()     { A="$1"; shift; mp3info -t "$A" "$@"; }
+#mp3-album()     { A="$1"; shift; id3tag -A "$A" "$@"; }
+#mp3-artist()    { A="$1"; shift; id3tag -a "$A" "$@"; }
+#mp3-title()     { A="$1"; shift; id3tag -s "$A" "$@"; }
+mp3-album()     { A="$1"; shift; meyeD3 --encoding utf8 --album "$A" "$@"; }
+mp3-artist()    { A="$1"; shift; meyeD3 --encoding utf8 --artist "$A" "$@"; }
+mp3-title()     { A="$1"; shift; meyeD3 --encoding utf8 --title "$A" "$@"; }
+mp3-year()      { A="$1"; shift; id3tag -y "$A" "$@"; }
+#mp3-number()    { A="$1"; shift; mp3info -n "$A" "$@"; }
+mp3-number()    { A="$1"; shift; id3tag -t "$A" "$@"; }
+mp3-comment()   { A="$1"; shift; id3tag -c "$A" "$@"; }
+mp3-total()     { A="$1"; shift; id3tag -T "$A" "$@"; }
 
-mp3-rename-by-tags() { meyeD3 --rename '$artist--$album-$best_date:year--$track:num-$title' "$@"; }
+mp3-rename-by-tags() { meyeD3 --encoding utf8 --rename '$artist--$album-$best_date:year--$track:num-$title' "$@"; }
 mp3-dump-tags2stdout() { stagger --dump "$1"; } #> "$1".tag
 mp3-load-tags4stdin()  { stagger --load "$1"; } #< "$1".tag
 meyed3-tags()   { meyeD3 "--v12" "--encv1=cp1251" "--to-v2.3" "--encoding=utf16" "--remove-all-comments" "$@"; }
 al mp3-tags meyed3-tags
+
+mp3-dump-tags-all() {
+ for a in "$@" ; do 
+    FTAG="$TAGROOT$a.tags"
+    mp3-dump-tags2stdout "$a" > "$FTAG"
+    test -s "$FTAG" || rm "$FTAG"
+ done
+}
+mp3-load-tags-all() {
+   for a in "$@" ; do echo "$a" ; mp3-load-tags4stdin "$a" < "$TAGROOT$a".tags ; done
+}
 
 
 al flac-name2title  '_name2title flac-title'
@@ -155,6 +183,8 @@ tag1-mp32mp3() {
 }
 
 tag-flac2mp3()  { for f in "$@"; do tag1-flac2mp3 "$f" "${f%flac}"mp3 ; done ;}
+tag-flac2mp3x() { for f in "$@"; do tag1-flac2mp3 "$f" "$f.mp3" ; done ;}
+tag-mp32flac()  { for f in "$@"; do tag1-mp32flac "$f" "${f%mp3}"flac ; done ;}
 tag-flac2name() { for f in "$@"; do tag1-flac2name "$f" ; done ;}
 #see also flactags2name.py XXX
 al flac-rename-by-tags tag-flac2name
@@ -276,7 +306,7 @@ rec0nocache() {
 }
 
 al arec 'arecord -f cd -V stereo ' #--fatal #-B 5666777'
-al zrec 'rec -r 44100 -b 16 -c 2 -s -S -t wav '
+al zrec 'rec -r 44100 -b 16 -c 2 -S -t wav '    #-s  ???
 #al rec1 'arec -d 1500 1.wav'
 #al rec2 'arec -d 1500 2.wav'
 r() { zrec $1.wav trim 0 0:35:0; }
@@ -319,5 +349,18 @@ al playends playendsmplayer
 al begs 'NOEND=1 playends'
 al bends playends
 al ends 'NOBEG=1 playends'
+
+al flacjoin 'shntool join -r none -o flac'
+al flaccat flacjoin
+al srezflac 'EXT=flac srez-sox.sh'
+al sf srezflac 
+
+mpg2wav() { mpg123 --no-control -w $1.wav --no-gapless *$2*.mp3 ; }
+mp34ab() { mau Q=4 a.mp3 b.mp3 ; }
+
+al elau  'elxtr aliasi/audio.alias.bsh'
+al ela elau
+
+al torrent-show btshowmetainfo
 
 # vim:ts=4:sw=4:expandtab

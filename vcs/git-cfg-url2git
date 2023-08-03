@@ -1,0 +1,5 @@
+#!/bin/sh
+chall.pl 's,(http.*[^/])\n,\1.git\n,' ./$TARGET/*/.git/config 
+chall.pl 's,.git.git,.git,' ./$TARGET/*/.git/config 
+grep https */*/.git/config | g '.git.git'
+grep https */*/.git/config | g -v '.git$'

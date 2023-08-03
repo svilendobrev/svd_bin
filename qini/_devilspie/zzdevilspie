@@ -1,7 +1,0 @@
-#!/bin/sh
-for a in b c d e f; do
-	devilspie -a >/tmp/dvs &
-	X=$!
-	sleep 3
-	kill $X
-done

@@ -1,2 +1,2 @@
 [Command]
-Logout=/home/svilen/bin/exitmenu.sh
+Logout=/usr/local/bin/exitmenu.sh

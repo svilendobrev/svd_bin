@@ -1,8 +1,30 @@
-#!/bin/sh
-C=`ls -1d ./*.cue | head -1`  
-echo ::$C
-for a in "$@" ; do 
- X=`perl -e '$_=$ARGV[0] ; s/\..*//; print' "$a" ` 
- echo ? $X
- cuetag.sh "$C" "$X" "$a" 
-done
+#!/usr/bin/env python
+import sys, subprocess, os, glob, re
+doit = 0
+try: sys.argv.remove('-n')
+except: doit=1
+
+def call( *args, **ka):
+    print( args, ka)
+    if doit: subprocess.call( *args, **ka)
+
+cue = sys.argv[1]
+if cue.lower().endswith('.cue'): del sys.argv[1]
+else: cue = glob.glob( './*.cue')[0]
+print( cue)
+
+for a in sys.argv[1:]:
+    number = re.sub( '^\D*(\d+)[.-].*', r'\1', os.path.basename(a))
+    call( ['cuetag.sh', cue, number, a ])
+
+##!/bin/sh
+#C=`ls -1d ./*.cue | head -1`
+##TODO if $1.endswith cue -> C=$1 ; shift 
+#echo ::$C
+#for a in "$@" ; do 
+# X=`perl -e '$_=$ARGV[0] ; s/^\D*//; s/\..*//; print' "$a" ` 
+# echo ? $X $a
+# cuetag.sh "$C" "$X" "$a" 
+#done
+
+# vim:ts=4:sw=4:expandtab
