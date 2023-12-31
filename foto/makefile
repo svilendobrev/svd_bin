@@ -26,7 +26,7 @@ ins isn: renns
 	$(MAKE) -f $(MAKEFILE_LIST) images v2d
 ina ian: renna
 	$(MAKE) -f $(MAKEFILE_LIST) images v2d
-sony sony10 isx: rensony
+sony sony10 isx: rensonyx4
 	$(MAKE) -f $(MAKEFILE_LIST) images v2d
 dji8 dji 8 osmo: rendji8
 	$(MAKE) -f $(MAKEFILE_LIST) images v2d
@@ -66,10 +66,13 @@ rensn renns:
 renan renna:
 	rename.pl 'y/A-Z/a-z/+s/img_/ina_/' $(ALLJPG)
 	rename.pl 'y/A-Z/a-z/+s/vid_/vna_/' $(ALL3GP)
-rensony:
+rensonyx:
 	rename.pl 'y/A-Z/a-z/+s/dsc_/isx_/'  $(ALLJPG)
 	rename.pl 'y/A-Z/a-z/+s,/20,/isx_20,' $(ALLJPG)
 	rename.pl 'y/A-Z/a-z/+s,/20,/vsx_20,' $(ALLMVX)
+rensonyx4:
+	rename.pl 'y/A-Z/a-z/+s/dsc_/isy_/'  $(ALLJPG)
+	rename.pl 'y/A-Z/a-z/+s/mov_/vsy_/'  $(ALLMVX)
 rendji rendji8:	#DJI_20230729110650_0010_D.LRF
 	rename.pl 'y/A-Z/a-z/+s/dji_/dj8_/'  dji* DJI*
 	chmod -x dj8*
@@ -161,12 +164,9 @@ dt2mkv d2v dt2v:
 	-rename.py --overwrite mov.[.0-9]*.mkv mkv *.mov.*.mkv
 	-rename.py --overwrite 3gp.[.0-9]*.mkv mkv *.3gp.*.mkv
 	-rename.py --overwrite mp4.[.0-9]*.mkv mkv *.mp4.*.mkv
-	#for a in $(ROOTWILD).dt  ; do $E $(BIN)/vdater.py $$a $${a%.dt}.mkv ; done
-#	find $(ROOT) -name '$(WILD).dt' -exec bash -c "a={}"' ; $E $(BIN)/vdater.py $$a $${a%.dt}.mkv $(ARGS)' \;
-#mkv4dt:
-	#for a in $(ROOTWILD).mkv ; do $E $(BIN)/vdater.py $${a%.mkv}.dt $$a ; done
-	#shopt -s extglob ; for a in $(ROOTWILD).mkv; do $E $(BIN)/vdater.py $${a%%?(.mov)+(.)mkv}*.dt $$a ; done
-	shopt -s extglob nullglob ; for a in $(ROOTWILD).{mkv,mp4,3gp,mov}; do $E $(BIN)/vdater.py $${a%@(.mkv|.mp4|.3gp|.mov)}.dt $$a ; done
+	$(MAKE) -f $(MAKEFILE_LIST) mkv4dt
+mkv4dt:
+	shopt -s extglob nullglob ; for a in $(ROOTWILD).{mkv,mp4,3gp,mov}; do $E $(BIN)/vdater.py --dt $$a ; done
 dt2avi:
 	for a in $(ROOTWILD).dt  ; do $E $(BIN)/vdater.py $$a $${a%.dt}.avi ; done
 avi4dt:
@@ -216,8 +216,6 @@ last posledni:
 	@find . -name v6c\*.mkv $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
 	@find . -name i53c\*.jpg $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
 	@find . -name v53c\*.mkv $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
-#	@find . -name i5c\*.jpg $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
-#	@find . -name v5c\*.mkv $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
 	@find . -name ipan\*.jpg $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
 	@find . -name vpan\*.mkv $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
 	@find . -name ina\*.jpg $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
@@ -226,6 +224,10 @@ last posledni:
 #	@find . -name vns\*.[3m][gk][pv] $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
 	@find . -name isx\*.jpg $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
 	@find . -name vsx\*.[3m][gkp][pv4] $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
+	@find . -name isy\*.jpg $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
+	@find . -name vsy\*.[3m][gkp][pv4] $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
+	@find . -name dj\*.jpg $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
+	@find . -name dj\*.mkv $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
 
 last_args:
 	@find . -name $(ARGS) $(LAST_ONLY_FILENAME) | sort | uniq | tail -$(LAST)
@@ -322,6 +324,19 @@ vid-rot:		#e.g. EXT=sgp ROT=90
 
 
 relink:
-	shopt -s nullglob ; for x in *.jpg *.mkv; do find /snimki/ -name 2 -prune -o -type f -name "$$x" -exec ln -sfv {} . \; ; done
+	shopt -s nullglob ; for x in *.jpg *.mkv; do find /snimki/ -name del -prune -o -type f -name "$$x" -exec ln -sfv {} . \; ; done
+
+#www.*: виж ix , relink
+#www.1:
+#	за всички папки , съдържащи *jpg/*video , без del/ ,
+#		а.сътвори съотв.папка под /www
+#		б.съотв умалени копия на *jpg там
+#		в.symlink *video там
+#		г.махни излишното там
+#		д.indexer там
+# www.2: същото като www.1 освен
+#		а.сътвори подпапка ./www
+#		е.сътвори съотв.папка под /www
+#		ж.symlink ./www/* към съотв.папка под /www
 
 # vim:ts=4:sw=4:noexpandtab

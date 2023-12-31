@@ -66,6 +66,21 @@ al stat 'iostat -m ; uptime '
 al nfsr nfsrights
 al lsblkmodel 'lsblk -o NAME,FSTYPE,LABEL,MOUNTPOINT,SIZE,MODEL'
 
+chmod_s() {
+ for f in $_CHMOD_S ; do 
+  F=`which $f` && sudo chmod +s $F
+  #?? ln -f $F ${F}__ && chmod +s ${F}__
+ done 
+}
+
+#net
+al bt       'btlaunchmanycurses.bittorrent . --max_rate_period 10 --display_interval 2' #--max_upload_rate 60' # --max_initiate 20 --min_peers 10 --max_uploads 3
+al tcpstat  'netstat -anp | g tcp'
+#al netrestart  'sudo /etc/init.d/networking restart'
+#eee/lapa
+al ww 'iw.py --crypto'
+#al nn 'sudo dhclient eth0'
+
 al netspeed iperf
 al netspeedwatch nload
 

@@ -143,6 +143,50 @@ if 'new':
                 nargs=0,
                 )
 
+            class Action3( argparse.Action):
+                def __call__(me, parser, namespace, values, option_string=None):
+                    #print( 11111, parser, namespace, values, option_string)
+                    import sys
+
+                    #tags = dict( (x.strip() for x in l.strip().split('=',1)) for l in
+                    #tags = dict( (k.lower(),v) for k,v in tags.items())
+                    #WTF.. multiline comments
+                    tags = {}
+                    k= None
+                    for l in sys.stdin:
+                        if not l.strip(): continue
+                        kv = l.split( '=',1)
+                        if len(kv) < 2 or l.startswith( ' '):
+                            tags[ k ] += '\n'+l
+                            continue
+                        k,v = kv
+                        k = k.strip().lower()
+                        tags[ k ] = v.strip()
+
+                    tx = dict( album= '', title= '', artist= 'performer', track= 'tracknumber',
+                            track_total=    'tracktotal',
+                            recorded_date=  'year date',
+                            )
+
+                    tags2 = {}
+                    for k,tkk in tx.items():
+                        tkk = [ k ] + tkk.split()   #always try k itself
+                        for tk in tkk:
+                            v = tags.get( tk)
+                            if v:
+                                tags2[ k] = v
+                                break
+                    print( tags2)
+                    namespace.__dict__.update( tags2)
+
+            #op.add_argument( '--fromfile', dest='fromfile',
+            #    help= 'obtain tags from text file (- is stdin), as lines key=value',
+            op.add_argument( '--stdin', dest='stdin',
+                help= 'obtain tags from stdin, as lines key=value',
+                action= Action3,
+                nargs=0,
+                )
+
         def handleFile( self, f):
             classic.ClassicPlugin.handleFile( self, f)
             if not _Tag.v12: return

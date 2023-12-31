@@ -1,0 +1,7 @@
+#!/usr/bin/env python
+import os,sys,subprocess
+subprocess.run( ['/System/Applications/TextEdit.app/Contents/MacOS/TextEdit', 
+	*[os.path.realpath(x) for x in sys.argv[1:]]
+	])
+	
+

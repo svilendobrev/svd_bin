@@ -1,0 +1,3 @@
+#!/bin/bash
+#$1 == pattern
+find . -type d -a \( -exec bash -c "compgen -G {}/$1 > /dev/null"  \; -prune  -o -print \)

@@ -12,7 +12,6 @@ def around(x):
     return round(x,ROUND)
 
 HASH= os.environ.get('HASH', '')
-
 NAME1= os.environ.get('NAME1', '')
 
 try:
@@ -21,17 +20,18 @@ except IndexError:
     f = sys.stdin
 
 for line in f:
-    lr = line.strip()
-    if not lr: continue
-    lr = lr.split( '#' if HASH else None)
+    line = line.strip()
+    if not line or line[0] == '#': continue
+    lr = line.split( '#' if HASH else None)
     x = lr.pop(0).strip()
     if not x or x[0] == '#': continue
-    if x=='eof': break
-    if '==' in x:
-        if ss: print( around(ss), '=', x.split('=',1)[-1], '\n')
-        ss = 0
-    elif '=' in x:
-        if s: print( around(s), '=', x.split('=',1)[-1], '\n')
+    if x == 'eof': break
+    if '==' == x[:2]:
+        if s: print( '=', around(s) )
+        if ss: print( '==', around(ss), ':', line.split('=',1)[-1].strip(), '\n')
+        ss = s = 0
+    elif '=' == x[0]:
+        if s: print( '=', around(s), ':', line.split('=',1)[-1].strip(), '\n')
         s = 0
     else:
         if NAME1:
@@ -43,6 +43,7 @@ for line in f:
         print( ':',x.ljust(15),'=', e, ':', r)
         s+= e
         ss+= e
-if s: print( around(s) )
+if s and s!=ss: print( '=', around(s) )
+if ss: print( '==', around(ss) )
 
 # vim:ts=4:sw=4:expandtab

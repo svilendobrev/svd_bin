@@ -1,0 +1,7 @@
+#!/bin/sh
+journalctl -o short-precise -k -b all "$@"
+
+#-k (dmesg)
+#-b < boot_number > (How many reboots ago 0, -1, -2, etc.)
+#-o short-precise (dmesg -T) human timestamp
+#-p priority Filter by priority output (4 to filter out notice and info).

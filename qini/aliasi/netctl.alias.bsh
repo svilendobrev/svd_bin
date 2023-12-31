@@ -1,0 +1,8 @@
+al n1 'sudo netctl start'
+al n0 'sudo netctl stop'
+al n2 'sudo netctl restart'
+#nct()   { sudo netctl restart $1 ; }
+al nctlist  'sudo netctl list|sort'
+al nlist nctlist
+
+al nct netctl

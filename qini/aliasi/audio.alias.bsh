@@ -17,6 +17,7 @@ mp2wav()        { mplayer -vc null -vo null -ao pcm:fast:file="$1".wav "$@" ; }
 #mpaudio2wav() { mplayer -vc null -vo null -ao pcm:fast:file="$1".wav "$@" ; }
 
 alf wav2mp3     'lamev "$LAMEOPT"'
+al wav2mp34     wav2mp3
 alf wav2mp36    'lamev6 "$LAMEOPT"'
 alf mp32wav     'lamev -S --decode'
 
@@ -115,23 +116,29 @@ tag1-flac2name() {
 }
 
 al mp3-name2title   '_name2title mp3-title'
-al mp3-removealltags    'mp3info -d'
+#al mp3-removealltags    'mp3info -d'
+al mp3-removealltags    'meyeD3 --remove-all'
 al mp3-delalltags       mp3-removealltags
+al mp3-removecomments   'meyeD3 --remove-all-comments'
 al mp3-show         'mp3info -x -r a'
-#mp3-album()     { A="$1"; shift; mp3info -l "$A" "$@"; }
-#mp3-artist()    { A="$1"; shift; mp3info -a "$A" "$@"; }
-#mp3-title()     { A="$1"; shift; mp3info -t "$A" "$@"; }
-#mp3-album()     { A="$1"; shift; id3tag -A "$A" "$@"; }
-#mp3-artist()    { A="$1"; shift; id3tag -a "$A" "$@"; }
-#mp3-title()     { A="$1"; shift; id3tag -s "$A" "$@"; }
-mp3-album()     { A="$1"; shift; meyeD3 --encoding utf8 --album "$A" "$@"; }
-mp3-artist()    { A="$1"; shift; meyeD3 --encoding utf8 --artist "$A" "$@"; }
-mp3-title()     { A="$1"; shift; meyeD3 --encoding utf8 --title "$A" "$@"; }
-mp3-year()      { A="$1"; shift; id3tag -y "$A" "$@"; }
-#mp3-number()    { A="$1"; shift; mp3info -n "$A" "$@"; }
-mp3-number()    { A="$1"; shift; id3tag -t "$A" "$@"; }
-mp3-comment()   { A="$1"; shift; id3tag -c "$A" "$@"; }
-mp3-total()     { A="$1"; shift; id3tag -T "$A" "$@"; }
+#mp3-album()     { mp3info -l "$@"; }
+#mp3-artist()    { mp3info -a "$@"; }
+#mp3-title()     { mp3info -t "$@"; }
+#mp3-album()     { id3tag -A  "$@"; }
+#mp3-artist()    { id3tag -a  "$@"; }
+#mp3-title()     { id3tag -s  "$@"; }
+mp3-album()     { meyeD3 --encoding utf8 --to-v2.3 --album "$@"; }
+mp3-artist()    { meyeD3 --encoding utf8 --to-v2.3 --artist "$@"; }
+mp3-title()     { meyeD3 --encoding utf8 --to-v2.3 --title "$@"; }
+mp3-year()      { meyeD3 --encoding utf8 --to-v2.3 --recording-date "$@"; }
+#mp3-year()      { id3tag -y "$@"; }
+#mp3-number()    { mp3info -n "$@"; }
+#mp3-number()    { id3tag -t "$@"; }
+#mp3-comment()   { id3tag -c "$@"; }
+#mp3-total()     { id3tag -T "$@"; }
+mp3-number()    { meyeD3 --encoding utf8 --to-v2.3 --track "$@"; }
+mp3-comment()   { meyeD3 --encoding utf8 --to-v2.3 --comment "$@"; }
+mp3-total()     { meyeD3 --encoding utf8 --to-v2.3 --track-total "$@"; }
 
 mp3-rename-by-tags() { meyeD3 --encoding utf8 --rename '$artist--$album-$best_date:year--$track:num-$title' "$@"; }
 mp3-dump-tags2stdout() { stagger --dump "$1"; } #> "$1".tag
@@ -170,20 +177,25 @@ al flac-del-image   'metaflac --remove --block-type=PICTURE'
 al flac-get-image   'metaflac --export-picture-to=-'
 
 tag1-flac2mp3() {
-    t=`metaflac --show-tag=Title    "$1" | tail -1 |sed -s 's/[^=]*=//'`; mp3-title  "$t" "$2"
-    t=`metaflac --show-tag=Artist   "$1" | tail -1 |sed -s 's/[^=]*=//'`; mp3-artist "$t" "$2"
-    t=`metaflac --show-tag=Album    "$1" | tail -1 |sed -s 's/[^=]*=//'`; mp3-album  "$t" "$2"
-    t=`metaflac --show-tag=Track --show-tag=Tracknumber "$1" | tail -1 |sed -s 's/[^=]*=//'`; mp3-number "$t" "$2"
-    t=`metaflac --show-tag=Year  --show-tag=Date        "$1" | tail -1 |sed -s 's/[^=]*=//'`; mp3-year   "$t" "$2"
+    flac-show "$1" | meyeD3 --encoding utf8 --to-v2.3  --stdin "$2"
+    # XXX no way to pass ` via cmd-line
+    #echo "$1" "$2"
+    #t=`metaflac --show-tag=Title    "$1" | tail -1 |sed -s 's/[^=]*=//'` 
+    #a=`metaflac --show-tag=Artist   "$1" | tail -1 |sed -s 's/[^=]*=//'`
+    #l=`metaflac --show-tag=Album    "$1" | tail -1 |sed -s 's/[^=]*=//'`
+    #n=`metaflac --show-tag=Track --show-tag=Tracknumber "$1" | tail -1 |sed -s 's/[^=]*=//'` 
+    #y=`metaflac --show-tag=Year  --show-tag=Date        "$1" | tail -1 |sed -s 's/[^=]*=//;s/ .*//'` 
+    #meyeD3 --encoding utf8 --to-v2.3 --artist "$a" --album "$l" --title "$t" ${n:+--track} "$n" ${y:+--recording-date} "$y"  "$2"
 }
 tag1-mp32mp3() {
     A=`mp3info -p ' -n %n -l \"%l\" -a \"%a\" -t \"%t\" -y "%y" ' "$1"`
     bash -c "mp3info $A \"$2\""
     #-g "%g"
 }
+export -f tag1-flac2mp3 mp3-title mp3-artist mp3-album mp3-number mp3-year
 
-tag-flac2mp3()  { for f in "$@"; do tag1-flac2mp3 "$f" "${f%flac}"mp3 ; done ;}
-tag-flac2mp3x() { for f in "$@"; do tag1-flac2mp3 "$f" "$f.mp3" ; done ;}
+tag-flac2mp3()  { parallel tag1-flac2mp3 "{}" "$MP3{.}.mp3" ::: "$@" ;}
+tag-flac2mp3x() { for f in "$@"; do tag1-flac2mp3 "$f" "${f%flac}"mp3 ; done ;}
 tag-mp32flac()  { for f in "$@"; do tag1-mp32flac "$f" "${f%mp3}"flac ; done ;}
 tag-flac2name() { for f in "$@"; do tag1-flac2name "$f" ; done ;}
 #see also flactags2name.py XXX
@@ -281,6 +293,13 @@ flac2mp34() {
  tag-flac2mp3 *.flac
  rm ../mp34/*.flac
  }
+al fl34 flac2mp34
+
+mp32mp34() {
+ mkdir -p mp3${Q:-4}
+ d1 *.mp3 | parallel wav2mp3 --out-dir mp3${Q:-4}/
+ }
+al mp34 mp32mp34
 
 flac44() {
  nd flac44
@@ -294,6 +313,9 @@ flac44() {
 
 flac2mp34-all() {
  for a in "$@" ; do ( cd "$a" ; flac2mp34 ) ; done
+ }
+mp32mp34-all() {
+ for a in "$@" ; do ( cd "$a" ; mp32mp34 ) ; done
  }
 
 rec0nocache() {

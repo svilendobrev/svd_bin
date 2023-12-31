@@ -4,4 +4,12 @@ al s-restart 'sudo systemctl restart'
 al s-enable  'sudo systemctl enable'
 al s-disable 'sudo systemctl disable'
 al s-status  'systemctl status'
+
+al u-stop    'systemctl stop --user'
+al u-start   'systemctl start --user'
+al u-restart 'systemctl restart --user'
+al u-enable  'systemctl enable --user'
+al u-disable 'systemctl disable --user'
+al u-status  'systemctl status --user'
+
 al s-journal 'journalctl -xe'

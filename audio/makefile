@@ -109,8 +109,8 @@ endif
 mp3 : $(WAVs:%.wav=%.mp3)
 mp3 : $(FLACs:%.flac=%.mp3)
 mp36: mp3mp36
-mp3mp36 : $(MP3s:%.mp3=%.mp36)
-mp3mp34 : $(MP3s:%.mp3=%.mp34)
+mp3mp36 mp32mp36: $(MP3s:%.mp3=%.mp36)
+mp3mp34 mp32mp34: $(MP3s:%.mp3=%.mp34)
 363:
 	rename.pl s/mp36/mp3/ *mp36
 mp34: Q=4
@@ -243,5 +243,9 @@ renunnum:
 #re-code whatever aac into flac of same bits/freq ; use flac44 further
 %.m4a2flac: %.m4a
 	ffmpeg -i $< -map 0:a:0 $@
+
+#into 16bit wav
+%.wav: %.aac
+	faad $<
 
 # vim:ts=4:sw=4:noexpandtab

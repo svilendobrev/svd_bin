@@ -1,0 +1,9 @@
+#!/bin/sh
+xrandr --output HDMI1 --auto --output HDMI2 --left-of HDMI1
+
+#избягване на умрелите редове/колони на EIZO127..
+#.config/openbox/rc.xml#margins 
+#margin-top е по цялата ширина, затова HDMI2 се премества надолу
+#xrandr --output HDMI1 --auto --output HDMI2 --pos 2560x12
+
+# vim:ts=4:sw=4:expandtab

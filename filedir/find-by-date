@@ -1,0 +1,11 @@
+#!/bin/sh
+DATE_FROM_YYYY_MM_DD_dashes=$1
+shift
+PERIOD_DAYS_AFTER=${PERIOD:-1}
+ELAPSED_DAYS_FROM=$(( ( $(date +%s) - $(date -d $DATE_FROM_YYYY_MM_DD_dashes +%s) ) / 60 / 60 / 24   +1 ))
+ELAPSED_DAYS_TO=$(( $ELAPSED_DAYS_FROM - $PERIOD_DAYS_AFTER - 1 ))
+echo $ELAPSED_DAYS_FROM..$ELAPSED_DAYS_TO days-ago 
+#set -x
+TYPE=${TYPE:-f}
+FORMAT=${FORMAT:-"%T+ %p"}
+find . -daystart -type $TYPE -mtime -$ELAPSED_DAYS_FROM -mtime +$ELAPSED_DAYS_TO -printf "$FORMAT\n" "$@"

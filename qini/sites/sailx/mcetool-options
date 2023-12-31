@@ -1,0 +1,157 @@
+Mode Control Entity Tool
+
+USAGE
+	mcetool [OPTION] ...
+
+OPTIONS
+  -U, --unblank-screen
+  -d, --dim-screen
+  -n, --blank-screen
+      --blank-screen-lpm
+      --get-display-stats[=<human|machine>]
+  -P, --blank-prevent
+  -v, --cancel-blank-prevent
+      --set-blank-prevent-mode=<disabled|keep-on|allow-dim>
+  -G, --set-dim-timeout=<secs>
+      --set-dim-with-kbdtimeout=<secs>
+  -O, --set-dim-timeouts=<secs,secs,...>
+  -f, --set-adaptive-dimming-mode=<enabled|disabled>
+  -J, --set-adaptive-dimming-time=<secs>
+  -o, --set-blank-timeout=<secs>
+      --set-blank-from-lockscreen-timeout=<secs>
+      --set-blank-from-lpm-on-timeout=<secs>
+      --set-blank-from-lpm-off-timeout=<secs>
+  -j, --set-never-blank=<enabled|disabled>
+  -K, --set-autolock-mode=<enabled|disabled>
+      --set-autolock-delay=<seconds[.fraction]>
+      --set-devicelock-in-lockscreen=<READ THE LONG HELP>
+      --set-lockscreen-animation=<enabled|disabled>
+  -t, --set-tklock-blank=<enabled|disabled>
+  -I, --set-inhibit-mode=<disabled|stay-on-with-charger|stay-on|stay-dim-with-charger|stay-dim>
+      --set-kbd-slide-inhibit-mode=<disabled|stay-on-when-open|stay-dim-when-open>
+  -k, --set-tklock-mode=<locked|locked-dim|locked-delay|unlocked>
+  -m, --tklock-callback=<unlock|retry|timeout|closed>
+  -q, --tklock-open=<oneinput|visual|lpm|pause>
+  -Q, --tklock-close
+  -M, --set-doubletap-mode=<disabled|show-unlock-screen|unlock>
+  -z, --set-doubletap-wakeup=<never|always|proximity>
+      --set-fingerprint-wakeup-mode=<never|always|proximity>
+      --set-fingerprint-wakeup-allow-delay=<ms>
+      --set-fingerprint-wakeup-trigger-delay=<ms>
+      --set-fingerprint-wakeup-throttle-delay=<ms>
+      --set-volume-key-policy=<default|media-only>
+  -Z, --set-powerkey-action=<never|always|proximity|proximity2>
+      --set-powerkey-blanking=<off|lpm>
+      --set-powerkey-long-press-delay=<ms>
+      --set-powerkey-double-press-delay=<ms>
+      --set-display-on-single-powerkey-press-actions=<actions>
+      --set-display-on-double-powerkey-press-actions=<actions>
+      --set-display-on-long-powerkey-press-actions=<actions>
+      --set-display-off-single-powerkey-press-actions=<actions>
+      --set-display-off-double-powerkey-press-actions=<actions>
+      --set-display-off-long-powerkey-press-actions=<actions>
+      --set-touchscreen-gesture-actions=<gesture_id|doubletap|fpwakeup,actions>
+      --set-powerkey-dbus-action=<action_id,signal_argument|method_call_details>
+      --set-powerkey-ps-override-count=<press-count>
+      --set-powerkey-ps-override-timeout=<ms>
+      --set-display-off-override=<disabled|use-lpm>
+  -r, --enable-radio=<master|cellular|wlan|bluetooth>
+  -R, --disable-radio=<master|cellular|wlan|bluetooth>
+  -p, --set-power-saving-mode=<enabled|disabled>
+  -T, --set-psm-threshold=<10|20|30|40|50>
+  -F, --set-forced-psm=<enabled|disabled>
+  -E, --set-low-power-mode=<enabled|disabled>
+      --set-lpmui-triggering=<bit1[,bit2][...]>
+  -s, --set-suspend-policy=<enabled|disabled|early|disable_on_charger>
+      --get-suspend-stats
+  -S, --set-cpu-scaling-governor=<automatic|performance|interactive>
+  -i, --set-fake-doubletap=<enabled|disabled>
+  -b, --set-display-brightness=<1...100>
+      --set-dimmed-brightness-static=<1...100>
+      --set-dimmed-brightness-dynamic=<1...100>
+      --set-compositor-dimming-threshold-hi=<0...100>
+      --set-compositor-dimming-threshold-lo=<0...100>
+  -g, --set-als-mode=<enabled|disabled>
+      --set-als-autobrightness=<enabled|disabled>
+      --set-als-input-filter=<disabled|median>
+      --set-als-sample-time=<50...1000>
+  -u, --set-ps-mode=<enabled|disabled>
+      --set-ps-on-demand=<enabled|disabled>
+      --set-default-ps-uncover-delay=<ms>
+      --set-incall-ps-uncover-delay=<ms>
+      --set-ps-blocks-touch=<enabled|disabled>
+      --set-ps-acts-as-lid=<enabled|disabled>
+      --set-lid-sensor-mode=<enabled|disabled>
+      --set-lid-open-actions=<disabled|unblank|tkunlock>
+      --set-lid-close-actions=<disabled|blank|tklock>
+      --set-kbd-slide-open-trigger=<never|no-proximity|always>
+      --set-kbd-slide-open-actions=<disabled|unblank|tkunlock>
+      --set-kbd-slide-close-trigger=<never|after-open|always>
+      --set-kbd-slide-close-actions=<disabled|blank|tklock>
+      --set-filter-lid-with-als=<enabled|disabled>
+      --set-filter-lid-als-limit=<lux>
+      --set-orientation-sensor-mode=<enabled|disabled>
+      --set-orientation-change-is-activity=<enabled|disabled>
+      --set-flipover-gesture-detection=<enabled|disabled>
+  -a, --get-color-profile-ids
+  -A, --set-color-profile=<ID>
+  -C, --set-cabc-mode=<off|ui|still-image|moving-image>
+  -c, --set-call-state=<none|ringing|active|service>:<normal|emergency>
+      --set-button-backlight=<enabled|disabled>
+      --set-button-backlight-mode=<off|on|policy>
+      --set-button-backlight-off-delay=<ms>
+  -l, --enable-led
+  -L, --disable-led
+      --enable-led-pattern=<PATTERN>
+      --disable-led-pattern=<PATTERN>
+      --show-led-patterns
+  -y, --activate-led-pattern=<PATTERN>
+  -Y, --deactivate-led-pattern=<PATTERN>
+      --set-sw-breathing=<enabled|disabled>
+      --set-sw-breathing-limit=<0 ... 100>
+  -e, --powerkey-event=<short|double|long>
+  -D, --set-demo-mode=<on|dim|off>
+      --set-brightness-fade-def=<msecs>
+      --set-brightness-fade-dim=<msecs>
+      --set-brightness-fade-als=<msecs>
+      --set-brightness-fade-blank=<msecs>
+      --set-brightness-fade-unblank=<msecs>
+      --set-lipstick-core-delay=<secs>
+      --set-input-policy-mode=<enabled|disabled>
+      --set-input-grab-allowed=<bit1[,bit2][...]>
+      --set-touch-unblock-delay=<msecs>
+      --begin-notification[=<name[,duration_ms[,renew_ms]]>]
+      --end-notification[=<name[,linger_ms]>]
+  -N, --status
+  -B, --block[=<secs>]
+  -h, --help[=<OPTION|"all">]
+  -H, --long-help[=<OPTION>]
+  -V, --version
+      --set-verbosity=<emerg|alert|crit|err|warning|notice|info|debug>
+      --set-memuse-warning-used=<page_count>
+      --set-memuse-warning-active=<page_count>
+      --set-memuse-critical-used=<page_count>
+      --set-memuse-critical-active=<page_count>
+      --set-exception-length-call-in=<msec>
+      --set-exception-length-call-out=<msec>
+      --set-exception-length-alarm=<msec>
+      --set-exception-length-usb-connect=<msec>
+      --set-exception-length-usb-dialog=<msec>
+      --set-exception-length-charger=<msec>
+      --set-exception-length-battery=<msec>
+      --set-exception-length-jack-in=<msec>
+      --set-exception-length-jack-out=<msec>
+      --set-exception-length-camera=<msec>
+      --set-exception-length-volume=<msec>
+      --set-exception-length-activity=<msec>
+      --reset-settings[=<keyish>]
+      --set-inactivity-shutdown-delay=<s>
+
+NOTES
+	If no options are specified, the status is output.
+
+	If non-option arguments are given, matching parts of long help
+	is printed out.
+
+REPORTING BUGS
+	Send e-mail to: <simo.piiroinen@jollamobile.com>

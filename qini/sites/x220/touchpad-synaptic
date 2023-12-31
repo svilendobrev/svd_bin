@@ -1,0 +1,8 @@
+#!/bin/sh
+# a-install xorg-xinput
+# xinput
+# xinput list
+# xinput list-props 'SynPS/2 Synaptics TouchPad'
+xinput set-prop 'SynPS/2 Synaptics TouchPad' 'libinput Tapping Enabled' 1
+
+# vim:ts=4:sw=4:expandtab

@@ -619,10 +619,13 @@ function! HEADsetup()
   let comment_sfx = ' -->'
  endif
 
- if &filetype =='python'
-  exe append( 0, 'from __future__ import print_function #,unicode_literals' )
+ if &filetype == 'python'
+  exe append( 0, '#from __future__ import print_function #,unicode_literals' )
   exe append( 0, '# -*- coding: utf-8 -*-' )
   exe append( 0, '#!/usr/bin/env python' )
+ endif
+ if &filetype == 'sh'
+  exe append( 0, '#!/bin/sh' )
  endif
  "exe append( 0, comment_pfx.'$'.'Id$'.comment_sfx )
 endf

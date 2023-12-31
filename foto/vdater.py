@@ -26,11 +26,17 @@ for a in ['-dt', '--dt']:
 fi,fo = (sys.argv[1:3]+[ None ])[:2]
 if not fo and dt2v:
     fo = fi
-    fi = os.path.splitext( fi)[0]+'.dt'
+    fi = os.path.splitext( fo)[0]+'.dt'
 
 if fi.lower().endswith('.dt'):
     fromdt = True
-    creatime = open(fi).readlines()[0]
+    try:
+        creatime = open(fi).readlines()[0]
+    except:
+        fo0 = re.split( '\.\.w\d+\.', fo)[0]
+        if fo0 == fo: raise
+        fi = os.path.splitext( fo0)[0]+'.dt'
+        creatime = open(fi).readlines()[0]
     #assert fo.endswith( '.mkv') or fo.endswith('.avi'), fo
 else:
     fromdt = False

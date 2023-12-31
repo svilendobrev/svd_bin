@@ -1,0 +1,26 @@
+# .bashrc @ sonyxsail
+test -f /etc/bashrc && . /etc/bashrc # Source global definitions
+test -f ~/empty_bashrc && return
+
+umask 002
+export _INIs=~/src/svd_bin/qini/
+export LC_COLLATE=C
+
+#no echo's if non-interactive, e.g. scp
+_noECho()	{ :; }
+if [ -z "$PS1" ]; then 
+	shopt -s expand_aliases
+	alias echo=_noECho
+fi
+#echo "--$PS1--"
+
+#_SITEs=...
+test -f ${_INIs}_bashrc && . ${_INIs}_bashrc
+senv EDITOR vi
+
+if [ -z "$PS1" ]; then 
+ 	unalias echo
+else
+	test -f ~/_myalias && . ~/_myalias
+fi
+

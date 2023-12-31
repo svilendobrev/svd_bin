@@ -7,11 +7,17 @@ fi
 #aac,
 oAUDIO="--aencoder copy  --audio-copy-mask ac3,mp3  --audio-fallback ffac3 --audio-lang-list=any"
 #--audio-lang-list=any needed since hb1.3.*
-oVIDEO="--vfr"
-oVIDEO="-r 25 --pfr"
+
+#https://handbrake.fr/docs/en/latest/workflow/adjust-quality.html
+#https://handbrake.fr/docs/en/latest/technical/video-cq-vs-abr.html
+#https://www.reddit.com/r/handbrake/comments/e9dcz0/constant_quality_whats_your_number/
+#oVIDEO="--vfr"
+oVIDEO="-r 32 --pfr"
 ##XXX -r 25 --pfr	#variable but <= -r
+#variable-rate preserves input timings
 #oQUALITY="-vb 2000"
-oQUALITY="-q ${QUALITY:-20}"
+oQUALITY="-q ${QUALITY:-21}"
+#oPASSES="-2 -T" #Constant Quality does not need 2 pass
 test -n "$P720" && oSIZE="-w 1280"
 oLANG="--native-language bul --native-dub"
 I="$1"
@@ -23,6 +29,6 @@ case "x$O" in
 esac 
 xSIZE=`perl -e '$_=$ENV{oSIZE}; s/[ -]//g; print'`
 O="$O.$TITLE.$xSIZE".mkv
-       
-echo    -- args: -e x264 -2 -T $oVIDEO $oAUDIO $oQUALITY $oSIZE $oLANG $WHAT -i "$I" -o "$O" "$@"
-$E handbrake-cli -e x264 -2 -T $oVIDEO $oAUDIO $oQUALITY $oSIZE $oLANG $WHAT -i "$I" -o "$O" "$@"
+
+echo    -- args: -e x264 $oPASSES $oVIDEO $oAUDIO $oQUALITY $oSIZE $oLANG $WHAT -i "$I" -o "$O" "$@"
+$E handbrake-cli -e x264 $oPASSES $oVIDEO $oAUDIO $oQUALITY $oSIZE $oLANG $WHAT -i "$I" -o "$O" "$@"

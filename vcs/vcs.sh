@@ -142,6 +142,7 @@ bzr_io="missing ; $BZR $bzr_s"    #missing needs pull-branch remembered: bzr pul
 bzr_oi="$bzr_io"
 bzr_hs='shelve'
 bzr_hu='unshelve'
+bzr_ls='ls -V'       #list vcs-ed files
 
 hg_u='pull -u'
 hg_u_pipe='| grep -v searching.for.changes || (echo "! unresolveds !" && false)'  #false: propagate the error (as echo->success) ; || && =same priroty ; grep needs -o pipefail
@@ -199,7 +200,7 @@ git_m='merge' #?
 git_p='push' #?
 git_hs='stash'  #-m message
 git_hu='stash pop'
-git_io='log --branches --not --remotes ; git log --remotes --not --branches '   #??
+git_io='remote update ; git log --branches --not --remotes ; git log --remotes --not --branches '   #??
 git_oi="$git_io"
 git_w='show'
 git_b='checkout -b'     #make branch <name-follows>

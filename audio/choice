@@ -1,6 +1,10 @@
 #!/bin/sh
 while true ; do
-X=`find . -name 1 -prune -o -name mp3* -prune -o -iname scans -prune -o -type d  -print | py -c 'import sys,random ; r=sys.stdin.readlines() ; print( random.choice( r))'`
+#X=`find . -regextype posix-egrep -name mp3* -prune -o -iregex '.*/(1|ne|mp36|scans?|artwork|covers|art|graphics)' -prune -o -type d -print | py -c 'import sys,random ; r=sys.stdin.readlines() ; print( random.choice( r))'`
+#X=`find . -name 1 -prune -o -name mp3* -prune -o -iname scans -prune -o -type d  -print | py -c 'import sys,random ; r=sys.stdin.readlines() ; print( random.choice( r))'`
+# or: PATH=${PATH#.:} PATH=${PATH/:.:/:} find . -regextype posix-egrep -name 1 -prune -o -type f -iregex '\.(mp3|flac|ogg|wav|m4a)$' -execdir pwd {} +	
+#   обаче раздвоява някои?
+X=`find . -regextype posix-egrep -iregex '.*/(0|ne|mp36)' -prune -o -iregex '.*\.(mp3|flac|ogg|m4a)' -print | py -c 'import sys,random ; r=set( a.rsplit("/",1)[0] for a in sys.stdin.readlines()) ; print( random.choice( sorted(r)))'`
 #echo "$X"
 read -p "$X .... ?" -n 1 && echo
 if [ "$REPLY" == "y" -o "$REPLY" == "ъ" ] ; then 

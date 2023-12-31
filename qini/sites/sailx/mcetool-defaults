@@ -1,0 +1,162 @@
+
+MCE status:
+-----------
+MCE version:                         1.106.6
+Verbosity level:                     warning 
+Radio states:
+	Master:                      enabled (Online)
+	Cellular:                    enabled
+	WLAN:                        enabled
+	Bluetooth:                   disabled
+	NFC:                         disabled
+	FM transmitter:              disabled
+Call state (type):                   none (normal)
+Button backlight:                    disabled
+Display state:                       off
+Color profile:                       hardcoded
+Brightness:                          70 (1-100)
+Dimmed brightness static:            3 (1-100 percent of hw maximum)
+Dimmed brightness maximum:           50 (1-100)
+Compositor dimming high threshold:   10 (0-100)
+Compositor dimming low threshold:    0/disabled (0-100)
+CABC mode:                           ui
+Dim timeout:                         120 (seconds)
+Dim with kbd timeout:                use default (seconds)
+Adaptive dimming:                    enabled
+Adaptive dimming threshold:          10000 (milliseconds)
+Display never blank:                 disabled 
+Blank timeout:                       3 (seconds)
+Blank from lockscreen:               10 (seconds)
+Blank from lpm-on:                   5 (seconds)
+Blank from lpm-off:                  5 (seconds)
+Blank inhibit:                       disabled 
+Kbd slide blank inhibit:             disabled 
+Display blank prevent mode:          keep-on 
+Keyboard backlight:                  disabled
+Inactivity status:                   inactive
+Inactivity shutdown delay:           disabled
+Power saving mode:                   disabled (inactive)
+Forced power saving mode:            disabled
+PSM threshold:                       20 (%)
+Touchscreen/Keypad lock:             locked
+Touchscreen/Keypad autolock:         enabled
+Touchscreen/Keypad autolock delay:   30 [s]
+Devicelock is in lockscreen:         enabled
+Lockscreen unblank animations:       enabled
+Double-tap wakeup policy:            proximity 
+Fingerprint wakeup policy:           always 
+Fingerprint wakeup allow delay:      500 [ms]
+Fingerprint wakeup triggering delay: 100 [ms]
+Fingerprint wakeup throttle delay:   250 [ms]
+Volumekey input policy:              default 
+Powerkey wakeup policy:              always 
+Powerkey blanking mode:              off 
+Powerkey long press delay:           1500 [ms]
+Powerkey double press delay:         400 [ms]
+Powerkey press from display on:
+	single                       blank,tklock
+	double                       blank,tklock,devlock,vibrate
+	long                         dbus1
+Powerkey press from display off:
+	single                       unblank
+	double                       unblank,tkunlock
+	long                         (none)
+Touchscreen gestures:
+	gesture0                     unblank
+	gesture1                     unblank
+	gesture2                     unblank
+	gesture3                     unblank
+	doubletap                    unblank
+	gesture5                     unblank
+	gesture6                     unblank
+	gesture7                     unblank
+	gesture8                     unblank
+	gesture9                     unblank
+	gesture10                    unblank
+	gesture11                    unblank
+	gesture12                    unblank
+	gesture13                    unblank
+	gesture14                    unblank
+	gesture15                    unblank
+	fpwakeup                     unblank,tkunlock
+	gesture17                    unblank
+	gesture18                    unblank
+	gesture19                    unblank
+Powerkey D-Bus actions:
+	dbus1                        send signal with arg 'power-key-menu'
+	dbus2                        send signal with arg 'event2'
+	dbus3                        send signal with arg 'event3'
+	dbus4                        send signal with arg 'event4'
+	dbus5                        send signal with arg 'event5'
+	dbus6                        send signal with arg 'event6'
+	dbus7                        send signal with arg 'event7'
+	dbus8                        send signal with arg 'event8'
+	dbus9                        send signal with arg 'event9'
+	dbus10                       send signal with arg 'event10'
+Powerkey ps override count:          3
+Powerkey ps override timeout:        333 [ms]
+Display off override mode:           disabled 
+Use low power mode:                  disabled
+LPM UI triggering:                   from-pocket
+Use als mode:                        enabled
+Use als autobrightness:              enabled
+Active als input filter:             median
+Sample time for als filtering:       125
+Use orientation sensor mode:         enabled
+Orientation change is activity:      enabled
+Flipover gesture detection:          disabled
+Use ps mode:                         enabled
+Use ps on-demand:                    enabled
+Default ps uncover delay:            100 (ms)
+In-call ps uncover delay:            500 (ms)
+Touch can be blocked by ps:          disabled
+PS acts as LID sensor:               disabled
+Use lid sensor mode:                 disabled
+Filter lid with als:                 disabled
+Lid closed als limit:                0 (lux)
+Lid open actions:                    unblank 
+Lid close actions:                   tklock 
+Kbd slide open trigger:              no-proximity 
+Kbd slide open actions:              unblank 
+Kbd slide close trigger:             after-open 
+Kbd slide close actions:             tklock 
+Allowed dim timeouts                 [ 15 30 60 120 600 ]
+Brightness fade [def]:               150 (milliseconds)
+Brightness fade [dim]:               1000 (milliseconds)
+Brightness fade [als]:               1000 (milliseconds)
+Brightness fade [blank]:             100 (milliseconds)
+Brightness fade [unblank]:           90 (milliseconds)
+Autosuspend policy:                  enabled 
+CPU Scaling Governor:                automatic 
+Use fake doubletap:                  enabled 
+Tklock autoblank policy:             enabled 
+Lipstick core delay:                 30 (seconds)
+Input grab policy:                   enabled
+Input grab allowed:                  none
+Touch unblock delay:                 100 (milliseconds)
+Display on after incoming call       5000 ms
+Display on after outgoing call       2500 ms
+Display on after alarm               1250 ms
+Display on at usb connect            5000 ms
+Display on at usb mode query         10000 ms
+Display on at charging start         3000 ms
+Display on at battery full           disabled
+Display on at jack insert            3000 ms
+Display on at jack remove            3000 ms
+Display on at camera button          3000 ms
+Display on at volume button          2000 ms
+Display on activity extension        2000 ms
+Led breathing:                       enabled
+Led breathing battery limit:         101 (%)
+Memory use warning [used]:           disabled
+Memory use warning [active]:         disabled
+Memory use critical [used]:          disabled
+Memory use critical [active]:        disabled
+Memory use level:                    unknown
+Button backlight off delay:          5000 [ms]
+Charger cable:                       connected
+Charger state:                       on
+Battery level:                       100
+Battery status:                      ok
+Battery state:                       charging
+

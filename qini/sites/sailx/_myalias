@@ -1,0 +1,5 @@
+al vim vi
+al d  'ls -lF --color=auto'
+al d2 'ls -lF --color=auto --group-directories'
+al e vi
+al sudo devel-su

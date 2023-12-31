@@ -51,10 +51,13 @@ def run( *parse_args):
     if optz.u2s: optz.under2space = True
     if optz.s2u: optz.space2under = True
 
-    if   optz.upper:   func = lambda x: renul_( x, True,  optz.levels)
-    elif optz.lower:   func = lambda x: renul_( x, False, optz.levels)
-    elif optz.under2space: func = lambda x: renul_( x, '_2s', optz.levels)
-    elif optz.space2under: func = lambda x: renul_( x, 's2_', optz.levels)
+    funcops = []
+    if   optz.upper:   funcops.append( 'upper')
+    elif optz.lower:   funcops.append( 'lower')
+    if optz.under2space: funcops.append( 'under2space')
+    elif optz.space2under: funcops.append( 'space2under')
+    if funcops:
+        func = lambda x: renul_( x, funcops, optz.levels)
     elif optz.abssymlink:
         assert not optz.insymlink
         func = os.path.realpath
@@ -98,13 +101,17 @@ def run( *parse_args):
 
 ###########
 
-def renul_( x, up, levels =0):
+def renul_( x, ops, levels =0):
     r = os.path.split( x)
     r0 = r[0]
-    if levels>0: r0 = renul_( r0, up, levels-1)
-    if up=='s2_': to = '_'.join( r[1].split())
-    elif up=='_2s': to = ' '.join( r[1].split('_'))
-    else: to = r[1].upper() if up else r[1].lower()
+    if levels>0: r0 = renul_( r0, ops, levels-1)
+    to = r[1]
+    for op in ops:
+        if op=='space2under': to = '_'.join( to.split())
+        elif op=='under2space': to = ' '.join( to.split('_'))
+        elif op=='upper': to = to.upper()
+        elif op=='lower': to = to.lower()
+        else: assert 0, f'unknown op {op}'
     return os.path.join( r0, to)
 
 

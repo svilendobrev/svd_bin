@@ -1,0 +1,10 @@
+#!/bin/sh
+for a in "$@"; do 
+ echo "$a"
+ cd "$a"
+ x=mp3-`basename "$a"`
+ mkdir -p "$x"
+ mv *.mp3 "$x"
+ ln -s */*.flac . 
+ cd - 
+done

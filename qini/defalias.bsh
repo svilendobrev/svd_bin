@@ -85,6 +85,8 @@ al reni     renin
 al rensym   'rename.py --sym'
 al ren_     'rename.py --s2u' #'rename.py " " _'
 al ren__    'rename.py --u2s' #'rename.py _ " " _'
+al renl_ 'ren_ --lower'
+al ren_l 'ren_ --lower'
 al sort 'LC_ALL=C sort'
 al hex  'hexdump -C'
 al h    hex  
@@ -116,7 +118,7 @@ al wh   type
 al lo   'so ${_INIs}/defalias$_EXT'
 al lko  'so ${_INIs}keybinds'
 
-elxtr() { e $_INIs/"$1"; } 
+elxtr() { e $_INIs/"$@"; } 
 
 al el   'elxtr defalias.bsh'
 al elk  'elxtr keybinds'
@@ -232,16 +234,6 @@ fi
 #al qiviw 'qiv -s -m -i -f -d 8'
 al qiviw 'pqiv -s -i -f -d 8'
 
-#net
-al bt       'btlaunchmanycurses.bittorrent . --max_rate_period 10 --display_interval 2' #--max_upload_rate 60' # --max_initiate 20 --min_peers 10 --max_uploads 3
-al tcpstat  'netstat -anp | g tcp'
-al netrestart  'sudo /etc/init.d/networking restart'
-nct()   { sudo netctl restart $1 ; }
-al nctlist  'sudo netctl list|sort'
-#eee/lapa
-al ww 'iw.py --crypto'
-#al nn 'sudo dhclient eth0'
-
 #--content-disposition 
 al wgetrnp 'wget -r -np --restrict-file-names=nocontrol --trust-server-names'
 al wgetrcnp 'wgetrnp -c'
@@ -258,9 +250,10 @@ al py python
 al py2 python2
 al py3 python3
 al p3 py3
-al piplocal 'pip install --user'
+test -f /usr/lib/python3.1*/EXTERNALLY-MANAGED && WTFPIP=--break-system-packages
+al piplocal  "pip install --user $WTFPIP"
 al pip2local 'pip2 install --user'
-al pip3local 'pip3 install --user'
+al pip3local "pip3 install --user $WTFPIP"
 
 al maf 'make -f ~/src/bin/foto/makefile'
 al emf 'e ~/src/bin/foto/makefile'
@@ -271,6 +264,7 @@ which pacman    >&/dev/null && so $_INIs/aliasi/pacman.alias.bsh
 which yum       >&/dev/null && so $_INIs/aliasi/yum.alias.bsh
 which pkcon     >&/dev/null && so $_INIs/aliasi/pkcon.alias.bsh
 which systemctl >&/dev/null && so $_INIs/aliasi/systemctl.alias.bsh
+which netctl    >&/dev/null && so $_INIs/aliasi/netctl.alias.bsh
 so $_INIs/aliasi/audio.alias.bsh
 so $_INIs/aliasi/rename.alias.bsh
 so $_INIs/aliasi/cddvdrw.alias.bsh
@@ -278,25 +272,10 @@ so $_INIs/aliasi/sys.alias.bsh
 so $_INIs/aliasi/vcs.alias.bsh
 so $_INIs/aliasi/wrongisright.alias.bsh
 
-chmod_s() {
- for f in $_CHMOD_S ; do 
-  F=`which $f` && sudo chmod +s $F
-  #?? ln -f $F ${F}__ && chmod +s ${F}__
- done 
-}
-
 al amx alsamixer
 #hardlink, ignore hardlinked, sort-size
 al rmli 'rmlint -c sh:link -L -y s -p -T duplicates'
 
-al ren-abs2.. 'rename.py --in ".*/" ../'
-
-al mradio 'make -f ~/src/bin/biblioteka/radio/rendirall.mak'
-al emradio 'e ~/src/bin/biblioteka/radio/rendirall.mak'
-al mra mradio 
-al emr emradio
-al mu 'cd /muzika'
-al му mu
 
 al kal 'khal list ' #today+tomorrow
 al kalw 'khal list now 7d'
@@ -304,7 +283,8 @@ al kalall 'khal list now 190d'
 
 al dr docker
 al de docker-compose
-drbash() { docker exec -it $1 bash ; }  #container-id
+drbash-attach()  { docker exec -it $1 bash ; }  #container-id
+drbash-instead() { docker run -it --entrypoint bash $1 ; }  #image-id
 # docker run  -it --entrypoint bash  <img>
 # docker exec -it <container> bash  
 ## show :3000 as :3001 ; needs hacking SSL.* in /usr/lib/python3.10/site-packages/mitmproxy/net/tls.py

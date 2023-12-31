@@ -1,0 +1,43 @@
+#i4113 sony xperia 10
+#sailfish 3.4.0.24 
+
+sudo = devel-su
+
+settings/developer/ssh stuff -> set password for incomin ssh AND devel-su
+
+fixed wlan-IP
+usb-IP different from above
+ssh-copy-id
+
+somename.desktop in /usr/share/applications/ or in ~/.local/share/applications/
+with-or-w/out NoDisplay=true
+see /usr/share/applications/csd.desktop
+
+/etc/ssh/sshd_config:
+port:..
+PasswordAuthentication no 	#once all pubkeys are copied
+
+
+version 4.x:
+
+a-delete busybox-symlinks-bash
+a-install bash
+
+a-delete busybox-symlinks-vi
+a-install vim-enhanced
+a-install vim-minimal    ??? needed?
+
+a-delete busybox-symlinks-grep
+a-delete gnu-grep
+
+mcetool --set-lockscreen-animation=disabled
+
+#lockScreenAnimated:
+#/usr/share/lipstick-jolla-home-qt5/lockscreen/LockScreen.qml
+#blankingPolicy: lipstickSettings? unknown where from
+
+keyboard layout of terminal:
+ .config/FingerTerm/settings* 
+ copy+edit the /*...*/english.layout into opit.layout in that dir
+
+# vim:ts=4:sw=4:expandtab

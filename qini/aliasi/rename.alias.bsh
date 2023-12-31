@@ -27,3 +27,5 @@ _ren_x2y() {
 al ren-utf-1251 '_ren_x2y utf8 cp1251'
 al ren-1251-utf '_ren_x2y cp1251 utf8'
 al ren-866-utf  '_ren_x2y cp866 utf8'
+
+al ren-abs2.. 'rename.py --in ".*/" ../'
