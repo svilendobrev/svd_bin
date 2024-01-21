@@ -4,9 +4,9 @@ export VIO=`echo $VIO$0.$1|grep vio`
 for a in ${@:-./*}; do
  test -d "$a" || continue
  test "$a" = "./__pycache__" && continue
- if test ! -L "$a" -o -n "$LINKSuall" -o `basename "$0"` = "luall.sh" -o -f .LINKSuall; then
+ if test ! -L "$a" -o -n "$LINKSuall" -o `basename "$0"` = "luall.sh" -o -f .LINKSuall -o -f _uall-links; then
   cd "$a"
-  if test -f ignore-uall ; then echo '** ignored' `pwd`
+  if test -f ignore-uall -o -f _uall-ignore ; then echo '** ignored' `pwd`
   else
     BWD=$a
     test -n "$UWD" && BWD=$UWD/${a#./}
