@@ -7,12 +7,14 @@ for x0 in sys.argv[1:]:
     print( x, '='+x0 if str(x) != x0 else '' )
 
     dod = 0.10
-    osig_rabotnik_perc = (8.38+2.2+3.2)/100.0
-    MAX_OSIG_BRUTO = 3400
+    osig_rabotnik_perc = (8.38+2.2+3.2)/100.0   # 8.38= 6.58+1.4+0.4
+    #MAX_OSIG_BRUTO = 3400  #2023
+    MAX_OSIG_BRUTO = 3750   #2024
     def osig_rabotnik( bruto): # = 413.4 if >=3000
         return min( MAX_OSIG_BRUTO, bruto ) * osig_rabotnik_perc
     def osig_rabotodatel( bruto):   #=567.6 if >= 3000
         return min( MAX_OSIG_BRUTO, bruto ) * (10.92+0.4+2.8+4.8) / 100.0
+            #10.92= 8.22+2.1+0.6
 
     def neto( bruto):
         return ( bruto - osig_rabotnik( bruto) ) * (1-dod)
