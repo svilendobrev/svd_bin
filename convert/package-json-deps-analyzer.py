@@ -33,8 +33,8 @@ for k,v in sorted( usage.items()):
             if p.split('/')[1].replace( '-private', '') not in usage
             and p.split('/')[0] != 'gh'
                #'-private/' not in p
-               # or p.replace( '-private/', '/').replace( 'ECOLLECTV2', 'gh') not in v
-               # and p.replace( '-private/', '/').replace( './ECOLLECTV2/', '') not in usage
+               # or p.replace( '-private/', '/').replace( 'mydir', 'gh') not in v
+               # and p.replace( '-private/', '/').replace( './mydir/', '') not in usage
         ]
     if v:
         print( k.ljust( 35), *v)

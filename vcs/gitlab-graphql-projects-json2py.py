@@ -5,7 +5,7 @@ from __future__ import print_function #,unicode_literals
 https://docs.gitlab.com/ee/api/graphql/getting_started.html
 ####
 manual: you get the pages
- https://gitlab.ecollect.org/-/graphql-explorer
+ https://gitlab.whatever/-/graphql-explorer
  use gql_query below, previous_page_endCursor must have double-quotes "" unless is null
  save result pages into files
  pass them as args
@@ -14,7 +14,7 @@ auto: it get the pages by itself
  save+pass it as arg -t=thetoken
 '''
 
-gql_url_POST = 'https://gitlab.ecollect.org/api/graphql'
+gql_url_POST = 'https://gitlab.whatever/api/graphql'
 
 #see https://docs.gitlab.com/ee/api/graphql/reference/#project
 #previous_page_endCursor = null for first or "whatever-endCursor-is" in quotes for other pages
