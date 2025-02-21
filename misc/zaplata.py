@@ -9,7 +9,7 @@ import sys
 # родени след 1.1.1960 вкл.
 
 samoosig = False
-godina = 2024
+godina = 2025
 _max_osig_bruto = {
     2023: 3400,
     2024: 3750,
