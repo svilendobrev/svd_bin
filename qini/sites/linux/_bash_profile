@@ -1,4 +1,4 @@
-# .bash_profile
+# .bash_profile    --XXX having this avoids .profile 
 
 # Get the aliases and functions
 [ -f ~/.bashrc ] && . ~/.bashrc

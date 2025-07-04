@@ -128,9 +128,9 @@
 			<control type="label" id="99">
 				<posx>1270</posx>
 				<posy>660</posy>
-				<width>990</width>
+				<width>1190</width>
 				<height>28</height>
-				<font>font37</font>
+				<font>font45</font>
 				<align>right</align>
 				<textcolor>F0FFeeee</textcolor>
 				<shadowcolor>F0000000</shadowcolor>

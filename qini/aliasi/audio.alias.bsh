@@ -52,10 +52,10 @@ ape2flac()      { ffmpeg -i "$1" "$1".flac ; }
 ape2mp3()       { ffmpeg -i "$1" -f wav pipe: | _stdin2mp3  "$1" ; }
 ape2mp3split()  { ape2mp3 "$1"; mp3splt -c "$2" "$1".mp3; }
 cuefix()        { grep -v "REM " | cuebreakpoints -i cue ; }
-CUEFILTER=cat
+
 any2wavsplit()  {
     echo "$1"--"$2"
-    cat "$2" | grep -v "REM " | $CUEFILTER | shnsplit -O never -o ${ext:-wav} -t '%n. %t' -m '/-' -x 1-99  "$1" ;
+    cat "$2" | grep -v "REM " | ${CUEFILTER:-cat} | shnsplit -O never -o ${ext:-wav} -t '%n. %t' -m '/-' -x 1-99  "$1" ;
 }
 cue-noframes()  { CUEFILTER='perl -ne s/:[0-9][0-9]\s*$/\n/;print' ; }  #wholly shit
 _cuefilter-frames2ms() {
@@ -65,18 +65,22 @@ cue-frames2ms() { CUEFILTER=_cuefilter-frames2ms ; }  #owholly shit
 cue-frames() { CUEFILTER=cat; }
 
 any2flacsplit() { ext=flac any2wavsplit "$@" ; }
-any2flacsplit_forall() {
+any2flacsplit_dir() { 
     shopt -s nullglob
-    for a in "$@"; do (
-     cd "$a" ; pwd
-     test -n "$IN" && any2flacsplit *.$IN *.cue
-     test -z "$IN" && any2flacsplit *.{wav,flac,ape,wv} *.cue
-     rm -f 00*pregap*flac
-     #cuetag.sh *.cue [0-9]*.flac
-     cuetags-any [0-9]*.flac
-     )
-    done
+    cd "$1" ; pwd
+    test -n "$IN" && any2flacsplit *.$IN *.cue
+    test -z "$IN" && any2flacsplit *.{wav,flac,ape,wv} *.cue
+    rm -f 00*pregap*flac
+    #cuetag.sh *.cue [0-9]*.flac
+    cuetags-any [0-9]*.flac
     shopt -u nullglob
+    }
+export -f any2flacsplit_dir any2flacsplit any2wavsplit
+any2flacsplit_forall() {
+    for a in "$@"; do any2flacsplit_dir "$a" ; done
+    }
+any2flacsplit_parallel() {
+    parallel any2flacsplit_dir ::: "$@"
     }
 
 #no, ffmpeg pipe omits wav-length header
@@ -112,7 +116,11 @@ tag1-flac2name() {
     y=`_flac2tag Year   "$1"`
     n=`printf %02g $n`
     #mv "$1" "$n - $a - $l-$y - $t".flac
-    mv "$1" "$a--$l-$y--$n-$t".flac
+    if test -z "$NUMTITLE" ; then
+     mv "$1" "$a--$l-$y--$n-$t".flac
+    else 
+     mv "$1" "$n-$t--$a--$l-$y".flac
+    fi
 }
 
 al mp3-name2title   '_name2title mp3-title'
@@ -141,6 +149,7 @@ mp3-comment()   { meyeD3 --encoding utf8 --to-v2.3 --comment "$@"; }
 mp3-total()     { meyeD3 --encoding utf8 --to-v2.3 --track-total "$@"; }
 
 mp3-rename-by-tags() { meyeD3 --encoding utf8 --rename '$artist--$album-$best_date:year--$track:num-$title' "$@"; }
+mp3-rename-by-tags-numtitle() { meyeD3 --encoding utf8 --rename '$track:num-$title--$artist--$album-$best_date:year' "$@"; }
 mp3-dump-tags2stdout() { stagger --dump "$1"; } #> "$1".tag
 mp3-load-tags4stdin()  { stagger --load "$1"; } #< "$1".tag
 meyed3-tags()   { meyeD3 "--v12" "--encv1=cp1251" "--to-v2.3" "--encoding=utf16" "--remove-all-comments" "$@"; }
@@ -179,7 +188,7 @@ al flac-get-image   'metaflac --export-picture-to=-'
 tag1-flac2mp3() {
     flac-show "$1" | meyeD3 --encoding utf8 --to-v2.3  --stdin "$2"
     # XXX no way to pass ` via cmd-line
-    #echo "$1" "$2"
+    #echo xxxx "$1" "$2"
     #t=`metaflac --show-tag=Title    "$1" | tail -1 |sed -s 's/[^=]*=//'` 
     #a=`metaflac --show-tag=Artist   "$1" | tail -1 |sed -s 's/[^=]*=//'`
     #l=`metaflac --show-tag=Album    "$1" | tail -1 |sed -s 's/[^=]*=//'`
@@ -296,9 +305,9 @@ flac2mp34() {
 al fl34 flac2mp34
 
 mp32mp34() {
- mkdir -p mp3${Q:-4}
- d1 *.mp3 | parallel wav2mp3 --out-dir mp3${Q:-4}/
- }
+    mkdir -p mp3${Q:-4}
+    parallel wav2mp3 --out-dir mp3${Q:-4}/ ::: *.mp3
+    }
 al mp34 mp32mp34
 
 flac44() {
@@ -363,6 +372,7 @@ al mp-L-L   'mp -af pan=2:1:0:0:0'
 al mp-R-R   'mp -af pan=2:0:0:0:1'
 
 al am   alsamixer
+al amx  alsamixer
 al mix  alsamixer
 al mixer alsamixer
 
@@ -384,5 +394,9 @@ al elau  'elxtr aliasi/audio.alias.bsh'
 al ela elau
 
 al torrent-show btshowmetainfo
+
+ren0abc0() { ren -p '(.*)/0/' '0/$1-' */0/?.mp3 "$@" ; ln /muzika/_c5 0/ ; rm */0/_c5 ; rmdir */0 ; }
+ren0abc() { ren -p '^(.*)/' '0/$1-' */?.mp3 "$@" ; ln /muzika/_c5 0/ ; }
+mv0abc()  { ren -p ^ 0/ ./?.mp3 "$@" ; ln /muzika/_c5 0/ ; }
 
 # vim:ts=4:sw=4:expandtab

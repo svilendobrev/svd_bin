@@ -135,7 +135,7 @@ augroup END
 autocmd FileType markdown  setl wrap linebreak ts=4 sw=4
 
 if $_SRC==""  "see $_INIs/defalias.bsh
- let INC_= 'my[cChylgm] [ch]pp [ch]xx cc CC asm as p[yl] java js jsx tsx ts xsl rb php vue'
+ let INC_= 'my[cChylgm] [ch]pp [ch]xx cc CC asm as p[yl] java js jsx tsx ts xsl rb php vue go'
  let EXC = 'CVS .svn .bzr .hg .repo .git'
 else
  let INC_= $_SRC

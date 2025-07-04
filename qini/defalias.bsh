@@ -26,11 +26,13 @@ al d..  'd -d .*'
 al dx   'd | g "^[^d]..(x|...x|......x)"'
 al d-   'd -d'
 al d1-  'd1 -d'
+al grep 'grep --color=auto'
  # ls directories only
 ddir()  { d "$@" | grep ^d; } 
 dfile() { d "$@" | grep -v ^d; } 
 #al dlinkbroken 'find . -type l -exec ls -alF --color {} \; | grep "31;1" '
-al dlinkbroken 'find -L . -type l '
+al dlinkbroken 'find -L . ${_DLINK} -type l -print'
+al dlinkbrokenm "_DLINK='-name .m -prune -o' && dlinkbroken"
 #al df 'LANG=C df -B1g -x tmpfs'
 #al df 'LANG=C df -m -x tmpfs'
 df() { LANG=C BLOCKSIZE=1G /bin/df "$@" | grep -v tmpfs ; }
@@ -233,6 +235,7 @@ fi
 #al qiv  'XLIB_SKIP_ARGB_VISUALS=1 qiv -l'
 #al qiviw 'qiv -s -m -i -f -d 8'
 al qiviw 'pqiv -s -i -f -d 8'
+al qw qiviw
 
 #--content-disposition 
 al wgetrnp 'wget -r -np --restrict-file-names=nocontrol --trust-server-names'
@@ -252,6 +255,7 @@ al py3 python3
 al p3 py3
 test -f /usr/lib/python3.1*/EXTERNALLY-MANAGED && WTFPIP=--break-system-packages
 al piplocal  "pip install --user $WTFPIP"
+al pipuninstall "pip uninstall $WTFPIP"
 al pip2local 'pip2 install --user'
 al pip3local "pip3 install --user $WTFPIP"
 
@@ -259,10 +263,11 @@ al maf 'make -f ~/src/bin/foto/makefile'
 al emf 'e ~/src/bin/foto/makefile'
 
 #TODO split all this into packs/topics then source all in some dir of links to availables
-which apt-get   >&/dev/null && so $_INIs/aliasi/apt.alias.bsh
-which pacman    >&/dev/null && so $_INIs/aliasi/pacman.alias.bsh
-which yum       >&/dev/null && so $_INIs/aliasi/yum.alias.bsh
-which pkcon     >&/dev/null && so $_INIs/aliasi/pkcon.alias.bsh
+if   which apt-get   >&/dev/null ; then so $_INIs/aliasi/apt.alias.bsh
+elif which pacman    >&/dev/null ; then so $_INIs/aliasi/pacman.alias.bsh
+elif which yum       >&/dev/null ; then so $_INIs/aliasi/yum.alias.bsh
+elif which pkcon     >&/dev/null ; then so $_INIs/aliasi/pkcon.alias.bsh
+fi
 which systemctl >&/dev/null && so $_INIs/aliasi/systemctl.alias.bsh
 which netctl    >&/dev/null && so $_INIs/aliasi/netctl.alias.bsh
 so $_INIs/aliasi/audio.alias.bsh
@@ -272,7 +277,6 @@ so $_INIs/aliasi/sys.alias.bsh
 so $_INIs/aliasi/vcs.alias.bsh
 so $_INIs/aliasi/wrongisright.alias.bsh
 
-al amx alsamixer
 #hardlink, ignore hardlinked, sort-size
 al rmli 'rmlint -c sh:link -L -y s -p -T duplicates'
 
@@ -283,6 +287,8 @@ al kalall 'khal list now 190d'
 
 al dr docker
 al de docker-compose
+al pd podman
+al pe podman compose
 drbash-attach()  { docker exec -it $1 bash ; }  #container-id
 drbash-instead() { docker run -it --entrypoint bash $1 ; }  #image-id
 # docker run  -it --entrypoint bash  <img>
@@ -290,5 +296,10 @@ drbash-instead() { docker run -it --entrypoint bash $1 ; }  #image-id
 ## show :3000 as :3001 ; needs hacking SSL.* in /usr/lib/python3.10/site-packages/mitmproxy/net/tls.py
 #mitmproxy --mode reverse:http://localhost:3001 -p 3000
 drlocalhost() { docker run -p 127.0.0.1:$1:$1 $2 $3 ; }  #port img args
+
+#not tried this, just copypasted
+#pdbash-attach()  { podman exec -it $1 bash ; }  #container-id
+#pdbash-instead() { podman run -it --entrypoint bash $1 ; }  #image-id
+#pdlocalhost() { podman run -p 127.0.0.1:$1:$1 $2 $3 ; }  #port img args
 
 # vim:ts=4:sw=4:expandtab

@@ -1,6 +1,6 @@
 # .bashrc @ svilo
-[ -f /etc/bashrc ] && . /etc/bashrc	# Source global definitions
-[ -f ~/empty_bashrc ] && return
+test -f /etc/bashrc && . /etc/bashrc	# Source global definitions ???? /etc/bash.bashrc
+test -f ~/empty_bashrc && return
 
 #XXX /etc/profile is not always sourced (e.g. interactive non-login shell)
 umask 002
@@ -25,9 +25,13 @@ fi
 #echo "--$PS1--"
 
 #_SITEs=...
-[ -f ${_INIs}_bashrc ] && . ${_INIs}_bashrc
+#paths: . _PATHs_BEFORE_Ubin ~U/bin _PATHs_AFTER_Ubin /home/_bin  ...
+_PATHs_BEFORE_Ubin=
+_PATHs_AFTER_Ubin=~/.local/bin
+test -f ${_INIs}_bashrc && . ${_INIs}_bashrc
+unset _PATHs_AFTER_Ubin _PATHs_BEFORE_Ubin
 senv EDITOR vim
-#senv VIMINIT "set runtimepath+=$_INIs/_vim,$_INIs/_vim/after | so $_INIs/_vimrc"
+#senv VIMINIT "set runtimepath+=$_INIs/_vim,$_INIs/_vim/after | so $_INIs/_vimrc"	# | set viminfopath=elsewhere
 
 #if [ -f ${_INIs}_bashrc ]; then 
 # _STARTWD=$PWD

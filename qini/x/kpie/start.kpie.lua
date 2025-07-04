@@ -42,8 +42,8 @@ if ( --( window_title() == ".. Claws Mail .." ) and
     xy(0,0 )
     size(1280,1024 )
     workspace(2)
-    --maximize()
-    fullscreen()
+    maximize()
+    --fullscreen()
 end
 
 -- vim:ts=4:sw=4:expandtab

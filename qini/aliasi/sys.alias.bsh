@@ -15,22 +15,24 @@ else #udevil
  mmcdrom() { udevil mount  /dev/cdrom "$@" ; }
  uucdrom() { udevil umount /dev/cdrom "$@" ; }
 fi
-al umediat  'fusermount -u /media/t'
-#al mmtp     'mount /media/mtp'
-#al umtp     'fusermount -u /media/mtp'
-al mmtp     'aft-mtp-mount /media/mtp'
-al jmtp     'jmtpfs /media/mtp'
-al umtp     'umount /media/mtp'
+al umediat  'fusermount -u /mnt/t'
+#al mmtp     'mount /mnt/mtp'
+#al umtp     'fusermount -u /mnt/mtp'
+al mmtp     'aft-mtp-mount /mnt/mtp'
+al jmtp     'jmtpfs /mnt/mtp'
+al umtp     'umount /mnt/mtp'
 
-al mmna 'mount /media/na'
-al uuna 'umount /media/na'
+al mmna 'mount /mnt/na'
+al uuna 'umount /mnt/na'
 
 #hw
-al diskstate 'hdparm -C /dev/[hs]d?'
+##stopped working?
+al diskstate 'hdparm -C /dev/[hs]d?'   
 al disks diskstate
 _CHMOD_S="$_CHMOD_S hdparm"
+al diskstate2 'for d in /dev/[hs]d?; do echo $d && sudo smartctl -i -n standby $d | g -i power ; done'
 
-al battery 'ibam -a'
+#al battery 'ibam -a' #see misc/bin/battery
 _SS='sensors| grep -Ev " V( |$)"'
 al sens  "$_SS"
 
@@ -46,6 +48,9 @@ al freq0 'cpupower -c all frequency-info'
 al freq  'freq0 | perl -ne "print if s/^analyzing// || s/current.policy:// || s/current.CPU.(frequency.*[\d.]+).*/\1/i || s/the.(governor.\S+).*/\1/i"'
 _CHMOD_S="$_CHMOD_S cpupower"
 al freqset  'sudo cpupower -c all frequency-set --max ' # -g ondemand
+freqghz()  { freqset $1ghz $2 $3 $4 $5 ;}
+freqfast() { freqghz $1 -g performance ; }
+freqslow() { freqghz $1 -g powersave ; }
 
 #cpulimit/set process affinity to cpu
 al taskset_cpu0 'taskset -c 0'
@@ -75,7 +80,8 @@ chmod_s() {
 
 #net
 al bt       'btlaunchmanycurses.bittorrent . --max_rate_period 10 --display_interval 2' #--max_upload_rate 60' # --max_initiate 20 --min_peers 10 --max_uploads 3
-al tcpstat  'netstat -anp | g tcp'
+#al tcpstat  'netstat -anp | g tcp'
+al tcpstat  'ss -anpO | grep tcp'
 #al netrestart  'sudo /etc/init.d/networking restart'
 #eee/lapa
 al ww 'iw.py --crypto'

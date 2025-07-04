@@ -370,21 +370,11 @@ class Screensaver(xbmcgui.WindowXMLDialog):
         # randomize
         if self.slideshow_random == 'true':
             if 'svd':
-                if 0:
-                  rnd = xRandom()
-                  def seed(): pass
-                else:
-                  rnd = random.Random() #SystemRandom()
-                  #done 1.enable above _save_offset in _exit and _get_offset in onInit
-                  #2 randomize sequence
+                rnd = random.Random() #SystemRandom()
+                #done 1.enable above _save_offset in _exit and _get_offset in onInit
+                #2 randomize sequence
 
-                  seed = rnd.seed
-                  def zseed():
-                    rnd.seed()
-                    i = rnd.randrange( 16384)
-                    seeds = open( '/home/tmp/randombytes.bin', 'rb').read()
-                    seeds = seeds[i:] + seeds[:i]
-                    rnd.seed( seeds)
+                seed = rnd.seed
                 import re
                 re_filt = re.compile( '/([1234]/|sz/|del/|ne/|сватби|избор|izbor|skuka|скука|направисам)')
                 self.items = [ x for x in self.items if not re_filt.search( x[0]) ]
@@ -407,10 +397,10 @@ class Screensaver(xbmcgui.WindowXMLDialog):
                     try:
                         tm = os.path.getctime( img[0].encode( 'utf-8'))
                     except OSError: tm = 1
-                    return (1024 * tm / sz , img[0])
+                    tm = tm % 859265536
+                    sz = sz % 1765536 or sz
+                    return (1024 * tm / sz , img[0], tm, sz)
 
-                #def namerev( x): return ''.join( reversed( x[0]))
-                #self.items.sort( key= namerev) #=getsize, reverse=True)
                 self.items.sort( key= getsize_y_time, reverse= rnd.randint(0,1))
                 def _razbyrkvane( items, pokolko):
                     import itertools
@@ -430,16 +420,16 @@ class Screensaver(xbmcgui.WindowXMLDialog):
                     self.items = _razbyrkvane( self.items, pokolko)
                 if 0:
                     with open( '/home/tmp/aaaaaa1', 'a') as o:
-                        print( '\n'.join( x[0] for x in self.items), file=o)
+                        print( '\n'.join( x[0]+' :'+str(getsize_y_time(x)) for x in self.items), file=o)
                         print( 2222222222, len( self.items), getsize( self.items[0]), file=o)
-                seed()
-                rnd.shuffle( self.items)
-                #razbyrkvane( 2273)
+                #seed()
+                #rnd.shuffle( self.items)
+                razbyrkvane( 1173)
                 seed()
                 #for a in range( 0, rnd.randint( 1,7)):
                 #    rnd.shuffle( self.items)
                 #self.items.reverse()
-                razbyrkvane( 81)
+                razbyrkvane( 53)
                 rnd.shuffle( self.items)
                 #razbyrkvane( 137)
 

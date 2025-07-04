@@ -42,21 +42,27 @@ if [ "x$1" != "xkeys" ]; then   # if this is at the top, so is not aliased
     xMSDOS*|xmsdos*) unalias e ; _DLM=";" ;;
   esac
 
-  pathfind() {
+  pathfind_noecho() {
   	echo $PATH | grep -Eq "(^|$_DLM)$1(\$|$_DLM)"
   }
+  pathfind_echo() {
+    case "$_DLM$PATH$_DLM" in
+        *"$_DLM$1$_DLM"*) echo "$1" ;;
+    esac
+  }
   pathadd() {
-  	if ! pathfind "$1" ; then
-  	   if [ "$2" = "after" ] ; then
-  	      senv PATH "$PATH$_DLM$1"
-  	   else
-  	      senv PATH "$1$_DLM$PATH"
-  	   fi
-  	fi
+    test -d "$1" && case "$_DLM$PATH$_DLM" in
+        *"$_DLM$1$_DLM"*) ;;
+        *) if [ "$2" = "after" ] ; then
+            export PATH="${PATH:+$PATH:}$1"
+            else
+            export PATH=$1"${PATH:+:$PATH}"
+            fi ;;
+    esac
   }
 
   test "$USER" == "root" && U=/root || U=/home/$USER
-  for x in /home/_bin $U/bin . ; do
+  for x in /home/_bin $_PATHs_AFTER_Ubin $U/bin $_PATHs_BEFORE_Ubin . ; do
       [ -d $x ] && pathadd $x
   done
 fi  #non-keys
