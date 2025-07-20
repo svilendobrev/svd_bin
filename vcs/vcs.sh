@@ -118,6 +118,7 @@ svn_u_pipe="| grep -viE '(external |^$)'"
 
 BZR=bzr
 type -p brz > /dev/null && BZR=brz
+test $what = bzr && test -n "$VIRTUAL_ENV" && BZR="PATH=${PATH#$VIRTUAL_ENV*:} $BZR"    #avoid virtualenv-wide python
 bzr_u='update'
 bzr_i='commit'
 bzr_il='commit --local'
@@ -172,7 +173,7 @@ hg_hu='unshelve'
 
 # git config --get remote.origin.url
 git_n='remote -v'
-git_n_pipe='; git branch ; git log -1 --format=%H'
+git_n_pipe='; git branch -a ; git log -1 --format=%H'
 #git_n_pipe='; git ls-remote --heads'
 #git_n='ls-remote'
 #git_n='config -l'   # config --get remote.origin.url
@@ -239,10 +240,9 @@ a=${what}_${cmd}_args
 #comment this out if not needed & piping break external colorizing wrappers
 p=${what}_${cmd}_pipe
 
-#if [ $x == 'hg_n' ] ; then
-#fi
 whatcmd=$what
-test $what = bzr && whatcmd=$BZR
+test $what = bzr && whatcmd="$BZR"
+#test $what = bzr && whatcmd="PATH=/usr/bin $BZR"    #force system-wide python
 #only if stdout=1 is terminal and not in commit/interactive
 test -z "$NOCOLOR" -a -t 1 -a "${cmd_interactives/,$cmd,/}" == "$cmd_interactives" && clrvcs=`which colorvcs.py`
 CMD="$whatcmd ${!x} ${!a} "'"$@"'" ${!p}"
