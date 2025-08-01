@@ -1,9 +1,13 @@
 #!/bin/sh
-scelta=$( Xdialog --title " exit?" --shadow --menu "?" 17 35 35 \
+
+#LOG=/tmp/exi.`date +%Y%m%d-%H%M`.$$
+#exec &>>$LOG-b
+
+scelta=$( Xdialog --stdout --title " exit?" --shadow --menu "?" 17 35 35 \
       "q" "poweroff"  \
       "x" "xrestart"  \
       "r" "reboot"    \
-      2>&1 );
+      2>/dev/null );
 
 case $scelta in
 #x) killall nodm ;;

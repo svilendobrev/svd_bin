@@ -1,0 +1,5 @@
+#!/bin/bash
+#energy_now vs charge_now  # NOT power_now or current_now
+BAT0=/sys/class/power_supply/BAT0/
+test -e $BAT0/energy_now && echo $(( `cat $BAT0/energy_now` * 100 / `cat $BAT0/energy_full`))
+test -e $BAT0/charge_now && echo $(( `cat $BAT0/charge_now` * 100 / `cat $BAT0/charge_full`))

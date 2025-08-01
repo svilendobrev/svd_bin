@@ -1,5 +1,8 @@
 #!/bin/sh
+#intel-drv
 xrandr --output HDMI1 --auto --output HDMI2 --left-of HDMI1
+#modesetting-drv
+xrandr --output HDMI-1 --auto --output HDMI-2 --left-of HDMI-1
 
 #избягване на умрелите редове/колони на EIZO127..
 #.config/openbox/rc.xml#margins 
