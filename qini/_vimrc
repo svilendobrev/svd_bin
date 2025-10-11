@@ -20,7 +20,7 @@ set noerrorbells
 set visualbell t_vb=
 
 "set exrc       "autoload ./.vimrc  ; in _vim/plugin/autoload_vimrc.vim
-set history=200
+set history=2000
 set laststatus=2    "show status line always
 set ruler           "show cursor position
 set scrolloff=5     "number of lines around the cursor
@@ -124,7 +124,7 @@ autocmd FileType java let java_allow_cpp_keywords=1
 autocmd FileType javascript setl tabstop=4 shiftwidth=4 expandtab
 autocmd FileType javascript setl suffixesadd=.js
 
-autocmd BufEnter opis*    setl ts=4 sw=4 expandtab
+autocmd BufEnter opis*    setl ts=4 sw=4 expandtab ignorecase
 autocmd BufEnter dodo.py  setl makeprg=~/.local/bin/doit
 
 "autocmd BufNewFile,BufRead *.as		setf actionscript
@@ -469,6 +469,8 @@ noremap! <c-Down> <Down>
 "using map instead of noremap: to allow for plugin/searchant: github.com/timakro/vim-searchant for highlight-match-under-cursor; uses hi SearchCurrent
 let g:searchant_map_stop = 0
 
+"using <Cmd>xyz instead of :xyz and <c-o>:xyz
+
 "prev search
 map  <c-A> N
 inoremap <c-A> <c-o>N
@@ -508,21 +510,21 @@ noremap  <c-D> dw
 inoremap <c-D> <c-o>dw
 
 "next buf (F10 not working in gfrx coz motif grabs it - try shift-F10)
-noremap  <F10>      :bn<CR>
-inoremap <F10> <c-o>:bn<CR>
-noremap  <s-F10>      :bn<CR>
-inoremap <s-F10> <c-o>:bn<CR>
+noremap  <F10> <Cmd>bn<CR>
+inoremap <F10> <Cmd>bn<CR>
+noremap  <s-F10> <Cmd>bn<CR>
+inoremap <s-F10> <Cmd>bn<CR>
 "prev buf
-noremap  <F9>       :bN<CR>
-inoremap <F9>  <c-o>:bN<CR>
+noremap  <F9>  <Cmd>bN<CR>
+inoremap <F9>  <Cmd>bN<CR>
 
 "if version >= 5        "same with !
-noremap  <F10>      :bn!<CR>
-inoremap <F10> <c-o>:bn!<CR>
-noremap  <s-F10>      :bn!<CR>
-inoremap <s-F10> <c-o>:bn!<CR>
-noremap  <F9>       :bN!<CR>
-inoremap <F9>  <c-o>:bN!<CR>
+noremap  <F10> <Cmd>bn!<CR>
+inoremap <F10> <Cmd>bn!<CR>
+noremap  <s-F10> <Cmd>bn!<CR>
+inoremap <s-F10> <Cmd>bn!<CR>
+noremap  <F9>  <Cmd>bN!<CR>
+inoremap <F9>  <Cmd>bN!<CR>
 
 "copy to/from X-clipboard - see [x11-selection]; to X-selection is "*y ; needs compiled with [+xterm_clipboard] (arch: install gvim but use vim), and run without -X !
 "note: set clipboard=unnamedplus  makes the usual y work as well
@@ -535,35 +537,37 @@ inoremap <c-Q> <c-o>"+p
 
 
 "let ctrl-s and F2 do a save please
-noremap  <c-S>      :w<CR>
-inoremap <c-S> <c-o>:w<CR>
-noremap  <F2>       :w<CR>
-inoremap <F2>  <c-o>:w<CR>
+noremap  <c-S> <Cmd>w<CR>
+inoremap <c-S> <Cmd>w<CR>
+noremap  <F2>  <Cmd>w<CR>
+inoremap <F2>  <Cmd>w<CR>
 
 "release this buffer but don't close window!
 command! BD let x=bufnr('%') | bn | exec 'bd '.x
-noremap  <F3>       :BD<CR>
-inoremap <F3>  <c-o>:BD<CR>
+noremap  <F3>  <Cmd>BD<CR>
+inoremap <F3>  <Cmd>BD<CR>
 "save and quit
-noremap  <F4>       :x<CR>
-inoremap <F4>  <c-o>:x<CR>
+noremap  <F4>  <Cmd>x<CR>
+inoremap <F4>  <Cmd>x<CR>
 
 "save then do make + builtin error-iterator
-map  <F12>  :update\|make<CR>
-imap <F12>  <c-o>:update\|make<CR>
+"map  <F12>  :update\|make<CR>
+"imap <F12>  <c-o>:update\|make<CR>
+map  <F12>  <Cmd>update\|make<CR>
+imap <F12>  <Cmd>update\|make<CR>
 "save then call make
 "map  <c-F12>  <F2>:!make<CR>
 "imap <c-F12>  <F2><c-o>:!make<CR>
-map  <c-F12>  :update\|e [Mm]akefile<CR>
-imap <c-F12>  <c-o>:update\|e [Mm]akefile<CR>
+map  <c-F12>  <Cmd>update\|e [Mm]akefile<CR>
+imap <c-F12>  <Cmd>update\|e [Mm]akefile<CR>
 
 "next err
-noremap  <F11>      :cn<CR>
-inoremap <F11> <c-o>:cn<CR>
-map  <s-F11>  :cp<CR>
-imap <s-F11>  <c-o>:cp<CR>
-map  <c-F11>  :clast\|cp<CR>
-imap <c-F11>  <c-o>:clast\|cp<CR>
+noremap  <F11> <Cmd>cn<CR>
+inoremap <F11> <Cmd>cn<CR>
+map  <s-F11>  <Cmd>cp<CR>
+imap <s-F11>  <Cmd>cp<CR>
+map  <c-F11>  <Cmd>clast\|cp<CR>
+imap <c-F11>  <Cmd>clast\|cp<CR>
 
 "redo
 inoremap <c-R> <c-o><c-R>
@@ -586,8 +590,8 @@ imap  <c-T> <c-o><c-T>
 "   c-h,c-m,c-s/c-q, c-c
 
 "reformat paragraph
-noremap <c-_> gqap
-inoremap <c-_> <c-o>gqap
+"noremap <c-_> gqap
+"inoremap <c-_> <c-o>gqap
 
 "ALt-w -> next window
 map <esc>w <c-w><c-w>
@@ -595,6 +599,10 @@ imap <esc>w <c-o><c-w><c-w>
 "same but cyrilic-phonetic
 map <esc>в <c-w><c-w>
 imap <esc>в <c-o><c-w><c-w>
+
+"ctrl-space yield Nul which does some-shit
+map <Nul> <Space>
+imap <Nul> <Space>
 
 """ so functions.vimrc
 

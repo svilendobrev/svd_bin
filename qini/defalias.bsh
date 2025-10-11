@@ -220,7 +220,8 @@ al c calc
 if ! which cal >&/dev/null ; then 
   which ncal >&/dev/null && al cal ncal
 else
-  al cal 'cal --monday'
+  #al cal 'cal --monday'
+  `which cal` -M >&/dev/null && al cal 'cal -M' #-monday'
 fi
 
 #addusergroup()  { usermod -G `id -Gn "$1" | sed "s/ /,/g"`,"$2" "$1"; } 
@@ -266,7 +267,8 @@ al emf 'e ~/src/bin/foto/makefile'
 if   which apt-get   >&/dev/null ; then so $_INIs/aliasi/apt.alias.bsh
 elif which pacman    >&/dev/null ; then so $_INIs/aliasi/pacman.alias.bsh
 elif which yum       >&/dev/null ; then so $_INIs/aliasi/yum.alias.bsh
-elif which pkcon     >&/dev/null ; then so $_INIs/aliasi/pkcon.alias.bsh
+#elif which pkcon     >&/dev/null ; then so $_INIs/aliasi/pkcon.alias.bsh
+elif which devel-su >&/dev/null ; then so $_INIs/aliasi/pkcon.alias.bsh
 fi
 which systemctl >&/dev/null && so $_INIs/aliasi/systemctl.alias.bsh
 which netctl    >&/dev/null && so $_INIs/aliasi/netctl.alias.bsh
@@ -291,6 +293,8 @@ al pd podman
 al pe podman compose
 drbash-attach()  { docker exec -it $1 bash ; }  #container-id
 drbash-instead() { docker run -it --entrypoint bash $1 ; }  #image-id
+#without signals into it, i.e. ctrl-c will NOT stop the container but just the attaching
+al drattach 'docker attach --sig-proxy=false '  #+ container-id ; https://stackoverflow.com/questions/19688314/how-do-you-attach-and-detach-from-dockers-process/#22894096
 # docker run  -it --entrypoint bash  <img>
 # docker exec -it <container> bash  
 ## show :3000 as :3001 ; needs hacking SSL.* in /usr/lib/python3.10/site-packages/mitmproxy/net/tls.py

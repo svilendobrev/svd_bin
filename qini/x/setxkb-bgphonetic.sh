@@ -11,18 +11,25 @@ grep -q 'Module kbd: vendor' /var/log/Xorg.0.log && RUL=xorg || RUL=evdev
 #XXX setxkbmap -option is additive
   echo $RUL
   #-v 5
-  OPTION="grp_led:scroll,grp:sclk_toggle,grp:lctrl_lwin_toggle"
+
+#  TOGGLE2=lctrl_lwin_toggle
+#  uname -a | grep -q x220 && TOGGLE2=alt_shift_toggle
+#  OPTION="grp_led:scroll,grp:sclk_toggle,grp:$TOGGLE2"
+#=======
+  OPTION="grp_led:scroll,grp:sclk_toggle,grp:lctrl_lwin_toggle,grp:win_space_toggle"
+
   #maybe also: grp:alt_shift_toggle    grp:alt_space_toggle    grp:win_space_toggle
   # grp:lwin_toggle =doesnotwork
   # error=  grp:rctrl_rshift_toggle   grp:ctrl_shift_toggle   grp:ctrl_space_toggle
   grep -q 'Logitech Wireless Keyboard PID:4023' /var/log/Xorg.0.log && OPTION=$OPTION,grp_led:caps
   grep -q 'Kingston HyperX Alloy Core RGB Keyboard' /var/log/Xorg.0.log && OPTION=$OPTION,grp_led:caps
+  uname -a | grep -q eeepc  && OPTION="grp_led:scroll,grp:sclk_toggle,grp:alt_shift_toggle" && NOBGLTGT=1
   echo $OPTION
   #US=en_US
   US=us
-  if test -e /usr/share/X11/xkb/symbols/bg_ltgt ; then
+  if test -e $NOBGLTGT/usr/share/X11/xkb/symbols/bg_ltgt ; then
     setxkbmap -rules $RUL -model pc105 -layout "$US,bg_ltgt" -variant ",phonetic_ltgt" -option $OPTION
-  elif test -e /home/qini/x/symbols/bg_ltgt ; then	#does not work well.. copy the symbols/bg_ltgt into above
+  elif test -e $NOBGLTGT/home/qini/x/symbols/bg_ltgt ; then	#does not work well.. copy the symbols/bg_ltgt into above
     setxkbmap -rules $RUL -model pc105 -layout "$US,bg_ltgt" -variant ",phonetic_ltgt" -option $OPTION -print | xkbcomp -w 3 -I/home/qini/x/ - $DISPLAY
   else
     setxkbmap -rules $RUL -model pc105 -layout "$US,bg" -variant ",phonetic" -option $OPTION
@@ -70,5 +77,16 @@ else	#133=winLeft 134=winRight 135=Menu
  #xmodmap -e "keycode 133 = underscore"	#winLeft =_
  #xmodmap -e "keycode 134 = underscore"	#winRight=_
 fi
+
+if uname -a | grep -q hepi ; then #hp640
+ echo hEpI.. PrintScr=Insert
+  xmodmap -e "keysym Print = KP_Insert"
+ #xmodmap -e "keycode 107 = KP_Insert Print KP_Insert Print"	#instead of print+sysreq
+ #fn+F10 = insert
+ #fn+S = sysRq ~= printscr -> insert
+ #fn+C = scrollLock -> ISO_Next_Group
+ #fn+R = Break
+fi
+
 
 #xmodmap -e "keysym Super_L = Escape"

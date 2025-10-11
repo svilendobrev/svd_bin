@@ -74,6 +74,7 @@ any2flacsplit_dir() {
     #cuetag.sh *.cue [0-9]*.flac
     cuetags-any [0-9]*.flac
     shopt -u nullglob
+    cd -
     }
 export -f any2flacsplit_dir any2flacsplit any2wavsplit
 any2flacsplit_forall() {
@@ -81,6 +82,9 @@ any2flacsplit_forall() {
     }
 any2flacsplit_parallel() {
     parallel any2flacsplit_dir ::: "$@"
+    }
+any2flacsplit_parallel_cue() {
+    ffl \*.cue | parallel any2flacsplit_dir {//}
     }
 
 #no, ffmpeg pipe omits wav-length header
