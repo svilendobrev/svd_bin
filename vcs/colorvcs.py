@@ -92,7 +92,7 @@ class Chain( Colorer):
         return status
 
 
-Colorer( 'svn', '^([ A-Z?!~]{2}) +\S+', {
+Colorer( 'svn', r'^([ A-Z?!~]{2}) +\S+', {
 #update
  'U': update
 ,'C': conflict
@@ -109,7 +109,7 @@ Colorer( 'svn', '^([ A-Z?!~]{2}) +\S+', {
 ,'~': error #obstructed
 })
 
-Colorer( 'cvs', '^(\S) \S+', {
+Colorer( 'cvs', r'^(\S) \S+', {
 #update
  'P': update    #patch
 ,'U': update
@@ -143,7 +143,7 @@ Colorer( 'diffU', '^([-+@=])', {    #only 1st char matters: allows for things li
      '@': diff_chunk,
 }, whole=True )
 
-bzru = Colorer( 'bzrupd', '^([- A-Z?+*]{1,3}) +\S+', {
+bzru = Colorer( 'bzrupd', r'^([- A-Z?+*]{1,3}) +\S+', {
 #update
 #Column 1 - versioning/renames:
  '+': add       #File versioned
@@ -162,7 +162,7 @@ bzru = Colorer( 'bzrupd', '^([- A-Z?+*]{1,3}) +\S+', {
 # ignored ?
 })
 
-bzrs = Colorer( 'bzrstat', '^(\w+):', {
+bzrs = Colorer( 'bzrstat', r'^(\w+):', {
 #status???
  'added':    add
 ,'modified': modified
@@ -176,7 +176,7 @@ bzrs = Colorer( 'bzrstat', '^(\w+):', {
 Chain( 'bzr', bzru, bzrs)
 
 
-hgs = Colorer( 'hgstat', '^(\S) \S+', {
+hgs = Colorer( 'hgstat', r'^(\S) \S+', {
  'A': add
 ,'M': modified
 ,'R':  delete
@@ -189,7 +189,7 @@ hgs = Colorer( 'hgstat', '^(\S) \S+', {
 }#, whole=True
 )
 
-hgresolv = Colorer( 'hgresolv', '^(\S) \S+', {
+hgresolv = Colorer( 'hgresolv', r'^(\S) \S+', {
  'U': conflict
 #,'R': resolved     #hg is bullshit
 })
@@ -197,7 +197,7 @@ hgresolv = Colorer( 'hgresolv', '^(\S) \S+', {
 Chain( 'hg', hgs, hgresolv)
 
 
-gitstat = Colorer( 'git', '^([ A-Z?!]{1,2}) +\S+', {
+gitstat = Colorer( 'git', r'^([ A-Z?!]{1,2}) +\S+', {
 #see git help status
 #Column 1 - there, Column2: here
  '?': unknown   #File unknown

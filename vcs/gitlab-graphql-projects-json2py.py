@@ -48,8 +48,8 @@ def add_page( pagedict):
     news= dict( (p['fullPath'],dict(
             updated= p['lastActivityAt'],
             created= p['createdAt'],
-            merges = int( p['mergeRequests']['count']),
-            commits= int( p['statistics']['commitCount']),
+            merges = int( p['mergeRequests'] and p['mergeRequests']['count'] or 0),
+            commits= int( p['statistics'] and p['statistics']['commitCount'] or 0),
             visible= p['visibility'],
             archived= p['archived'],
             )) for p in qq)
