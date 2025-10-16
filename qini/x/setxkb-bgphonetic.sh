@@ -48,14 +48,17 @@ xmodmap -pk | grep -q Alt_R || xmodmap -e 'keycode 108 = Alt_R'
 #xmodmap -e "add mod1 = Alt_L Alt_R"
 
 #capslock... caps=ctrl-on-hold|esc-on-tap
-#echo clear lock | xmodmap -
-##echo keysym Caps_Lock = Control_L | xmodmap - >& /dev/null #Caps_Lock=control
 #github.com/alols/xcape
-pgrep xcape >/dev/null || (
- sleep 2
- setxkbmap -option caps:ctrl_modifier
- xcape  -e 'Caps_Lock=Escape'
-)
+if which xcape >& /dev/null ; then
+ pgrep xcape >/dev/null || (
+  sleep 2
+  setxkbmap -option caps:ctrl_modifier
+  xcape  -e 'Caps_Lock=Escape'
+ )
+else
+ echo clear lock | xmodmap -
+ echo keysym Caps_Lock = Control_L | xmodmap - >& /dev/null #Caps_Lock=control
+fi
 
 #also check https://unix.stackexchange.com/a/730891 - via udev, regardless of X or what
 # https://www.codejam.info/2022/04/xmodmaprc-wayland.html
@@ -69,8 +72,13 @@ echo add Control = Control_L | xmodmap -
 
 if uname -a | grep -q eee ; then ##eeepc:
  echo eeepc
-  echo keycode 135 = Control_R    | xmodmap - #Menu
-  echo add control = Control_R    | xmodmap -
+ #this stopped working
+ # echo keycode 135 = Control_R    | xmodmap - #Menu
+ # echo add control = Control_R    | xmodmap -
+ #so use this instead:
+ xmodmap -e "keysym Menu = underscore"
+ #pause == scrollock ; no break
+ xmodmap -e "keysym Pause = ISO_Next_Group"
 else	#133=winLeft 134=winRight 135=Menu
  xmodmap -e "keysym Menu = underscore"
  #xmodmap -e "keycode 135 = underscore"
