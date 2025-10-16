@@ -300,6 +300,8 @@ al drattach 'docker attach --sig-proxy=false '  #+ container-id ; https://stacko
 ## show :3000 as :3001 ; needs hacking SSL.* in /usr/lib/python3.10/site-packages/mitmproxy/net/tls.py
 #mitmproxy --mode reverse:http://localhost:3001 -p 3000
 drlocalhost() { docker run -p 127.0.0.1:$1:$1 $2 $3 ; }  #port img args
+#dr create <image> [--name=...] # builds container without starting , optional nameing it
+#dr export <container> | tar t  #lists contents of container
 
 #not tried this, just copypasted
 #pdbash-attach()  { podman exec -it $1 bash ; }  #container-id
