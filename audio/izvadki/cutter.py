@@ -19,7 +19,7 @@ offset0
 
 '''
 
-from svd_util.struct import DictAttr
+from svd_util.structs import DictAttr
 
 import os, re
 from os.path import basename, join, splitext, exists

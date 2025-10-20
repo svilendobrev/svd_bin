@@ -30,7 +30,7 @@ def opener( url, ienc =None, save=None, **ka):
     return d
 
 
-from svd_util.struct import DictAttr
+from svd_util.structs import DictAttr
 from svd_util import optz
 optz.text( 'url', default ='http://pozvanete.bg/imoti-prodava-offline&maxAds=100?page={npage}')
 optz.int(  'pages', default=11)

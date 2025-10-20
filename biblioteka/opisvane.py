@@ -17,7 +17,7 @@
 from svd_util.py3 import *
 from svd_util import eutf, optz, lat2cyr
 cyr2lat = lat2cyr.zvuchene.cyr2lat
-from svd_util.struct import DictAttr, attr2item
+from svd_util.structs import DictAttr, attr2item
 from svd_util.dicts import DictAttr_lower, dict_lower, make_dict_lower
 dictOrder_lower = make_dict_lower( dictOrder)
 from svd_util.dicts import make_dict_trans, make_dict_attr
