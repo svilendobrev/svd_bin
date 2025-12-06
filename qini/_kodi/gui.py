@@ -1,0 +1,1 @@
+addons/screensaver.picture.slideshow/resources/lib/gui.py

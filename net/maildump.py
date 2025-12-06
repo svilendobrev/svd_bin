@@ -14,9 +14,11 @@ def optbool( name, *short, **k):
 
 optbool( 'utf8', '-8', help= 'output as utf8')
 optbool( 'iutf8', help= 'input as utf8')
-optbool( 'no_decode', '-D', help= 'do not decode - in very rare cases, e.g. msoffice-created-mail')
+optbool( 'no_decode', '-D', help= 'do not decode - in rare cases, e.g. msoffice-created-mail')
 optbool( 'tree', help= 'make subtree of attachments')
-optbool( 'date', help= 'rename by date')
+optbool( 'date', help= 'if tree: dir-names with date')
+optbool( 'time', help= 'if tree: dir-names with datetime')
+optbool( 'curdir', help= 'if tree: into current dir, prepending date/time if any')
 opts,args = oparser.parse_args()
 
 ENC = opts.iutf8 and 'utf8' or 'cp1251'
@@ -28,25 +30,37 @@ def enc( s,e):
     if opts.utf8: s = s.encode( 'utf8')
     return s
 
+import os, datetime
 from email import message_from_file, header, utils
 import mimetypes
 posti = []
 for a in args:
     m = message_from_file( open(a) )
+    if not m['Date']:
+        m['Date'] = datetime.datetime.fromtimestamp( os.stat( a).st_mtime ).ctime() #.isoformat()
     posti.append( (m,a))
 posti.sort( key= lambda ma: utils.parsedate( ma[0]['Date']) )
-
+print( f'##{len(posti)=}')
+import os.path
 for m,a in posti:
-    print( '\n'*2)
-    print( '='*80)
-    print( '\n'*2)
     if opts.tree:
         dirname = a
-        if opts.date:
-            dt = utils.parsedate_to_datetime( m['Date'])
-            dirname += '-'+dt.isoformat()
+        if opts.curdir: dirname = os.path.basename( dirname)
+        if opts.date or opts.time:
+            assert m['Date'] , m
+            dt = utils.parsedate_to_datetime( m['Date'] )
+            if not opts.time: dt = dt.date()
+            if opts.curdir:
+                dirname = dt.isoformat()+'-'+dirname
+            else:
+                dirname += '-'+dt.isoformat()
         dirname += '.dir'
         os.makedirs( dirname, exist_ok=True)
+        print( '##', dirname)
+    else:
+        print( '\n'*2)
+        print( '='*80)
+        print( '\n'*2)
     hdrs = {}
     for k in 'Date From To Subject CC'.split():
         v = m[k]

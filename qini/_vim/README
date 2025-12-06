@@ -2,3 +2,8 @@ only link what's needed from here,
 or 
 copy -rs this/_vim ~/.vim
 then remove what is not needed
+
+./after/syntax/syncolor.vim works in vim only ; neovim does not use that 
+a) use newer colors/syncolor.vim with :colorcheme syncolor  (error if not there)
+or 
+b) link that to colors/default.vim and :colorcheme default  (does not complain if not there)
