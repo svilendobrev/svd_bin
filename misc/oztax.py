@@ -3,7 +3,7 @@
 from __future__ import print_function
 
 from svd_util import optz
-from svd_util.structs import DictAttr
+from svd_util.dicts import DictAttr
 optz.int( 'year', default= 2012)
 optz.bool( '2011', )
 

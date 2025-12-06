@@ -19,7 +19,13 @@ die
 ."\n      will prefix all numbers with a 0"
  if $#ARGV<1;
 use Encode;
-
+#sigh. none of these work for case-insensitive-subst of utf-stuff
+#use utf8;
+#use v5.16; no strict;
+#use POSIX qw(locale_h);
+#use open ':locale';
+#use locale;
+#print( 11111111111, setlocale(LC_CTYPE). "\n");
 shift if ($BIN      = ($ARGV[0] =~ /^--?b(inary)?$/ ));
 shift if ($UTF      = ($ARGV[0] =~ /^--?utf8$/      ));
 shift if ($UTFall   = ($ARGV[0] =~ /^--?utf8all$/   ));

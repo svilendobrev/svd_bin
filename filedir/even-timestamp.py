@@ -8,7 +8,7 @@ def opt( *xx):
         if x in sys.argv: return sys.argv.remove( x ) or True
     return None
 
-follow_symlinks = opt( '-L', '--follow', '--dereference')
+follow_symlinks = opt( '-L', '-l', '--follow', '--dereference')
 
 #on FAT or FAT32 file systems, st_mtime has 2-second resolution, and st_atime has only 1-day resolution.
 #so odd times will always appear newer than the FAT-copy

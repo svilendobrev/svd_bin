@@ -35,11 +35,10 @@ $rm /usr/share/gtk*-doc
 $rm /usr/share/Xm
 $rm /usr/share/man/man3/Xm*
 
-#libguile needed by make.. del the rest
-$rm /usr/share/guile
-#$rm /usr/lib/guile/*/ccache
-$rm /usr/lib/guile/ /usr/share/guile/ /usr/include/guile/
-$rm /usr/share/info/guile* /usr/share/info/r5rs.info.gz
+#libguile needed by make.. may del the rest
+#but are needed by gdb
+#$rm /usr/lib/guile/ /usr/share/guile/ /usr/include/guile/
+#$rm /usr/share/info/guile* /usr/share/info/r5rs.info.gz
 
 P=/usr/lib/libreoffice/
 $rm $P/program/wizards/
@@ -71,8 +70,9 @@ P=/usr/share/doc
 $rm $P/python*/html/_sources/
 $rm $P/python*/html/{gen,search}index*
 
-$rm $P/[a-oq-zA-Z0-9]*
-$rm $P/p[a-xzA-Z0-9]*
+$rm $P/[^pn]*
+$rm $P/n[^i]*	#ninja
+$rm $P/p[^y]*	#python
 $rm $P/python-* $P/python?-*
 
 V=/usr/share/vim/vim*/
@@ -81,7 +81,6 @@ $rm $V/spell/*latin*
 $rm $V/doc/versio*
 $rm $V/syntax/{xs,*muttrc,pfmain,baan,redif,foxpro,autoit}.vim
 $rm $V/autoload/phpcomplete.vim
-
 
 #P=/usr/lib/qt4/bin/
 #$rm $P/??c $P/assistant $P/l* $P/designer $P/qdoc*
@@ -144,29 +143,29 @@ $rm /usr/*bin/pod2*
 $rm /usr/bin/osdemo*
 $rm /usr/sbin/osd_login
 
-P=/usr/lib/modules/*/kernel/drivers
-$rm $P/staging/ #{lustre,comedi,speakup}
-$rm $P/{isdn,infiniband}
-## $rm $P/media/dvb-*
-# $rm $P/media/tuners
-# $rm $P/media/pci/{bt8,ttpci,saa,cx,ivtv}*
-# #$rm $P/media/usb/{gspca,dvb*,cx*,em*,tm*,go7007}
-$rm $P/scsi/{aic*,bnx*,megaraid,mpt3*,lpfc,bfa,qla*}
-#$rm $P/gpu/drm/{radeon,amd*}
-$rm $P/net/ethernet/{mellanox,qlogic,chelsio,sfc,cavium,dec,sun,netronome}
-
+# P=/usr/lib/modules/*/kernel/drivers
+# $rm $P/staging/ #{lustre,comedi,speakup}
+# $rm $P/{isdn,infiniband}
+# ## $rm $P/media/dvb-*
+# # $rm $P/media/tuners
+# # $rm $P/media/pci/{bt8,ttpci,saa,cx,ivtv}*
+# # #$rm $P/media/usb/{gspca,dvb*,cx*,em*,tm*,go7007}
+# $rm $P/scsi/{aic*,bnx*,megaraid,mpt3*,lpfc,bfa,qla*}
+# $rm $P/gpu/drm/{radeon,amd*}
+# $rm $P/net/ethernet/{mellanox,qlogic,chelsio,sfc,cavium,dec,sun,netronome}
+# 
 P=/usr/lib/firmware
-$rm $P/{ti-connectivity,liquidio,netronome,mellanox,qlogic}
-#$rm $P/{amdgpu,radeon}
-$rm $P/bnx2*
-$rm $P/{mrvl,ar3k,slicoss,go7007,emi*,qca}
-$rm $P/{libertas,carl9170fw,mwl*,moxa,vxge,qed,cxgb4,ueagle-atm}
-$rm $P/{myri*,phan*,ct*fw*,qat*,cbfw*,s5*} #iwlwifi*=intel  i2400*,i6050*=?
-# $rm $P/{brcm,radeon,amdgpu}
-
+# $rm $P/{ti-connectivity,liquidio,netronome,mellanox,qlogic}
+$rm $P/{nvidia,amdgpu,radeon}
+# $rm $P/bnx2*
+# $rm $P/{mrvl,ar3k,slicoss,go7007,emi*,qca}
+# $rm $P/{libertas,carl9170fw,mwl*,moxa,vxge,qed,cxgb4,ueagle-atm}
+# $rm $P/{myri*,phan*,ct*fw*,qat*,cbfw*,s5*} #iwlwifi*=intel  i2400*,i6050*=?
+# # $rm $P/brcm
+# 
 P=/usr/lib*/dri
-#$rm $P/r* 
-$rm $P/nouv* 
+$rm $P/r*		#radeon 
+$rm $P/nouv* 	#nvidia??
 $rm $P/zink*
 
 $rm /usr/share/help/*
@@ -174,28 +173,39 @@ $rm /usr/share/help/*
 P=/usr/include
 #SDL*
 for a in `cat <<HHHHHHHH
-gtk 
 CLucene
+Foundation
 GL
+GraphicsMagick
 ImageMagick
 claws-mail libetpan
+clutter
 epoxy
 gimp
-glib
+glib giomm
+glslang
 gstreamer
+gtk 
+hwy
 krb
+leptonica
+libdvbv5
+libecasound
 mozjs- js-
+mupdf
+mysql
 ntfs
 openssl
 php
 poppler
 postgresql
-mysql
+qpdf
 qt
 subversion
-xercesc
+vulkan
 wine
 wx-
+xercesc
 HHHHHHHH
 `; do $rm $P/$a*; done
 

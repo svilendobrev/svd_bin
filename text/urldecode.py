@@ -23,7 +23,8 @@ def tx(a):
     if optz.cp1251: return a.decode('cp1251', 'ignore')
     return a #.decode('utf-8', 'ignore') #.encode('cp1251', 'ignore')
 
-for a in sys.stdin:
+for aa in sys.argv[1:], sys.stdin:
+  for a in aa:
     if not a.strip():
         print()
         continue

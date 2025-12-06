@@ -11,8 +11,8 @@ oAUDIO="--aencoder copy  --audio-copy-mask ac3,mp3  --audio-fallback ffac3 --aud
 #https://handbrake.fr/docs/en/latest/workflow/adjust-quality.html
 #https://handbrake.fr/docs/en/latest/technical/video-cq-vs-abr.html
 #https://www.reddit.com/r/handbrake/comments/e9dcz0/constant_quality_whats_your_number/
-#oVIDEO="--vfr"
-oVIDEO="-r 32 --pfr"
+oVIDEO="--vfr"
+#oVIDEO="-r 32 --pfr"
 ##XXX -r 25 --pfr	#variable but <= -r
 #variable-rate preserves input timings
 #oQUALITY="-vb 2000"

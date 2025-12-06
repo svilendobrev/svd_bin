@@ -318,7 +318,8 @@ class Abbr:
         try:
             fpikle = fl+'.pikle'
             if os.path.getmtime( fpikle) > os.path.getmtime( fl):
-                cache = pickle.load( open( fl+'.pikle', 'rb'))
+                with open( fpikle, 'rb') as fp:
+                    cache = pickle.load( fp)
                 for k in az._cache:
                     v = cache[ k]
                     if isinstance( v, list): upd = setattr( az, k, v)

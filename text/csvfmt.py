@@ -9,14 +9,14 @@ import sys,csv
 poleta = None
 k2vse = {}
 vse=[]
-for r in csv.reader( file(sys.argv[1]), delimiter='|'):
-    r = [ a.replace( '\t',' ').decode( ENC) for a in r]
+for r in csv.reader( open(sys.argv[1], encoding= ENC), delimiter= (sys.argv[2:]+['|'])[0]):
+    r = [ a.replace( '\t',' ') for a in r]  #.decode( ENC)
     if poleta is None:
         poleta = r
         continue
     for k,v in zip( poleta, r):
         k2vse.setdefault( k, []).append( v )
-
+        #print( k,v)
 
 obedineni = [ p for p in poleta if p.startswith( obedini_pfx) ]
 for p in obedineni: poleta.remove( p)
@@ -26,10 +26,10 @@ ob_vse = [ k2vse.pop( p) for p in obedineni]
 ob1 = [ ' '.join( v) for v in zip( *ob_vse)]
 k2vse[ obedini_pfx] = ob1
 
-razmeri = [ max( len(x) for x in k2vse[k]) for k in poleta ]
+razmeri = [ max( (len(x) for x in k2vse[k]), default= 0) for k in poleta ]
 
-print poleta
-print len(razmeri), sum(razmeri), razmeri
+print( poleta)
+print( len(razmeri), sum(razmeri), razmeri)
 
 razd = '|'
 
@@ -42,8 +42,8 @@ def izhod( red, razmeri, center=False):
             f = v.replace('.','').isdigit() and v.rjust or v.ljust
         if not start: r+= razd+' '
         start=0
-        r+= f(l).encode( ENC)
-    print r
+        r+= f(l)    #.encode( ENC)
+    print( r)
 
 izhod( poleta, razmeri, center=True)
 

@@ -14,7 +14,7 @@ else: cue = glob.glob( './*.cue')[0]
 print( cue)
 
 for a in sys.argv[1:]:
-    number = re.sub( '^\D*(\d+)[.-].*', r'\1', os.path.basename(a))
+    number = re.sub( r'^\D*(\d+)[.-].*', r'\1', os.path.basename(a))
     call( ['cuetag.sh', cue, number, a ])
 
 ##!/bin/sh

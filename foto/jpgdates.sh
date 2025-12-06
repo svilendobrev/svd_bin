@@ -1,2 +1,2 @@
 #!/bin/sh
-find . -name \*jpg -exec jhead {} \; | grep -E '(ile name|Date)'
+find ${1:-.} -name \*jpg | sort | parallel jhead {} \; | grep -E '(ile name|Date)'

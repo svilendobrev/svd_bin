@@ -21,7 +21,7 @@ import json
 
 class Node:
     ATTRS = 'NAME URL UNIQUEID trash'.split()
-    def __init__( me, parent =None, NAME =None, URL =None, items =None, bgNAME =None, UNIQUEID =None, trash =False):
+    def __init__( me, parent =None, NAME =None, URL =None, items =None, bgNAME =None, UNIQUEID =None, trash =False, WHEN =None):
         me.parent = parent
         if parent and not parent.trash: parent.items.append( me)
         if bgNAME: NAME = l2c( bgNAME)#.decode('utf8') )
@@ -31,6 +31,7 @@ class Node:
         me.UNIQUEID = UNIQUEID
         me.items = items or []
         me.trash = trash
+        me.WHEN = WHEN
         for i in me.items: i.parent = me
 
     def fixparent( me):
@@ -140,7 +141,11 @@ class Node:
                 v = getattr( me, a, None)
                 if v:
                     if a == 'trash': v = 'True'
-                    else: v = "'"+ escape( v) +"'"
+                    else:
+                        if a == 'WHEN':
+                            if not isinstance( v, str):
+                                v = datetime.datetime.fromtimestamp( v).date().isoformat() #isoformat( timespec ='minutes')
+                        v = "'"+ escape( v) +"'"
                     r += ' {a}= {v},'.format( **locals())
             print( pfx + 0*d.indent*( not me.items)*' ' + r, end=' ')
             if me.items: print( 'items=[')
@@ -152,6 +157,30 @@ class Node:
         print( '# vi' + 'm:ts=2:sw=2:expandtab')
         print( '# -*- coding: utf-8 -*-')
         return me.dump( dumper= me.pydumper() )
+
+    class searcher( pydumper):
+        def __init__( me, **kargs):
+            super().__init__( **kargs)
+            me.levels = []
+            import re
+            me.re_search = re.compile( me.regex, re.I)
+        def enter( me, o, pfx):
+            if o.NAME and me.re_search.search( o.NAME ) or o.URL and me.re_search.search( o.URL):
+                for level,p in enumerate( me.levels[1:]):
+                    print( level*' '*me.indent, p.NAME)
+                super().enter( o, pfx)
+                print()
+            me.levels.append( o)
+        def leave( me, o, pfx):
+            me.levels.pop()
+
+
+
+import datetime
+zerodate_chrome = datetime.datetime(1601,1,1)
+def chrome2timestamp( when):    #seconds since epoch
+    return (zerodate_chrome + datetime.timedelta( microseconds= int( when)) ).timestamp()
+    #.isoformat().rsplit(':',1)[0] #.split('.')[0]
 
 class json_opera:
     @staticmethod
@@ -209,10 +238,13 @@ class json_opera:
     @classmethod
     def nodejson( me, node, is_root =False, name =None):
         URL = (node.get( 'url') or '').strip()
+        when = node.get('date_added')
+        if when: when = chrome2timestamp( when)
         return Node(
             NAME= name or node[ 'name'].strip() or URL,
             URL = URL,
             UNIQUEID = (node.get('id') or '').strip(),
+            WHEN = when,
             items = [ me.nodejson( c) for c in node.get( 'children', ()) ]
             )
     @classmethod
@@ -306,25 +338,31 @@ class json_firefox:
 
 def key4tree(x): return x.NAME #getattr( x, 'URL', '')
 def key4flat(x): return x.URL, x.NAME
-def _key4tree( x, folder_last, weird_order =False):
+def key4when(x): return x.WHEN, x.NAME
+def _key4tree( x, folder_last, weird_order =False, age_order =False):
     xx = x.NAME.lower()
     bfolder_last = not x.URL
     if not folder_last: bfolder_last = not bfolder_last
     assert xx, x
     #if not xx: return (bfolder_last, '0asci', xx)
-    o = ord( xx[0])
-    bdigit = xx[0].isdigit()    #30<=o<=39
-    ba_z   = 64<o<=90 or 96<o<=122 #A-Z a-z 0-9
-    bascii = ord(xx[0]) < 128
     bweird_order = False
     if weird_order:
+        o = ord( xx[0])
+        bdigit = xx[0].isdigit()    #30<=o<=39
+        ba_z   = 64<o<=90 or 96<o<=122 #A-Z a-z 0-9
+        bascii = ord(xx[0]) < 128
         #non-letter-digit , digit, non-ascii-letter, ascii-letter
         bweird_order = '4ascii-letter' if ba_z else (
                        '3non-ascii' if not bascii else (
                        '2digit' if bdigit
                        else '0ascii-non-letter-digit'
                        ))
-    return (bfolder_last, bweird_order, xx)
+    if age_order:
+        if isinstance( x.WHEN, str):
+            bage_order = zerodate_chrome.date() - datetime.date.fromisoformat( x.WHEN)
+        else: bage_order = 9999999999 - x.WHEN
+    else: bage_order = 0
+    return (bfolder_last, bage_order, bweird_order, xx)
 def key4tree4folder_last(x):  return (not x.URL,   x.NAME.lower())
 def key4tree4folder_first(x): return (bool(x.URL), x.NAME.lower())
 def key4tree4folder_last__ascii_last(x):  return (not x.URL,   x.NAME.lower())
@@ -408,16 +446,24 @@ optz.bool( 'flat' , help= 'dump')
 optz.text( 'rootiname',  help= 'root = in[ /from/here ]')
 optz.text( 'rootoname',  help= 'out[ /to/there ] = root')
 optz.text( 'skip',   help= 'path/to/skip')
+optz.bool( 'withwhen',  help= 'keep timestamp' )
 optz.bool( 'nounique',  help= 'ignore UNIQUEID' )
 optz.bool( 'align',     help= '(for out=.adr)')
 optz.bool( 'notrash',   help= 'ignore trash (for out=.adr)' )
 optz.bool( 'nosort',    help= 'dont sort items' )
 optz.bool( 'weird_order', help= 'sort: first non-letter-digit, then digit, then letter-non-ascii/cyrrillic, then letter/ascii/lat last' )
+optz.bool( 'age_order', help= 'sort by -when,name' )
+optz.text( 'search', '-s',  help= 'search regex, matches shown with /tree/path' )
 optz.bool( 'abcd', )
 options,args = optz.get()
 
 if options.nounique:
     Node.ATTRS.remove( 'UNIQUEID')
+if options.withwhen:
+    if options.age_order:
+        Node.ATTRS.insert( 0, 'WHEN')
+    else:
+        Node.ATTRS.append( 'WHEN')
 #from svd_util.eutf import readlines
 
 options.output = ofmts[ options.output ]
@@ -446,11 +492,12 @@ for a in args:
 
     root.fixparent()
     if not options.nosort:
-        root.sort( key= lambda x: _key4tree( x, folder_last=True, weird_order= options.weird_order))
+        root.sort( key= lambda x: _key4tree( x, folder_last=True, weird_order= options.weird_order, age_order= options.age_order))
 
     if options.rootiname:
         root = root.find( rootpath2list( options.rootiname)) or Node()
         #print( root , root.NAME)
+        root.parent = None
 
     if options.skip:
         skip = root.find( rootpath2list( options.skip))
@@ -459,7 +506,11 @@ for a in args:
             skip.parent.items.remove( skip)
         else: print( 'cannot find+skip', options.skip)
 
-    o = getattr( io, options.output )
-    o.save( root, options)
+    if options.search:
+        s = Node.searcher( regex= options.search)
+        root.dump( dumper= s)
+    else:
+        o = getattr( io, options.output )
+        o.save( root, options)
 
 # vim:ts=4:sw=4:expandtab

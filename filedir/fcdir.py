@@ -19,14 +19,14 @@ optbool( 'nosize', default= bool( os.environ.get( 'NOSIZE')), help= 'ignore size
 optbool( 'byname',  help= 'sort by name, not dir')
 optbool( 'convert', help= 'show moves/deletes needed to convert dir1 to dir2, by-name')
 optany(  'exclude', '-x',   help= 'regexp to exclude/ignore files')
-optany(  'wexclude', '-w',  help= 'space-separated-list of patterns to be |-joined into exclude regex')
+optany(  'wexclude', '-w', action= 'append', help= 'pattern (multiple times) to be |-joined into exclude regex')
 optbool( 'same',            help= 'show same/similar things instead of differences')
 optbool( 'nosymlink',       help= 'dont follow symlink dirs = no dereference')
 optbool( 'symtext', '-t',   help= 'compare symlinks as text, no dereference')
 optbool( 'timestamps'   ,   help= 'compare timestamps too')
 optbool( 'nodirs'       ,   help= 'do not show dirs')
 optbool( 'noexcluded_count', help= 'do not show excluded counts')
-optbool( 'nocount',         help= 'do not show counts any')
+optbool( 'count',           help= 'show counts of diffs')
 optz,args = oparser.parse_args()
 if len(args)<2:
     oparser.error('compare what?')
@@ -38,13 +38,14 @@ if len(args)<2:
 ignore = None
 if optz.wexclude:
     assert not optz.exclude
-    optz.exclude = '('+'|'.join( optz.wexclude.split())+')'
+    optz.exclude = '('+'|'.join( optz.wexclude)+')'
 if optz.exclude:
     print( 'excluding:', optz.exclude)
     ignore = re.compile( optz.exclude)
 
 def outsymlink( fp,f):
     link = os.readlink( fp)
+    link = link.replace( '/./', '/')
     return DictAttr( size= '<>', path= fp.ljust(20) + ' -> ' + link, name= f)
 
 from os.path import join, getsize, islink, dirname
@@ -145,7 +146,7 @@ def textify( o):
     else:
         o.sort( key= lambda x: (x.path,x.size) )
         format = '%(size)16s %(path)s'
-    if not optz.nocount: format+= '%(count)s'
+    if optz.count: format+= '%(count)s'
     return [ format % item_as_text( x) for x in o ]
 
 a1   = args[0]

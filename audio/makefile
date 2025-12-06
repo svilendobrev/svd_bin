@@ -1,4 +1,5 @@
-#XXX wtf.. targets (like filenames) cannot have space AND colon, errors like:
+#
+XXX wtf.. targets (like filenames) cannot have space AND colon, errors like:
 #	missing target pattern.
 #	multiple target patterns.
 #	target pattern contains no `%'.
@@ -10,6 +11,7 @@ all: mp3 flac
 
 # XXX see above - no : in filenames
 #_WILDS=$(wildcard $(WILD))	#does not accept multiple patterns - *.x *.y XXX
+#_WILDS=$(shell shopt -s nullglob && ls -1d ./$(WILD) && shopt -u nullglob)
 _WILDS=$(shell shopt -s nullglob && ls -1d $(WILD) && shopt -u nullglob)
 
 ifneq ($(MONO),)
@@ -46,7 +48,7 @@ VQ=-sameq
 	ffmpeg -i $< -ar $(RATE) $(if $(MONO),-ac 1) $@
 ffres: $(patsubst %,%-$(RATE).ff.wav,$(_WILDS)))
 
-OUT?=FLAC
+OUT?=flac
 RATE?=44100
 %-$(RATE).sox.$(OUT): %
 	sox "$<" -b 16 -e signed-integer -t $(OUT) "$@" gain -1 $(if $(STEREO),channels 2) $(if $(MONO),channels 1) rate -m -I -b 80 $(RATE) dither -s
@@ -166,18 +168,18 @@ tags:
 #RESAMPLE=1
 _RESAMPLE = resample,auto,
 _MONO2STEREO = -chcopy 1,2
-mono2stereo.%.wav:
-	ecasound -i:"$(if $(RESAMPLE),$(_RESAMPLE))$*.wav" -o "$@" $(_MONO2STEREO)
-eca.%.wav:
-	ecasound -i:"$(if $(RESAMPLE),$(_RESAMPLE))$*" -o "$@" $(if $(PERC),-ei:$(PERC)) $(if $(MONO2STEREO)$(STEREO),$(_MONO2STEREO))
+mono2stereo.%.wav: %
+	ecasound -i:"$(if $(RESAMPLE),$(_RESAMPLE))$<" -o "$@" $(_MONO2STEREO)
+eca.%.wav: %
+	ecasound -i:"$(if $(RESAMPLE),$(_RESAMPLE))$<" -o "$@" $(if $(PERC),-ei:$(PERC)) $(if $(MONO2STEREO)$(STEREO),$(_MONO2STEREO))
 
 #!!без , ( ) в имената..
 mono2stereo: $(_WILDS:%=mono2stereo.%.wav)
 #	echo "$+"
-eca: $(WAVs:%.wav=eca.%.wav)
+eca: $(_WILDS:%=eca.%.wav)
 #	echo "$+"
 2x44: stereo-resample
-stereo-resample: mono2stereo
+stereo-resample: eca #mono2stereo
 stereo-resample: RESAMPLE=1
 
 izv:
@@ -241,11 +243,52 @@ renunnum:
 	rename.py '^([\d.]+) *(.*)\.' '$$2.$$1.' *.flac *.wav *.mp3
 
 #re-code whatever aac into flac of same bits/freq ; use flac44 further
-%.m4a2flac: %.m4a
+m4a: $(patsubst %.m4a,%.m4a.flac,$(wildcard *.m4a))
+%.m4a.flac: %.m4a
 	ffmpeg -i $< -map 0:a:0 $@
 
 #into 16bit wav
 %.wav: %.aac
 	faad $<
+
+
+TFREQ_L=50
+TFREQ_R=60
+TTIME  =200
+#seconds
+TPERC =50
+AL = -a:L -f:,2 -i:tone,sine,$(TFREQ_L),$(TTIME) -epp:0   -ea:$(TPERC)
+AR = -a:R -f:,2 -i:tone,sine,$(TFREQ_R),$(TTIME) -epp:100 -ea:$(TPERC)
+O = theta-l$(TFREQ_L)hz-r$(TFREQ_R)hz-$(TTIME)s-$(TPERC)%.wav
+theta:
+	ecasound -d $(AL) $(AR) -a:all  -o $O
+	#Q=9 wav2mp3 ..
+	lame --cbr -q 6 -b 32 --nohist $O
+
+##########
+# cd /muzika
+# ~/src/bin/audio/tlfaudio.py -l ~/tlf/muzika
+# zap ~/tlf/muzika/authentic/bg/
+
+# cd ~/tlf/muzika
+# dlinkbroken
+
+# fatlabel /dev/sdc1 MUZIKA-SVD4
+
+TLF_SRC   = ~/tlf
+TLF_LABEL = MUZIKA-SVD$(TLF)
+TLF_SPEED = 9900
+TLF_TARGET= /mnt/$(TLF_LABEL)/
+
+#slowdown:
+tlf_copy:
+	rsync -Lrtu --bwlimit=$(TLF_SPEED) --progress $(TLF_SRC)/muzika/ $(TLF_TARGET)/muzika/
+#	-u update -t preserve-times -I overwrite-even-if-same-size/time
+#   + ~/src/bin/filedir/even-timestamp.py
+# or mm c1 -o sync     ->  ... cp -ru...  but real slow
+# or tar -hcf - . | pv -q -L 4096k | tar -C /mnt/MUZIKA-SVD/muzika/rok/ -xvf -
+
+tlf_diff:
+	diff -r $(TLF_SRC)/muzika/ $(TLF_TARGET)/muzika/
 
 # vim:ts=4:sw=4:noexpandtab

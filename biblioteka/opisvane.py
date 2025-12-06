@@ -17,8 +17,8 @@
 from svd_util.py3 import *
 from svd_util import eutf, optz, lat2cyr
 cyr2lat = lat2cyr.zvuchene.cyr2lat
-from svd_util.structs import DictAttr, attr2item
-from svd_util.dicts import DictAttr_lower, dict_lower, make_dict_lower
+#from svd_util.structs import DictAttr, attr2item
+from svd_util.dicts import DictAttr, DictAttr_lower, dict_lower, make_dict_lower
 dictOrder_lower = make_dict_lower( dictOrder)
 from svd_util.dicts import make_dict_trans, make_dict_attr
 
@@ -319,7 +319,7 @@ class info:
         fr = 'фр',
         ja = 'яп',
         )
-    re_ezik_ime = re.compile('^\.('+'|'.join( ezici)+'): *(.*) *$' )
+    re_ezik_ime = re.compile( r'^\.('+'|'.join( ezici)+'): *(.*) *$' )
     rezici = dict( (v,k) for k,v in ezici.items())
 
     def _godina( k):
@@ -661,8 +661,9 @@ class info:
         return etiketi
 
     def danni( az):
-        dd = dictOrder()
-        d = attr2item( dd)
+        #dd = dictOrder()
+        #d = attr2item( dd)
+        d = DictAttr()
 
         d.ime   = az.ime    #''
         d.imena = az.imena  #{ lang:''}
@@ -720,7 +721,7 @@ class info:
         #if not fname.endswith( ext): fname += ext
         return save_if_diff( fname, r, naistina=naistina)
 
-    re_godina = re.compile( ' *[-._(]+?(\d{4})\)?$')
+    re_godina = re.compile( r' *[-._(]+?(\d{4})\)?$')
     def samopopylva_ot_fname( az):
         fn = basename( az.fname).lower()
         if not az.etiketi.zvuk:
@@ -948,7 +949,7 @@ class info:
                 i.etiketi.update_pre( **etiketi)
                 i.samopopylva_etiketi()
                 razlika, t = i.zapis( naistina= options.zapis_opisi )
-                #if razlika: print '-----------'
+                #if razlika: print( '-----------')
             except:
                 print( '????', fname)
                 raise
@@ -1132,11 +1133,10 @@ class info:
         return io.opis_io.procheti( az, redove)
 
     def zapis( az, **kargs):
-        d = az.danni()
         if not az.options.noyaml or OPIS.endswith( '.yaml'):
             io = io_yaml
         else: io = io_moi
-        return io.opis_io.zapis( az, d, **kargs)
+        return io.opis_io.zapis( az, **kargs)
 
 import io_moi
 import io_yaml

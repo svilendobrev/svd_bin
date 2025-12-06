@@ -174,11 +174,13 @@ if __name__ == '__main__':
     optbool( 'noffprobe', help= 'dont use ffprobe for all')
     optbool( 'mp3info', '-3', help= 'force use mp3info (instead of mad)')
     optbool( 'bytesize', '-s', help= 'show also bytesize')
+    optbool( 'stdin', help= 'get args only from stdin')
     optany( 'rounddigits', type= int, default=0, help= 'digits after . in (sub)seconds')
     options,args = oparser.parse_args()
     DIGITS = options.rounddigits
     total_time = total_size = 0
-    for curdir in (args or [os.getcwd()]):
+    for curdir in sys.stdin if options.stdin else (args or [os.getcwd()]):
+        curdir = curdir.strip()
         time, size = dirsize( curdir, config= options)
         total_time += time
         total_size += size

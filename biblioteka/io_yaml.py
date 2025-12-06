@@ -7,7 +7,7 @@ from svd_util.yamls.usability import Loader, Dumper, dump
 class opis_io:
     PFX_GRUPA_DOP = '+='
     @classmethod
-    def zapis( klas, az, d =None, naistina =False ):
+    def zapis( klas, az, d =None, naistina =False, opis_avtor_predi_etiketi =False):
         d = d or az.danni()
 
         dd = dictOrder()
@@ -35,6 +35,9 @@ class opis_io:
                             for v in vv ]
                     if len(vv)==1: vv = vv[0]
                     r[ k] = vv
+        if opis_avtor_predi_etiketi:
+            nachalni = [ az.stoinosti[ k] for k in 'ime imena avtor etiketi'.split() ]
+            dd = dictOrder( (k,v) for k,v in [ (k,dd.pop( k,None)) for k in nachalni ] + list( dd.items()) if v )
 
         kv4prev = [ az.stoinosti.ime, az.stoinosti.simvoli ] + [ az.stoinosti.get( k,k) for k in az.Prevod._vytr_svoistva]
         def prev( p):
@@ -61,7 +64,7 @@ class opis_io:
             dd[ az.stoinosti.grupi] = gg
 
         r = dump( dd)
-        VIMtail = '# v' + 'im:ts=4:sw=4:expandtab:ft=yaml' #separated!
+        VIMtail = '# v' + 'im:ts=4:sw=4:expandtab:ft=yaml:ic' #separated!
         if d.komentari:
             r += '\n'+'\n'.join( d.komentari)
             if d.komentari[-1].lstrip('# ').startswith('vim:'): VIMtail= None

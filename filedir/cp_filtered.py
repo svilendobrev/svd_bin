@@ -68,8 +68,9 @@ if __name__ == '__main__':
     optany( 'exclude', '-x', help= 'these-skip, regexp.match over whole path, before --include' )
     optbool( 'symlinks_dereference', '-L', help= 'dereference symlinks into files')
     optbool( 'verbose', '-v', help= 'print what is copied or not')
+    optbool( 'fake', '-n', help= 'do nothing')
     optz,argz = oparser.parse_args()
-
+    verbose = optz.verbose or optz.fake
     import re
     exclude = None
     if optz.exclude:
@@ -84,12 +85,13 @@ if __name__ == '__main__':
     if 1:
         def copy( src, dst, **ka):
             if exclude and exclude.match( src):
-                if optz.verbose: print( 'excluded:', src)
+                if verbose: print( 'excluded:', src)
                 return
             if include and not include.match( src):
-                if optz.verbose: print( 'not included:', src)
+                #if verbose: print( 'not included:', src)
                 return
-            if optz.verbose: print( 'copy:', src, '>>', dst)
+            if verbose: print( 'copy:', src, '>>', dst)
+            if optz.fake: return
             return copy2( src, dst, **ka)
         copyargs.update( copy_function= copy)
     else:

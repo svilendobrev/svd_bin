@@ -165,7 +165,7 @@ if 'new':
 
                     tx = dict( album= '', title= '', artist= 'performer', track= 'tracknumber',
                             track_total=    'tracktotal',
-                            recorded_date=  'year date',
+                            recording_date=  'year date',
                             )
 
                     tags2 = {}
