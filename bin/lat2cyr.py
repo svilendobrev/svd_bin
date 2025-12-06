@@ -1,1 +1,1 @@
-../util/text/lat2cyr.py
+../util/lat2cyr.py

@@ -1,0 +1,202 @@
+= Language for test specifications =
+
+== what it is: ==
+
+* a domain specific language for describing chip-test procedures, to be used in verification, laboratory and test
+* represented as plain python but not requiring much python knowledge, except minimal syntax rules like indentation. Use whatever from python as needed (e.g. import).
+* Essentialy, running the specification-script builds a tree-representation of the procedure, and that can be walked and further interpreted in whatever way.
+
+== what it gives: ==
+
+* faster writing by avoiding well-known details (like bank/reg for a field)
+* consistency, predefined namespaces/rules/ways to follow, and, error-checking
+* readability
+* single human-readable source = executable documentation
+* translatable into many generated outputs or simulative-executions
+* most of its own documentation is self-contained in the builder-module ($ pydoc -m pydoc lang )
+* has its own test-suite, for the language itself as well for the output translators, so extending is safe
+* the actual chip/environment-description (fields, pins, markers, ...) is separate from language
+
+== capabilities/features ==
+* set of commands, markers, signaling/measuring functions
+* conditionals and looping: if, repeat, assert
+* procedures 
+** as template - expanded on the spot, result+outputs do not see the procedure at all
+** as function-call - generates proper function-definition, and calls to it
+* variables - single value and vectors
+* conditional generation - output-type-dependent constants, literal text (not interpreted), configuration
+* comments - whole-line, in-command, and structural (sections etc)
+* [[Language_For_Test_Spec/full_lang_help|builtin help/documentation]]
+
+== generated outputs ==
+* vlog: system verilog - includable in usual template
+* lbvw: labview-driving intermediate language (uses a labview program to build the actual procedure)
+* docgen: wiki/redmine markup - for pretty documentation
+* rtrans: to initial non-systematic pseudo-syntax. There is also a very hacky converter from that syntax
+* add your own..
+
+== install ==
+* get the repo: .../test_lang
+** gets field-register-map from some field_schema/
+* inside test_lang/, symlink needed version of field-register-map as ./field_schema.py (e.g.: field_schema.py -> field_schema/out/out.py )
+* run all tests - ./lang_tests.py ./feature-test.py
+* see the makefile for various recipes of usage
+
+
+= example =
+
+here a subset from combo itp_p2_pri_afe procedure
+
+== default syntax ==
+most arguments can be named, for clarity and unambiguity - if needed
+
+<pre>
+SECTION( 'Common config')
+PART( 'Enable Sensors')
+WRITE( reg= reg.TION_sel, value= 0x2000, note= 'configure as digital inputs')
+APPLY( pinfuncs.LOGIC( level= levels.HIGH, pin= pins.TION ))
+WAIT( time= 4*us)
+RELEASE( pins.TIOP, pins.TION )
+marks.mark1.set
+clocks.sclk_clock.stop
+NOTE( 'Measure the voltages at TIOP and TION pins' )
+MEASURE( into= vars.VDDA_ADC_ref_meas, func= meafuncs.VDC( pin= pins.TIOP ))
+MEASURE( into= vars.GNDA_ADC_ref_meas, func= meafuncs.VDC( pin= pins.TION ))
+clocks.sclk_clock.start
+CALC( into= vars.SAR_ADC_LSB_calc, expr=(vars.VDDA_ADC_ref_meas - vars.GNDA_ADC_ref_meas)/(2**11) )
+
+with REPEAT( n=1 ):
+    READ( reg.TEST_DATA_SAR, into= vars.tmp, note= 'triggers ADC conversion')
+    WAIT( clocks = 115 +45 )
+    with marks.strobe2.set:
+        READ( fld.ADC_DATA, into= vars.SAR_read )
+    NOTE( 'read results are 12bit signed(twos complement). convert to decimal and append to vector variable' )
+    CALC( into= vector.SAR_ADC_GNDA_read, expr=extfunc.twos_compl_to_dec( vars.SAR_read, bitsize= 12) )
+</pre>
+
+----
+using positional arguments is shorter (in case of read/write, can be any order):
+
+<pre>
+SECTION( 'Common config')
+PART( 'Enable Sensors')
+WRITE( reg.TION_sel, 0x2000, note= 'configure as digital inputs')
+APPLY( pinfuncs.LOGIC( pins.TION, levels.HIGH ))
+WAIT( 4*us)
+RELEASE( pins.TIOP, pins.TION )
+marks.mark1.set
+clocks.sclk_clock.stop
+_( 'Measure the voltages at TIOP and TION pins' )
+MEASURE( vars.VDDA_ADC_ref_meas, meafuncs.VDC( pins.TIOP ))
+MEASURE( vars.GNDA_ADC_ref_meas, meafuncs.VDC( pins.TION ))
+clocks.sclk_clock.start
+CALC( vars.SAR_ADC_LSB_calc, (vars.VDDA_ADC_ref_meas - vars.GNDA_ADC_ref_meas)/(2**11) )
+
+with REPEAT( n=1 ):
+    READ( reg.TEST_DATA_SAR, vars.tmp, note= 'triggers ADC conversion')
+    WAIT( clocks = 115 +45 )
+    with marks.strobe2.set:
+        READ( fld.ADC_DATA, vars.SAR_read )
+    _( 'read results are 12bit signed(twos complement). convert to decimal and append to vector variable' )
+    CALC( vector.SAR_ADC_GNDA_read, extfunc.twos_compl_to_dec( vars.SAR_read, bitsize= 12) )
+</pre>
+
+== alternative syntax ==
+
+read, write, calc can use plain assignment (losing the per-line comment note though):
+
+<pre>
+SECTION( 'Common config')
+PART( 'Enable Sensors')
+reg.TION_sel = 0x2000
+APPLY( pinfuncs.LOGIC( pins.TION, levels.HIGH ))
+WAIT( 4*us)
+RELEASE( pins.TIOP, pins.TION )
+marks.mark1.set
+clocks.sclk_clock.stop
+_( 'Measure the voltages at TIOP and TION pins' )
+MEASURE( vars.VDDA_ADC_ref_meas, meafuncs. VDC( pin= pins.TIOP ))
+MEASURE( vars.GNDA_ADC_ref_meas, meafuncs. VDC( pin= pins.TION ))
+clocks.sclk_clock.start
+vars.SAR_ADC_LSB_calc = (vars.VDDA_ADC_ref_meas - vars.GNDA_ADC_ref_meas)/(2**11) 
+
+with REPEAT( n=1 ):
+    vars.tmp = reg.TEST_DATA_SAR  #triggers ADC conversion
+    WAIT( clocks = 115 +45 )
+    with marks.strobe2.set:
+        vars.SAR_read = fld.ADC_DATA
+    _( 'read results are 12bit signed(twos complement). convert to decimal and append to vector variable' )
+    vector.SAR_ADC_GNDA_read = extfunc.twos_compl_to_dec( vars.SAR_read, bitsize= 12) 
+</pre>
+
+----
+== all above produce same output: ==
+
+system verilog:
+-----
+<pre>
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//SECTION: Common config
+
+
+//PART #1 Enable Sensors
+
+tm_task.spi_write_register( R_TION_sel, 15'h2000, read_check ); // configure as digital inputs
+apply_LOGIC( .LEVEL( "HIGH"), .PIN( "TION") );
+#4us ;
+//RELEASE TIOP, TION
+// TIOP not applied
+release_pin( .pin("TION"), .func("LOGIC") );
+tm_task.set_marker( "M1");
+tm_task.stop_external_clk();
+//Measure the voltages at TIOP and TION pins
+measure_VDC( .MEASURED_VALUE( Variable["VDDA_ADC_ref_meas"]), .PIN( "TIOP") );
+measure_VDC( .MEASURED_VALUE( Variable["GNDA_ADC_ref_meas"]), .PIN( "TION") );
+tm_task.start_external_clk();
+Variable["SAR_ADC_LSB_calc"] = ( ( Variable["VDDA_ADC_ref_meas"] - Variable["GNDA_ADC_ref_meas"] ) / 2048 ) ;
+for (int n=0; n<1; n++) begin
+  tm_task.spi_read_register( R_TEST_DATA_SAR, Variable["tmp"], read_check ); // triggers ADC conversion
+  wait_clocks( 160) ;
+  tm_task.set_marker( "S2");
+  tm_task.spi_read_field( ADC_DATA, Variable["SAR_read"], read_check );
+  tm_task.clear_marker( "S2");
+  //read results are 12bit signed(twos complement). convert to decimal and append to vector variable
+  CALCvector["SAR_ADC_GNDA_read"].push_back( twos_compl_to_dec( Variable["SAR_read"], .bitsize( 12) ) );
+end //for n=1
+</pre>
+
+-----
+wiki/markup:
+-----
+
+= <nowiki>SECTION: Common config</nowiki> =
+
+== <nowiki>PART #1 Enable Sensors</nowiki> ==
+
+* <nowiki>Write 0x2000 into register TION_sel, bank 9</nowiki> ''<nowiki>(note: configure as digital inputs)</nowiki>''
+* <nowiki>APPLY LOGIC( level=HIGH, pin=TION )</nowiki>
+* <nowiki>Wait for 4us.</nowiki>
+* <nowiki>RELEASE TIOP, TION</nowiki>
+* <nowiki>set marker mark1</nowiki>
+* <nowiki>Stop external clocking.</nowiki>
+* ''<nowiki>Note:   Measure the voltages at TIOP and TION pins</nowiki>''
+* <nowiki>MEASURE VDDA_ADC_ref_meas = VDC( pin=TIOP )</nowiki>
+* <nowiki>MEASURE GNDA_ADC_ref_meas = VDC( pin=TION )</nowiki>
+* <nowiki>Start external clocking.</nowiki>
+* <nowiki>Calculate SAR_ADC_LSB_calc = ( VDDA_ADC_ref_meas - GNDA_ADC_ref_meas ) / 2048</nowiki>
+* <nowiki>LOOP repeating 1 times:</nowiki>
+** <nowiki>Read into tmp from register TEST_DATA_SAR, bank 9</nowiki> ''<nowiki>(note: triggers ADC conversion)</nowiki>''
+** <nowiki>Wait for 160 clock-cycles.</nowiki>
+** <nowiki>set marker strobe2</nowiki>
+** <nowiki>Read into SAR_read from field ADC_DATA, bits 11:0 of register TEST_DATA_SAR, bank 9</nowiki>
+** <nowiki>clear marker strobe2</nowiki>
+** ''<nowiki>Note:   read results are 12bit signed(twos complement). convert to decimal and append to vector variable</nowiki>''
+** <nowiki>Calculate SAR_ADC_GNDA_read = twos_compl_to_dec( SAR_read, bitsize=12 )</nowiki>
+
+-----
+-----
+-----
+
+have fun
+
+language as idea by Stanimir Stankov, design and implementation by Svilen Dobrev, 2016
