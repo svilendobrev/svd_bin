@@ -27,12 +27,12 @@ set scrolloff=5     "number of lines around the cursor
 set cmdheight=2     "height of cmd line window
 set helpheight=16
 set viminfo='11,\"12,:40,/50    "marks for 11 files, 12 lines per register, 40 cmdline history, 50 searches
-"set insertmode     "start in insmode - no, some vim's get crazy
+"set insertmode     "start in insmode - no, esc does not switch to normal, needs ctrl-o..
 
 set nojoinspaces    "dont use two spaces after '.' when joining a line
 set nostartofline   "dont move cursor horz when pageup/down
 
-"set incsearch      "search-as-you-type
+set noincsearch      "search-as-you-type
 "set ic         "case insensitive
 set scs         "unless uppercase typed - only if ic is on
 
@@ -105,9 +105,13 @@ func! MyfoldXML()
  hi folded ctermbg=0
  endfunc
 
+"in ftplugin? not always
 autocmd FileType python setl include=^\\s*\\(from\\\|import\\)
 autocmd FileType python setl includeexpr=substitute(v:fname,'\\.','/','g')
 autocmd FileType python setl suffixesadd=.py
+
+autocmd FileType python setl formatoptions-=t
+autocmd FileType python setl cinkeys-=:
 
 autocmd FileType make   setl noexpandtab
 autocmd FileType make   setl errorformat-=%\\s%#File\ \"%f\"\\,\ line\ %l%.%#
@@ -124,7 +128,7 @@ autocmd FileType java let java_allow_cpp_keywords=1
 autocmd FileType javascript setl tabstop=4 shiftwidth=4 expandtab
 autocmd FileType javascript setl suffixesadd=.js
 
-autocmd BufEnter opis*    setl ts=4 sw=4 expandtab ignorecase
+autocmd BufEnter opis*    setl ts=4 sw=4 expandtab ignorecase nosmartcase
 autocmd BufEnter dodo.py  setl makeprg=~/.local/bin/doit
 
 "autocmd BufNewFile,BufRead *.as		setf actionscript
@@ -204,19 +208,32 @@ if version >= 700
     set pumheight=10        "max completion-popup-menu
 endif
 
+if has('nvim')
+  set notermguicolors """nvim+
+  colorscheme syncolor
+  highlight! link Function Identifier
+  highlight! link Operator Statement
+  highlight! link String   Constant
+  highlight Todo   cterm=none ctermfg=black ctermbg=brown
+  highlight PMenuSel ctermfg=5 "default 4 is same as background
+else    "vim only
 """"""""""""""""" gui stuff
 "" no menus (m), toolbars (T) and don't try to load them (M)
 "" no scrolbars (l) (r)
-set guioptions=agitM
+  set guioptions=agitM
 "let did_install_default_menus = 1
+endif
+""" colors:
+""" vim: keep after/syntax/syncolor.vim ; colorscheme syncolor in vimrc gets overriden by someone
+""" nvim+- above + colors/syncolor.vim, or below + link syncolor.vim as colors/default.vim
+"colorscheme default 
 
 "if someone maps keys in global gvimrc, put if !exist(dont_remap_Fxx) around it
 " or, if no access, use -U yourgvimrc to avoid it
 "let dont_remap_Fxx = 1
 
-
 "let mysyntaxfile=$_INIs."mysyntax.vim"
-"**** highlight colors - put in $HOME/.vim/after/syntax/syncolor.vim
+"**** highlight colors - put in $HOME/.vim/after/syntax/syncolor.vim   ...ancient
 
 if &t_Co > 2 || has("gui_running")
   if version >= 600
@@ -466,10 +483,10 @@ noremap! <c-Down> <Down>
 "noremap  <esc>[b <Down>
 "noremap! <esc>[b <Down>
 
-"using map instead of noremap: to allow for plugin/searchant: github.com/timakro/vim-searchant for highlight-match-under-cursor; uses hi SearchCurrent
-let g:searchant_map_stop = 0
+""using map instead of noremap: to allow for plugin/searchant: github.com/timakro/vim-searchant for highlight-match-under-cursor; uses hi SearchCurrent
+"let g:searchant_map_stop = 0
 
-"using <Cmd>xyz instead of :xyz and <c-o>:xyz
+"using <Cmd>xyz instead of both :xyz and <c-o>:xyz - no, needs vim9/neovim
 
 "prev search
 map  <c-A> N
@@ -510,21 +527,33 @@ noremap  <c-D> dw
 inoremap <c-D> <c-o>dw
 
 "next buf (F10 not working in gfrx coz motif grabs it - try shift-F10)
-noremap  <F10> <Cmd>bn<CR>
-inoremap <F10> <Cmd>bn<CR>
-noremap  <s-F10> <Cmd>bn<CR>
-inoremap <s-F10> <Cmd>bn<CR>
+noremap  <F10>      :bn<CR>
+inoremap <F10> <c-o>:bn<CR>
+noremap  <s-F10>      :bn<CR>
+inoremap <s-F10> <c-o>:bn<CR>
+"noremap  <F10> <Cmd>bn<CR>
+"inoremap <F10> <Cmd>bn<CR>
+"noremap  <s-F10> <Cmd>bn<CR>
+"inoremap <s-F10> <Cmd>bn<CR>
 "prev buf
-noremap  <F9>  <Cmd>bN<CR>
-inoremap <F9>  <Cmd>bN<CR>
+noremap  <F9>       :bN<CR>
+inoremap <F9>  <c-o>:bN<CR>
+"noremap  <F9>  <Cmd>bN<CR>
+"inoremap <F9>  <Cmd>bN<CR>
 
 "if version >= 5        "same with !
-noremap  <F10> <Cmd>bn!<CR>
-inoremap <F10> <Cmd>bn!<CR>
-noremap  <s-F10> <Cmd>bn!<CR>
-inoremap <s-F10> <Cmd>bn!<CR>
-noremap  <F9>  <Cmd>bN!<CR>
-inoremap <F9>  <Cmd>bN!<CR>
+noremap  <F10>      :bn!<CR>
+inoremap <F10> <c-o>:bn!<CR>
+noremap  <s-F10>      :bn!<CR>
+inoremap <s-F10> <c-o>:bn!<CR>
+noremap  <F9>       :bN!<CR>
+inoremap <F9>  <c-o>:bN!<CR>
+"noremap  <F10> <Cmd>bn!<CR>
+"inoremap <F10> <Cmd>bn!<CR>
+"noremap  <s-F10> <Cmd>bn!<CR>
+"inoremap <s-F10> <Cmd>bn!<CR>
+"noremap  <F9>  <Cmd>bN!<CR>
+"inoremap <F9>  <Cmd>bN!<CR>
 
 "copy to/from X-clipboard - see [x11-selection]; to X-selection is "*y ; needs compiled with [+xterm_clipboard] (arch: install gvim but use vim), and run without -X !
 "note: set clipboard=unnamedplus  makes the usual y work as well
@@ -537,37 +566,53 @@ inoremap <c-Q> <c-o>"+p
 
 
 "let ctrl-s and F2 do a save please
-noremap  <c-S> <Cmd>w<CR>
-inoremap <c-S> <Cmd>w<CR>
-noremap  <F2>  <Cmd>w<CR>
-inoremap <F2>  <Cmd>w<CR>
+noremap  <c-S>      :w<CR>
+inoremap <c-S> <c-o>:w<CR>
+noremap  <F2>       :w<CR>
+inoremap <F2>  <c-o>:w<CR>
+"noremap  <c-S> <Cmd>w<CR>
+"inoremap <c-S> <Cmd>w<CR>
+"noremap  <F2>  <Cmd>w<CR>
+"inoremap <F2>  <Cmd>w<CR>
 
 "release this buffer but don't close window!
 command! BD let x=bufnr('%') | bn | exec 'bd '.x
-noremap  <F3>  <Cmd>BD<CR>
-inoremap <F3>  <Cmd>BD<CR>
+noremap  <F3>       :BD<CR>
+inoremap <F3>  <c-o>:BD<CR>
+"noremap  <F3>  <Cmd>BD<CR>
+"inoremap <F3>  <Cmd>BD<CR>
 "save and quit
-noremap  <F4>  <Cmd>x<CR>
-inoremap <F4>  <Cmd>x<CR>
+noremap  <F4>       :x<CR>
+inoremap <F4>  <c-o>:x<CR>
+"noremap  <F4>  <Cmd>x<CR>
+"inoremap <F4>  <Cmd>x<CR>
 
 "save then do make + builtin error-iterator
-"map  <F12>  :update\|make<CR>
-"imap <F12>  <c-o>:update\|make<CR>
-map  <F12>  <Cmd>update\|make<CR>
-imap <F12>  <Cmd>update\|make<CR>
+map  <F12>  :update\|make<CR>
+imap <F12>  <c-o>:update\|make<CR>
+"map  <F12>  <Cmd>update\|make<CR>
+"imap <F12>  <Cmd>update\|make<CR>
 "save then call make
 "map  <c-F12>  <F2>:!make<CR>
 "imap <c-F12>  <F2><c-o>:!make<CR>
-map  <c-F12>  <Cmd>update\|e [Mm]akefile<CR>
-imap <c-F12>  <Cmd>update\|e [Mm]akefile<CR>
+map  <c-F12>  :update\|e [Mm]akefile<CR>
+imap <c-F12>  <c-o>:update\|e [Mm]akefile<CR>
+"map  <c-F12>  <Cmd>update\|e [Mm]akefile<CR>
+"imap <c-F12>  <Cmd>update\|e [Mm]akefile<CR>
 
 "next err
-noremap  <F11> <Cmd>cn<CR>
-inoremap <F11> <Cmd>cn<CR>
-map  <s-F11>  <Cmd>cp<CR>
-imap <s-F11>  <Cmd>cp<CR>
-map  <c-F11>  <Cmd>clast\|cp<CR>
-imap <c-F11>  <Cmd>clast\|cp<CR>
+noremap  <F11>      :cn<CR>
+inoremap <F11> <c-o>:cn<CR>
+map  <s-F11>  :cp<CR>
+imap <s-F11>  <c-o>:cp<CR>
+map  <c-F11>  :clast\|cp<CR>
+imap <c-F11>  <c-o>:clast\|cp<CR>
+"noremap  <F11> <Cmd>cn<CR>
+"inoremap <F11> <Cmd>cn<CR>
+"map  <s-F11>  <Cmd>cp<CR>
+"imap <s-F11>  <Cmd>cp<CR>
+"map  <c-F11>  <Cmd>clast\|cp<CR>
+"imap <c-F11>  <Cmd>clast\|cp<CR>
 
 "redo
 inoremap <c-R> <c-o><c-R>
