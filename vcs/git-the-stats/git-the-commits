@@ -1,0 +1,3 @@
+#commit count per month
+git log --format='%ad' --date=format:'%Y-%m' | sort | uniq -c
+

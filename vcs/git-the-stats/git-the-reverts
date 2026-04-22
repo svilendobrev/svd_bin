@@ -1,0 +1,4 @@
+#How Often Is the Team Firefighting
+git log --oneline --since="1 year ago" | grep -iE 'revert|hotfix|emergency|rollback$1'
+
+#https://piechowski.io/post/how-i-audit-a-legacy-rails-codebase/
